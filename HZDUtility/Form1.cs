@@ -1,5 +1,6 @@
 ﻿using Decima;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -18,6 +19,7 @@ namespace HZDUtility
             InitializeComponent();
 
             RTTI.SetGameMode(GameType.HZD);
+            test();
         }
 
         public void Switch()
@@ -39,10 +41,25 @@ namespace HZDUtility
             */
         }
 
-        public void GetArmorList(List<object> components)
+        public void test()
         {
-
+            var objs = CoreBinary.Load(@"e:\hzd\entities\characters\humanoids\player\player_components.core");
+            var armors = GetArmorList(objs).ToList();
         }
 
+        public IEnumerable<(string Name, string Id)> GetArmorList(List<object> components)
+        {
+            //bodyvariantcomponentresource
+            var resource = components.Select(CoreNode.FromObj).FirstOrDefault(x => x.Name == "PlayerBodyVariants");
+            if (resource == null)
+                throw new Exception("Unable to find BodyVariantComponentResource");
+
+            var armors = resource.GetField<IList>("Variants");
+            return armors.Cast<object>().Select(CoreNode.FromObj).Select(x =>
+                (
+                    x.GetString("ExternalFile"),
+                    x.GetString("GUID")
+                ));
+        }
     }
 }
