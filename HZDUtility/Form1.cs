@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Decima;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -15,6 +16,32 @@ namespace HZDUtility
         public Form1()
         {
             InitializeComponent();
+
+            RTTI.SetGameMode(GameType.HZD);
+        }
+
+        public void Switch()
+        {
+            /*
+            get armor list
+            e:\hzd\entities\characters\humanoids\player\player_components.core
+            bodyvariantcomponentresource > playerbodyvariants
+            variants list
+            
+            find and replace uuid in all:            
+            entities/armor/newgameplus/ng_outfits.core
+            entities/armor/outfits/outfits.core
+            entities/dlc1/outfits/dlc1_outfits.core
+            
+            NodeGraphHumanoidBodyVariantInterfaceUUIDRefVariableOverride
+            Object GUID
+
+            */
+        }
+
+        public void GetArmorList(List<object> components)
+        {
+
         }
 
     }

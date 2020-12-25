@@ -6,4 +6,8 @@
     <UseWindowsForms>true</UseWindowsForms>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\HZDCoreEditor\HZDCoreEditor\HZDCoreEditor.csproj" />
+  </ItemGroup>
+
 </Project>
