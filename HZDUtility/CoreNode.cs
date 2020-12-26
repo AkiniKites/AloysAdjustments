@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Decima;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -8,15 +9,19 @@ namespace HZDUtility
     {
         public static CoreNode FromObj(object obj)
         {
+            if (obj == null)
+                return null;
+
             var type = obj.GetType();
 
             var fName = type.GetField("Name");
-            var fUuid = type.GetField("ObjectUUID");
+            var fId = type.GetField("ObjectUUID");
 
             var node = new CoreNode()
             {
                 Type = type,
                 Name = fName?.GetValue(obj)?.ToString() ?? "null",
+                Id = fId?.GetValue(obj) as BaseGGUUID,
                 Value = obj
             };
 
@@ -25,7 +30,7 @@ namespace HZDUtility
 
         public string Name { get; set; }
         public Type Type { get; set; }
-        public Guid Uuid { get; set; }
+        public BaseGGUUID Id { get; set; }
         public object Value { get; set; }
 
         public T GetField<T>(string name)
