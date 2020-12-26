@@ -1,0 +1,12 @@
+﻿{
+  "PlayerComponentsFile": "entities/characters/humanoids/player/player_components.core",
+  "OutfitFiles": [
+    "entities/armor/newgameplus/ng_outfits.core",
+    "entities/armor/outfits/outfits.core",
+    "entities/dlc1/outfits/dlc1_outfits.core"
+  ],
+  "OutfitMapPath": "outfit-map.json",
+  "GamePath": "E:/Games/SteamLibrary/steamapps/common/Horizon Zero Dawn",
+  "TempPath": "temp",
+  "DecimaPath": "DecimaExplorer.exe"
+}
