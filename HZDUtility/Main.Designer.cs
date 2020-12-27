@@ -1,6 +1,6 @@
 ﻿namespace HZDUtility
 {
-    partial class Form1
+    partial class Main
     {
         /// <summary>
         ///  Required designer variable.
@@ -31,7 +31,9 @@
             this.btnUpdateDefaultMaps = new System.Windows.Forms.Button();
             this.lbOutfits = new System.Windows.Forms.ListBox();
             this.splitContainer = new System.Windows.Forms.SplitContainer();
-            this.clbMappedOutfits = new System.Windows.Forms.CheckedListBox();
+            this.label1 = new System.Windows.Forms.Label();
+            this.label2 = new System.Windows.Forms.Label();
+            this.clbModels = new System.Windows.Forms.CheckedListBox();
             this.ssMain = new System.Windows.Forms.StatusStrip();
             this.tssStatus = new System.Windows.Forms.ToolStripStatusLabel();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).BeginInit();
@@ -44,7 +46,7 @@
             // 
             this.btnUpdateDefaultMaps.Location = new System.Drawing.Point(12, 12);
             this.btnUpdateDefaultMaps.Name = "btnUpdateDefaultMaps";
-            this.btnUpdateDefaultMaps.Size = new System.Drawing.Size(219, 28);
+            this.btnUpdateDefaultMaps.Size = new System.Drawing.Size(172, 28);
             this.btnUpdateDefaultMaps.TabIndex = 0;
             this.btnUpdateDefaultMaps.Text = "Update Default Maps";
             this.btnUpdateDefaultMaps.UseVisualStyleBackColor = true;
@@ -52,15 +54,16 @@
             // 
             // lbOutfits
             // 
-            this.lbOutfits.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lbOutfits.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.lbOutfits.FormattingEnabled = true;
+            this.lbOutfits.IntegralHeight = false;
             this.lbOutfits.ItemHeight = 15;
-            this.lbOutfits.Location = new System.Drawing.Point(0, 0);
+            this.lbOutfits.Location = new System.Drawing.Point(0, 18);
             this.lbOutfits.Name = "lbOutfits";
             this.lbOutfits.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
-            this.lbOutfits.Size = new System.Drawing.Size(361, 529);
+            this.lbOutfits.Size = new System.Drawing.Size(326, 511);
             this.lbOutfits.TabIndex = 1;
-            this.lbOutfits.SelectedValueChanged += new System.EventHandler(this.lbxArmors_SelectedValueChanged);
+            this.lbOutfits.SelectedValueChanged += new System.EventHandler(this.lbOutfits_SelectedValueChanged);
             // 
             // splitContainer
             // 
@@ -72,27 +75,51 @@
             // 
             // splitContainer.Panel1
             // 
+            this.splitContainer.Panel1.Controls.Add(this.label1);
             this.splitContainer.Panel1.Controls.Add(this.lbOutfits);
             // 
             // splitContainer.Panel2
             // 
-            this.splitContainer.Panel2.Controls.Add(this.clbMappedOutfits);
+            this.splitContainer.Panel2.Controls.Add(this.label2);
+            this.splitContainer.Panel2.Controls.Add(this.clbModels);
             this.splitContainer.Size = new System.Drawing.Size(1085, 529);
-            this.splitContainer.SplitterDistance = 361;
+            this.splitContainer.SplitterDistance = 326;
             this.splitContainer.TabIndex = 2;
             this.splitContainer.Text = "splitContainer1";
             // 
-            // clbMappedOutfits
+            // label1
             // 
-            this.clbMappedOutfits.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.clbMappedOutfits.FormattingEnabled = true;
-            this.clbMappedOutfits.Location = new System.Drawing.Point(0, 0);
-            this.clbMappedOutfits.Name = "clbMappedOutfits";
-            this.clbMappedOutfits.Size = new System.Drawing.Size(720, 529);
-            this.clbMappedOutfits.TabIndex = 0;
+            this.label1.AutoSize = true;
+            this.label1.Dock = System.Windows.Forms.DockStyle.Top;
+            this.label1.Location = new System.Drawing.Point(0, 0);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(43, 15);
+            this.label1.TabIndex = 4;
+            this.label1.Text = "Outfits";
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Dock = System.Windows.Forms.DockStyle.Top;
+            this.label2.Location = new System.Drawing.Point(0, 0);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(92, 15);
+            this.label2.TabIndex = 5;
+            this.label2.Text = "Model Mapping";
+            // 
+            // clbModels
+            // 
+            this.clbModels.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.clbModels.FormattingEnabled = true;
+            this.clbModels.IntegralHeight = false;
+            this.clbModels.Location = new System.Drawing.Point(0, 18);
+            this.clbModels.Name = "clbModels";
+            this.clbModels.Size = new System.Drawing.Size(755, 511);
+            this.clbModels.TabIndex = 0;
             // 
             // ssMain
             // 
+            this.ssMain.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.ssMain.Location = new System.Drawing.Point(0, 578);
             this.ssMain.Name = "ssMain";
             this.ssMain.Size = new System.Drawing.Size(1109, 22);
@@ -104,7 +131,7 @@
             this.tssStatus.Size = new System.Drawing.Size(53, 17);
             this.tssStatus.Text = "tssStatus";
             // 
-            // Form1
+            // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -112,11 +139,13 @@
             this.Controls.Add(this.ssMain);
             this.Controls.Add(this.splitContainer);
             this.Controls.Add(this.btnUpdateDefaultMaps);
-            this.Name = "Form1";
-            this.Text = "Form1";
-            this.Load += new System.EventHandler(this.Form1_Load);
+            this.Name = "Main";
+            this.Text = "Outfit Changer";
+            this.Load += new System.EventHandler(this.Main_Load);
             this.splitContainer.Panel1.ResumeLayout(false);
+            this.splitContainer.Panel1.PerformLayout();
             this.splitContainer.Panel2.ResumeLayout(false);
+            this.splitContainer.Panel2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).EndInit();
             this.splitContainer.ResumeLayout(false);
             this.ResumeLayout(false);
@@ -129,9 +158,11 @@
         private System.Windows.Forms.Button btnUpdateDefaultMaps;
         private System.Windows.Forms.ListBox lbOutfits;
         private System.Windows.Forms.SplitContainer splitContainer;
-        private System.Windows.Forms.CheckedListBox clbMappedOutfits;
+        private System.Windows.Forms.CheckedListBox clbModels;
         private System.Windows.Forms.StatusStrip ssMain;
         private System.Windows.Forms.ToolStripStatusLabel tssStatus;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label label2;
     }
 }
 

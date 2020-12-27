@@ -5,11 +5,8 @@ using System.Text;
 
 namespace HZDUtility
 {
-    public class Outfit
+    public class Outfit : Model
     {
-        public string Name { get; set; }
-        public BaseGGUUID Id { get; set; }
-
         public override string ToString()
         {
             var key = "playercostume_";

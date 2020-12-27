@@ -1,32 +1,33 @@
 ﻿using Decima;
-using HZDUtility.Utility;
 using Newtonsoft.Json;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Diagnostics;
-using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Forms;
 
 namespace HZDUtility
 {
-    public partial class Form1 : Form
+    public class Logic
     {
-        private const string ConfigPath = "config.json";
+        private string ConfigPath { get; set; }
 
-        private Config Config { get; set; }
+        public Config Config { get; set; }
 
-        public Form1()
+        private Logic() { }
+
+        public static async Task<Logic> FromConfig(string configPath)
         {
-            InitializeComponent();
+            var l = new Logic()
+            {
+                ConfigPath = configPath
+            };
 
-            RTTI.SetGameMode(GameType.HZD);
+            await l.LoadConfig();
+            return l;
         }
 
         public async Task LoadConfig()
@@ -41,19 +42,6 @@ namespace HZDUtility
             File.WriteAllText(ConfigPath, json);
         }
 
-        public void Switch()
-        {
-            /*
-            
-            find and replace uuid in all:            
-            
-            
-            NodeGraphHumanoidBodyVariantInterfaceUUIDRefVariableOverride
-            Object GUID
-
-            */
-        }
-
         public void test()
         {
             //entities\characters\humanoids\player\player_components.core
@@ -66,7 +54,7 @@ namespace HZDUtility
             }
 
             Debug.WriteLine("\r\n\r\n\r\n");
-            
+
             var maps = LoadOutfitMaps();
 
             var objs2 = CoreBinary.Load(Path.Combine(Config.GamePath, Config.OutfitFiles[1]));
@@ -74,18 +62,15 @@ namespace HZDUtility
             foreach (var item in GetOutfitReferences(objs2))
                 item.Outfit.AssignFromOther(armors[0].Id);
 
-            CoreBinary.Save(Path.Combine(Config.GamePath, Config.OutfitFiles[1]+".2"), objs2);
+            CoreBinary.Save(Path.Combine(Config.GamePath, Config.OutfitFiles[1] + ".2"), objs2);
         }
 
-        public void LoadOutfitList()
+        public List<Outfit> LoadOutfitList()
         {
             var objs = CoreBinary.Load(Path.Combine(@"e:\hzd\", Config.PlayerComponentsFile));
             var armors = GetOutfitList(objs).ToList();
 
-            foreach (var item in armors)
-            {
-                lbOutfits.Items.Add(item);
-            }
+            return armors;
         }
 
         public IEnumerable<Outfit> GetOutfitList(List<object> components)
@@ -104,6 +89,23 @@ namespace HZDUtility
                 });
         }
 
+
+        public List<Model> LoadModelList()
+        {
+            var objs = CoreBinary.Load(Path.Combine(@"e:\hzd\", Config.PlayerComponentsFile));
+            var models = new List<Model>();
+
+            models.AddRange(GetOutfitList(objs));
+
+            return models;
+        }
+
+
+        public bool HasOutfitMap()
+        {
+            return File.Exists(Config.OutfitMapPath);
+        }
+
         public OutfitMap[] LoadOutfitMaps()
         {
             var json = File.ReadAllText(Config.OutfitMapPath);
@@ -115,17 +117,7 @@ namespace HZDUtility
             });
         }
 
-        public async Task GenerateOutfitMaps(string outfitPath)
-        {
-            var files = await FileManager.ExtractFiles(Config.DecimaPath, Config.TempPath, Config.GamePath, Config.OutfitFiles);
-
-            var maps = files.Select(x => GetOutfitMap(x.Key, x.Value)).ToArray();
-            await SaveOutfitMaps(outfitPath, maps);
-
-            await FileManager.Cleanup(Config.TempPath);
-        }
-
-        public async Task SaveOutfitMaps(string outfitPath, OutfitMap[] maps)
+        public async Task SaveOutfitMaps(OutfitMap[] maps)
         {
             var json = JsonConvert.SerializeObject(maps, new JsonSerializerSettings()
             {
@@ -133,10 +125,21 @@ namespace HZDUtility
                 Converters = new[] { new BaseGGUUIDConverter() }
             });
 
-            await File.WriteAllTextAsync(outfitPath, json);
+            await File.WriteAllTextAsync(Config.OutfitMapPath, json);
         }
 
-        public OutfitMap GetOutfitMap(string fileKey, string path)
+        public async Task GenerateOutfitMaps()
+        {
+            //extract game files to temp
+            var files = await FileManager.ExtractFiles(Config.DecimaPath, Config.TempPath, Config.GamePath, Config.OutfitFiles);
+
+            var maps = files.Select(x => GetOutfitMap(x.Key, x.Value)).ToArray();
+            await SaveOutfitMaps(maps);
+
+            await FileManager.Cleanup(Config.TempPath);
+        }
+
+        private OutfitMap GetOutfitMap(string fileKey, string path)
         {
             var map = new OutfitMap()
             {
@@ -151,7 +154,7 @@ namespace HZDUtility
             return map;
         }
 
-        public IEnumerable<(BaseGGUUID Outfit, BaseGGUUID RefId)> GetOutfitReferences(List<object> components)
+        private IEnumerable<(BaseGGUUID Outfit, BaseGGUUID RefId)> GetOutfitReferences(List<object> components)
         {
             //NodeGraphHumanoidBodyVariantUUIDRefVariableOverride
             var name = components.Select(CoreNode.FromObj).FirstOrDefault().Type.Name;
@@ -162,37 +165,6 @@ namespace HZDUtility
                     CoreNode.FromObj(x.GetField<object>("Object"))?.GetField<BaseGGUUID>("GUID"),
                     x.Id
                 ));
-        }
-
-        private void btnUpdateDefaultMaps_Click(object sender, EventArgs e)
-        {
-            GenerateOutfitMaps(Config.OutfitMapPath);
-        }
-
-        private void lbxArmors_SelectedValueChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        public void SetStatus(string text)
-        {
-            this.TryBeginInvoke(() => tssStatus.Text = text);
-        }
-
-        private async void Form1_Load(object sender, EventArgs e)
-        {
-            SetStatus("Loading config");
-            await LoadConfig();
-
-            SetStatus("Checking outfit maps");
-            if (!File.Exists(Config.OutfitMapPath))
-            {
-                SetStatus("Generating outfit maps");
-                await GenerateOutfitMaps(Config.OutfitMapPath);
-            }
-
-            LoadOutfitList();
-            test();
         }
     }
 }

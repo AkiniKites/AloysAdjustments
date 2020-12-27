@@ -26,9 +26,9 @@ namespace HZDUtility
                 var extracted = Path.Combine(tempPath, Guid.NewGuid().ToString() + ext);
 
                 var p = new ProcessRunner(decimaPath, $"-extract \"{dir}\" \"{f}\" \"{extracted}\"");
-                var error = await p.RunAsync();
-                if (error != 0)
-                    throw new Exception($"Unable to extract file '{f}' from '{dir}', error code: {error}");
+                var result = await p.RunAsync();
+                if (result.ExitCode != 0)
+                    throw new Exception($"Unable to extract file '{f}' from '{dir}', error code: {result.ExitCode}");
 
                 tempFiles.Add(f, extracted);
             }

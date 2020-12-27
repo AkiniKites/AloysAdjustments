@@ -17,26 +17,31 @@ namespace HZDUtility
         public string Command { get; }
         public string Arguments { get; }
 
-        public int Run()
+        public (int ExitCode, string StdErr) Run()
         {
+            var si = new ProcessStartInfo()
+            {
+                FileName = Command,
+                Arguments = Arguments,
+                UseShellExecute = false,
+                WindowStyle = ProcessWindowStyle.Hidden,
+                CreateNoWindow = true,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true
+            };
+
             using (Process p = new Process())
             {
-                p.StartInfo.FileName = Command;
-                p.StartInfo.Arguments = Arguments;
-                p.StartInfo.UseShellExecute = false;
-                p.StartInfo.RedirectStandardOutput = true;
-                p.StartInfo.RedirectStandardError = true;
-                p.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
-                p.StartInfo.CreateNoWindow = true;
+                p.StartInfo = si;
 
-                var outputBuilder = new StringBuilder();
-                var errorBuilder = new StringBuilder();
+                var osb = new StringBuilder();
+                var esb = new StringBuilder();
 
-                p.OutputDataReceived += (sender, e) => {
-                    outputBuilder.AppendLine(e.Data);
+                p.OutputDataReceived += (s, e) => {
+                    osb.AppendLine(e.Data);
                 };
-                p.ErrorDataReceived += (sender, e) => {
-                    errorBuilder.AppendLine(e.Data);
+                p.ErrorDataReceived += (s, e) => {
+                    esb.AppendLine(e.Data);
                 };
 
                 p.Start();
@@ -46,13 +51,13 @@ namespace HZDUtility
 
                 p.WaitForExit();
 
-                return p.ExitCode;
+                return (p.ExitCode, esb.ToString());
             }
         }
 
-        public async Task<int> RunAsync()
+        public async Task<(int ExitCode, string StdErr)> RunAsync()
         {
-            return await Task.Run(() => RunAndWait());
+            return await Task.Run(() => Run());
         }
     }
 }
