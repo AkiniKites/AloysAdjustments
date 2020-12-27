@@ -41,6 +41,7 @@
             this.splitContainer.Panel1.SuspendLayout();
             this.splitContainer.Panel2.SuspendLayout();
             this.splitContainer.SuspendLayout();
+            this.ssMain.SuspendLayout();
             this.SuspendLayout();
             // 
             // btnUpdateDefaultMaps
@@ -128,6 +129,8 @@
             // ssMain
             // 
             this.ssMain.ImageScalingSize = new System.Drawing.Size(20, 20);
+            this.ssMain.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.tssStatus});
             this.ssMain.Location = new System.Drawing.Point(0, 578);
             this.ssMain.Name = "ssMain";
             this.ssMain.Size = new System.Drawing.Size(749, 22);
@@ -136,8 +139,8 @@
             // tssStatus
             // 
             this.tssStatus.Name = "tssStatus";
-            this.tssStatus.Size = new System.Drawing.Size(53, 17);
-            this.tssStatus.Text = "tssStatus";
+            this.tssStatus.Size = new System.Drawing.Size(63, 17);
+            this.tssStatus.Text = "Status Text";
             // 
             // btnPatch
             // 
@@ -169,6 +172,8 @@
             this.splitContainer.Panel2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).EndInit();
             this.splitContainer.ResumeLayout(false);
+            this.ssMain.ResumeLayout(false);
+            this.ssMain.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 

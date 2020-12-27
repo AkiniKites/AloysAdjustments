@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Decima.DS;
 
 namespace HZDUtility
 {
@@ -131,7 +132,8 @@ namespace HZDUtility
         public async Task<OutfitMap[]> GenerateOutfitMaps()
         {
             //extract game files to temp
-            var files = await FileManager.ExtractFiles(Config.DecimaPath, Config.TempPath, Config.GamePath, Config.OutfitFiles);
+            var files = await FileManager.ExtractFiles(Config.DecimaPath, 
+                Config.TempPath, Config.GamePath, false, Config.OutfitFiles);
 
             var maps = files.Select(x => GetOutfitMap(x.Key, x.Value)).ToArray();
             await SaveOutfitMaps(maps);
@@ -167,6 +169,40 @@ namespace HZDUtility
                     CoreNode.FromObj(x.GetField<object>("Object"))?.GetField<BaseGGUUID>("GUID"),
                     x.Id
                 ));
+        }
+
+        public async Task GeneratePatch(OutfitMap[] maps)
+        {
+            await FileManager.Cleanup(Config.TempPath);
+
+            foreach (var map in maps)
+            {
+                //extract game files to temp
+                var file = (await FileManager.ExtractFiles(
+                    Config.DecimaPath, Config.TempPath, Config.GamePath, true, map.File))
+                    .FirstOrDefault();
+
+                if (file.Key == null)
+                    throw new Exception($"Unable to find file for map: {map.File}");
+
+                var refs = map.Refs.ToDictionary(x => x.RefId, x => x.ModelId);
+
+                //update references from 
+                var objs = CoreBinary.Load(file.Value);
+                foreach (var reference in GetOutfitReferences(objs))
+                {
+                    if (refs.TryGetValue(reference.RefId, out var newModel))
+                        reference.ModelId.AssignFromOther(newModel);
+                }
+
+                CoreBinary.Save(file.Value, objs);
+            }
+
+            var output = Path.Combine(Config.TempPath, "zMod_OutfitSwap.bin");
+
+            await FileManager.PackFiles(Config.DecimaPath, Config.TempPath, output);
+            
+            //await FileManager.Cleanup(Config.TempPath);
         }
     }
 }

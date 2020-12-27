@@ -165,9 +165,15 @@ namespace HZDUtility
             _updatingLists = false;
         }
 
-        private void btnPatch_Click(object sender, EventArgs e)
+        private async void btnPatch_Click(object sender, EventArgs e)
         {
+            btnPatch.Enabled = false;
 
+            SetStatus("Generating patch...");
+            await Logic.GeneratePatch(NewMaps);
+
+            SetStatus("Patch created.");
+            btnPatch.Enabled = true;
         }
 
         private void clbModels_ItemCheck(object sender, ItemCheckEventArgs e)
