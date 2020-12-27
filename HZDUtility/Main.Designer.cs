@@ -36,6 +36,7 @@
             this.clbModels = new System.Windows.Forms.CheckedListBox();
             this.ssMain = new System.Windows.Forms.StatusStrip();
             this.tssStatus = new System.Windows.Forms.ToolStripStatusLabel();
+            this.btnPatch = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).BeginInit();
             this.splitContainer.Panel1.SuspendLayout();
             this.splitContainer.Panel2.SuspendLayout();
@@ -54,14 +55,16 @@
             // 
             // lbOutfits
             // 
-            this.lbOutfits.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.lbOutfits.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.lbOutfits.FormattingEnabled = true;
             this.lbOutfits.IntegralHeight = false;
             this.lbOutfits.ItemHeight = 15;
             this.lbOutfits.Location = new System.Drawing.Point(0, 18);
             this.lbOutfits.Name = "lbOutfits";
             this.lbOutfits.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
-            this.lbOutfits.Size = new System.Drawing.Size(326, 511);
+            this.lbOutfits.Size = new System.Drawing.Size(300, 511);
             this.lbOutfits.TabIndex = 1;
             this.lbOutfits.SelectedValueChanged += new System.EventHandler(this.lbOutfits_SelectedValueChanged);
             // 
@@ -82,8 +85,8 @@
             // 
             this.splitContainer.Panel2.Controls.Add(this.label2);
             this.splitContainer.Panel2.Controls.Add(this.clbModels);
-            this.splitContainer.Size = new System.Drawing.Size(1085, 529);
-            this.splitContainer.SplitterDistance = 326;
+            this.splitContainer.Size = new System.Drawing.Size(725, 529);
+            this.splitContainer.SplitterDistance = 300;
             this.splitContainer.TabIndex = 2;
             this.splitContainer.Text = "splitContainer1";
             // 
@@ -109,12 +112,14 @@
             // 
             // clbModels
             // 
-            this.clbModels.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.clbModels.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.clbModels.FormattingEnabled = true;
             this.clbModels.IntegralHeight = false;
             this.clbModels.Location = new System.Drawing.Point(0, 18);
             this.clbModels.Name = "clbModels";
-            this.clbModels.Size = new System.Drawing.Size(755, 511);
+            this.clbModels.Size = new System.Drawing.Size(421, 511);
             this.clbModels.TabIndex = 0;
             // 
             // ssMain
@@ -122,7 +127,7 @@
             this.ssMain.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.ssMain.Location = new System.Drawing.Point(0, 578);
             this.ssMain.Name = "ssMain";
-            this.ssMain.Size = new System.Drawing.Size(1109, 22);
+            this.ssMain.Size = new System.Drawing.Size(749, 22);
             this.ssMain.TabIndex = 3;
             // 
             // tssStatus
@@ -131,11 +136,23 @@
             this.tssStatus.Size = new System.Drawing.Size(53, 17);
             this.tssStatus.Text = "tssStatus";
             // 
+            // btnPatch
+            // 
+            this.btnPatch.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnPatch.Location = new System.Drawing.Point(565, 12);
+            this.btnPatch.Name = "btnPatch";
+            this.btnPatch.Size = new System.Drawing.Size(172, 28);
+            this.btnPatch.TabIndex = 4;
+            this.btnPatch.Text = "Create Patch";
+            this.btnPatch.UseVisualStyleBackColor = true;
+            this.btnPatch.Click += new System.EventHandler(this.btnPatch_Click);
+            // 
             // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1109, 600);
+            this.ClientSize = new System.Drawing.Size(749, 600);
+            this.Controls.Add(this.btnPatch);
             this.Controls.Add(this.ssMain);
             this.Controls.Add(this.splitContainer);
             this.Controls.Add(this.btnUpdateDefaultMaps);
@@ -163,6 +180,7 @@
         private System.Windows.Forms.ToolStripStatusLabel tssStatus;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.Button btnPatch;
     }
 }
 

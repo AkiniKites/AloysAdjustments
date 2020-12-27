@@ -1,4 +1,6 @@
 ﻿using Decima;
+using System;
+using System.Collections.Generic;
 
 namespace HZDUtility
 {
@@ -10,6 +12,17 @@ namespace HZDUtility
         public override string ToString()
         {
             return Name;
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is Model model &&
+                   EqualityComparer<BaseGGUUID>.Default.Equals(Id, model.Id);
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(Id);
         }
     }
 }

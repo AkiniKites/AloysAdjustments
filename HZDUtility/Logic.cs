@@ -106,9 +106,9 @@ namespace HZDUtility
             return File.Exists(Config.OutfitMapPath);
         }
 
-        public OutfitMap[] LoadOutfitMaps()
+        public async Task<OutfitMap[]> LoadOutfitMaps()
         {
-            var json = File.ReadAllText(Config.OutfitMapPath);
+            var json = await File.ReadAllTextAsync(Config.OutfitMapPath);
 
             return JsonConvert.DeserializeObject<OutfitMap[]>(json, new JsonSerializerSettings()
             {
@@ -128,7 +128,7 @@ namespace HZDUtility
             await File.WriteAllTextAsync(Config.OutfitMapPath, json);
         }
 
-        public async Task GenerateOutfitMaps()
+        public async Task<OutfitMap[]> GenerateOutfitMaps()
         {
             //extract game files to temp
             var files = await FileManager.ExtractFiles(Config.DecimaPath, Config.TempPath, Config.GamePath, Config.OutfitFiles);
@@ -137,6 +137,8 @@ namespace HZDUtility
             await SaveOutfitMaps(maps);
 
             await FileManager.Cleanup(Config.TempPath);
+
+            return maps;
         }
 
         private OutfitMap GetOutfitMap(string fileKey, string path)

@@ -21,6 +21,12 @@ namespace HZDUtility
         private const string ConfigPath = "config.json";
         private Logic Logic { get; set; }
 
+        private OutfitMap[] DefaultMaps { get; set; }
+        private OutfitMap[] NewMaps { get; set; }
+
+        private List<Outfit> Outfits { get; set; }
+        private List<Model> Models { get; set; }
+
         public Main()
         {
             InitializeComponent();
@@ -48,11 +54,6 @@ namespace HZDUtility
             SetStatus("");
         }
 
-        private void lbOutfits_SelectedValueChanged(object sender, EventArgs e)
-        {
-
-        }
-
         public void SetStatus(string text)
         {
             this.TryBeginInvoke(() => tssStatus.Text = text);
@@ -64,25 +65,65 @@ namespace HZDUtility
             Logic = await Logic.FromConfig(ConfigPath);
 
             SetStatus("Checking outfit maps");
-            //if (!Logic.HasOutfitMap())
+            //TODO: remove
+            if (false && !Logic.HasOutfitMap())
             {
                 SetStatus("Generating outfit maps");
-                await Logic.GenerateOutfitMaps();
+                DefaultMaps = await Logic.GenerateOutfitMaps();
             }
+            else
+            {
+                SetStatus("Loading outfit maps");
+                DefaultMaps = await Logic.LoadOutfitMaps();
+            }
+            NewMaps = DefaultMaps.Select(x => x.Clone()).ToArray();
 
             SetStatus("Loading outfit list");
-            var outfits = Logic.LoadOutfitList();
-            foreach (var item in outfits)
+            Outfits = Logic.LoadOutfitList();
+            foreach (var item in Outfits)
                 lbOutfits.Items.Add(item);
 
             SetStatus("Loading models list");
-            var models = Logic.LoadModelList();
-            foreach (var item in models)
+            Models = Logic.LoadModelList();
+            foreach (var item in Models)
                 clbModels.Items.Add(item);
 
-            //test();
-
             SetStatus("");
+        }
+
+        private Model FindMatchingModel(Outfit outfit)
+        {
+            //get first reference with same outfit id from the default mapping
+            var mapRef = DefaultMaps.SelectMany(x => x.Refs).FirstOrDefault(x => x.Model.Equals(outfit.Id));
+
+            if (mapRef.RefId == null)
+                return null;
+
+            //find the mapped outfit in the new mapping
+            var newRef = NewMaps.SelectMany(x => x.Refs).FirstOrDefault(x => x.RefId.Equals(mapRef.RefId));
+
+            return Models.FirstOrDefault(x => x.Id.Equals(newRef.Model));
+        }
+
+        private void lbOutfits_SelectedValueChanged(object sender, EventArgs e)
+        {
+            var lb = (ListBox)sender;
+
+            var models = lb.SelectedItems.Cast<Outfit>()
+                .Select(FindMatchingModel).Where(x => x != null).ToHashSet();
+
+            for (int i = 0; i < clbModels.Items.Count; i++)
+            {
+                if (models.Contains(Models[i]))
+                    clbModels.SetItemCheckState(i, models.Count > 1 ? CheckState.Indeterminate : CheckState.Checked);
+                else
+                    clbModels.SetItemCheckState(i, CheckState.Unchecked);
+            }
+        }
+
+        private void btnPatch_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }
