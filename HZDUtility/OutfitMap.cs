@@ -9,11 +9,11 @@ namespace HZDUtility
     public class OutfitMap
     {
         public string File { get; set; }
-        public List<(BaseGGUUID Model, BaseGGUUID RefId)> Refs { get; set; }
+        public List<(BaseGGUUID ModelId, BaseGGUUID RefId)> Refs { get; set; }
 
         public OutfitMap()
         {
-            Refs = new List<(BaseGGUUID Model, BaseGGUUID RefId)>();
+            Refs = new List<(BaseGGUUID ModelId, BaseGGUUID RefId)>();
         }
 
         public OutfitMap Clone()
@@ -24,7 +24,9 @@ namespace HZDUtility
             };
 
             map.Refs = Refs
-                .Select(x => (BaseGGUUID.FromOther(x.Model), BaseGGUUID.FromOther(x.RefId)))
+                .Select(x => (
+                    BaseGGUUID.FromOther(x.ModelId), 
+                    BaseGGUUID.FromOther(x.RefId)))
                 .ToList();
 
             return map;

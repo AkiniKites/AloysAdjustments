@@ -60,7 +60,7 @@ namespace HZDUtility
             var objs2 = CoreBinary.Load(Path.Combine(Config.GamePath, Config.OutfitFiles[1]));
 
             foreach (var item in GetOutfitReferences(objs2))
-                item.Outfit.AssignFromOther(armors[0].Id);
+                item.ModelId.AssignFromOther(armors[0].Id);
 
             CoreBinary.Save(Path.Combine(Config.GamePath, Config.OutfitFiles[1] + ".2"), objs2);
         }
@@ -156,7 +156,7 @@ namespace HZDUtility
             return map;
         }
 
-        private IEnumerable<(BaseGGUUID Outfit, BaseGGUUID RefId)> GetOutfitReferences(List<object> components)
+        private IEnumerable<(BaseGGUUID ModelId, BaseGGUUID RefId)> GetOutfitReferences(List<object> components)
         {
             //NodeGraphHumanoidBodyVariantUUIDRefVariableOverride
             var name = components.Select(CoreNode.FromObj).FirstOrDefault().Type.Name;

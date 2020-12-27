@@ -29,7 +29,7 @@
         private void InitializeComponent()
         {
             this.btnUpdateDefaultMaps = new System.Windows.Forms.Button();
-            this.lbOutfits = new System.Windows.Forms.ListBox();
+            this.lbOutfits = new HZDUtility.ListBoxNF();
             this.splitContainer = new System.Windows.Forms.SplitContainer();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
@@ -58,6 +58,7 @@
             this.lbOutfits.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.lbOutfits.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
             this.lbOutfits.FormattingEnabled = true;
             this.lbOutfits.IntegralHeight = false;
             this.lbOutfits.ItemHeight = 15;
@@ -115,12 +116,14 @@
             this.clbModels.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.clbModels.CheckOnClick = true;
             this.clbModels.FormattingEnabled = true;
             this.clbModels.IntegralHeight = false;
             this.clbModels.Location = new System.Drawing.Point(0, 18);
             this.clbModels.Name = "clbModels";
             this.clbModels.Size = new System.Drawing.Size(421, 511);
             this.clbModels.TabIndex = 0;
+            this.clbModels.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.clbModels_ItemCheck);
             // 
             // ssMain
             // 
@@ -156,6 +159,7 @@
             this.Controls.Add(this.ssMain);
             this.Controls.Add(this.splitContainer);
             this.Controls.Add(this.btnUpdateDefaultMaps);
+            this.DoubleBuffered = true;
             this.Name = "Main";
             this.Text = "Outfit Changer";
             this.Load += new System.EventHandler(this.Main_Load);
@@ -173,7 +177,7 @@
         #endregion
 
         private System.Windows.Forms.Button btnUpdateDefaultMaps;
-        private System.Windows.Forms.ListBox lbOutfits;
+        private ListBoxNF lbOutfits;
         private System.Windows.Forms.SplitContainer splitContainer;
         private System.Windows.Forms.CheckedListBox clbModels;
         private System.Windows.Forms.StatusStrip ssMain;
