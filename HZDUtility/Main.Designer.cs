@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.btnUpdateDefaultMaps = new System.Windows.Forms.Button();
+            this.btnLoadPatch = new System.Windows.Forms.Button();
             this.lbOutfits = new HZDUtility.ListBoxNF();
             this.splitContainer = new System.Windows.Forms.SplitContainer();
             this.label1 = new System.Windows.Forms.Label();
@@ -38,6 +38,7 @@
             this.tssStatus = new System.Windows.Forms.ToolStripStatusLabel();
             this.btnPatch = new System.Windows.Forms.Button();
             this.btnDecima = new System.Windows.Forms.Button();
+            this.btnReset = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).BeginInit();
             this.splitContainer.Panel1.SuspendLayout();
             this.splitContainer.Panel2.SuspendLayout();
@@ -45,15 +46,15 @@
             this.ssMain.SuspendLayout();
             this.SuspendLayout();
             // 
-            // btnUpdateDefaultMaps
+            // btnLoadPatch
             // 
-            this.btnUpdateDefaultMaps.Location = new System.Drawing.Point(12, 12);
-            this.btnUpdateDefaultMaps.Name = "btnUpdateDefaultMaps";
-            this.btnUpdateDefaultMaps.Size = new System.Drawing.Size(172, 28);
-            this.btnUpdateDefaultMaps.TabIndex = 0;
-            this.btnUpdateDefaultMaps.Text = "Update Default Maps";
-            this.btnUpdateDefaultMaps.UseVisualStyleBackColor = true;
-            this.btnUpdateDefaultMaps.Click += new System.EventHandler(this.btnUpdateDefaultMaps_Click);
+            this.btnLoadPatch.Location = new System.Drawing.Point(511, 12);
+            this.btnLoadPatch.Name = "btnLoadPatch";
+            this.btnLoadPatch.Size = new System.Drawing.Size(110, 28);
+            this.btnLoadPatch.TabIndex = 0;
+            this.btnLoadPatch.Text = "Load Patch";
+            this.btnLoadPatch.UseVisualStyleBackColor = true;
+            this.btnLoadPatch.Click += new System.EventHandler(this.btnLoadPatch_Click);
             // 
             // lbOutfits
             // 
@@ -70,6 +71,7 @@
             this.lbOutfits.Size = new System.Drawing.Size(300, 511);
             this.lbOutfits.TabIndex = 1;
             this.lbOutfits.SelectedValueChanged += new System.EventHandler(this.lbOutfits_SelectedValueChanged);
+            this.lbOutfits.KeyDown += new System.Windows.Forms.KeyEventHandler(this.lbOutfits_KeyDown);
             // 
             // splitContainer
             // 
@@ -146,9 +148,9 @@
             // btnPatch
             // 
             this.btnPatch.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnPatch.Location = new System.Drawing.Point(565, 12);
+            this.btnPatch.Location = new System.Drawing.Point(627, 12);
             this.btnPatch.Name = "btnPatch";
-            this.btnPatch.Size = new System.Drawing.Size(172, 28);
+            this.btnPatch.Size = new System.Drawing.Size(110, 28);
             this.btnPatch.TabIndex = 4;
             this.btnPatch.Text = "Create Patch";
             this.btnPatch.UseVisualStyleBackColor = true;
@@ -157,25 +159,36 @@
             // btnDecima
             // 
             this.btnDecima.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnDecima.Location = new System.Drawing.Point(190, 12);
+            this.btnDecima.Location = new System.Drawing.Point(12, 12);
             this.btnDecima.Name = "btnDecima";
-            this.btnDecima.Size = new System.Drawing.Size(172, 28);
+            this.btnDecima.Size = new System.Drawing.Size(110, 28);
             this.btnDecima.TabIndex = 5;
             this.btnDecima.Text = "Setup Decima";
             this.btnDecima.UseVisualStyleBackColor = true;
             this.btnDecima.Click += new System.EventHandler(this.btnDecima_Click);
+            // 
+            // btnReset
+            // 
+            this.btnReset.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnReset.Location = new System.Drawing.Point(395, 12);
+            this.btnReset.Name = "btnReset";
+            this.btnReset.Size = new System.Drawing.Size(110, 28);
+            this.btnReset.TabIndex = 6;
+            this.btnReset.Text = "Reset Defaults";
+            this.btnReset.UseVisualStyleBackColor = true;
+            this.btnReset.Click += new System.EventHandler(this.btnReset_Click);
             // 
             // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(749, 600);
+            this.Controls.Add(this.btnReset);
             this.Controls.Add(this.btnDecima);
             this.Controls.Add(this.btnPatch);
             this.Controls.Add(this.ssMain);
             this.Controls.Add(this.splitContainer);
-            this.Controls.Add(this.btnUpdateDefaultMaps);
-            this.DoubleBuffered = true;
+            this.Controls.Add(this.btnLoadPatch);
             this.Name = "Main";
             this.Text = "Outfit Changer";
             this.Load += new System.EventHandler(this.Main_Load);
@@ -193,8 +206,7 @@
         }
 
         #endregion
-
-        private System.Windows.Forms.Button btnUpdateDefaultMaps;
+        
         private ListBoxNF lbOutfits;
         private System.Windows.Forms.SplitContainer splitContainer;
         private System.Windows.Forms.CheckedListBox clbModels;
@@ -204,6 +216,8 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Button btnPatch;
         private System.Windows.Forms.Button btnDecima;
+        private System.Windows.Forms.Button btnLoadPatch;
+        private System.Windows.Forms.Button btnReset;
     }
 }
 

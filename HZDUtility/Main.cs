@@ -68,14 +68,6 @@ namespace HZDUtility
             };
         }
 
-        private async void btnUpdateDefaultMaps_Click(object sender, EventArgs e)
-        {
-            SetStatus("Generating outfit maps");
-            await Logic.GenerateOutfitMaps();
-
-            SetStatus("");
-        }
-
         public void SetStatus(string text)
         {
             this.TryBeginInvoke(() => tssStatus.Text = text);
@@ -88,7 +80,7 @@ namespace HZDUtility
 
             SetStatus("Checking outfit maps");
             //TODO: remove
-            if (false && !Logic.HasOutfitMap())
+            if (true || !Logic.HasOutfitMap())
             {
                 SetStatus("Generating outfit maps");
                 DefaultMaps = await Logic.GenerateOutfitMaps();
@@ -101,7 +93,7 @@ namespace HZDUtility
             NewMaps = DefaultMaps.Select(x => x.Clone()).ToArray();
 
             SetStatus("Loading outfit list");
-            Outfits = Logic.LoadOutfitList();
+            Outfits = await Logic.LoadOutfitList();
             foreach (var item in Outfits)
                 lbOutfits.Items.Add(item);
 
@@ -110,7 +102,7 @@ namespace HZDUtility
             foreach (var item in Models)
                 clbModels.Items.Add(item);
 
-            SetStatus("");
+            SetStatus("Loading complete");
         }
 
         private Model FindMatchingModel(Outfit outfit)
@@ -178,7 +170,7 @@ namespace HZDUtility
 
             await FileManager.Cleanup(Logic.Config.TempPath);
 
-            SetStatus("Patch installed.");
+            SetStatus("Patch installed");
 
             btnPatch.Enabled = true;
         }
@@ -204,10 +196,8 @@ namespace HZDUtility
 
                 foreach (var outfit in lbOutfits.SelectedItems.Cast<Outfit>())
                     UpdateMapping(outfit, model);
-
-                lbOutfits.BeginUpdate();
+                
                 lbOutfits.Invalidate();
-                lbOutfits.EndUpdate();
             }
 
             _updatingLists = false;
@@ -219,7 +209,60 @@ namespace HZDUtility
             await Logic.Decima.Download();
             SetStatus("Copying Decima library...");
             await Logic.Decima.GetLibrary();
-            SetStatus("Decima updated.");
+            SetStatus("Decima updated");
+        }
+
+        private async void btnLoadPatch_Click(object sender, EventArgs e)
+        {
+            using (var ofd = new OpenFileDialog())
+            {
+                ofd.CheckFileExists = true;
+                ofd.Multiselect = false;
+                ofd.Filter = "Pack files (*.bin)|*.bin|All files (*.*)|*.*";
+
+                if (ofd.ShowDialog() == DialogResult.OK)
+                {
+                    SetStatus("Loading pack...");
+                    NewMaps = await Logic.GenerateOutfitMapsFromPack(ofd.FileName);
+                    RefreshLists();
+
+                    Logic.Config.Settings.LastOpen = ofd.FileName;
+                    await Logic.SaveConfig();
+
+                    SetStatus($"Loaded pack: {Path.GetFileName(ofd.FileName)}");
+                }
+            }
+        }
+
+        private void lbOutfits_KeyDown(object sender, KeyEventArgs e)
+        {
+            var lb = (ListBox)sender;
+
+            if (e.KeyCode == Keys.A && e.Control)
+            {
+                for (int i = 0; i < lb.Items.Count; i++)
+                    lb.SetSelected(i, true);
+                e.SuppressKeyPress = true;
+            }
+        }
+
+        private async void btnReset_Click(object sender, EventArgs e)
+        {
+            btnReset.Enabled = false;
+            
+            SetStatus("Generating outfit maps");
+            NewMaps = await Logic.GenerateOutfitMaps();
+            RefreshLists();
+
+            SetStatus("Reset complete");
+
+            btnReset.Enabled = true;
+        }
+
+        private void RefreshLists()
+        {
+            lbOutfits.ClearSelected();
+            lbOutfits.Invalidate();
         }
     }
 }

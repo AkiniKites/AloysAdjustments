@@ -43,18 +43,26 @@ namespace HZDUtility
             Config = await Task.Run(() => JsonConvert.DeserializeObject<Config>(json));
         }
 
-        public void SaveConfig()
+        public async Task SaveConfig()
         {
             var json = JsonConvert.SerializeObject(Config, Formatting.Indented);
-            File.WriteAllText(ConfigPath, json);
+            await File.WriteAllTextAsync(ConfigPath, json);
         }
 
-        public List<Outfit> LoadOutfitList()
+        public async Task<List<Outfit>> LoadOutfitList()
         {
-            var objs = CoreBinary.Load(Path.Combine(@"e:\hzd\", Config.PlayerComponentsFile));
-            var armors = GetOutfitList(objs).ToList();
+            var packDir = Path.Combine(Config.Settings.GamePath, Config.PackDir);
+            var files = await FileManager.ExtractFiles(Decima,
+                Config.TempPath, packDir, false, Config.PlayerComponentsFile);
 
-            return armors;
+            var path = files.FirstOrDefault().Value;
+            if (path == null)
+                throw new HzdException($"Unable to find {Config.PlayerComponentsFile}");
+
+            var objs = CoreBinary.Load(files.First().Value);
+            var outfits = GetOutfitList(objs).ToList();
+
+            return outfits;
         }
 
         public IEnumerable<Outfit> GetOutfitList(List<object> components)
@@ -114,10 +122,26 @@ namespace HZDUtility
 
         public async Task<OutfitMap[]> GenerateOutfitMaps()
         {
-            //extract game files to temp
-            var packDir = Path.Combine(Config.GamePath, Config.PackDir);
+            //extract game files
+            var packDir = Path.Combine(Config.Settings.GamePath, Config.PackDir);
+
+            //TODO: Fix hack to ignore patch files
+            var patch = Path.Combine(packDir, Config.PatchFile);
+            var patchTemp = patch + Guid.NewGuid();
+            if (File.Exists(patch))
+                File.Move(patch, patchTemp);
+
+            var maps = await GenerateOutfitMapsFromPack(packDir);
+
+            if (File.Exists(patchTemp))
+                File.Move(patchTemp, patch);
+
+            return maps;
+        }
+        public async Task<OutfitMap[]> GenerateOutfitMapsFromPack(string path)
+        {
             var files = await FileManager.ExtractFiles(Decima, 
-                Config.TempPath, packDir, false, Config.OutfitFiles);
+                Config.TempPath, path, false, Config.OutfitFiles);
 
             var maps = files.Select(x => GetOutfitMap(x.Key, x.Value)).ToArray();
             await SaveOutfitMaps(maps);
@@ -159,7 +183,7 @@ namespace HZDUtility
         {
             await FileManager.Cleanup(Config.TempPath);
 
-            var packDir = Path.Combine(Config.GamePath, Config.PackDir);
+            var packDir = Path.Combine(Config.Settings.GamePath, Config.PackDir);
 
             foreach (var map in maps)
             {
@@ -195,7 +219,7 @@ namespace HZDUtility
 
         public async Task InstallPatch(string path)
         {
-            var packDir = Path.Combine(Config.GamePath, Config.PackDir);
+            var packDir = Path.Combine(Config.Settings.GamePath, Config.PackDir);
             await FileManager.InstallPatch(path, packDir);
         }
     }

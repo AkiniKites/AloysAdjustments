@@ -13,8 +13,11 @@
     "entities/dlc1/outfits/dlc1_outfits.core"
   ],
   "OutfitMapPath": "outfit-map.json",
-  "GamePath": "E:/Games/SteamLibrary/steamapps/common/Horizon Zero Dawn",
   "TempPath": "temp",
   "PatchFile": "zMod_OutfitSwap.bin",
-  "PackDir": "Packed_DX12"
+  "PackDir": "Packed_DX12",
+  "Settings": {
+    "GamePath": "E:/Games/SteamLibrary/steamapps/common/Horizon Zero Dawn",
+    "LastOpen": ""
+  }
 }

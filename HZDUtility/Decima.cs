@@ -73,9 +73,9 @@ namespace HZDUtility
         }
         public async Task GetLibrary()
         {
-            var libPath = Path.Combine(Config.GamePath, Path.GetFileName(Config.Decima.Lib));
+            var libPath = Path.Combine(Config.Settings.GamePath, Path.GetFileName(Config.Decima.Lib));
             if (!File.Exists(libPath))
-                throw new HzdException($"Unable to find decima support library in: {Config.GamePath}");
+                throw new HzdException($"Unable to find decima support library in: {Config.Settings.GamePath}");
             
             Paths.CheckDirectory(Path.GetDirectoryName(Config.Decima.Lib));
             await Task.Run(() => File.Copy(libPath, Config.Decima.Lib, true));

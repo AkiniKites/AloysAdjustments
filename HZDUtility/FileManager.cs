@@ -10,11 +10,11 @@ namespace HZDUtility
     public class FileManager
     {
         public static async Task<Dictionary<string, string>> ExtractFiles(
-            Decima dm, string tempPath, string packDir, bool retainPath,
+            Decima dm, string tempPath, string path, bool retainPath,
             params string[] files)
         {
-            if (!Directory.Exists(packDir))
-                throw new HzdException($"Pack directory not found at: {packDir}");
+            if (!Directory.Exists(path) && !File.Exists(path))
+                throw new HzdException($"Pack file/directory not found at: {path}");
 
             Paths.CheckDirectory(tempPath);
 
@@ -34,7 +34,7 @@ namespace HZDUtility
                     output = Path.Combine(tempPath, Guid.NewGuid() + ext);
                 }
                 
-                await dm.ExtractFile(packDir, f, output);
+                await dm.ExtractFile(path, f, output);
 
                 tempFiles.Add(f, output);
             }
@@ -51,7 +51,7 @@ namespace HZDUtility
 
             var dest = Path.Combine(packDir, Path.GetFileName(patchFile));
 
-            await Task.Run(() => File.Copy(patchFile, dest));
+            await Task.Run(() => File.Copy(patchFile, dest, true));
         }
 
         public static async Task Cleanup(string tempPath)
