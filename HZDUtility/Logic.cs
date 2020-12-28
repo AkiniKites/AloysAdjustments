@@ -9,6 +9,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Decima.DS;
+using HZDUtility.Models;
+using HZDUtility.Utility;
+using Model = HZDUtility.Models.Model;
 
 namespace HZDUtility
 {
@@ -16,7 +19,8 @@ namespace HZDUtility
     {
         private string ConfigPath { get; set; }
 
-        public Config Config { get; set; }
+        public Config Config { get; private set; }
+        public Decima Decima { get; private set; }
 
         private Logic() { }
 
@@ -26,8 +30,10 @@ namespace HZDUtility
             {
                 ConfigPath = configPath
             };
-
+            
             await l.LoadConfig();
+            l.Decima = new Decima(l.Config);
+
             return l;
         }
 
@@ -43,29 +49,6 @@ namespace HZDUtility
             File.WriteAllText(ConfigPath, json);
         }
 
-        public void test()
-        {
-            //entities\characters\humanoids\player\player_components.core
-            var objs = CoreBinary.Load(@"e:\hzd\entities\characters\humanoids\player\player_components.core");
-            var armors = GetOutfitList(objs).ToList();
-
-            foreach (var item in armors)
-            {
-                Debug.WriteLine(item);
-            }
-
-            Debug.WriteLine("\r\n\r\n\r\n");
-
-            var maps = LoadOutfitMaps();
-
-            var objs2 = CoreBinary.Load(Path.Combine(Config.GamePath, Config.OutfitFiles[1]));
-
-            foreach (var item in GetOutfitReferences(objs2))
-                item.ModelId.AssignFromOther(armors[0].Id);
-
-            CoreBinary.Save(Path.Combine(Config.GamePath, Config.OutfitFiles[1] + ".2"), objs2);
-        }
-
         public List<Outfit> LoadOutfitList()
         {
             var objs = CoreBinary.Load(Path.Combine(@"e:\hzd\", Config.PlayerComponentsFile));
@@ -79,7 +62,7 @@ namespace HZDUtility
             //BodyVariantComponentResource
             var resource = components.Select(CoreNode.FromObj).FirstOrDefault(x => x.Name == "PlayerBodyVariants");
             if (resource == null)
-                throw new Exception("Unable to find PlayerBodyVariants");
+                throw new HzdException("Unable to find PlayerBodyVariants");
 
             var armors = resource.GetField<IList>("Variants");
             return armors.Cast<object>().Select(CoreNode.FromObj).Select(x =>
@@ -132,8 +115,9 @@ namespace HZDUtility
         public async Task<OutfitMap[]> GenerateOutfitMaps()
         {
             //extract game files to temp
-            var files = await FileManager.ExtractFiles(Config.DecimaPath, 
-                Config.TempPath, Config.GamePath, false, Config.OutfitFiles);
+            var packDir = Path.Combine(Config.GamePath, Config.PackDir);
+            var files = await FileManager.ExtractFiles(Decima, 
+                Config.TempPath, packDir, false, Config.OutfitFiles);
 
             var maps = files.Select(x => GetOutfitMap(x.Key, x.Value)).ToArray();
             await SaveOutfitMaps(maps);
@@ -171,19 +155,21 @@ namespace HZDUtility
                 ));
         }
 
-        public async Task GeneratePatch(OutfitMap[] maps)
+        public async Task<string> GeneratePatch(OutfitMap[] maps)
         {
             await FileManager.Cleanup(Config.TempPath);
+
+            var packDir = Path.Combine(Config.GamePath, Config.PackDir);
 
             foreach (var map in maps)
             {
                 //extract game files to temp
                 var file = (await FileManager.ExtractFiles(
-                    Config.DecimaPath, Config.TempPath, Config.GamePath, true, map.File))
+                        Decima, Config.TempPath, packDir, true, map.File))
                     .FirstOrDefault();
 
                 if (file.Key == null)
-                    throw new Exception($"Unable to find file for map: {map.File}");
+                    throw new HzdException($"Unable to find file for map: {map.File}");
 
                 var refs = map.Refs.ToDictionary(x => x.RefId, x => x.ModelId);
 
@@ -198,11 +184,19 @@ namespace HZDUtility
                 CoreBinary.Save(file.Value, objs);
             }
 
-            var output = Path.Combine(Config.TempPath, "zMod_OutfitSwap.bin");
+            var output = Path.Combine(Config.TempPath, Config.PatchFile);
 
-            await FileManager.PackFiles(Config.DecimaPath, Config.TempPath, output);
-            
+            await Decima.PackFiles(Config.TempPath, output);
+
+            return output;
+
             //await FileManager.Cleanup(Config.TempPath);
+        }
+
+        public async Task InstallPatch(string path)
+        {
+            var packDir = Path.Combine(Config.GamePath, Config.PackDir);
+            await FileManager.InstallPatch(path, packDir);
         }
     }
 }

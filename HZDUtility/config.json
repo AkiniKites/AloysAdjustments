@@ -1,4 +1,11 @@
 ﻿{
+  "Decima": {
+    "Path": "decima/DecimaExplorer.exe",
+    "Lib": "decima/oo2core_3_win64.dll",
+    "RepoUser": "Jayveer",
+    "RepoName": "Decima-Explorer",
+    "RepoFile": "DecimaExplorer.exe"
+  },
   "PlayerComponentsFile": "entities/characters/humanoids/player/player_components.core",
   "OutfitFiles": [
     "entities/armor/newgameplus/ng_outfits.core",
@@ -8,5 +15,6 @@
   "OutfitMapPath": "outfit-map.json",
   "GamePath": "E:/Games/SteamLibrary/steamapps/common/Horizon Zero Dawn",
   "TempPath": "temp",
-  "DecimaPath": "DecimaExplorer.exe"
+  "PatchFile": "zMod_OutfitSwap.bin",
+  "PackDir": "Packed_DX12"
 }

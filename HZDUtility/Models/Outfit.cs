@@ -1,9 +1,4 @@
-﻿using Decima;
-using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace HZDUtility
+﻿namespace HZDUtility.Models
 {
     public class Outfit : Model
     {

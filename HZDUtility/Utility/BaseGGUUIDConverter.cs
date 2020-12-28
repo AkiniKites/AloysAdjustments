@@ -1,11 +1,13 @@
-﻿using Decima;
-using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
+using Decima;
+using Newtonsoft.Json;
 
-namespace HZDUtility
+namespace HZDUtility.Utility
 {
     public class BaseGGUUIDConverter : JsonConverter<BaseGGUUID>
     {
@@ -16,7 +18,7 @@ namespace HZDUtility
 
             var data = reader.Value as string;
             if (data.Length != 32)
-                throw new Exception($"Invalid BaseGGUUID data length: {data.Length}");
+                throw new HzdException($"Invalid BaseGGUUID data length: {data.Length}");
 
             var i = 0;
             var id = new BaseGGUUID();

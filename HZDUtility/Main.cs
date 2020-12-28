@@ -13,6 +13,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using HZDUtility.Models;
 
 namespace HZDUtility
 {
@@ -170,9 +171,15 @@ namespace HZDUtility
             btnPatch.Enabled = false;
 
             SetStatus("Generating patch...");
-            await Logic.GeneratePatch(NewMaps);
+            var patch = await Logic.GeneratePatch(NewMaps);
 
-            SetStatus("Patch created.");
+            SetStatus("Copying patch...");
+            await Logic.InstallPatch(patch);
+
+            await FileManager.Cleanup(Logic.Config.TempPath);
+
+            SetStatus("Patch installed.");
+
             btnPatch.Enabled = true;
         }
 
@@ -204,6 +211,15 @@ namespace HZDUtility
             }
 
             _updatingLists = false;
+        }
+
+        private async void btnDecima_Click(object sender, EventArgs e)
+        {
+            SetStatus("Downloading Decima...");
+            await Logic.Decima.Download();
+            SetStatus("Copying Decima library...");
+            await Logic.Decima.GetLibrary();
+            SetStatus("Decima updated.");
         }
     }
 }

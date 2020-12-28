@@ -37,6 +37,7 @@
             this.ssMain = new System.Windows.Forms.StatusStrip();
             this.tssStatus = new System.Windows.Forms.ToolStripStatusLabel();
             this.btnPatch = new System.Windows.Forms.Button();
+            this.btnDecima = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).BeginInit();
             this.splitContainer.Panel1.SuspendLayout();
             this.splitContainer.Panel2.SuspendLayout();
@@ -153,11 +154,23 @@
             this.btnPatch.UseVisualStyleBackColor = true;
             this.btnPatch.Click += new System.EventHandler(this.btnPatch_Click);
             // 
+            // btnDecima
+            // 
+            this.btnDecima.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnDecima.Location = new System.Drawing.Point(190, 12);
+            this.btnDecima.Name = "btnDecima";
+            this.btnDecima.Size = new System.Drawing.Size(172, 28);
+            this.btnDecima.TabIndex = 5;
+            this.btnDecima.Text = "Setup Decima";
+            this.btnDecima.UseVisualStyleBackColor = true;
+            this.btnDecima.Click += new System.EventHandler(this.btnDecima_Click);
+            // 
             // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(749, 600);
+            this.Controls.Add(this.btnDecima);
             this.Controls.Add(this.btnPatch);
             this.Controls.Add(this.ssMain);
             this.Controls.Add(this.splitContainer);
@@ -190,6 +203,7 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Button btnPatch;
+        private System.Windows.Forms.Button btnDecima;
     }
 }
 

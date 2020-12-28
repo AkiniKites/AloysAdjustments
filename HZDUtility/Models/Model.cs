@@ -1,8 +1,8 @@
-﻿using Decima;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using Decima;
 
-namespace HZDUtility
+namespace HZDUtility.Models
 {
     public abstract class Model
     {
