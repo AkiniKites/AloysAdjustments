@@ -222,5 +222,12 @@ namespace HZDUtility
             var packDir = Path.Combine(Config.Settings.GamePath, Config.PackDir);
             await FileManager.InstallPatch(path, packDir);
         }
+
+        public bool CheckGameDir()
+        {
+            if (!Directory.Exists(Config.Settings.GamePath))
+                return false;
+            return Directory.Exists(Path.Combine(Config.Settings.GamePath, Config.PackDir));
+        }
     }
 }

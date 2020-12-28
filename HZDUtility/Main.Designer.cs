@@ -1,4 +1,6 @@
-﻿namespace HZDUtility
+﻿using HZDUtility.Utility; 
+
+namespace HZDUtility
 {
     partial class Main
     {
@@ -39,6 +41,10 @@
             this.btnPatch = new System.Windows.Forms.Button();
             this.btnDecima = new System.Windows.Forms.Button();
             this.btnReset = new System.Windows.Forms.Button();
+            this.lblGameDir = new System.Windows.Forms.Label();
+            this.btnGameDir = new System.Windows.Forms.Button();
+            this.lblDecima = new System.Windows.Forms.Label();
+            this.tbGameDir = new HZDUtility.Utility.TypeDelayTextBox();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).BeginInit();
             this.splitContainer.Panel1.SuspendLayout();
             this.splitContainer.Panel2.SuspendLayout();
@@ -48,9 +54,10 @@
             // 
             // btnLoadPatch
             // 
-            this.btnLoadPatch.Location = new System.Drawing.Point(511, 12);
+            this.btnLoadPatch.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnLoadPatch.Location = new System.Drawing.Point(564, 93);
             this.btnLoadPatch.Name = "btnLoadPatch";
-            this.btnLoadPatch.Size = new System.Drawing.Size(110, 28);
+            this.btnLoadPatch.Size = new System.Drawing.Size(100, 28);
             this.btnLoadPatch.TabIndex = 0;
             this.btnLoadPatch.Text = "Load Patch";
             this.btnLoadPatch.UseVisualStyleBackColor = true;
@@ -68,7 +75,7 @@
             this.lbOutfits.Location = new System.Drawing.Point(0, 18);
             this.lbOutfits.Name = "lbOutfits";
             this.lbOutfits.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
-            this.lbOutfits.Size = new System.Drawing.Size(300, 511);
+            this.lbOutfits.Size = new System.Drawing.Size(271, 519);
             this.lbOutfits.TabIndex = 1;
             this.lbOutfits.SelectedValueChanged += new System.EventHandler(this.lbOutfits_SelectedValueChanged);
             this.lbOutfits.KeyDown += new System.Windows.Forms.KeyEventHandler(this.lbOutfits_KeyDown);
@@ -78,7 +85,7 @@
             this.splitContainer.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.splitContainer.Location = new System.Drawing.Point(12, 46);
+            this.splitContainer.Location = new System.Drawing.Point(12, 75);
             this.splitContainer.Name = "splitContainer";
             // 
             // splitContainer.Panel1
@@ -90,8 +97,8 @@
             // 
             this.splitContainer.Panel2.Controls.Add(this.label2);
             this.splitContainer.Panel2.Controls.Add(this.clbModels);
-            this.splitContainer.Size = new System.Drawing.Size(725, 529);
-            this.splitContainer.SplitterDistance = 300;
+            this.splitContainer.Size = new System.Drawing.Size(546, 566);
+            this.splitContainer.SplitterDistance = 273;
             this.splitContainer.TabIndex = 2;
             this.splitContainer.Text = "splitContainer1";
             // 
@@ -125,7 +132,7 @@
             this.clbModels.IntegralHeight = false;
             this.clbModels.Location = new System.Drawing.Point(0, 18);
             this.clbModels.Name = "clbModels";
-            this.clbModels.Size = new System.Drawing.Size(421, 511);
+            this.clbModels.Size = new System.Drawing.Size(266, 519);
             this.clbModels.TabIndex = 0;
             this.clbModels.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.clbModels_ItemCheck);
             // 
@@ -134,9 +141,9 @@
             this.ssMain.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.ssMain.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.tssStatus});
-            this.ssMain.Location = new System.Drawing.Point(0, 578);
+            this.ssMain.Location = new System.Drawing.Point(0, 615);
             this.ssMain.Name = "ssMain";
-            this.ssMain.Size = new System.Drawing.Size(749, 22);
+            this.ssMain.Size = new System.Drawing.Size(676, 22);
             this.ssMain.TabIndex = 3;
             // 
             // tssStatus
@@ -147,10 +154,10 @@
             // 
             // btnPatch
             // 
-            this.btnPatch.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnPatch.Location = new System.Drawing.Point(627, 12);
+            this.btnPatch.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnPatch.Location = new System.Drawing.Point(564, 570);
             this.btnPatch.Name = "btnPatch";
-            this.btnPatch.Size = new System.Drawing.Size(110, 28);
+            this.btnPatch.Size = new System.Drawing.Size(100, 42);
             this.btnPatch.TabIndex = 4;
             this.btnPatch.Text = "Create Patch";
             this.btnPatch.UseVisualStyleBackColor = true;
@@ -159,9 +166,9 @@
             // btnDecima
             // 
             this.btnDecima.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnDecima.Location = new System.Drawing.Point(12, 12);
+            this.btnDecima.Location = new System.Drawing.Point(564, 26);
             this.btnDecima.Name = "btnDecima";
-            this.btnDecima.Size = new System.Drawing.Size(110, 28);
+            this.btnDecima.Size = new System.Drawing.Size(100, 25);
             this.btnDecima.TabIndex = 5;
             this.btnDecima.Text = "Setup Decima";
             this.btnDecima.UseVisualStyleBackColor = true;
@@ -170,19 +177,65 @@
             // btnReset
             // 
             this.btnReset.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnReset.Location = new System.Drawing.Point(395, 12);
+            this.btnReset.Location = new System.Drawing.Point(564, 127);
             this.btnReset.Name = "btnReset";
-            this.btnReset.Size = new System.Drawing.Size(110, 28);
+            this.btnReset.Size = new System.Drawing.Size(100, 28);
             this.btnReset.TabIndex = 6;
             this.btnReset.Text = "Reset Defaults";
             this.btnReset.UseVisualStyleBackColor = true;
             this.btnReset.Click += new System.EventHandler(this.btnReset_Click);
             // 
+            // lblGameDir
+            // 
+            this.lblGameDir.AutoSize = true;
+            this.lblGameDir.Location = new System.Drawing.Point(12, 9);
+            this.lblGameDir.Name = "lblGameDir";
+            this.lblGameDir.Size = new System.Drawing.Size(74, 15);
+            this.lblGameDir.TabIndex = 7;
+            this.lblGameDir.Text = "Game Folder";
+            // 
+            // btnGameDir
+            // 
+            this.btnGameDir.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnGameDir.Location = new System.Drawing.Point(458, 26);
+            this.btnGameDir.Name = "btnGameDir";
+            this.btnGameDir.Size = new System.Drawing.Size(100, 25);
+            this.btnGameDir.TabIndex = 9;
+            this.btnGameDir.Text = "Browse";
+            this.btnGameDir.UseVisualStyleBackColor = true;
+            this.btnGameDir.Click += new System.EventHandler(this.btnGameDir_Click);
+            // 
+            // lblDecima
+            // 
+            this.lblDecima.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.lblDecima.AutoSize = true;
+            this.lblDecima.Location = new System.Drawing.Point(564, 9);
+            this.lblDecima.Name = "lblDecima";
+            this.lblDecima.Size = new System.Drawing.Size(47, 15);
+            this.lblDecima.TabIndex = 10;
+            this.lblDecima.Text = "Decima";
+            // 
+            // tbGameDir
+            // 
+            this.tbGameDir.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.tbGameDir.EnableTypingEvent = true;
+            this.tbGameDir.Location = new System.Drawing.Point(12, 27);
+            this.tbGameDir.Name = "tbGameDir";
+            this.tbGameDir.Size = new System.Drawing.Size(440, 23);
+            this.tbGameDir.TabIndex = 11;
+            this.tbGameDir.TypingFinished += new System.EventHandler(this.tbGameDir_TypingFinished);
+            this.tbGameDir.TextChanged += new System.EventHandler(this.tbGameDir_TextChanged);
+            // 
             // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(749, 600);
+            this.ClientSize = new System.Drawing.Size(676, 637);
+            this.Controls.Add(this.tbGameDir);
+            this.Controls.Add(this.lblDecima);
+            this.Controls.Add(this.btnGameDir);
+            this.Controls.Add(this.lblGameDir);
             this.Controls.Add(this.btnReset);
             this.Controls.Add(this.btnDecima);
             this.Controls.Add(this.btnPatch);
@@ -218,6 +271,10 @@
         private System.Windows.Forms.Button btnDecima;
         private System.Windows.Forms.Button btnLoadPatch;
         private System.Windows.Forms.Button btnReset;
+        private System.Windows.Forms.Label lblGameDir;
+        private System.Windows.Forms.Button btnGameDir;
+        private System.Windows.Forms.Label lblDecima;
+        private TypeDelayTextBox tbGameDir;
     }
 }
 

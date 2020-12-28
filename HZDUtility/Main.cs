@@ -22,6 +22,7 @@ namespace HZDUtility
         private const string ConfigPath = "config.json";
 
         private bool _updatingLists = false;
+        private bool _invalidConfig = true;
 
         private Logic Logic { get; set; }
 
@@ -78,31 +79,47 @@ namespace HZDUtility
             SetStatus("Loading config");
             Logic = await Logic.FromConfig(ConfigPath);
 
-            SetStatus("Checking outfit maps");
-            //TODO: remove
-            if (true || !Logic.HasOutfitMap())
+            tbGameDir.EnableTypingEvent = false;
+            tbGameDir.Text = Logic.Config.Settings.GamePath;
+            tbGameDir.EnableTypingEvent = true;
+
+            await Initialize();
+        }
+
+        private async Task Initialize()
+        {
+            var game = UpdateGameDirStatus();
+            var decima = UpdateDecimaStatus();
+
+            if (!game)
+            {
+                SetStatus("Missing Game Folder");
+                return;
+            }
+
+            if (decima)
             {
                 SetStatus("Generating outfit maps");
                 DefaultMaps = await Logic.GenerateOutfitMaps();
+                NewMaps = DefaultMaps.Select(x => x.Clone()).ToArray();
+
+                SetStatus("Loading outfit list");
+                Outfits = await Logic.LoadOutfitList();
+                foreach (var item in Outfits)
+                    lbOutfits.Items.Add(item);
+
+                SetStatus("Loading models list");
+                Models = Logic.LoadModelList();
+                foreach (var item in Models)
+                    clbModels.Items.Add(item);
+
+                _invalidConfig = false;
+                SetStatus("Loading complete");
             }
             else
             {
-                SetStatus("Loading outfit maps");
-                DefaultMaps = await Logic.LoadOutfitMaps();
+                SetStatus("Missing Decima");
             }
-            NewMaps = DefaultMaps.Select(x => x.Clone()).ToArray();
-
-            SetStatus("Loading outfit list");
-            Outfits = await Logic.LoadOutfitList();
-            foreach (var item in Outfits)
-                lbOutfits.Items.Add(item);
-
-            SetStatus("Loading models list");
-            Models = Logic.LoadModelList();
-            foreach (var item in Models)
-                clbModels.Items.Add(item);
-
-            SetStatus("Loading complete");
         }
 
         private Model FindMatchingModel(Outfit outfit)
@@ -210,6 +227,9 @@ namespace HZDUtility
             SetStatus("Copying Decima library...");
             await Logic.Decima.GetLibrary();
             SetStatus("Decima updated");
+            
+            if (UpdateDecimaStatus() && _invalidConfig)
+                await Initialize();
         }
 
         private async void btnLoadPatch_Click(object sender, EventArgs e)
@@ -263,6 +283,64 @@ namespace HZDUtility
         {
             lbOutfits.ClearSelected();
             lbOutfits.Invalidate();
+        }
+
+        private void tbGameDir_TextChanged(object sender, EventArgs e)
+        {
+            Logic.Config.Settings.GamePath = tbGameDir.Text;
+        }
+        private async void tbGameDir_TypingFinished(object sender, EventArgs e)
+        {
+            await Logic.SaveConfig();
+            if (UpdateGameDirStatus() && _invalidConfig)
+                await Initialize();
+
+        }
+
+        private bool UpdateGameDirStatus()
+        {
+            if (Logic.CheckGameDir())
+            {
+                lblGameDir.Text = "Game Folder";
+                lblGameDir.ForeColor = SystemColors.ControlText;
+                return true;
+            }
+            else
+            {
+                lblGameDir.Text = "Game Folder - Invalid";
+                lblGameDir.ForeColor = Color.Red;
+                return false;
+            }
+        }
+        private bool UpdateDecimaStatus()
+        {
+            if (Logic.Decima.CheckDecima())
+            {
+                lblDecima.Text = "Decima";
+                lblDecima.ForeColor = SystemColors.ControlText;
+                return true;
+            }
+            else
+            {
+                lblDecima.Text = "Decima - Invalid";
+                lblDecima.ForeColor = Color.Red;
+                return false;
+            }
+        }
+
+        private async void btnGameDir_Click(object sender, EventArgs e)
+        {
+            using var ofd = new FolderBrowserDialog();
+
+            if (ofd.ShowDialog() == DialogResult.OK)
+            {
+                tbGameDir.EnableTypingEvent = false;
+                tbGameDir.Text = ofd.SelectedPath;
+                tbGameDir.EnableTypingEvent = true;
+
+                if (UpdateGameDirStatus() && _invalidConfig)
+                    await Initialize();
+            }
         }
     }
 }

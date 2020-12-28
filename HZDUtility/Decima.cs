@@ -19,7 +19,11 @@ namespace HZDUtility
             Config = config;
         }
 
-        public void CheckDecima()
+        public bool CheckDecima()
+        {
+            return File.Exists(Config.Decima.Path) && File.Exists(Config.Decima.Lib);
+        }
+        public void ValidateDecima()
         {
             if (!File.Exists(Config.Decima.Path))
                 throw new HzdException($"Decima executable not found: {Config.Decima.Path}");
