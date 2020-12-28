@@ -52,14 +52,13 @@ namespace HZDUtility
         public async Task<List<Outfit>> LoadOutfitList()
         {
             var packDir = Path.Combine(Config.Settings.GamePath, Config.PackDir);
-            var files = await FileManager.ExtractFiles(Decima,
+            var file = await FileManager.ExtractFile(Decima,
                 Config.TempPath, packDir, false, Config.PlayerComponentsFile);
-
-            var path = files.FirstOrDefault().Value;
-            if (path == null)
+            
+            if (file.Output == null)
                 throw new HzdException($"Unable to find {Config.PlayerComponentsFile}");
 
-            var objs = CoreBinary.Load(files.First().Value);
+            var objs = CoreBinary.Load(file.Output);
             var outfits = GetOutfitList(objs).ToList();
 
             return outfits;
@@ -72,8 +71,8 @@ namespace HZDUtility
             if (resource == null)
                 throw new HzdException("Unable to find PlayerBodyVariants");
 
-            var armors = resource.GetField<IList>("Variants");
-            return armors.Cast<object>().Select(CoreNode.FromObj).Select(x =>
+            var outfits = resource.GetField<IList>("Variants");
+            return outfits.Cast<object>().Select(CoreNode.FromObj).Select(x =>
                 new Outfit()
                 {
                     Name = x.GetString("ExternalFile"),
@@ -82,16 +81,15 @@ namespace HZDUtility
         }
 
 
-        public List<Model> LoadModelList()
+        public async Task<List<Model>> LoadModelList()
         {
-            var objs = CoreBinary.Load(Path.Combine(@"e:\hzd\", Config.PlayerComponentsFile));
             var models = new List<Model>();
 
-            models.AddRange(GetOutfitList(objs));
+            //outfit models
+            models.AddRange(await LoadOutfitList());
 
             return models;
         }
-
 
         public bool HasOutfitMap()
         {
@@ -143,7 +141,7 @@ namespace HZDUtility
             var files = await FileManager.ExtractFiles(Decima, 
                 Config.TempPath, path, false, Config.OutfitFiles);
 
-            var maps = files.Select(x => GetOutfitMap(x.Key, x.Value)).ToArray();
+            var maps = files.Select(x => GetOutfitMap(x.Source, x.Output)).ToArray();
             await SaveOutfitMaps(maps);
 
             await FileManager.Cleanup(Config.TempPath);
@@ -169,7 +167,6 @@ namespace HZDUtility
         private IEnumerable<(BaseGGUUID ModelId, BaseGGUUID RefId)> GetOutfitReferences(List<object> components)
         {
             //NodeGraphHumanoidBodyVariantUUIDRefVariableOverride
-            var name = components.Select(CoreNode.FromObj).FirstOrDefault().Type.Name;
             var mappings = components.Select(CoreNode.FromObj).Where(x => x.Type.Name == "NodeGraphHumanoidBodyVariantUUIDRefVariableOverride");
 
             return mappings.Select(x =>
@@ -188,24 +185,23 @@ namespace HZDUtility
             foreach (var map in maps)
             {
                 //extract game files to temp
-                var file = (await FileManager.ExtractFiles(
-                        Decima, Config.TempPath, packDir, true, map.File))
-                    .FirstOrDefault();
+                var file = await FileManager.ExtractFile(
+                    Decima, Config.TempPath, packDir, true, map.File);
 
-                if (file.Key == null)
+                if (file.Output == null)
                     throw new HzdException($"Unable to find file for map: {map.File}");
 
                 var refs = map.Refs.ToDictionary(x => x.RefId, x => x.ModelId);
 
                 //update references from 
-                var objs = CoreBinary.Load(file.Value);
+                var objs = CoreBinary.Load(file.Output);
                 foreach (var reference in GetOutfitReferences(objs))
                 {
                     if (refs.TryGetValue(reference.RefId, out var newModel))
                         reference.ModelId.AssignFromOther(newModel);
                 }
 
-                CoreBinary.Save(file.Value, objs);
+                CoreBinary.Save(file.Output, objs);
             }
 
             var output = Path.Combine(Config.TempPath, Config.PatchFile);

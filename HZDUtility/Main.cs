@@ -11,6 +11,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using HZDUtility.Models;
@@ -20,6 +21,8 @@ namespace HZDUtility
     public partial class Main : Form
     {
         private const string ConfigPath = "config.json";
+
+        private readonly Color _errorColor = Color.FromArgb(255, 51, 51);
 
         private bool _updatingLists = false;
         private bool _invalidConfig = true;
@@ -38,6 +41,19 @@ namespace HZDUtility
 
             SetupOutfitList();
             RTTI.SetGameMode(GameType.HZD);
+
+            Application.ThreadException += new ThreadExceptionEventHandler(Application_ThreadException);
+            AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(CurrentDomain_UnhandledException);
+        }
+
+        private void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
+        {
+            SetStatus($"Error: {e.ExceptionObject}", true);
+        }
+
+        private void Application_ThreadException(object sender, ThreadExceptionEventArgs e)
+        {
+            SetStatus($"Error: {e.Exception.Message}", true);
         }
 
         private void SetupOutfitList()
@@ -69,9 +85,13 @@ namespace HZDUtility
             };
         }
 
-        public void SetStatus(string text)
+        public void SetStatus(string text, bool error = false)
         {
-            this.TryBeginInvoke(() => tssStatus.Text = text);
+            this.TryBeginInvoke(() =>
+            {
+                tssStatus.Text = text;
+                tssStatus.ForeColor = error ? _errorColor : SystemColors.ControlText;
+            });
         }
 
         private async void Main_Load(object sender, EventArgs e)
@@ -93,7 +113,7 @@ namespace HZDUtility
 
             if (!game)
             {
-                SetStatus("Missing Game Folder");
+                SetStatus("Missing Game Folder", true);
                 return;
             }
 
@@ -109,7 +129,7 @@ namespace HZDUtility
                     lbOutfits.Items.Add(item);
 
                 SetStatus("Loading models list");
-                Models = Logic.LoadModelList();
+                Models = await Logic.LoadModelList();
                 foreach (var item in Models)
                     clbModels.Items.Add(item);
 
@@ -118,7 +138,7 @@ namespace HZDUtility
             }
             else
             {
-                SetStatus("Missing Decima");
+                SetStatus("Missing Decima", true);
             }
         }
 
@@ -308,7 +328,7 @@ namespace HZDUtility
             else
             {
                 lblGameDir.Text = "Game Folder - Invalid";
-                lblGameDir.ForeColor = Color.Red;
+                lblGameDir.ForeColor = _errorColor;
                 return false;
             }
         }
@@ -323,7 +343,7 @@ namespace HZDUtility
             else
             {
                 lblDecima.Text = "Decima - Invalid";
-                lblDecima.ForeColor = Color.Red;
+                lblDecima.ForeColor = _errorColor;
                 return false;
             }
         }

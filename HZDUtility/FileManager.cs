@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using HZDUtility.Utility;
@@ -9,16 +10,21 @@ namespace HZDUtility
 {
     public class FileManager
     {
-        public static async Task<Dictionary<string, string>> ExtractFiles(
-            Decima dm, string tempPath, string path, bool retainPath,
-            params string[] files)
+        public static async Task<(string Source, string Output)> ExtractFile(
+            Decima decima, string tempPath, string path, bool retainPath, string file)
+        {
+            return (await ExtractFiles(decima, tempPath, path, retainPath, file)).FirstOrDefault();
+        }
+
+        public static async Task<List<(string Source, string Output)>> ExtractFiles(
+            Decima decima, string tempPath, string path, bool retainPath, params string[] files)
         {
             if (!Directory.Exists(path) && !File.Exists(path))
                 throw new HzdException($"Pack file/directory not found at: {path}");
 
             Paths.CheckDirectory(tempPath);
 
-            var tempFiles = new Dictionary<string, string>();
+            var tempFiles = new List<(string Source, string Output)>();
             
             foreach (var f in files)
             {
@@ -34,9 +40,9 @@ namespace HZDUtility
                     output = Path.Combine(tempPath, Guid.NewGuid() + ext);
                 }
                 
-                await dm.ExtractFile(path, f, output);
+                await decima.ExtractFile(path, f, output);
 
-                tempFiles.Add(f, output);
+                tempFiles.Add((f, output));
             }
 
             return tempFiles;

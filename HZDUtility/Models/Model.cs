@@ -4,7 +4,7 @@ using Decima;
 
 namespace HZDUtility.Models
 {
-    public abstract class Model
+    public class Model
     {
         public string Name { get; set; }
         public BaseGGUUID Id { get; set; }
