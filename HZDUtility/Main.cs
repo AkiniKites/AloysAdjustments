@@ -190,7 +190,7 @@ namespace HZDUtility
             SetStatus("Copying patch...");
             await Logic.InstallPatch(patch);
 
-            //await FileManager.Cleanup(Logic.Config.TempPath);
+            await FileManager.Cleanup(IoC.Config.TempPath);
 
             SetStatus("Patch installed");
 
@@ -254,42 +254,37 @@ namespace HZDUtility
 
         private async void btnLoadPatch_Click(object sender, EventArgs e)
         {
-            using (var ofd = new OpenFileDialog())
+            using var ofd = new OpenFileDialog();
+
+            ofd.CheckFileExists = true;
+            ofd.Multiselect = false;
+            ofd.Filter = "Pack files (*.bin)|*.bin|All files (*.*)|*.*";
+
+            if (ofd.ShowDialog() != DialogResult.OK)
+                return;
+
+            await Initialize();
+
+            SetStatus("Loading pack...");
+            NewMaps = await Logic.GenerateOutfitFilesFromPath(ofd.FileName);
+
+            var newOutfits = NewMaps.SelectMany(x => x.Outfits).ToHashSet();
+
+            foreach (var outfit in Outfits)
             {
-                ofd.CheckFileExists = true;
-                ofd.Multiselect = false;
-                ofd.Filter = "Pack files (*.bin)|*.bin|All files (*.*)|*.*";
-
-                if (ofd.ShowDialog() == DialogResult.OK)
+                if (newOutfits.TryGetValue(outfit, out var newOutfit))
                 {
-                    SetStatus("Loading pack...");
-                    NewMaps = await Logic.GenerateOutfitFilesFromPath(ofd.FileName);
-
-                    //should be 1-1 relationship for the default outfits
-                    var defaultRefs = new Dictionary<BaseGGUUID, BaseGGUUID>();
-                    foreach (var sRef in DefaultMaps.SelectMany(x => x.Outfits))
-                        defaultRefs[sRef.ModelId] = sRef.RefId;
-
-                    var newRefs = NewMaps.SelectMany(x => x.Outfits)
-                        .ToDictionary(x => x.RefId, x => x.ModelId);
-
-                    foreach (var outfit in Outfits)
-                    {
-                        if (defaultRefs.TryGetValue(outfit.ModelId, out var defaultRefId))
-                        {
-                            outfit.Modified = newRefs.TryGetValue(defaultRefId, out var newModelId) && 
-                                !outfit.ModelId.Equals(newModelId);
-                        }
-                    }
-
-                    RefreshLists();
-
-                    IoC.Config.Settings.LastOpen = ofd.FileName;
-                    await SaveConfig();
-
-                    SetStatus($"Loaded pack: {Path.GetFileName(ofd.FileName)}");
+                    outfit.Modified = !outfit.ModelId.Equals(newOutfit.ModelId);
+                    outfit.ModelId.AssignFromOther(newOutfit.ModelId);
                 }
             }
+
+            RefreshLists();
+
+            IoC.Config.Settings.LastOpen = ofd.FileName;
+            await SaveConfig();
+
+            SetStatus($"Loaded pack: {Path.GetFileName(ofd.FileName)}");
         }
 
         private void lbOutfits_KeyDown(object sender, KeyEventArgs e)
