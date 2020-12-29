@@ -8,7 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Decima.DS;
+using Decima.HZD;
 using HZDUtility.Models;
 using HZDUtility.Utility;
 using Model = HZDUtility.Models.Model;
@@ -17,6 +17,8 @@ namespace HZDUtility
 {
     public class Logic
     {
+        private const string PatchTempDir = "patch";
+
         private string ConfigPath { get; set; }
 
         public Config Config { get; private set; }
@@ -51,27 +53,34 @@ namespace HZDUtility
 
         public async Task<List<Outfit>> LoadOutfitList()
         {
-            var packDir = Path.Combine(Config.Settings.GamePath, Config.PackDir);
-            var file = await FileManager.ExtractFile(Decima,
-                Config.TempPath, packDir, false, Config.PlayerComponentsFile);
-            
-            if (file.Output == null)
-                throw new HzdException($"Unable to find {Config.PlayerComponentsFile}");
-
-            var objs = CoreBinary.Load(file.Output);
-            var outfits = GetOutfitList(objs).ToList();
+            var components = await LoadPlayerComponents(Config.TempPath);
+            var outfits = GetOutfitList(components.Objects).ToList();
 
             return outfits;
         }
 
+        public async Task<(List<object> Objects, string File)> LoadPlayerComponents(
+            string path, bool retainPath = false)
+        {
+            var packDir = Path.Combine(Config.Settings.GamePath, Config.PackDir);
+
+            //TODO: Fix hack to ignore patch files
+            var patch = Path.Combine(packDir, Config.PatchFile);
+            using var rn = new FileRenamer(patch);
+
+            var file = await FileManager.ExtractFile(Decima,
+                path, packDir, retainPath, Config.PlayerComponentsFile);
+
+            if (file.Output == null)
+                throw new HzdException($"Unable to find {Config.PlayerComponentsFile}");
+
+            var objs = CoreBinary.Load(file.Output);
+            return (objs, file.Output);
+        }
+
         public IEnumerable<Outfit> GetOutfitList(List<object> components)
         {
-            //BodyVariantComponentResource
-            var resource = components.Select(CoreNode.FromObj).FirstOrDefault(x => x.Name == "PlayerBodyVariants");
-            if (resource == null)
-                throw new HzdException("Unable to find PlayerBodyVariants");
-
-            var outfits = resource.GetField<IList>("Variants");
+            var outfits = GetVariants(components);
             return outfits.Cast<object>().Select(CoreNode.FromObj).Select(x =>
                 new Outfit()
                 {
@@ -80,6 +89,15 @@ namespace HZDUtility
                 });
         }
 
+        public IList GetVariants(List<object> components)
+        {
+            //BodyVariantComponentResource
+            var resource = components.Select(CoreNode.FromObj).FirstOrDefault(x => x.Name == "PlayerBodyVariants");
+            if (resource == null)
+                throw new HzdException("Unable to find PlayerBodyVariants");
+
+            return resource.GetField<IList>("Variants");
+        }
 
         public async Task<List<Model>> LoadModelList()
         {
@@ -87,6 +105,20 @@ namespace HZDUtility
 
             //outfit models
             models.AddRange(await LoadOutfitList());
+
+            //var packDir = Path.Combine(Config.Settings.GamePath, Config.PackDir);
+            //var file = await FileManager.ExtractFile(Decima,
+            //    Config.TempPath, packDir, false, @"entities/dlc1/characters/humanoids/uniquecharacters/dlc1_ikrie.core");
+
+            //var objs = CoreBinary.Load(file.Output);
+            //var resources = objs.Select(CoreNode.FromObj).Where(x => x.Type.Name == "HumanoidBodyVariant");
+
+            //models.AddRange(resources.Select(x =>
+            //    new Model()
+            //    {
+            //        Name = x.Name,
+            //        Id = x.Id
+            //    }));
 
             return models;
         }
@@ -125,15 +157,9 @@ namespace HZDUtility
 
             //TODO: Fix hack to ignore patch files
             var patch = Path.Combine(packDir, Config.PatchFile);
-            var patchTemp = patch + Guid.NewGuid();
-            if (File.Exists(patch))
-                File.Move(patch, patchTemp);
+            using var rn = new FileRenamer(patch);
 
             var maps = await GenerateOutfitMapsFromPack(packDir);
-
-            if (File.Exists(patchTemp))
-                File.Move(patchTemp, patch);
-
             return maps;
         }
         public async Task<OutfitMap[]> GenerateOutfitMapsFromPack(string path)
@@ -181,12 +207,13 @@ namespace HZDUtility
             await FileManager.Cleanup(Config.TempPath);
 
             var packDir = Path.Combine(Config.Settings.GamePath, Config.PackDir);
+            var patchDir = Path.Combine(Config.TempPath, PatchTempDir);
 
             foreach (var map in maps)
             {
                 //extract game files to temp
                 var file = await FileManager.ExtractFile(
-                    Decima, Config.TempPath, packDir, true, map.File);
+                    Decima, patchDir, packDir, true, map.File);
 
                 if (file.Output == null)
                     throw new HzdException($"Unable to find file for map: {map.File}");
@@ -204,14 +231,39 @@ namespace HZDUtility
                 CoreBinary.Save(file.Output, objs);
             }
 
+            //await AddCharacterReferences(patchDir);
+
             var output = Path.Combine(Config.TempPath, Config.PatchFile);
 
-            await Decima.PackFiles(Config.TempPath, output);
+            await Decima.PackFiles(patchDir, output);
 
             return output;
 
             //await FileManager.Cleanup(Config.TempPath);
         }
+
+        //private async Task AddCharacterReferences(string path)
+        //{
+        //    var components = await LoadPlayerComponents(path, true);
+        //    var outfits = GetVariants(components.Objects);
+
+        //    var models = await LoadModelList();
+        //    var id = models.First(x => x.Name == "DLC1_Ikrie");
+        //    //var id = models[3];
+
+        //    //var sRef = (StreamingRef<HumanoidBodyVariant>)outfits[33];
+
+        //    //sRef.ExternalFile = new BaseString("entities/characters/humanoids/player/costumes/playercostume_norastealth_heavy");
+
+        //    var sRef = new StreamingRef<HumanoidBodyVariant>();
+        //    sRef.ExternalFile = new BaseString("entities/dlc1/characters/humanoids/uniquecharacters/dlc1_ikrie");
+        //    sRef.Type = BaseRef<HumanoidBodyVariant>.Types.StreamingRef;
+        //    sRef.GUID = BaseGGUUID.FromOther(id.Id);
+
+        //    outfits.Add(sRef);
+
+        //    CoreBinary.Save(components.File, components.Objects);
+        //}
 
         public async Task InstallPatch(string path)
         {

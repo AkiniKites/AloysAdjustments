@@ -42,6 +42,9 @@ namespace HZDUtility
                 
                 await decima.ExtractFile(path, f, output);
 
+                if (!File.Exists(output))
+                    throw new HzdException($"Failed to extract: {f}");
+
                 tempFiles.Add((f, output));
             }
 

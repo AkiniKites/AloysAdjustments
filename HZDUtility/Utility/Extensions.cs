@@ -23,7 +23,7 @@ namespace HZDUtility.Utility
             {
                 return false;
             }
-            catch (InvalidOperationException)  // Handle not created
+            catch (InvalidOperationException)
             {
                 return false;
             }

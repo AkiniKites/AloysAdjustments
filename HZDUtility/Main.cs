@@ -70,7 +70,7 @@ namespace HZDUtility
                 }
                 else
                 {
-                    var backColor = Outfits[e.Index].Modified ? Color.LightSkyBlue : e.BackColor;
+                    var backColor = Outfits?.Any() == true && Outfits[e.Index].Modified ? Color.LightSkyBlue : e.BackColor;
 
                     using (var b = new SolidBrush(backColor))
                         e.Graphics.FillRectangle(b, e.Bounds);
@@ -125,11 +125,13 @@ namespace HZDUtility
 
                 SetStatus("Loading outfit list");
                 Outfits = await Logic.LoadOutfitList();
+                lbOutfits.Items.Clear();
                 foreach (var item in Outfits)
                     lbOutfits.Items.Add(item);
 
                 SetStatus("Loading models list");
                 Models = await Logic.LoadModelList();
+                clbModels.Items.Clear();
                 foreach (var item in Models)
                     clbModels.Items.Add(item);
 
@@ -205,7 +207,7 @@ namespace HZDUtility
             SetStatus("Copying patch...");
             await Logic.InstallPatch(patch);
 
-            await FileManager.Cleanup(Logic.Config.TempPath);
+            //await FileManager.Cleanup(Logic.Config.TempPath);
 
             SetStatus("Patch installed");
 
@@ -264,6 +266,24 @@ namespace HZDUtility
                 {
                     SetStatus("Loading pack...");
                     NewMaps = await Logic.GenerateOutfitMapsFromPack(ofd.FileName);
+
+                    //should be 1-1 relationship for the default outfits
+                    var defaultRefs = new Dictionary<BaseGGUUID, BaseGGUUID>();
+                    foreach (var sRef in DefaultMaps.SelectMany(x => x.Refs))
+                        defaultRefs[sRef.ModelId] = sRef.RefId;
+
+                    var newRefs = NewMaps.SelectMany(x => x.Refs)
+                        .ToDictionary(x => x.RefId, x => x.ModelId);
+
+                    foreach (var outfit in Outfits)
+                    {
+                        if (defaultRefs.TryGetValue(outfit.Id, out var defaultRefId))
+                        {
+                            outfit.Modified = newRefs.TryGetValue(defaultRefId, out var newModelId) && 
+                                !outfit.Id.Equals(newModelId);
+                        }
+                    }
+
                     RefreshLists();
 
                     Logic.Config.Settings.LastOpen = ofd.FileName;
@@ -289,9 +309,8 @@ namespace HZDUtility
         private async void btnReset_Click(object sender, EventArgs e)
         {
             btnReset.Enabled = false;
-            
-            SetStatus("Generating outfit maps");
-            NewMaps = await Logic.GenerateOutfitMaps();
+
+            await Initialize();
             RefreshLists();
 
             SetStatus("Reset complete");
