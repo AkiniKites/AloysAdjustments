@@ -6,11 +6,17 @@ namespace HZDUtility.Models
 {
     public class Model
     {
-        public string Name { get; set; }
         public BaseGGUUID Id { get; set; }
+        public string Name { get; set; }
 
         public override string ToString()
         {
+            var key = "playercostume_";
+            var idx = Name.LastIndexOf(key);
+
+            if (idx >= 0)
+                return Name.Substring(idx + key.Length);
+
             return Name;
         }
 

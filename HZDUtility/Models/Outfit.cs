@@ -1,21 +1,31 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Decima;
 
 namespace HZDUtility.Models
 {
-    public class Outfit : Model
+    public class Outfit
     {
+        public BaseGGUUID ModelId { get; set; }
+        public string Name { get; set; }
         public bool Modified { get; set; }
         public BaseGGUUID RefId { get; set; }
         public BaseGGUUID LocalNameId { get; set; }
         public string LocalNameFile { get; set; }
-        public string DisplayName { get; set; }
+
+        private string _displayName;
+        public string DisplayName => _displayName == null ? null : _displayName + (Modified ? " *" : "");
+
+        public void SetDisplayName(string name)
+        {
+            _displayName = name;
+        }
 
         public Outfit Clone()
         {
             return new Outfit()
             {
-                Id = BaseGGUUID.FromOther(Id),
+                ModelId = BaseGGUUID.FromOther(ModelId),
                 Name = Name,
                 RefId = BaseGGUUID.FromOther(RefId),
                 LocalNameId = BaseGGUUID.FromOther(LocalNameId),
@@ -25,8 +35,18 @@ namespace HZDUtility.Models
 
         public override string ToString()
         {
-            var modified = Modified ? " *" : "";
-            return Name + modified;
+            return DisplayName ?? Name;
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is Outfit outfit &&
+                   EqualityComparer<BaseGGUUID>.Default.Equals(RefId, outfit.RefId);
+        }
+
+        public override int GetHashCode()
+        {
+            return System.HashCode.Combine(RefId);
         }
     }
 }

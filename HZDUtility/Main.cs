@@ -67,6 +67,9 @@ namespace HZDUtility
             lbOutfits.ItemHeight = lbOutfits.Font.Height + 2;
             lbOutfits.DrawItem += (s, e) =>
             {
+                if (e.Index < 0)
+                    return;
+
                 var l = (ListBox)s;
                 
                 if (e.State.HasFlag(DrawItemState.Selected))
@@ -101,7 +104,7 @@ namespace HZDUtility
 
         private async void Main_Load(object sender, EventArgs e)
         {
-            SetStatus("Loading config");
+            SetStatus("Loading config...");
             await LoadConfig();
             Logic = new Logic();
             IoC.Bind(new Decima());
@@ -130,12 +133,12 @@ namespace HZDUtility
                 return;
             }
             
-            SetStatus("Generating outfit maps");
+            SetStatus("Generating outfit maps...");
             DefaultMaps = await Logic.GenerateOutfitFiles();
             NewMaps = DefaultMaps.Select(x => x.Clone()).ToArray();
 
-            SetStatus("Loading outfit list");
-            var outfits = Logic.GenerateOutfitList(DefaultMaps);
+            SetStatus("Loading outfit list...");
+            var outfits = Logic.GenerateOutfitList(NewMaps);
             await UpdateDisplayNames(outfits);
             Outfits = outfits.OrderBy(x => x.DisplayName).ToList();
 
@@ -143,34 +146,18 @@ namespace HZDUtility
             foreach (var item in Outfits)
                 lbOutfits.Items.Add(item);
 
-            SetStatus("Loading models list");
-            Models = (await Logic.GenerateModelList(DefaultMaps))
-                .OrderBy(x => x.Name).ToList(); ;
+            SetStatus("Loading models list...");
+            var models = (await Logic.GenerateModelList(NewMaps));
+            //sort models to match outfits
+            var outfitSorting = Outfits.Select((x, i) => (x, i)).ToDictionary(x => x.x.ModelId, x => x.i);
+            Models = models.OrderBy(x => outfitSorting.TryGetValue(x.Id, out var sort) ? sort : int.MaxValue).ToList();
+
             clbModels.Items.Clear();
             foreach (var item in Models)
                 clbModels.Items.Add(item);
 
             _invalidConfig = false;
             SetStatus("Loading complete");
-        }
-
-        private void UpdateMapping(Outfit outfit, Model model)
-        {
-            //get all references with same outfit id from the default mapping
-            var mapRefs = DefaultMaps.SelectMany(x => x.Outfits)
-                .Where(x => x.Id.Equals(outfit.Id)).Select(x=>x.RefId)
-                .ToHashSet();
-
-            outfit.Modified = !outfit.Id.Equals(model.Id);
-
-            //find the outfit in the new mapping by reference and update the model
-            foreach (var map in NewMaps)
-            {
-                foreach (var reference in map.Outfits.Where(x=> mapRefs.Contains(x.RefId)))
-                {
-                    reference.Id.AssignFromOther(model.Id);
-                }
-            }
         }
 
         private void lbOutfits_SelectedValueChanged(object sender, EventArgs e)
@@ -180,7 +167,7 @@ namespace HZDUtility
             var lb = (ListBox)sender;
 
             var modelIds = lb.SelectedItems.Cast<Outfit>()
-                .Select(x => x.Id).ToHashSet();
+                .Select(x => x.ModelId).ToHashSet();
 
             for (int i = 0; i < clbModels.Items.Count; i++)
             {
@@ -238,6 +225,21 @@ namespace HZDUtility
             _updatingLists = false;
         }
 
+        private void UpdateMapping(Outfit outfit, Model model)
+        {
+            //get all matching outfits from the default mapping
+            var origOutfits = DefaultMaps.SelectMany(x => x.Outfits)
+                .Where(x => x.Equals(outfit)).ToHashSet();
+
+            //find the outfit in the new mapping by reference and update the model
+            foreach (var newOutfit in NewMaps.SelectMany(x => x.Outfits)
+                .Where(x => origOutfits.Contains(x)))
+            {
+                newOutfit.Modified = !newOutfit.ModelId.Equals(model.Id);
+                newOutfit.ModelId.AssignFromOther(model.Id);
+            }
+        }
+
         private async void btnDecima_Click(object sender, EventArgs e)
         {
             SetStatus("Downloading Decima...");
@@ -266,17 +268,17 @@ namespace HZDUtility
                     //should be 1-1 relationship for the default outfits
                     var defaultRefs = new Dictionary<BaseGGUUID, BaseGGUUID>();
                     foreach (var sRef in DefaultMaps.SelectMany(x => x.Outfits))
-                        defaultRefs[sRef.Id] = sRef.RefId;
+                        defaultRefs[sRef.ModelId] = sRef.RefId;
 
                     var newRefs = NewMaps.SelectMany(x => x.Outfits)
-                        .ToDictionary(x => x.RefId, x => x.Id);
+                        .ToDictionary(x => x.RefId, x => x.ModelId);
 
                     foreach (var outfit in Outfits)
                     {
-                        if (defaultRefs.TryGetValue(outfit.Id, out var defaultRefId))
+                        if (defaultRefs.TryGetValue(outfit.ModelId, out var defaultRefId))
                         {
                             outfit.Modified = newRefs.TryGetValue(defaultRefId, out var newModelId) && 
-                                !outfit.Id.Equals(newModelId);
+                                !outfit.ModelId.Equals(newModelId);
                         }
                     }
 
@@ -393,7 +395,7 @@ namespace HZDUtility
         {
             foreach (var o in outfits)
             {
-                o.DisplayName = await IoC.Localization.GetString(o.LocalNameFile, o.LocalNameId);
+                o.SetDisplayName(await IoC.Localization.GetString(o.LocalNameFile, o.LocalNameId));
             }
         }
     }
