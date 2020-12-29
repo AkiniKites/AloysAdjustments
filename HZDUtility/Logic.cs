@@ -18,61 +18,28 @@ namespace HZDUtility
     public class Logic
     {
         private const string PatchTempDir = "patch";
+        
+        public Logic() { }
 
-        private string ConfigPath { get; set; }
-
-        public Config Config { get; private set; }
-        public Decima Decima { get; private set; }
-
-        private Logic() { }
-
-        public static async Task<Logic> FromConfig(string configPath)
+        public List<Outfit> GenerateOutfitList(OutfitFile[] files)
         {
-            var l = new Logic()
-            {
-                ConfigPath = configPath
-            };
-            
-            await l.LoadConfig();
-            l.Decima = new Decima(l.Config);
-
-            return l;
-        }
-
-        public async Task LoadConfig()
-        {
-            var json = await File.ReadAllTextAsync(ConfigPath);
-            Config = await Task.Run(() => JsonConvert.DeserializeObject<Config>(json));
-        }
-
-        public async Task SaveConfig()
-        {
-            var json = JsonConvert.SerializeObject(Config, Formatting.Indented);
-            await File.WriteAllTextAsync(ConfigPath, json);
-        }
-
-        public async Task<List<Outfit>> LoadOutfitList()
-        {
-            var components = await LoadPlayerComponents(Config.TempPath);
-            var outfits = GetOutfitList(components.Objects).ToList();
-
-            return outfits;
+            //ignore duplicate names
+            return files.SelectMany(x => x.Outfits)
+                .GroupBy(x => x.Id).Select(x => x.First()).ToList();
         }
 
         public async Task<(List<object> Objects, string File)> LoadPlayerComponents(
             string path, bool retainPath = false)
         {
-            var packDir = Path.Combine(Config.Settings.GamePath, Config.PackDir);
-
             //TODO: Fix hack to ignore patch files
-            var patch = Path.Combine(packDir, Config.PatchFile);
+            var patch = Path.Combine(Configs.GamePackDir, IoC.Config.PatchFile);
             using var rn = new FileRenamer(patch);
 
-            var file = await FileManager.ExtractFile(Decima,
-                path, packDir, retainPath, Config.PlayerComponentsFile);
+            var file = await FileManager.ExtractFile(IoC.Decima,
+                path, Configs.GamePackDir, retainPath, IoC.Config.PlayerComponentsFile);
 
             if (file.Output == null)
-                throw new HzdException($"Unable to find {Config.PlayerComponentsFile}");
+                throw new HzdException($"Unable to find {IoC.Config.PlayerComponentsFile}");
 
             var objs = CoreBinary.Load(file.Output);
             return (objs, file.Output);
@@ -99,47 +66,46 @@ namespace HZDUtility
             return resource.GetField<IList>("Variants");
         }
 
-        public async Task<List<Model>> LoadModelList()
+        public async Task<List<Model>> GenerateModelList(OutfitFile[] maps)
         {
             var models = new List<Model>();
 
             //outfit models
-            models.AddRange(await LoadOutfitList());
+            models.AddRange(GenerateOutfitList(maps));
+            
+            var file = await FileManager.ExtractFile(IoC.Decima,
+                IoC.Config.TempPath, Configs.GamePackDir, false, @"entities/dlc1/characters/humanoids/uniquecharacters/dlc1_ikrie.core");
 
-            //var packDir = Path.Combine(Config.Settings.GamePath, Config.PackDir);
-            //var file = await FileManager.ExtractFile(Decima,
-            //    Config.TempPath, packDir, false, @"entities/dlc1/characters/humanoids/uniquecharacters/dlc1_ikrie.core");
+            var objs = CoreBinary.Load(file.Output);
+            var resources = objs.Select(CoreNode.FromObj).Where(x => x.Type.Name == "HumanoidBodyVariant");
 
-            //var objs = CoreBinary.Load(file.Output);
-            //var resources = objs.Select(CoreNode.FromObj).Where(x => x.Type.Name == "HumanoidBodyVariant");
-
-            //models.AddRange(resources.Select(x =>
-            //    new Model()
-            //    {
-            //        Name = x.Name,
-            //        Id = x.Id
-            //    }));
+            models.AddRange(resources.Select(x =>
+                new Model()
+                {
+                    Name = x.Name,
+                    Id = x.Id
+                }));
 
             return models;
         }
 
         public bool HasOutfitMap()
         {
-            return File.Exists(Config.OutfitMapPath);
+            return File.Exists(IoC.Config.OutfitMapPath);
         }
 
-        public async Task<OutfitMap[]> LoadOutfitMaps()
+        public async Task<OutfitFile[]> LoadOutfitMaps()
         {
-            var json = await File.ReadAllTextAsync(Config.OutfitMapPath);
+            var json = await File.ReadAllTextAsync(IoC.Config.OutfitMapPath);
 
-            return JsonConvert.DeserializeObject<OutfitMap[]>(json, new JsonSerializerSettings()
+            return JsonConvert.DeserializeObject<OutfitFile[]>(json, new JsonSerializerSettings()
             {
                 Formatting = Formatting.Indented,
                 Converters = new[] { new BaseGGUUIDConverter() }
             });
         }
 
-        public async Task SaveOutfitMaps(OutfitMap[] maps)
+        public async Task SaveOutfitMaps(OutfitFile[] maps)
         {
             var json = JsonConvert.SerializeObject(maps, new JsonSerializerSettings()
             {
@@ -147,78 +113,117 @@ namespace HZDUtility
                 Converters = new[] { new BaseGGUUIDConverter() }
             });
 
-            await File.WriteAllTextAsync(Config.OutfitMapPath, json);
+            await File.WriteAllTextAsync(IoC.Config.OutfitMapPath, json);
         }
 
-        public async Task<OutfitMap[]> GenerateOutfitMaps()
+        public async Task<OutfitFile[]> GenerateOutfitFiles()
         {
-            //extract game files
-            var packDir = Path.Combine(Config.Settings.GamePath, Config.PackDir);
-
             //TODO: Fix hack to ignore patch files
-            var patch = Path.Combine(packDir, Config.PatchFile);
+            var patch = Path.Combine(Configs.GamePackDir, IoC.Config.PatchFile);
             using var rn = new FileRenamer(patch);
 
-            var maps = await GenerateOutfitMapsFromPack(packDir);
+            //extract game files
+            var maps = await GenerateOutfitFilesFromPath(Configs.GamePackDir);
             return maps;
         }
-        public async Task<OutfitMap[]> GenerateOutfitMapsFromPack(string path)
+
+        public async Task<OutfitFile[]> GenerateOutfitFilesFromPath(string path)
         {
-            var files = await FileManager.ExtractFiles(Decima, 
-                Config.TempPath, path, false, Config.OutfitFiles);
+            var files = await FileManager.ExtractFiles(IoC.Decima, 
+                IoC.Config.TempPath, path, false, IoC.Config.OutfitFiles);
 
             var maps = files.Select(x => GetOutfitMap(x.Source, x.Output)).ToArray();
-            await SaveOutfitMaps(maps);
+            //await SaveOutfitMaps(maps);
 
-            await FileManager.Cleanup(Config.TempPath);
+            await FileManager.Cleanup(IoC.Config.TempPath);
 
             return maps;
         }
 
-        private OutfitMap GetOutfitMap(string fileKey, string path)
+        private OutfitFile GetOutfitMap(string fileKey, string path)
         {
-            var map = new OutfitMap()
+            var map = new OutfitFile()
             {
                 File = fileKey
             };
 
             var objs = CoreBinary.Load(path);
 
-            foreach (var item in GetOutfitReferences(objs))
-                map.Refs.Add(item);
+            foreach (var item in GetOutfits(objs))
+                map.Outfits.Add(item);
 
             return map;
         }
 
-        private IEnumerable<(BaseGGUUID ModelId, BaseGGUUID RefId)> GetOutfitReferences(List<object> components)
+        private IEnumerable<Outfit> GetOutfits(List<object> nodes)
         {
-            //NodeGraphHumanoidBodyVariantUUIDRefVariableOverride
-            var mappings = components.Select(CoreNode.FromObj).Where(x => x.Type.Name == "NodeGraphHumanoidBodyVariantUUIDRefVariableOverride");
+            var items = GetTypes<InventoryEntityResource>(nodes).Values;
+            var itemComponents = GetTypes<InventoryItemComponentResource>(nodes);
+            var componentResources = GetTypes<NodeGraphComponentResource>(nodes);
+            var overrides = GetTypes< OverrideGraphProgramResource>(nodes);
+            var mappings = GetTypes< NodeGraphHumanoidBodyVariantUUIDRefVariableOverride>(nodes);
 
-            return mappings.Select(x =>
-                (
-                    CoreNode.FromObj(x.GetField<object>("Object"))?.GetField<BaseGGUUID>("GUID"),
-                    x.Id
-                ));
+            foreach (var item in items)
+            {
+                var outfit = new Outfit()
+                {
+                    Name = item.Name.ToString().Replace("InventoryEntityResource", "")
+                };
+
+                foreach (var component in item.EntityComponentResources)
+                {
+                    if (itemComponents.TryGetValue(component.GUID, out var invItem))
+                    {
+                        outfit.LocalNameId = invItem.LocalizedItemName.GUID;
+                        outfit.LocalNameFile = invItem.LocalizedItemName.ExternalFile?.ToString();
+                    }
+
+                    if (componentResources.TryGetValue(component.GUID, out var compRes))
+                    {
+                        var overrideRef = compRes.OverrideGraphProgramResource;
+                        if (overrideRef?.GUID == null || !overrides.TryGetValue(overrideRef.GUID, out var rOverride))
+                            continue;
+                        
+                        foreach (var mapRef in rOverride.VariableOverrides)
+                        {
+                            if (mappings.TryGetValue(mapRef.GUID, out var mapItem))
+                            {
+                                outfit.Id = mapItem.Object.GUID;
+                                outfit.RefId = mapItem.ObjectUUID;
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                yield return outfit;
+            }
         }
 
-        public async Task<string> GeneratePatch(OutfitMap[] maps)
+        private Dictionary<BaseGGUUID, T> GetTypes<T>(List<object> nodes, string typeName = null) where T : RTTIRefObject
         {
-            await FileManager.Cleanup(Config.TempPath);
+            typeName = typeName ?? typeof(T).Name;
 
-            var packDir = Path.Combine(Config.Settings.GamePath, Config.PackDir);
-            var patchDir = Path.Combine(Config.TempPath, PatchTempDir);
+            return nodes.Where(x => x.GetType().Name == typeName)
+                .ToDictionary(x => (BaseGGUUID)((T)x).ObjectUUID, x => (T)x);
+        }
+
+        public async Task<string> GeneratePatch(OutfitFile[] maps)
+        {
+            await FileManager.Cleanup(IoC.Config.TempPath);
+            
+            var patchDir = Path.Combine(IoC.Config.TempPath, PatchTempDir);
 
             foreach (var map in maps)
             {
                 //extract game files to temp
                 var file = await FileManager.ExtractFile(
-                    Decima, patchDir, packDir, true, map.File);
+                    IoC.Decima, patchDir, Configs.GamePackDir, true, map.File);
 
                 if (file.Output == null)
                     throw new HzdException($"Unable to find file for map: {map.File}");
 
-                var refs = map.Refs.ToDictionary(x => x.RefId, x => x.ModelId);
+                var refs = map.Outfits.ToDictionary(x => x.RefId, x => x.Id);
 
                 //update references from 
                 var objs = CoreBinary.Load(file.Output);
@@ -233,13 +238,25 @@ namespace HZDUtility
 
             //await AddCharacterReferences(patchDir);
 
-            var output = Path.Combine(Config.TempPath, Config.PatchFile);
+            var output = Path.Combine(IoC.Config.TempPath, IoC.Config.PatchFile);
 
-            await Decima.PackFiles(patchDir, output);
+            await IoC.Decima.PackFiles(patchDir, output);
 
             return output;
 
-            //await FileManager.Cleanup(Config.TempPath);
+            //await FileManager.Cleanup(IoC.Config.TempPath);
+        }
+
+        private IEnumerable<(BaseGGUUID ModelId, BaseGGUUID RefId)> GetOutfitReferences(List<object> components)
+        {
+            //NodeGraphHumanoidBodyVariantUUIDRefVariableOverride
+            GetOutfits(components).ToList();
+            var mappings = components.Select(CoreNode.FromObj).Where(x => x.Type.Name == "NodeGraphHumanoidBodyVariantUUIDRefVariableOverride");
+            return mappings.Select((x, i) =>
+            (
+                CoreNode.FromObj(x.GetField<object>("Object"))?.GetField<BaseGGUUID>("GUID"),
+                x.Id
+            ));
         }
 
         //private async Task AddCharacterReferences(string path)
@@ -247,7 +264,7 @@ namespace HZDUtility
         //    var components = await LoadPlayerComponents(path, true);
         //    var outfits = GetVariants(components.Objects);
 
-        //    var models = await LoadModelList();
+        //    var models = await GenerateModelList();
         //    var id = models.First(x => x.Name == "DLC1_Ikrie");
         //    //var id = models[3];
 
@@ -267,15 +284,12 @@ namespace HZDUtility
 
         public async Task InstallPatch(string path)
         {
-            var packDir = Path.Combine(Config.Settings.GamePath, Config.PackDir);
-            await FileManager.InstallPatch(path, packDir);
+            await FileManager.InstallPatch(path, Configs.GamePackDir);
         }
 
         public bool CheckGameDir()
         {
-            if (!Directory.Exists(Config.Settings.GamePath))
-                return false;
-            return Directory.Exists(Path.Combine(Config.Settings.GamePath, Config.PackDir));
+            return Directory.Exists(Configs.GamePackDir);
         }
     }
 }

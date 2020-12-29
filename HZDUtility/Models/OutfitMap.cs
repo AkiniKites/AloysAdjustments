@@ -4,30 +4,23 @@ using Decima;
 
 namespace HZDUtility.Models
 {
-    public class OutfitMap
+    public class OutfitFile
     {
         public string File { get; set; }
-        public List<(BaseGGUUID ModelId, BaseGGUUID RefId)> Refs { get; set; }
+        public List<Outfit> Outfits { get; set; }
 
-        public OutfitMap()
+        public OutfitFile()
         {
-            Refs = new List<(BaseGGUUID ModelId, BaseGGUUID RefId)>();
+            Outfits = new List<Outfit>();
         }
 
-        public OutfitMap Clone()
+        public OutfitFile Clone()
         {
-            var map = new OutfitMap()
+            return new OutfitFile()
             {
-                File = File
+                File = File,
+                Outfits = Outfits.Select(x => x.Clone()).ToList()
             };
-
-            map.Refs = Refs
-                .Select(x => (
-                    BaseGGUUID.FromOther(x.ModelId), 
-                    BaseGGUUID.FromOther(x.RefId)))
-                .ToList();
-
-            return map;
         }
     }
 }

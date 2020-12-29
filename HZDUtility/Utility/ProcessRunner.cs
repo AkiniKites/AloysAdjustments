@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace HZDUtility.Utility
@@ -18,7 +19,7 @@ namespace HZDUtility.Utility
         public string Command { get; }
         public string Arguments { get; }
 
-        public (int ExitCode, string StdErr) Run()
+        public async Task<(int ExitCode, string StdErr)> Run()
         {
             var si = new ProcessStartInfo()
             {
@@ -31,34 +32,38 @@ namespace HZDUtility.Utility
                 RedirectStandardError = true
             };
 
-            using (Process p = new Process())
-            {
-                p.StartInfo = si;
+            using Process p = new Process { StartInfo = si };
 
-                var osb = new StringBuilder();
-                var esb = new StringBuilder();
+            var osb = new StringBuilder();
+            var esb = new StringBuilder();
 
-                p.OutputDataReceived += (s, e) => {
-                    osb.AppendLine(e.Data);
-                };
-                p.ErrorDataReceived += (s, e) => {
-                    esb.AppendLine(e.Data);
-                };
+            p.OutputDataReceived += (s, e) => {
+                osb.AppendLine(e.Data);
+            };
+            p.ErrorDataReceived += (s, e) => {
+                esb.AppendLine(e.Data);
+            };
 
-                p.Start();
+            p.Start();
 
-                p.BeginOutputReadLine();
-                p.BeginErrorReadLine();
+            p.BeginOutputReadLine();
+            p.BeginErrorReadLine();
 
-                p.WaitForExit();
+            await WaitForExitAsync(p);
 
-                return (p.ExitCode, esb.ToString());
-            }
+            return (p.ExitCode, esb.ToString());
         }
 
-        public async Task<(int ExitCode, string StdErr)> RunAsync()
+        public Task WaitForExitAsync(Process process)
         {
-            return await Task.Run(() => Run());
+            if (process.HasExited) 
+                return Task.CompletedTask;
+
+            var tcs = new TaskCompletionSource<object>();
+            process.EnableRaisingEvents = true;
+            process.Exited += (sender, args) => tcs.TrySetResult(null);
+
+            return process.HasExited ? Task.CompletedTask : tcs.Task;
         }
     }
 }

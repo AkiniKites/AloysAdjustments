@@ -11,16 +11,16 @@ namespace HZDUtility
     public class FileManager
     {
         public static async Task<(string Source, string Output)> ExtractFile(
-            Decima decima, string tempPath, string path, bool retainPath, string file)
+            Decima decima, string tempPath, string pakPath, bool retainPath, string file)
         {
-            return (await ExtractFiles(decima, tempPath, path, retainPath, file)).FirstOrDefault();
+            return (await ExtractFiles(decima, tempPath, pakPath, retainPath, file)).FirstOrDefault();
         }
 
         public static async Task<List<(string Source, string Output)>> ExtractFiles(
-            Decima decima, string tempPath, string path, bool retainPath, params string[] files)
+            Decima decima, string tempPath, string pakPath, bool retainPath, params string[] files)
         {
-            if (!Directory.Exists(path) && !File.Exists(path))
-                throw new HzdException($"Pack file/directory not found at: {path}");
+            if (!Directory.Exists(pakPath) && !File.Exists(pakPath))
+                throw new HzdException($"Pack file/directory not found at: {pakPath}");
 
             Paths.CheckDirectory(tempPath);
 
@@ -40,7 +40,7 @@ namespace HZDUtility
                     output = Path.Combine(tempPath, Guid.NewGuid() + ext);
                 }
                 
-                await decima.ExtractFile(path, f, output);
+                await decima.ExtractFile(pakPath, f, output);
 
                 if (!File.Exists(output))
                     throw new HzdException($"Failed to extract: {f}");

@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <PackageReference Include="Ninject" Version="3.3.4" />
     <PackageReference Include="Octokit" Version="0.48.0" />
   </ItemGroup>
 

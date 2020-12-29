@@ -14,7 +14,10 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Decima.HZD;
 using HZDUtility.Models;
+using Application = System.Windows.Forms.Application;
+using Model = HZDUtility.Models.Model;
 
 namespace HZDUtility
 {
@@ -29,8 +32,8 @@ namespace HZDUtility
 
         private Logic Logic { get; set; }
 
-        private OutfitMap[] DefaultMaps { get; set; }
-        private OutfitMap[] NewMaps { get; set; }
+        private OutfitFile[] DefaultMaps { get; set; }
+        private OutfitFile[] NewMaps { get; set; }
 
         private List<Outfit> Outfits { get; set; }
         private List<Model> Models { get; set; }
@@ -58,6 +61,8 @@ namespace HZDUtility
 
         private void SetupOutfitList()
         {
+            lbOutfits.DisplayMember = "DisplayName";
+
             lbOutfits.DrawMode = DrawMode.OwnerDrawVariable;
             lbOutfits.ItemHeight = lbOutfits.Font.Height + 2;
             lbOutfits.DrawItem += (s, e) =>
@@ -78,8 +83,8 @@ namespace HZDUtility
                 
                 using (var b = new SolidBrush(e.ForeColor))
                 {
-                    e.Graphics.DrawString(l.Items[e.Index].ToString(),
-                        e.Font, b, e.Bounds, StringFormat.GenericDefault);
+                    var text = l.GetItemText(l.Items[e.Index]);
+                    e.Graphics.DrawString(text, e.Font, b, e.Bounds, StringFormat.GenericDefault);
                 }
                 e.DrawFocusRectangle();
             };
@@ -97,10 +102,13 @@ namespace HZDUtility
         private async void Main_Load(object sender, EventArgs e)
         {
             SetStatus("Loading config");
-            Logic = await Logic.FromConfig(ConfigPath);
+            await LoadConfig();
+            Logic = new Logic();
+            IoC.Bind(new Decima());
+            IoC.Bind(new Localization(ELanguage.English));
 
             tbGameDir.EnableTypingEvent = false;
-            tbGameDir.Text = Logic.Config.Settings.GamePath;
+            tbGameDir.Text = IoC.Config.Settings.GamePath;
             tbGameDir.EnableTypingEvent = true;
 
             await Initialize();
@@ -116,53 +124,41 @@ namespace HZDUtility
                 SetStatus("Missing Game Folder", true);
                 return;
             }
-
-            if (decima)
-            {
-                SetStatus("Generating outfit maps");
-                DefaultMaps = await Logic.GenerateOutfitMaps();
-                NewMaps = DefaultMaps.Select(x => x.Clone()).ToArray();
-
-                SetStatus("Loading outfit list");
-                Outfits = await Logic.LoadOutfitList();
-                lbOutfits.Items.Clear();
-                foreach (var item in Outfits)
-                    lbOutfits.Items.Add(item);
-
-                SetStatus("Loading models list");
-                Models = await Logic.LoadModelList();
-                clbModels.Items.Clear();
-                foreach (var item in Models)
-                    clbModels.Items.Add(item);
-
-                _invalidConfig = false;
-                SetStatus("Loading complete");
-            }
-            else
+            if (!decima)
             {
                 SetStatus("Missing Decima", true);
+                return;
             }
-        }
+            
+            SetStatus("Generating outfit maps");
+            DefaultMaps = await Logic.GenerateOutfitFiles();
+            NewMaps = DefaultMaps.Select(x => x.Clone()).ToArray();
 
-        private Model FindMatchingModel(Outfit outfit)
-        {
-            //get first reference with same outfit id from the default mapping
-            var mapRef = DefaultMaps.SelectMany(x => x.Refs).FirstOrDefault(x => x.ModelId.Equals(outfit.Id));
+            SetStatus("Loading outfit list");
+            var outfits = Logic.GenerateOutfitList(DefaultMaps);
+            await UpdateDisplayNames(outfits);
+            Outfits = outfits.OrderBy(x => x.DisplayName).ToList();
 
-            if (mapRef.RefId == null)
-                return null;
+            lbOutfits.Items.Clear();
+            foreach (var item in Outfits)
+                lbOutfits.Items.Add(item);
 
-            //find the mapped outfit in the new mapping
-            var newRef = NewMaps.SelectMany(x => x.Refs).FirstOrDefault(x => x.RefId.Equals(mapRef.RefId));
+            SetStatus("Loading models list");
+            Models = (await Logic.GenerateModelList(DefaultMaps))
+                .OrderBy(x => x.Name).ToList(); ;
+            clbModels.Items.Clear();
+            foreach (var item in Models)
+                clbModels.Items.Add(item);
 
-            return Models.FirstOrDefault(x => x.Id.Equals(newRef.ModelId));
+            _invalidConfig = false;
+            SetStatus("Loading complete");
         }
 
         private void UpdateMapping(Outfit outfit, Model model)
         {
             //get all references with same outfit id from the default mapping
-            var mapRefs = DefaultMaps.SelectMany(x => x.Refs)
-                .Where(x => x.ModelId.Equals(outfit.Id)).Select(x=>x.RefId)
+            var mapRefs = DefaultMaps.SelectMany(x => x.Outfits)
+                .Where(x => x.Id.Equals(outfit.Id)).Select(x=>x.RefId)
                 .ToHashSet();
 
             outfit.Modified = !outfit.Id.Equals(model.Id);
@@ -170,9 +166,9 @@ namespace HZDUtility
             //find the outfit in the new mapping by reference and update the model
             foreach (var map in NewMaps)
             {
-                foreach (var reference in map.Refs.Where(x=> mapRefs.Contains(x.RefId)))
+                foreach (var reference in map.Outfits.Where(x=> mapRefs.Contains(x.RefId)))
                 {
-                    reference.ModelId.AssignFromOther(model.Id);
+                    reference.Id.AssignFromOther(model.Id);
                 }
             }
         }
@@ -183,13 +179,13 @@ namespace HZDUtility
 
             var lb = (ListBox)sender;
 
-            var outfits = lb.SelectedItems.Cast<Outfit>()
-                .Select(FindMatchingModel).Where(x => x != null).ToHashSet();
+            var modelIds = lb.SelectedItems.Cast<Outfit>()
+                .Select(x => x.Id).ToHashSet();
 
             for (int i = 0; i < clbModels.Items.Count; i++)
             {
-                if (outfits.Contains(Models[i]))
-                    clbModels.SetItemCheckState(i, outfits.Count > 1 ? CheckState.Indeterminate : CheckState.Checked);
+                if (modelIds.Contains(Models[i].Id))
+                    clbModels.SetItemCheckState(i, modelIds.Count > 1 ? CheckState.Indeterminate : CheckState.Checked);
                 else
                     clbModels.SetItemCheckState(i, CheckState.Unchecked);
             }
@@ -245,9 +241,9 @@ namespace HZDUtility
         private async void btnDecima_Click(object sender, EventArgs e)
         {
             SetStatus("Downloading Decima...");
-            await Logic.Decima.Download();
+            await IoC.Decima.Download();
             SetStatus("Copying Decima library...");
-            await Logic.Decima.GetLibrary();
+            await IoC.Decima.GetLibrary();
             SetStatus("Decima updated");
             
             if (UpdateDecimaStatus() && _invalidConfig)
@@ -265,15 +261,15 @@ namespace HZDUtility
                 if (ofd.ShowDialog() == DialogResult.OK)
                 {
                     SetStatus("Loading pack...");
-                    NewMaps = await Logic.GenerateOutfitMapsFromPack(ofd.FileName);
+                    NewMaps = await Logic.GenerateOutfitFilesFromPath(ofd.FileName);
 
                     //should be 1-1 relationship for the default outfits
                     var defaultRefs = new Dictionary<BaseGGUUID, BaseGGUUID>();
-                    foreach (var sRef in DefaultMaps.SelectMany(x => x.Refs))
-                        defaultRefs[sRef.ModelId] = sRef.RefId;
+                    foreach (var sRef in DefaultMaps.SelectMany(x => x.Outfits))
+                        defaultRefs[sRef.Id] = sRef.RefId;
 
-                    var newRefs = NewMaps.SelectMany(x => x.Refs)
-                        .ToDictionary(x => x.RefId, x => x.ModelId);
+                    var newRefs = NewMaps.SelectMany(x => x.Outfits)
+                        .ToDictionary(x => x.RefId, x => x.Id);
 
                     foreach (var outfit in Outfits)
                     {
@@ -286,8 +282,8 @@ namespace HZDUtility
 
                     RefreshLists();
 
-                    Logic.Config.Settings.LastOpen = ofd.FileName;
-                    await Logic.SaveConfig();
+                    IoC.Config.Settings.LastOpen = ofd.FileName;
+                    await SaveConfig();
 
                     SetStatus($"Loaded pack: {Path.GetFileName(ofd.FileName)}");
                 }
@@ -326,14 +322,13 @@ namespace HZDUtility
 
         private void tbGameDir_TextChanged(object sender, EventArgs e)
         {
-            Logic.Config.Settings.GamePath = tbGameDir.Text;
+            IoC.Config.Settings.GamePath = tbGameDir.Text;
         }
         private async void tbGameDir_TypingFinished(object sender, EventArgs e)
         {
-            await Logic.SaveConfig();
+            await SaveConfig();
             if (UpdateGameDirStatus() && _invalidConfig)
                 await Initialize();
-
         }
 
         private bool UpdateGameDirStatus()
@@ -353,7 +348,7 @@ namespace HZDUtility
         }
         private bool UpdateDecimaStatus()
         {
-            if (Logic.Decima.CheckDecima())
+            if (IoC.Decima.CheckDecima())
             {
                 lblDecima.Text = "Decima";
                 lblDecima.ForeColor = SystemColors.ControlText;
@@ -379,6 +374,26 @@ namespace HZDUtility
 
                 if (UpdateGameDirStatus() && _invalidConfig)
                     await Initialize();
+            }
+        }
+        
+        public async Task LoadConfig()
+        {
+            var json = await File.ReadAllTextAsync(ConfigPath);
+            IoC.Bind<Config>(await Task.Run(() => JsonConvert.DeserializeObject<Config>(json)));
+        }
+
+        public async Task SaveConfig()
+        {
+            var json = JsonConvert.SerializeObject(IoC.Config, Formatting.Indented);
+            await File.WriteAllTextAsync(ConfigPath, json);
+        }
+
+        public async Task UpdateDisplayNames(List<Outfit> outfits)
+        {
+            foreach (var o in outfits)
+            {
+                o.DisplayName = await IoC.Localization.GetString(o.LocalNameFile, o.LocalNameId);
             }
         }
     }

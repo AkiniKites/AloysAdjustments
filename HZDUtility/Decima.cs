@@ -12,47 +12,43 @@ namespace HZDUtility
 {
     public class Decima
     {
-        public Config Config { get; }
-
-        public Decima(Config config)
-        {
-            Config = config;
-        }
-
         public bool CheckDecima()
         {
-            return File.Exists(Config.Decima.Path) && File.Exists(Config.Decima.Lib);
+            return File.Exists(IoC.Config.Decima.Path) && File.Exists(IoC.Config.Decima.Lib);
         }
         public void ValidateDecima()
         {
-            if (!File.Exists(Config.Decima.Path))
-                throw new HzdException($"Decima executable not found: {Config.Decima.Path}");
-            if (!File.Exists(Config.Decima.Lib))
-                throw new HzdException($"Decima support library not found: {Config.Decima.Lib}");
+            if (!File.Exists(IoC.Config.Decima.Path))
+                throw new HzdException($"Decima executable not found: {IoC.Config.Decima.Path}");
+            if (!File.Exists(IoC.Config.Decima.Lib))
+                throw new HzdException($"Decima support library not found: {IoC.Config.Decima.Lib}");
         }
 
         public async Task ExtractFile(string dir, string source, string output)
         {
+            ValidateDecima();
+
             dir = Path.GetFullPath(dir);
             output = Path.GetFullPath(output);
-
-            var p = new ProcessRunner(Config.Decima.Path, $"-extract \"{dir}\" \"{source}\" \"{output}\"");
-            var result = await p.RunAsync();
+            
+            var p = new ProcessRunner(IoC.Config.Decima.Path, $"-extract \"{dir}\" \"{source}\" \"{output}\"");
+            var result = await p.Run();
             if (result.ExitCode != 0)
                 throw new HzdException($"Unable to extract file '{source}' from '{dir}', error code: {result.ExitCode}");
         }
-
-
+        
         public async Task PackFiles(string dir, string output)
         {
+            ValidateDecima();
+
             if (!Directory.Exists(dir))
                 throw new HzdException($"Unable to pack directory, doesn't exist: {dir}");
 
             dir = Path.GetFullPath(dir);
             output = Path.GetFullPath(output);
 
-            var p = new ProcessRunner(Config.Decima.Path, $"-pack \"{dir}\" \"{output}\"");
-            var result = await p.RunAsync();
+            var p = new ProcessRunner(IoC.Config.Decima.Path, $"-pack \"{dir}\" \"{output}\"");
+            var result = await p.Run();
             if (result.ExitCode != 0)
                 throw new HzdException($"Unable to pack dir '{dir}' to '{output}', error code: {result.ExitCode}");
         }
@@ -61,28 +57,28 @@ namespace HZDUtility
         {
             var client = new GitHubClient(new ProductHeaderValue("none"));
 
-            var releases = await client.Repository.Release.GetAll(Config.Decima.RepoUser, Config.Decima.RepoName);
+            var releases = await client.Repository.Release.GetAll(IoC.Config.Decima.RepoUser, IoC.Config.Decima.RepoName);
             var latest = releases.FirstOrDefault();
             if (latest == null)
-                throw new HzdException($"Unable to find latest release for: {Config.Decima.RepoUser}//{Config.Decima.RepoName}");
+                throw new HzdException($"Unable to find latest release for: {IoC.Config.Decima.RepoUser}//{IoC.Config.Decima.RepoName}");
 
-            var file = latest.Assets.FirstOrDefault(x => x.Name == Config.Decima.RepoFile);
+            var file = latest.Assets.FirstOrDefault(x => x.Name == IoC.Config.Decima.RepoFile);
             if (file == null)
-                throw new HzdException($"Unable to find release file: {Config.Decima.RepoFile}");
+                throw new HzdException($"Unable to find release file: {IoC.Config.Decima.RepoFile}");
 
-            Paths.CheckDirectory(Path.GetDirectoryName(Config.Decima.Path));
+            Paths.CheckDirectory(Path.GetDirectoryName(IoC.Config.Decima.Path));
 
             using (var wc = new WebClient())
-                await wc.DownloadFileTaskAsync(new Uri(file.BrowserDownloadUrl), Config.Decima.Path);
+                await wc.DownloadFileTaskAsync(new Uri(file.BrowserDownloadUrl), IoC.Config.Decima.Path);
         }
         public async Task GetLibrary()
         {
-            var libPath = Path.Combine(Config.Settings.GamePath, Path.GetFileName(Config.Decima.Lib));
+            var libPath = Path.Combine(IoC.Config.Settings.GamePath, Path.GetFileName(IoC.Config.Decima.Lib));
             if (!File.Exists(libPath))
-                throw new HzdException($"Unable to find decima support library in: {Config.Settings.GamePath}");
+                throw new HzdException($"Unable to find decima support library in: {IoC.Config.Settings.GamePath}");
             
-            Paths.CheckDirectory(Path.GetDirectoryName(Config.Decima.Lib));
-            await Task.Run(() => File.Copy(libPath, Config.Decima.Lib, true));
+            Paths.CheckDirectory(Path.GetDirectoryName(IoC.Config.Decima.Lib));
+            await Task.Run(() => File.Copy(libPath, IoC.Config.Decima.Lib, true));
         }
     }
 }
