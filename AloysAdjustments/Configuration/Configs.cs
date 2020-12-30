@@ -9,6 +9,6 @@ namespace AloysAdjustments
 {
     public class Configs
     {
-        public static string GamePackDir => Path.Combine(IoC.Config.Settings.GamePath, IoC.Config.PackDir);
+        public static string GamePackDir => Path.Combine(IoC.Settings.GamePath, IoC.Config.PackDir);
     }
 }

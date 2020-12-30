@@ -24,16 +24,14 @@ namespace AloysAdjustments.Modules
         private List<Outfit> Outfits { get; set; }
         private List<Model> Models { get; set; }
 
-        public Button ResetSelected { get; }
-        private Button Reset { get; }
+        public Button Reset { get; set; }
+        public Button ResetSelected { get; set; }
 
         public string ModuleName => "Outfits";
         public Control ModuleControl => this;
 
-        public OutfitsControl(Button btnReset, Button btnResetSelected)
+        public OutfitsControl()
         {
-            ResetSelected = btnResetSelected;
-            Reset = btnReset;
             Logic = new OutfitsLogic();
 
             InitializeComponent();
@@ -78,7 +76,7 @@ namespace AloysAdjustments.Modules
         
         public void Activate()
         {
-            Reset.Click += ResetOnClick;
+            Reset.Click += Reset_Click;
             ResetSelected.Click += ResetSelected_Click;
 
             ResetSelected.Enabled = lbOutfits.SelectedIndex >= 0;
@@ -86,7 +84,7 @@ namespace AloysAdjustments.Modules
 
         public void DeActivate()
         {
-            Reset.Click -= ResetOnClick;
+            Reset.Click -= Reset_Click;
             ResetSelected.Click -= ResetSelected_Click;
         }
 
@@ -244,7 +242,7 @@ namespace AloysAdjustments.Modules
             }
         }
 
-        private async void ResetOnClick(object sender, EventArgs e)
+        private async void Reset_Click(object sender, EventArgs e)
         {
             using var _ = new ControlLock(Reset);
 

@@ -20,6 +20,7 @@ namespace AloysAdjustments
     public partial class Main : Form
     {
         private const string ConfigPath = "config.json";
+        private const string SettingsPath = "settings.json";
 
         private readonly Color _errorColor = Color.FromArgb(255, 51, 51);
         private readonly Color _okColor = Color.ForestGreen;
@@ -60,7 +61,7 @@ namespace AloysAdjustments
         private async void Main_Load(object sender, EventArgs e)
         {
             SetStatus("Loading config...");
-            await LoadConfig();
+            await LoadConfigs();
 
             IoC.Bind(new Decima());
             IoC.Bind(new Localization(ELanguage.English));
@@ -68,16 +69,19 @@ namespace AloysAdjustments
             IoC.SetError = x => SetStatus(x, true);
 
             tbGameDir.EnableTypingEvent = false;
-            tbGameDir.Text = IoC.Config.Settings.GamePath;
+            tbGameDir.Text = IoC.Settings.GamePath;
             tbGameDir.EnableTypingEvent = true;
 
             Modules = new List<IModule>()
             {
-                new OutfitsControl(btnReset, btnResetSelected)
+                new OutfitsControl()
             };
 
             foreach (var module in Modules.AsEnumerable().Reverse())
             {
+                module.Reset = btnReset;
+                module.ResetSelected = btnResetSelected;
+
                 var tab = new TabPage();
 
                 tab.Text = module.ModuleName;
@@ -159,19 +163,19 @@ namespace AloysAdjustments
             foreach (var module in Modules)
                 await module.Load(ofd.FileName);
 
-            IoC.Config.Settings.LastOpen = ofd.FileName;
-            await SaveConfig();
+            IoC.Settings.LastOpen = ofd.FileName;
+            await SaveSettings();
 
             SetStatus($"Loaded pack: {Path.GetFileName(ofd.FileName)}");
         }
 
         private void tbGameDir_TextChanged(object sender, EventArgs e)
         {
-            IoC.Config.Settings.GamePath = tbGameDir.Text;
+            IoC.Settings.GamePath = tbGameDir.Text;
         }
         private async void tbGameDir_TypingFinished(object sender, EventArgs e)
         {
-            await SaveConfig();
+            await SaveSettings();
             if (UpdateGameDirStatus() && _initialized)
                 await Initialize();
         }
@@ -217,16 +221,19 @@ namespace AloysAdjustments
             }
         }
         
-        public async Task LoadConfig()
+        public async Task LoadConfigs()
         {
             var json = await File.ReadAllTextAsync(ConfigPath);
-            IoC.Bind<Config>(await Task.Run(() => JsonConvert.DeserializeObject<Config>(json)));
+            IoC.Bind(await Task.Run(() => JsonConvert.DeserializeObject<Config>(json)));
+
+            json = await File.ReadAllTextAsync(SettingsPath);
+            IoC.Bind(await Task.Run(() => JsonConvert.DeserializeObject<Settings>(json)));
         }
 
-        public async Task SaveConfig()
+        public async Task SaveSettings()
         {
-            var json = JsonConvert.SerializeObject(IoC.Config, Formatting.Indented);
-            await File.WriteAllTextAsync(ConfigPath, json);
+            var json = JsonConvert.SerializeObject(IoC.Settings, Formatting.Indented);
+            await File.WriteAllTextAsync(SettingsPath, json);
         }
 
         private void tcMain_SelectedIndexChanged(object sender, EventArgs e)

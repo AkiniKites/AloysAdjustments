@@ -11,6 +11,9 @@ namespace AloysAdjustments.Modules
         string ModuleName { get; }
         Control ModuleControl { get; }
 
+        Button Reset { get; set; }
+        Button ResetSelected { get; set; }
+
         void Activate();
         void DeActivate();
         Task Load(string path);

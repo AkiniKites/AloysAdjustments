@@ -12,12 +12,8 @@
     "entities/armor/outfits/outfits.core",
     "entities/dlc1/outfits/dlc1_outfits.core"
   ],
-  "OutfitMapPath": "outfit-map.json",
+  "UpgradeFile": "entities/characters/craftingrecipes.core",
   "TempPath": "temp",
   "PatchFile": "zMod_OutfitSwap.bin",
-  "PackDir": "Packed_DX12",
-  "Settings": {
-    "GamePath": "E:/Games/SteamLibrary/steamapps/common/Horizon Zero Dawn",
-    "LastOpen": ""
-  }
+  "PackDir": "Packed_DX12"
 }

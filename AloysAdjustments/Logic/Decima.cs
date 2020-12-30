@@ -78,9 +78,9 @@ namespace AloysAdjustments
         }
         public async Task GetLibrary()
         {
-            var libPath = Path.Combine(IoC.Config.Settings.GamePath, Path.GetFileName(IoC.Config.Decima.Lib));
+            var libPath = Path.Combine(IoC.Settings.GamePath, Path.GetFileName(IoC.Config.Decima.Lib));
             if (!File.Exists(libPath))
-                throw new HzdException($"Unable to find decima support library in: {IoC.Config.Settings.GamePath}");
+                throw new HzdException($"Unable to find decima support library in: {IoC.Settings.GamePath}");
             
             Paths.CheckDirectory(Path.GetDirectoryName(IoC.Config.Decima.Lib));
             await Task.Run(() => File.Copy(libPath, IoC.Config.Decima.Lib, true));

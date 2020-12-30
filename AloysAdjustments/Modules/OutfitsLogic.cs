@@ -5,65 +5,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using AloysAdjustments.Data;
-using Decima;
-using Decima.HZD;
 using AloysAdjustments.Utility;
-using Newtonsoft.Json;
+using Decima.HZD;
 using Model = AloysAdjustments.Data.Model;
 
-namespace AloysAdjustments
+namespace AloysAdjustments.Modules
 {
     public class OutfitsLogic
     {
-        public OutfitsLogic() { }
-
-        public List<Outfit> GenerateOutfitList(OutfitFile[] files)
-        {
-            //ignore duplicate names
-            return files.SelectMany(x => x.Outfits)
-                .GroupBy(x => x.ModelId).Select(x => x.First()).ToList();
-        }
-        
-        public async Task<List<Model>> GenerateModelList()
-        {
-            var models = new List<Model>();
-
-            //player models
-            var playerComponents = (await LoadPlayerComponents(IoC.Config.TempPath)).Core;
-            var playerModels = GetPlayerModels(playerComponents);
-
-            models.AddRange(playerModels.Select(x => new Model
-            {
-                Id = x.GUID,
-                Name = x.ExternalFile.ToString()
-            }));
-
-            return models;
-        }
-        
-        public async Task<(HzdCore Core, string File)> LoadPlayerComponents(
-            string outputPath, bool retainPath = false)
-        {
-            //TODO: Fix hack to ignore patch files
-            var patch = Path.Combine(Configs.GamePackDir, IoC.Config.PatchFile);
-            using var rn = new FileRenamer(patch);
-
-            var file = await FileManager.ExtractFile(IoC.Decima,
-                outputPath, Configs.GamePackDir, retainPath, IoC.Config.PlayerComponentsFile);
-
-            var core = HzdCore.Load(file.Output);
-            return (core, file.Output);
-        }
-
-        public List<global::Decima.HZD.StreamingRef<HumanoidBodyVariant>> GetPlayerModels(HzdCore core)
-        {
-            var resource = core.GetTypes<BodyVariantComponentResource>().FirstOrDefault().Value;
-            if (resource == null)
-                throw new HzdException("Unable to find PlayerBodyVariants");
-
-            return resource.Variants;
-        }
-
         public async Task<OutfitFile[]> GenerateOutfitFiles()
         {
             //TODO: Fix hack to ignore patch files
@@ -140,7 +89,54 @@ namespace AloysAdjustments
                 yield return outfit;
             }
         }
-        
+
+        public List<Outfit> GenerateOutfitList(OutfitFile[] files)
+        {
+            //ignore duplicate names
+            return files.SelectMany(x => x.Outfits)
+                .GroupBy(x => x.ModelId).Select(x => x.First()).ToList();
+        }
+
+        public async Task<List<Model>> GenerateModelList()
+        {
+            var models = new List<Model>();
+
+            //player models
+            var playerComponents = (await LoadPlayerComponents(IoC.Config.TempPath)).Core;
+            var playerModels = GetPlayerModels(playerComponents);
+
+            models.AddRange(playerModels.Select(x => new Model
+            {
+                Id = x.GUID,
+                Name = x.ExternalFile.ToString()
+            }));
+
+            return models;
+        }
+
+        public async Task<(HzdCore Core, string File)> LoadPlayerComponents(
+            string outputPath, bool retainPath = false)
+        {
+            //TODO: Fix hack to ignore patch files
+            var patch = Path.Combine(Configs.GamePackDir, IoC.Config.PatchFile);
+            using var rn = new FileRenamer(patch);
+
+            var file = await FileManager.ExtractFile(IoC.Decima,
+                outputPath, Configs.GamePackDir, retainPath, IoC.Config.PlayerComponentsFile);
+
+            var core = HzdCore.Load(file.Output);
+            return (core, file.Output);
+        }
+
+        public List<global::Decima.HZD.StreamingRef<HumanoidBodyVariant>> GetPlayerModels(HzdCore core)
+        {
+            var resource = core.GetTypes<BodyVariantComponentResource>().FirstOrDefault().Value;
+            if (resource == null)
+                throw new HzdException("Unable to find PlayerBodyVariants");
+
+            return resource.Variants;
+        }
+
         public async Task CreatePatch(string patchDir, OutfitFile[] maps)
         {
             foreach (var map in maps)
