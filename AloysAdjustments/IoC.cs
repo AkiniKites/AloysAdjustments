@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Ninject;
 using Ninject.Planning.Bindings.Resolvers;
 
-namespace HZDOutfitEditor
+namespace AloysAdjustments
 {
     public class IoC
     {

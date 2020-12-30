@@ -9,13 +9,13 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using Decima;
 using Decima.HZD;
-using HZDOutfitEditor.Models;
-using HZDOutfitEditor.Utility;
+using AloysAdjustments.Models;
+using AloysAdjustments.Utility;
 using Newtonsoft.Json;
 using Application = System.Windows.Forms.Application;
-using Model = HZDOutfitEditor.Models.Model;
+using Model = AloysAdjustments.Models.Model;
 
-namespace HZDOutfitEditor
+namespace AloysAdjustments
 {
     public partial class Main : Form
     {
@@ -187,10 +187,10 @@ namespace HZDOutfitEditor
                 File.Delete(Path.Combine(Configs.GamePackDir, IoC.Config.PatchFile));
 
             SetStatus("Generating patch...");
-            var patch = await Logic.GeneratePatch(NewMaps);
+            var patch = await new Patcher().GeneratePatch(NewMaps);
 
             SetStatus("Copying patch...");
-            await Logic.InstallPatch(patch);
+            await new Patcher().InstallPatch(patch);
 
             //await FileManager.Cleanup(IoC.Config.TempPath);
 

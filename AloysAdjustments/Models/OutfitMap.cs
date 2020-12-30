@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace HZDOutfitEditor.Models
+namespace AloysAdjustments.Models
 {
     public class OutfitFile
     {

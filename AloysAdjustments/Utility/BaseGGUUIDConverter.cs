@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using Decima;
 using Newtonsoft.Json;
 
-namespace HZDOutfitEditor.Utility
+namespace AloysAdjustments.Utility
 {
     public class BaseGGUUIDConverter : JsonConverter<BaseGGUUID>
     {

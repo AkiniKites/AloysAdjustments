@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using HZDOutfitEditor.Utility;
+using AloysAdjustments.Utility;
 
-namespace HZDOutfitEditor
+namespace AloysAdjustments
 {
     partial class Main
     {
@@ -36,7 +36,6 @@ namespace HZDOutfitEditor
         private void InitializeComponent()
         {
             this.btnLoadPatch = new System.Windows.Forms.Button();
-            this.lbOutfits = new ListBoxNF();
             this.splitContainer = new System.Windows.Forms.SplitContainer();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
@@ -49,7 +48,6 @@ namespace HZDOutfitEditor
             this.lblGameDir = new System.Windows.Forms.Label();
             this.btnGameDir = new System.Windows.Forms.Button();
             this.lblDecima = new System.Windows.Forms.Label();
-            this.tbGameDir = new TypeDelayTextBox();
             this.btnResetSelected = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).BeginInit();
             this.splitContainer.Panel1.SuspendLayout();
@@ -61,30 +59,13 @@ namespace HZDOutfitEditor
             // btnLoadPatch
             // 
             this.btnLoadPatch.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnLoadPatch.Location = new System.Drawing.Point(564, 93);
+            this.btnLoadPatch.Location = new System.Drawing.Point(729, 93);
             this.btnLoadPatch.Name = "btnLoadPatch";
             this.btnLoadPatch.Size = new System.Drawing.Size(100, 28);
             this.btnLoadPatch.TabIndex = 0;
             this.btnLoadPatch.Text = "Load Patch";
             this.btnLoadPatch.UseVisualStyleBackColor = true;
             this.btnLoadPatch.Click += new System.EventHandler(this.btnLoadPatch_Click);
-            // 
-            // lbOutfits
-            // 
-            this.lbOutfits.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.lbOutfits.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
-            this.lbOutfits.FormattingEnabled = true;
-            this.lbOutfits.IntegralHeight = false;
-            this.lbOutfits.ItemHeight = 15;
-            this.lbOutfits.Location = new System.Drawing.Point(0, 18);
-            this.lbOutfits.Name = "lbOutfits";
-            this.lbOutfits.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
-            this.lbOutfits.Size = new System.Drawing.Size(271, 519);
-            this.lbOutfits.TabIndex = 1;
-            this.lbOutfits.SelectedValueChanged += new System.EventHandler(this.lbOutfits_SelectedValueChanged);
-            this.lbOutfits.KeyDown += new System.Windows.Forms.KeyEventHandler(this.lbOutfits_KeyDown);
             // 
             // splitContainer
             // 
@@ -97,14 +78,13 @@ namespace HZDOutfitEditor
             // splitContainer.Panel1
             // 
             this.splitContainer.Panel1.Controls.Add(this.label1);
-            this.splitContainer.Panel1.Controls.Add(this.lbOutfits);
             // 
             // splitContainer.Panel2
             // 
             this.splitContainer.Panel2.Controls.Add(this.label2);
             this.splitContainer.Panel2.Controls.Add(this.clbModels);
-            this.splitContainer.Size = new System.Drawing.Size(546, 566);
-            this.splitContainer.SplitterDistance = 273;
+            this.splitContainer.Size = new System.Drawing.Size(711, 566);
+            this.splitContainer.SplitterDistance = 355;
             this.splitContainer.TabIndex = 2;
             this.splitContainer.Text = "splitContainer1";
             // 
@@ -138,7 +118,7 @@ namespace HZDOutfitEditor
             this.clbModels.IntegralHeight = false;
             this.clbModels.Location = new System.Drawing.Point(0, 18);
             this.clbModels.Name = "clbModels";
-            this.clbModels.Size = new System.Drawing.Size(266, 519);
+            this.clbModels.Size = new System.Drawing.Size(349, 519);
             this.clbModels.TabIndex = 0;
             this.clbModels.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.clbModels_ItemCheck);
             // 
@@ -149,7 +129,7 @@ namespace HZDOutfitEditor
             this.tssStatus});
             this.ssMain.Location = new System.Drawing.Point(0, 615);
             this.ssMain.Name = "ssMain";
-            this.ssMain.Size = new System.Drawing.Size(676, 22);
+            this.ssMain.Size = new System.Drawing.Size(841, 22);
             this.ssMain.TabIndex = 3;
             // 
             // tssStatus
@@ -161,7 +141,7 @@ namespace HZDOutfitEditor
             // btnPatch
             // 
             this.btnPatch.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnPatch.Location = new System.Drawing.Point(564, 570);
+            this.btnPatch.Location = new System.Drawing.Point(729, 570);
             this.btnPatch.Name = "btnPatch";
             this.btnPatch.Size = new System.Drawing.Size(100, 42);
             this.btnPatch.TabIndex = 4;
@@ -172,7 +152,7 @@ namespace HZDOutfitEditor
             // btnDecima
             // 
             this.btnDecima.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnDecima.Location = new System.Drawing.Point(564, 26);
+            this.btnDecima.Location = new System.Drawing.Point(729, 26);
             this.btnDecima.Name = "btnDecima";
             this.btnDecima.Size = new System.Drawing.Size(100, 25);
             this.btnDecima.TabIndex = 5;
@@ -183,7 +163,7 @@ namespace HZDOutfitEditor
             // btnReset
             // 
             this.btnReset.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnReset.Location = new System.Drawing.Point(564, 195);
+            this.btnReset.Location = new System.Drawing.Point(729, 195);
             this.btnReset.Name = "btnReset";
             this.btnReset.Size = new System.Drawing.Size(100, 28);
             this.btnReset.TabIndex = 6;
@@ -203,7 +183,7 @@ namespace HZDOutfitEditor
             // btnGameDir
             // 
             this.btnGameDir.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnGameDir.Location = new System.Drawing.Point(458, 26);
+            this.btnGameDir.Location = new System.Drawing.Point(623, 26);
             this.btnGameDir.Name = "btnGameDir";
             this.btnGameDir.Size = new System.Drawing.Size(100, 25);
             this.btnGameDir.TabIndex = 9;
@@ -215,29 +195,17 @@ namespace HZDOutfitEditor
             // 
             this.lblDecima.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.lblDecima.AutoSize = true;
-            this.lblDecima.Location = new System.Drawing.Point(564, 9);
+            this.lblDecima.Location = new System.Drawing.Point(729, 9);
             this.lblDecima.Name = "lblDecima";
             this.lblDecima.Size = new System.Drawing.Size(47, 15);
             this.lblDecima.TabIndex = 10;
             this.lblDecima.Text = "Decima";
             // 
-            // tbGameDir
-            // 
-            this.tbGameDir.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.tbGameDir.EnableTypingEvent = true;
-            this.tbGameDir.Location = new System.Drawing.Point(12, 27);
-            this.tbGameDir.Name = "tbGameDir";
-            this.tbGameDir.Size = new System.Drawing.Size(440, 23);
-            this.tbGameDir.TabIndex = 11;
-            this.tbGameDir.TypingFinished += new System.EventHandler(this.tbGameDir_TypingFinished);
-            this.tbGameDir.TextChanged += new System.EventHandler(this.tbGameDir_TextChanged);
-            // 
             // btnResetSelected
             // 
             this.btnResetSelected.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.btnResetSelected.Enabled = false;
-            this.btnResetSelected.Location = new System.Drawing.Point(564, 161);
+            this.btnResetSelected.Location = new System.Drawing.Point(729, 161);
             this.btnResetSelected.Name = "btnResetSelected";
             this.btnResetSelected.Size = new System.Drawing.Size(100, 28);
             this.btnResetSelected.TabIndex = 12;
@@ -249,9 +217,8 @@ namespace HZDOutfitEditor
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(676, 637);
+            this.ClientSize = new System.Drawing.Size(841, 637);
             this.Controls.Add(this.btnResetSelected);
-            this.Controls.Add(this.tbGameDir);
             this.Controls.Add(this.lblDecima);
             this.Controls.Add(this.btnGameDir);
             this.Controls.Add(this.lblGameDir);

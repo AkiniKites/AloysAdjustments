@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using Decima;
 using Decima.HZD;
 
-namespace HZDOutfitEditor
+namespace AloysAdjustments
 {
     public class Localization
     {
@@ -51,10 +51,10 @@ namespace HZDOutfitEditor
             var file = await FileManager.ExtractFile(IoC.Decima,
                 IoC.Config.TempPath, Configs.GamePackDir, false, path);
 
-            var objects = CoreBinary.Load(file.Output);
+            var core = HzdCore.Load(file.Output);
             var texts = new Dictionary<BaseGGUUID, string>();
 
-            foreach (var obj in objects)
+            foreach (var obj in core.Components)
             {
                 if (obj is LocalizedTextResource asResource)
                     texts[asResource.ObjectUUID] = asResource.GetStringForLanguage(Language);

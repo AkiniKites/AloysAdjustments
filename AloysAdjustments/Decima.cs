@@ -5,10 +5,10 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
-using HZDOutfitEditor.Utility;
+using AloysAdjustments.Utility;
 using Octokit;
 
-namespace HZDOutfitEditor
+namespace AloysAdjustments
 {
     public class Decima
     {

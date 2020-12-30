@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace HZDOutfitEditor.Utility
+namespace AloysAdjustments.Utility
 {
     public class ControlLock : IDisposable
     {

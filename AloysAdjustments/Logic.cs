@@ -6,17 +6,15 @@ using System.Text;
 using System.Threading.Tasks;
 using Decima;
 using Decima.HZD;
-using HZDOutfitEditor.Models;
-using HZDOutfitEditor.Utility;
+using AloysAdjustments.Models;
+using AloysAdjustments.Utility;
 using Newtonsoft.Json;
-using Model = HZDOutfitEditor.Models.Model;
+using Model = AloysAdjustments.Models.Model;
 
-namespace HZDOutfitEditor
+namespace AloysAdjustments
 {
     public class Logic
     {
-        private const string PatchTempDir = "patch";
-        
         public Logic() { }
 
         public List<Outfit> GenerateOutfitList(OutfitFile[] files)
@@ -31,7 +29,7 @@ namespace HZDOutfitEditor
             var models = new List<Model>();
 
             //player models
-            var playerComponents = (await LoadPlayerComponents(IoC.Config.TempPath)).Objects;
+            var playerComponents = (await LoadPlayerComponents(IoC.Config.TempPath)).Core;
             var playerModels = GetPlayerModels(playerComponents);
 
             models.AddRange(playerModels.Select(x => new Model
@@ -46,7 +44,7 @@ namespace HZDOutfitEditor
             //var file = await FileManager.ExtractFile(IoC.Decima,
             //    IoC.Config.TempPath, Configs.GamePackDir, false, @"entities/dlc1/characters/humanoids/uniquecharacters/dlc1_ikrie.core");
 
-            //var objs = CoreBinary.Load(file.Output);
+            //var objs = HzdCoreData.Load(file.Output);
             //var resources = objs.Select(CoreNode.FromObj).Where(x => x.Type.Name == "HumanoidBodyVariant");
 
             //models.AddRange(resources.Select(x =>
@@ -59,7 +57,7 @@ namespace HZDOutfitEditor
             return models;
         }
         
-        public async Task<(List<object> Objects, string File)> LoadPlayerComponents(
+        public async Task<(HzdCore Core, string File)> LoadPlayerComponents(
             string outputPath, bool retainPath = false)
         {
             //TODO: Fix hack to ignore patch files
@@ -69,13 +67,13 @@ namespace HZDOutfitEditor
             var file = await FileManager.ExtractFile(IoC.Decima,
                 outputPath, Configs.GamePackDir, retainPath, IoC.Config.PlayerComponentsFile);
 
-            var objs = CoreBinary.Load(file.Output);
-            return (objs, file.Output);
+            var core = HzdCore.Load(file.Output);
+            return (core, file.Output);
         }
 
-        public List<global::Decima.HZD.StreamingRef<HumanoidBodyVariant>> GetPlayerModels(List<object> nodes)
+        public List<global::Decima.HZD.StreamingRef<HumanoidBodyVariant>> GetPlayerModels(HzdCore core)
         {
-            var resource = GetTypes<BodyVariantComponentResource>(nodes).FirstOrDefault().Value;
+            var resource = core.GetTypes<BodyVariantComponentResource>().FirstOrDefault().Value;
             if (resource == null)
                 throw new HzdException("Unable to find PlayerBodyVariants");
 
@@ -128,8 +126,8 @@ namespace HZDOutfitEditor
             var maps = files.Select(x => {
                 var map = new OutfitFile { File = x.Source };
 
-                var objs = CoreBinary.Load(x.Output);
-                foreach (var item in GetOutfits(objs))
+                var core = HzdCore.Load(x.Output);
+                foreach (var item in GetOutfits(core))
                     map.Outfits.Add(item);
 
                 return map;
@@ -141,13 +139,13 @@ namespace HZDOutfitEditor
             return maps;
         }
 
-        private IEnumerable<Outfit> GetOutfits(List<object> nodes)
+        private IEnumerable<Outfit> GetOutfits(HzdCore core)
         {
-            var items = GetTypes<InventoryEntityResource>(nodes).Values;
-            var itemComponents = GetTypes<InventoryItemComponentResource>(nodes);
-            var componentResources = GetTypes<NodeGraphComponentResource>(nodes);
-            var overrides = GetTypes< OverrideGraphProgramResource>(nodes);
-            var mappings = GetTypes< NodeGraphHumanoidBodyVariantUUIDRefVariableOverride>(nodes);
+            var items = core.GetTypes<InventoryEntityResource>().Values;
+            var itemComponents = core.GetTypes<InventoryItemComponentResource>();
+            var componentResources = core.GetTypes<NodeGraphComponentResource>();
+            var overrides = core.GetTypes< OverrideGraphProgramResource>();
+            var mappings = core.GetTypes< NodeGraphHumanoidBodyVariantUUIDRefVariableOverride>();
 
             foreach (var item in items)
             {
@@ -185,55 +183,11 @@ namespace HZDOutfitEditor
                 yield return outfit;
             }
         }
-
-        private Dictionary<BaseGGUUID, T> GetTypes<T>(List<object> nodes, string typeName = null) where T : RTTIRefObject
-        {
-            typeName ??= typeof(T).Name;
-
-            return nodes.Where(x => x.GetType().Name == typeName)
-                .ToDictionary(x => (BaseGGUUID)((T)x).ObjectUUID, x => (T)x);
-        }
-
-        public async Task<string> GeneratePatch(OutfitFile[] maps)
-        {
-            await FileManager.Cleanup(IoC.Config.TempPath);
-            
-            var patchDir = Path.Combine(IoC.Config.TempPath, PatchTempDir);
-
-            foreach (var map in maps)
-            {
-                //extract original outfit files to temp
-                var file = await FileManager.ExtractFile(
-                    IoC.Decima, patchDir, Configs.GamePackDir, true, map.File);
-
-                var refs = map.Outfits.ToDictionary(x => x.RefId, x => x.ModelId);
-
-                //update references from based on new maps
-                var objs = CoreBinary.Load(file.Output);
-                foreach (var reference in GetTypes<NodeGraphHumanoidBodyVariantUUIDRefVariableOverride>(objs).Values)
-                {
-                    if (refs.TryGetValue(reference.ObjectUUID, out var newModel))
-                        reference.Object.GUID.AssignFromOther(newModel);
-                }
-
-                CoreBinary.Save(file.Output, objs);
-            }
-
-            //await AddCharacterReferences(patchDir);
-
-            var output = Path.Combine(IoC.Config.TempPath, IoC.Config.PatchFile);
-
-            await IoC.Decima.PackFiles(patchDir, output);
-
-            return output;
-
-            //await FileManager.Cleanup(IoC.Config.TempPath);
-        }
-
+        
         private async Task AddCharacterReferences(string path)
         {
             var components = await LoadPlayerComponents(path, true);
-            var outfits = GetPlayerModels(components.Objects);
+            var outfits = GetPlayerModels(components.Core);
 
             var models = await GenerateModelList();
             var id = models.First(x => x.Name == "DLC1_Ikrie");
@@ -248,11 +202,11 @@ namespace HZDOutfitEditor
             var ike = await FileManager.ExtractFile(IoC.Decima, IoC.Config.TempPath, Configs.GamePackDir,
                 false, "entities/dlc1/characters/humanoids/uniquecharacters/dlc1_ikrie");
             
-            var oArmor = CoreBinary.Load(armor.Output);
-            var oIke = CoreBinary.Load(ike.Output);
+            var oArmor = HzdCore.Load(armor.Output);
+            var oIke = HzdCore.Load(ike.Output);
 
-            var mArmor = GetTypes<ModelPartResource>(oArmor).Values.First();
-            var mIke = GetTypes<ModelPartResource>(oIke).Values.First();
+            var mArmor = oArmor.GetTypes<ModelPartResource>().Values.First();
+            var mIke = oIke.GetTypes<ModelPartResource>().Values.First();
 
             mArmor.MeshResource = mIke.MeshResource;
             mArmor.BoneBoundingBoxes = mIke.BoneBoundingBoxes;
@@ -262,7 +216,7 @@ namespace HZDOutfitEditor
             mArmor.HelperNode = mIke.HelperNode;
             mArmor.Name = mIke.Name;
 
-            CoreBinary.Save(armor.Output, oArmor);
+            oArmor.Save();
             
             //var sRef = new global::Decima.HZD.StreamingRef<HumanoidBodyVariant>();
             //sRef.ExternalFile = new BaseString("entities/dlc1/characters/humanoids/uniquecharacters/dlc1_ikrie");
@@ -271,12 +225,7 @@ namespace HZDOutfitEditor
 
             //outfits.Add(sRef);
 
-            //CoreBinary.Save(components.File, components.Objects);
-        }
-
-        public async Task InstallPatch(string path)
-        {
-            await FileManager.InstallPatch(path, Configs.GamePackDir);
+            //HzdCoreData.Save(components.File, components.Objects);
         }
 
         public bool CheckGameDir()

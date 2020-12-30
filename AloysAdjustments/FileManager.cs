@@ -4,9 +4,9 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using HZDOutfitEditor.Utility;
+using AloysAdjustments.Utility;
 
-namespace HZDOutfitEditor
+namespace AloysAdjustments
 {
     public class FileManager
     {

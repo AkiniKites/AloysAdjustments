@@ -5,12 +5,13 @@ using System.Text;
 using System.Threading.Tasks;
 using Decima;
 
-namespace HZDOutfitEditor.Models
+namespace AloysAdjustments.Models
 {
     public class Model
     {
         public BaseGGUUID Id { get; set; }
         public string Name { get; set; }
+        public string DisplayName { get; set; }
 
         public override string ToString()
         {
