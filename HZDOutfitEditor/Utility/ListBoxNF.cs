@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace HZDUtility
+namespace HZDOutfitEditor.Utility
 {
     public class ListBoxNF : ListBox
     {
@@ -19,10 +21,10 @@ namespace HZDUtility
         }
         protected override void OnDrawItem(DrawItemEventArgs e)
         {
-            if (Items.Count > 0)
+            if (Items.Count > 0 && e.Index >= 0)
             {
                 e.DrawBackground();
-                e.Graphics.DrawString(Items[e.Index].ToString(), e.Font, new SolidBrush(ForeColor), new PointF(e.Bounds.X, e.Bounds.Y));
+                e.Graphics.DrawString(GetItemText(Items[e.Index]), e.Font, new SolidBrush(ForeColor), new PointF(e.Bounds.X, e.Bounds.Y));
             }
             base.OnDrawItem(e);
         }

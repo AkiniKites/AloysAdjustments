@@ -1,19 +1,17 @@
-﻿using Decima;
-using Newtonsoft.Json;
-using System;
-using System.Collections;
+﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Decima;
 using Decima.HZD;
-using HZDUtility.Models;
-using HZDUtility.Utility;
-using Model = HZDUtility.Models.Model;
+using HZDOutfitEditor.Models;
+using HZDOutfitEditor.Utility;
+using Newtonsoft.Json;
+using Model = HZDOutfitEditor.Models.Model;
 
-namespace HZDUtility
+namespace HZDOutfitEditor
 {
     public class Logic
     {
@@ -28,7 +26,7 @@ namespace HZDUtility
                 .GroupBy(x => x.ModelId).Select(x => x.First()).ToList();
         }
         
-        public async Task<List<Model>> GenerateModelList(OutfitFile[] maps)
+        public async Task<List<Model>> GenerateModelList()
         {
             var models = new List<Model>();
 
@@ -41,19 +39,22 @@ namespace HZDUtility
                 Id = x.GUID,
                 Name = x.ExternalFile.ToString()
             }));
-            
-            var file = await FileManager.ExtractFile(IoC.Decima,
-                IoC.Config.TempPath, Configs.GamePackDir, false, @"entities/dlc1/characters/humanoids/uniquecharacters/dlc1_ikrie.core");
 
-            var objs = CoreBinary.Load(file.Output);
-            var resources = objs.Select(CoreNode.FromObj).Where(x => x.Type.Name == "HumanoidBodyVariant");
+            //var patch = Path.Combine(Configs.GamePackDir, IoC.Config.PatchFile);
+            //using var rn = new FileRenamer(patch);
 
-            models.AddRange(resources.Select(x =>
-                new Model()
-                {
-                    Name = x.Name,
-                    Id = x.Id
-                }));
+            //var file = await FileManager.ExtractFile(IoC.Decima,
+            //    IoC.Config.TempPath, Configs.GamePackDir, false, @"entities/dlc1/characters/humanoids/uniquecharacters/dlc1_ikrie.core");
+
+            //var objs = CoreBinary.Load(file.Output);
+            //var resources = objs.Select(CoreNode.FromObj).Where(x => x.Type.Name == "HumanoidBodyVariant");
+
+            //models.AddRange(resources.Select(x =>
+            //    new Model()
+            //    {
+            //        Name = x.Name,
+            //        Id = x.Id
+            //    }));
 
             return models;
         }
@@ -72,7 +73,7 @@ namespace HZDUtility
             return (objs, file.Output);
         }
 
-        public IEnumerable<StreamingRef<HumanoidBodyVariant>> GetPlayerModels(List<object> nodes)
+        public List<global::Decima.HZD.StreamingRef<HumanoidBodyVariant>> GetPlayerModels(List<object> nodes)
         {
             var resource = GetTypes<BodyVariantComponentResource>(nodes).FirstOrDefault().Value;
             if (resource == null)
@@ -209,10 +210,10 @@ namespace HZDUtility
 
                 //update references from based on new maps
                 var objs = CoreBinary.Load(file.Output);
-                foreach (var reference in GetOutfitReferences(objs))
+                foreach (var reference in GetTypes<NodeGraphHumanoidBodyVariantUUIDRefVariableOverride>(objs).Values)
                 {
-                    if (refs.TryGetValue(reference.RefId, out var newModel))
-                        reference.ModelId.AssignFromOther(newModel);
+                    if (refs.TryGetValue(reference.ObjectUUID, out var newModel))
+                        reference.Object.GUID.AssignFromOther(newModel);
                 }
 
                 CoreBinary.Save(file.Output, objs);
@@ -229,40 +230,49 @@ namespace HZDUtility
             //await FileManager.Cleanup(IoC.Config.TempPath);
         }
 
-        private IEnumerable<(BaseGGUUID ModelId, BaseGGUUID RefId)> GetOutfitReferences(List<object> components)
+        private async Task AddCharacterReferences(string path)
         {
-            //NodeGraphHumanoidBodyVariantUUIDRefVariableOverride
-            GetOutfits(components).ToList();
-            var mappings = components.Select(CoreNode.FromObj).Where(x => x.Type.Name == "NodeGraphHumanoidBodyVariantUUIDRefVariableOverride");
-            return mappings.Select((x, i) =>
-            (
-                CoreNode.FromObj(x.GetField<object>("Object"))?.GetField<BaseGGUUID>("GUID"),
-                x.Id
-            ));
+            var components = await LoadPlayerComponents(path, true);
+            var outfits = GetPlayerModels(components.Objects);
+
+            var models = await GenerateModelList();
+            var id = models.First(x => x.Name == "DLC1_Ikrie");
+            //var id = models[3];
+
+            //var sRef = (StreamingRef<HumanoidBodyVariant>)outfits[33];
+
+            //sRef.ExternalFile = new BaseString("entities/characters/humanoids/player/costumes/playercostume_norastealth_heavy");
+
+            var armor = await FileManager.ExtractFile(IoC.Decima, path, Configs.GamePackDir, 
+                true, "entities/characters/humanoids/player/costumes/playercostume_carjamatador_light.core");
+            var ike = await FileManager.ExtractFile(IoC.Decima, IoC.Config.TempPath, Configs.GamePackDir,
+                false, "entities/dlc1/characters/humanoids/uniquecharacters/dlc1_ikrie");
+            
+            var oArmor = CoreBinary.Load(armor.Output);
+            var oIke = CoreBinary.Load(ike.Output);
+
+            var mArmor = GetTypes<ModelPartResource>(oArmor).Values.First();
+            var mIke = GetTypes<ModelPartResource>(oIke).Values.First();
+
+            mArmor.MeshResource = mIke.MeshResource;
+            mArmor.BoneBoundingBoxes = mIke.BoneBoundingBoxes;
+            mArmor.PhysicsResource = mIke.PhysicsResource;
+            mArmor.IsSkinned = mIke.IsSkinned;
+            mArmor.PartMotionType = mIke.PartMotionType;
+            mArmor.HelperNode = mIke.HelperNode;
+            mArmor.Name = mIke.Name;
+
+            CoreBinary.Save(armor.Output, oArmor);
+            
+            //var sRef = new global::Decima.HZD.StreamingRef<HumanoidBodyVariant>();
+            //sRef.ExternalFile = new BaseString("entities/dlc1/characters/humanoids/uniquecharacters/dlc1_ikrie");
+            //sRef.Type = BaseRef<HumanoidBodyVariant>.Types.StreamingRef;
+            //sRef.GUID = BaseGGUUID.FromOther(id.Id);
+
+            //outfits.Add(sRef);
+
+            //CoreBinary.Save(components.File, components.Objects);
         }
-
-        //private async Task AddCharacterReferences(string path)
-        //{
-        //    var components = await LoadPlayerComponents(path, true);
-        //    var outfits = GetVariants(components.Objects);
-
-        //    var models = await GenerateModelList();
-        //    var id = models.First(x => x.Name == "DLC1_Ikrie");
-        //    //var id = models[3];
-
-        //    //var sRef = (StreamingRef<HumanoidBodyVariant>)outfits[33];
-
-        //    //sRef.ExternalFile = new BaseString("entities/characters/humanoids/player/costumes/playercostume_norastealth_heavy");
-
-        //    var sRef = new StreamingRef<HumanoidBodyVariant>();
-        //    sRef.ExternalFile = new BaseString("entities/dlc1/characters/humanoids/uniquecharacters/dlc1_ikrie");
-        //    sRef.Type = BaseRef<HumanoidBodyVariant>.Types.StreamingRef;
-        //    sRef.GUID = BaseGGUUID.FromOther(id.Id);
-
-        //    outfits.Add(sRef);
-
-        //    CoreBinary.Save(components.File, components.Objects);
-        //}
 
         public async Task InstallPatch(string path)
         {

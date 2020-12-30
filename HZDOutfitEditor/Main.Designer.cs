@@ -1,6 +1,11 @@
-﻿using HZDUtility.Utility; 
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using HZDOutfitEditor.Utility;
 
-namespace HZDUtility
+namespace HZDOutfitEditor
 {
     partial class Main
     {
@@ -31,7 +36,7 @@ namespace HZDUtility
         private void InitializeComponent()
         {
             this.btnLoadPatch = new System.Windows.Forms.Button();
-            this.lbOutfits = new HZDUtility.ListBoxNF();
+            this.lbOutfits = new ListBoxNF();
             this.splitContainer = new System.Windows.Forms.SplitContainer();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
@@ -44,7 +49,8 @@ namespace HZDUtility
             this.lblGameDir = new System.Windows.Forms.Label();
             this.btnGameDir = new System.Windows.Forms.Button();
             this.lblDecima = new System.Windows.Forms.Label();
-            this.tbGameDir = new HZDUtility.Utility.TypeDelayTextBox();
+            this.tbGameDir = new TypeDelayTextBox();
+            this.btnResetSelected = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).BeginInit();
             this.splitContainer.Panel1.SuspendLayout();
             this.splitContainer.Panel2.SuspendLayout();
@@ -177,11 +183,11 @@ namespace HZDUtility
             // btnReset
             // 
             this.btnReset.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnReset.Location = new System.Drawing.Point(564, 127);
+            this.btnReset.Location = new System.Drawing.Point(564, 195);
             this.btnReset.Name = "btnReset";
             this.btnReset.Size = new System.Drawing.Size(100, 28);
             this.btnReset.TabIndex = 6;
-            this.btnReset.Text = "Reset Defaults";
+            this.btnReset.Text = "Reset All";
             this.btnReset.UseVisualStyleBackColor = true;
             this.btnReset.Click += new System.EventHandler(this.btnReset_Click);
             // 
@@ -227,11 +233,24 @@ namespace HZDUtility
             this.tbGameDir.TypingFinished += new System.EventHandler(this.tbGameDir_TypingFinished);
             this.tbGameDir.TextChanged += new System.EventHandler(this.tbGameDir_TextChanged);
             // 
+            // btnResetSelected
+            // 
+            this.btnResetSelected.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnResetSelected.Enabled = false;
+            this.btnResetSelected.Location = new System.Drawing.Point(564, 161);
+            this.btnResetSelected.Name = "btnResetSelected";
+            this.btnResetSelected.Size = new System.Drawing.Size(100, 28);
+            this.btnResetSelected.TabIndex = 12;
+            this.btnResetSelected.Text = "Reset Selected";
+            this.btnResetSelected.UseVisualStyleBackColor = true;
+            this.btnResetSelected.Click += new System.EventHandler(this.btnResetSelected_Click);
+            // 
             // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(676, 637);
+            this.Controls.Add(this.btnResetSelected);
             this.Controls.Add(this.tbGameDir);
             this.Controls.Add(this.lblDecima);
             this.Controls.Add(this.btnGameDir);
@@ -243,7 +262,7 @@ namespace HZDUtility
             this.Controls.Add(this.splitContainer);
             this.Controls.Add(this.btnLoadPatch);
             this.Name = "Main";
-            this.Text = "Outfit Changer";
+            this.Text = "Outfit Editor";
             this.Load += new System.EventHandler(this.Main_Load);
             this.splitContainer.Panel1.ResumeLayout(false);
             this.splitContainer.Panel1.PerformLayout();
@@ -275,6 +294,7 @@ namespace HZDUtility
         private System.Windows.Forms.Button btnGameDir;
         private System.Windows.Forms.Label lblDecima;
         private TypeDelayTextBox tbGameDir;
+        private System.Windows.Forms.Button btnResetSelected;
     }
 }
 

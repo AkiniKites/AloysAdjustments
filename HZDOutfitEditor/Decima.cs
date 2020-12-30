@@ -5,10 +5,10 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
-using HZDUtility.Utility;
+using HZDOutfitEditor.Utility;
 using Octokit;
 
-namespace HZDUtility
+namespace HZDOutfitEditor
 {
     public class Decima
     {

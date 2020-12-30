@@ -4,40 +4,44 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using HZDUtility.Utility;
+using HZDOutfitEditor.Utility;
 
-namespace HZDUtility
+namespace HZDOutfitEditor
 {
     public class FileManager
     {
         public static async Task<(string Source, string Output)> ExtractFile(
-            Decima decima, string tempPath, string pakPath, bool retainPath, string file)
+            Decima decima, string extractPath, string pakPath, bool retainPath, string file)
         {
-            return (await ExtractFiles(decima, tempPath, pakPath, retainPath, file)).FirstOrDefault();
+            return (await ExtractFiles(decima, extractPath, pakPath, retainPath, file)).FirstOrDefault();
         }
 
         public static async Task<List<(string Source, string Output)>> ExtractFiles(
-            Decima decima, string tempPath, string pakPath, bool retainPath, params string[] files)
+            Decima decima, string extractPath, string pakPath, bool retainPath, params string[] files)
         {
             if (!Directory.Exists(pakPath) && !File.Exists(pakPath))
                 throw new HzdException($"Pack file/directory not found at: {pakPath}");
 
-            Paths.CheckDirectory(tempPath);
+            Paths.CheckDirectory(extractPath);
 
             var tempFiles = new List<(string Source, string Output)>();
-            
-            foreach (var f in files)
+
+            foreach (var temp in files)
             {
+                var f = temp;
+                if (!f.EndsWith(".core", StringComparison.OrdinalIgnoreCase))
+                    f += ".core";
+
                 string output;
                 if (retainPath)
                 {
-                    output = Path.Combine(tempPath, f);
+                    output = Path.Combine(extractPath, f);
                     Paths.CheckDirectory(Path.GetDirectoryName(output));
                 }
                 else
                 {
                     var ext = Path.GetExtension(f);
-                    output = Path.Combine(tempPath, Guid.NewGuid() + ext);
+                    output = Path.Combine(extractPath, Guid.NewGuid() + ext);
                 }
                 
                 await decima.ExtractFile(pakPath, f, output);

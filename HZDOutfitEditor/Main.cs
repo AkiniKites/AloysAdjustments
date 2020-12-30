@@ -1,12 +1,5 @@
-﻿using Decima;
-using HZDUtility.Utility;
-using Newtonsoft.Json;
-using System;
-using System.Collections;
+﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -14,12 +7,15 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Decima;
 using Decima.HZD;
-using HZDUtility.Models;
+using HZDOutfitEditor.Models;
+using HZDOutfitEditor.Utility;
+using Newtonsoft.Json;
 using Application = System.Windows.Forms.Application;
-using Model = HZDUtility.Models.Model;
+using Model = HZDOutfitEditor.Models.Model;
 
-namespace HZDUtility
+namespace HZDOutfitEditor
 {
     public partial class Main : Form
     {
@@ -132,7 +128,9 @@ namespace HZDUtility
                 SetStatus("Missing Decima", true);
                 return;
             }
-            
+
+            btnResetSelected.Enabled = false;
+
             SetStatus("Generating outfit maps...");
             DefaultMaps = await Logic.GenerateOutfitFiles();
             NewMaps = DefaultMaps.Select(x => x.Clone()).ToArray();
@@ -147,7 +145,7 @@ namespace HZDUtility
                 lbOutfits.Items.Add(item);
 
             SetStatus("Loading models list...");
-            var models = (await Logic.GenerateModelList(NewMaps));
+            var models = await Logic.GenerateModelList();
             //sort models to match outfits
             var outfitSorting = Outfits.Select((x, i) => (x, i)).ToDictionary(x => x.x.ModelId, x => x.i);
             Models = models.OrderBy(x => outfitSorting.TryGetValue(x.Id, out var sort) ? sort : int.MaxValue).ToList();
@@ -159,12 +157,13 @@ namespace HZDUtility
             _invalidConfig = false;
             SetStatus("Loading complete");
         }
-
+        
         private void lbOutfits_SelectedValueChanged(object sender, EventArgs e)
         {
             _updatingLists = true;
 
             var lb = (ListBox)sender;
+            btnResetSelected.Enabled = lb.SelectedIndex >= 0;
 
             var modelIds = lb.SelectedItems.Cast<Outfit>()
                 .Select(x => x.ModelId).ToHashSet();
@@ -182,7 +181,10 @@ namespace HZDUtility
 
         private async void btnPatch_Click(object sender, EventArgs e)
         {
-            btnPatch.Enabled = false;
+            using var _ = new ControlLock(btnPatch);
+
+            if (File.Exists(Path.Combine(Configs.GamePackDir, IoC.Config.PatchFile)))
+                File.Delete(Path.Combine(Configs.GamePackDir, IoC.Config.PatchFile));
 
             SetStatus("Generating patch...");
             var patch = await Logic.GeneratePatch(NewMaps);
@@ -190,11 +192,9 @@ namespace HZDUtility
             SetStatus("Copying patch...");
             await Logic.InstallPatch(patch);
 
-            await FileManager.Cleanup(IoC.Config.TempPath);
+            //await FileManager.Cleanup(IoC.Config.TempPath);
 
             SetStatus("Patch installed");
-
-            btnPatch.Enabled = true;
         }
 
         private void clbModels_ItemCheck(object sender, ItemCheckEventArgs e)
@@ -242,6 +242,8 @@ namespace HZDUtility
 
         private async void btnDecima_Click(object sender, EventArgs e)
         {
+            using var _ = new ControlLock(btnDecima);
+
             SetStatus("Downloading Decima...");
             await IoC.Decima.Download();
             SetStatus("Copying Decima library...");
@@ -254,11 +256,13 @@ namespace HZDUtility
 
         private async void btnLoadPatch_Click(object sender, EventArgs e)
         {
-            using var ofd = new OpenFileDialog();
-
-            ofd.CheckFileExists = true;
-            ofd.Multiselect = false;
-            ofd.Filter = "Pack files (*.bin)|*.bin|All files (*.*)|*.*";
+            using var _ = new ControlLock(btnLoadPatch);
+            using var ofd = new OpenFileDialog
+            {
+                CheckFileExists = true,
+                Multiselect = false,
+                Filter = "Pack files (*.bin)|*.bin|All files (*.*)|*.*"
+            };
 
             if (ofd.ShowDialog() != DialogResult.OK)
                 return;
@@ -301,14 +305,33 @@ namespace HZDUtility
 
         private async void btnReset_Click(object sender, EventArgs e)
         {
-            btnReset.Enabled = false;
-
+            using var _ = new ControlLock(btnReset);
+            
             await Initialize();
             RefreshLists();
 
             SetStatus("Reset complete");
+        }
+        
+        private void btnResetSelected_Click(object sender, EventArgs e)
+        {
+            if (lbOutfits.SelectedIndex < 0)
+                return;
 
-            btnReset.Enabled = true;
+            var defaultOutfits = DefaultMaps.SelectMany(x => x.Outfits).ToHashSet();
+            var selected = lbOutfits.SelectedItems.Cast<Outfit>().ToList();
+
+            foreach (var outfit in selected)
+            {
+                if (defaultOutfits.TryGetValue(outfit, out var defaultOutfit))
+                {
+                    outfit.Modified = false;
+                    outfit.ModelId.AssignFromOther(defaultOutfit.ModelId);
+                }
+            }
+
+            lbOutfits.Invalidate();
+            lbOutfits_SelectedValueChanged(lbOutfits, EventArgs.Empty);
         }
 
         private void RefreshLists()

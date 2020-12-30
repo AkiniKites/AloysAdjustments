@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
-namespace HZDUtility.Utility
+namespace HZDOutfitEditor.Utility
 {
     public class FileRenamer : IDisposable
     {

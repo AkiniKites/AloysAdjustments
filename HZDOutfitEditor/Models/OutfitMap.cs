@@ -1,8 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
-using Decima;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace HZDUtility.Models
+namespace HZDOutfitEditor.Models
 {
     public class OutfitFile
     {

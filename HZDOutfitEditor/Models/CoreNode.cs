@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Decima;
 
-namespace HZDUtility.Models
+namespace HZDOutfitEditor.Models
 {
     public class CoreNode
     {
