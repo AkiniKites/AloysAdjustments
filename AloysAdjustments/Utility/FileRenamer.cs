@@ -16,10 +16,17 @@ namespace AloysAdjustments.Utility
         {
             _path = path;
 
-            if (File.Exists(path))
+            try
             {
-                _tempPath = path + Guid.NewGuid();
-                File.Move(path, _tempPath);
+                if (File.Exists(path))
+                {
+                    _tempPath = path + Guid.NewGuid();
+                    File.Move(path, _tempPath);
+                }
+            }
+            catch(IOException ex)
+            {
+                throw new Exception($"Failed to rename file: {path}", ex);
             }
         }
 

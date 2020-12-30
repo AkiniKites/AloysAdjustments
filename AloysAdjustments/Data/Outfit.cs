@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Decima;
 
-namespace AloysAdjustments.Models
+namespace AloysAdjustments.Data
 {
     public class Outfit
     {

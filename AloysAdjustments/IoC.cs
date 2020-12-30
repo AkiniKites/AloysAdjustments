@@ -26,6 +26,9 @@ namespace AloysAdjustments
         public static Config Config => Kernel.Get<Config>();
         public static Decima Decima => Kernel.Get<Decima>();
         public static Localization Localization => Kernel.Get<Localization>();
+        
+        public static Action<string> SetStatus { get; set; }
+        public static Action<string> SetError { get; set; }
 
         public static void Bind<T>(T value)
         {

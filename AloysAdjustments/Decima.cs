@@ -12,10 +12,15 @@ namespace AloysAdjustments
 {
     public class Decima
     {
-        public bool CheckDecima()
+        public bool CheckDecimaExe()
         {
-            return File.Exists(IoC.Config.Decima.Path) && File.Exists(IoC.Config.Decima.Lib);
+            return File.Exists(IoC.Config.Decima.Path);
         }
+        public bool CheckDecimaLib()
+        {
+            return File.Exists(IoC.Config.Decima.Lib);
+        }
+
         public void ValidateDecima()
         {
             if (!File.Exists(IoC.Config.Decima.Path))
