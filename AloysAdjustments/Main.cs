@@ -38,7 +38,7 @@ namespace AloysAdjustments
         {
             InitializeComponent();
 
-            SetupOutfitList();
+            SetupLists();
             RTTI.SetGameMode(GameType.HZD);
 
             Application.ThreadException += new ThreadExceptionEventHandler(Application_ThreadException);
@@ -55,10 +55,11 @@ namespace AloysAdjustments
             SetStatus($"Error: {e.Exception.Message}", true);
         }
 
-        private void SetupOutfitList()
+        private void SetupLists()
         {
-            lbOutfits.DisplayMember = "DisplayName";
+            clbModels.DisplayMember = "DisplayName";
 
+            lbOutfits.DisplayMember = "DisplayName";
             lbOutfits.DrawMode = DrawMode.OwnerDrawVariable;
             lbOutfits.ItemHeight = lbOutfits.Font.Height + 2;
             lbOutfits.DrawItem += (s, e) =>
@@ -137,7 +138,7 @@ namespace AloysAdjustments
 
             SetStatus("Loading outfit list...");
             var outfits = Logic.GenerateOutfitList(NewMaps);
-            await UpdateDisplayNames(outfits);
+            await UpdateOutfitDisplayNames(outfits);
             Outfits = outfits.OrderBy(x => x.DisplayName).ToList();
 
             lbOutfits.Items.Clear();
@@ -149,6 +150,7 @@ namespace AloysAdjustments
             //sort models to match outfits
             var outfitSorting = Outfits.Select((x, i) => (x, i)).ToDictionary(x => x.x.ModelId, x => x.i);
             Models = models.OrderBy(x => outfitSorting.TryGetValue(x.Id, out var sort) ? sort : int.MaxValue).ToList();
+            UpdateModelDisplayNames(Outfits, Models);
 
             clbModels.Items.Clear();
             foreach (var item in Models)
@@ -409,11 +411,24 @@ namespace AloysAdjustments
             await File.WriteAllTextAsync(ConfigPath, json);
         }
 
-        public async Task UpdateDisplayNames(List<Outfit> outfits)
+        public async Task UpdateOutfitDisplayNames(List<Outfit> outfits)
         {
             foreach (var o in outfits)
             {
                 o.SetDisplayName(await IoC.Localization.GetString(o.LocalNameFile, o.LocalNameId));
+            }
+        }
+
+        public void UpdateModelDisplayNames(List<Outfit> outfits, List<Model> models)
+        {
+            var names = outfits.ToSoftDictionary(x => x.ModelId, x => x.DisplayName);
+
+            foreach (var m in models)
+            {
+                if (names.TryGetValue(m.Id, out var outfitName))
+                    m.DisplayName = $"{outfitName} ({m})";
+                else
+                    m.DisplayName = m.ToString();
             }
         }
     }

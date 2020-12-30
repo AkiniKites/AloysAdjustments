@@ -32,5 +32,14 @@ namespace AloysAdjustments.Utility
 
             return true;
         }
+
+        public static Dictionary<TKey, TValue> ToSoftDictionary<TSource, TKey, TValue>(
+            this IEnumerable<TSource> source, Func<TSource, TKey> key, Func<TSource, TValue> value)
+        {
+            var dict = new Dictionary<TKey, TValue>();
+            foreach (var item in source)
+                dict[key(item)] = value(item);
+            return dict;
+        }
     }
 }
