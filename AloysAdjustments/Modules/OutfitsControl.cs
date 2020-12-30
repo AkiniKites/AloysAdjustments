@@ -14,7 +14,7 @@ namespace AloysAdjustments.Modules
 {
     public partial class OutfitsControl : UserControl, IModule
     {
-        private bool _updatingLists = false;
+        private bool _updatingLists;
 
         private OutfitsLogic Logic { get; set; }
 
@@ -141,8 +141,6 @@ namespace AloysAdjustments.Modules
             clbModels.Items.Clear();
             foreach (var item in Models)
                 clbModels.Items.Add(item);
-
-            IoC.SetStatus("Loading complete");
         }
 
         public async Task UpdateOutfitDisplayNames(List<Outfit> outfits)

@@ -13,7 +13,10 @@
     "entities/dlc1/outfits/dlc1_outfits.core"
   ],
   "UpgradeFile": "entities/characters/craftingrecipes.core",
+  "IgnoredUpgrades": [
+    "{82882593-A2FA-F541-A3FA-3FE2A2C69165}"
+  ],
   "TempPath": "temp",
-  "PatchFile": "zMod_OutfitSwap.bin",
+  "PatchFile": "zMod_AloysAdjustments.bin",
   "PackDir": "Packed_DX12"
 }

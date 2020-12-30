@@ -99,7 +99,7 @@ namespace AloysAdjustments
             // btnDecima
             // 
             this.btnDecima.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnDecima.Location = new System.Drawing.Point(434, 14);
+            this.btnDecima.Location = new System.Drawing.Point(510, 14);
             this.btnDecima.Name = "btnDecima";
             this.btnDecima.Size = new System.Drawing.Size(100, 25);
             this.btnDecima.TabIndex = 5;
@@ -129,7 +129,7 @@ namespace AloysAdjustments
             // btnGameDir
             // 
             this.btnGameDir.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnGameDir.Location = new System.Drawing.Point(473, 5);
+            this.btnGameDir.Location = new System.Drawing.Point(549, 6);
             this.btnGameDir.Name = "btnGameDir";
             this.btnGameDir.Size = new System.Drawing.Size(70, 25);
             this.btnGameDir.TabIndex = 9;
@@ -153,7 +153,7 @@ namespace AloysAdjustments
             this.tbGameDir.EnableTypingEvent = true;
             this.tbGameDir.Location = new System.Drawing.Point(83, 6);
             this.tbGameDir.Name = "tbGameDir";
-            this.tbGameDir.Size = new System.Drawing.Size(384, 23);
+            this.tbGameDir.Size = new System.Drawing.Size(460, 23);
             this.tbGameDir.TabIndex = 11;
             this.tbGameDir.TypingFinished += new System.EventHandler(this.tbGameDir_TypingFinished);
             this.tbGameDir.TextChanged += new System.EventHandler(this.tbGameDir_TextChanged);
@@ -207,7 +207,7 @@ namespace AloysAdjustments
             this.groupBox1.Controls.Add(this.label3);
             this.groupBox1.Location = new System.Drawing.Point(3, 36);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(540, 64);
+            this.groupBox1.Size = new System.Drawing.Size(616, 64);
             this.groupBox1.TabIndex = 12;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Decima Extractor";
@@ -253,7 +253,7 @@ namespace AloysAdjustments
             this.Controls.Add(this.btnLoadPatch);
             this.Controls.Add(this.tcMain);
             this.Name = "Main";
-            this.Text = "Outfit Editor";
+            this.Text = "Aloy\'s Adjustments";
             this.Load += new System.EventHandler(this.Main_Load);
             this.ssMain.ResumeLayout(false);
             this.ssMain.PerformLayout();

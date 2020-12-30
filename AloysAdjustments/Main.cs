@@ -74,7 +74,8 @@ namespace AloysAdjustments
 
             Modules = new List<IModule>()
             {
-                new OutfitsControl()
+                new OutfitsControl(),
+                new UpgradesControl()
             };
 
             foreach (var module in Modules.AsEnumerable().Reverse())
@@ -106,6 +107,8 @@ namespace AloysAdjustments
             {
                 await module.Initialize();
             }
+
+            SetStatus("Loading complete");
 
             return true;
         }
@@ -240,6 +243,8 @@ namespace AloysAdjustments
         {
             if (tcMain.SelectedIndex >= 0 && tcMain.SelectedIndex < Modules.Count)
             {
+                btnReset.Enabled = true;
+
                 for (int i = 0; i < Modules.Count; i++)
                 {
                     if (i == tcMain.SelectedIndex)
@@ -247,6 +252,11 @@ namespace AloysAdjustments
                     else
                         Modules[i].DeActivate();
                 }
+            }
+            else
+            {
+                btnReset.Enabled = false;
+                btnResetSelected.Enabled = false;
             }
         }
     }
