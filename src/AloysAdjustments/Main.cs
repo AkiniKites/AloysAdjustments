@@ -208,7 +208,7 @@ namespace AloysAdjustments
             lblDecimaExe.Text = validExe ? "OK" : "Missing";
             lblDecimaExe.ForeColor = validExe ? _okColor : _errorColor;
 
-            var validLib = IoC.Decima.CheckDecimaExe();
+            var validLib = IoC.Decima.CheckDecimaLib();
             lblDecimaLib.Text = validLib ? "OK" : "Missing";
             lblDecimaLib.ForeColor = validLib ? _okColor : _errorColor;
 
@@ -228,6 +228,7 @@ namespace AloysAdjustments
                 tbGameDir.Text = ofd.SelectedPath;
                 tbGameDir.EnableTypingEvent = true;
 
+                await SaveSettings();
                 if (UpdateGameDirStatus() && _initialized)
                     await Initialize();
             }
