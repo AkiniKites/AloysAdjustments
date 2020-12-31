@@ -4,9 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using AloysAdjustments.Data;
-using Decima;
-using Decima.HZD;
 
 namespace AloysAdjustments
 {

@@ -7,7 +7,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using AloysAdjustments.Data;
 using AloysAdjustments.Modules;
 using Decima;
 using Decima.HZD;
@@ -22,7 +21,7 @@ namespace AloysAdjustments
         private const string ConfigPath = "config.json";
         private const string SettingsPath = "settings.json";
 
-        private readonly Color _errorColor = Color.FromArgb(255, 51, 51);
+        private readonly Color _errorColor = Color.FromArgb(204, 0, 0);
         private readonly Color _okColor = Color.ForestGreen;
         
         private bool _initialized = true;
@@ -42,11 +41,13 @@ namespace AloysAdjustments
         private void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
             SetStatus($"Error: {e.ExceptionObject}", true);
+            File.AppendAllText("error.log", $"{e.ExceptionObject}\r\n");
         }
 
         private void Application_ThreadException(object sender, ThreadExceptionEventArgs e)
         {
             SetStatus($"Error: {e.Exception.Message}", true);
+            File.AppendAllText("error.log", $"{e.Exception}\r\n");
         }
 
         public void SetStatus(string text, bool error = false)
@@ -229,8 +230,15 @@ namespace AloysAdjustments
             var json = await File.ReadAllTextAsync(ConfigPath);
             IoC.Bind(await Task.Run(() => JsonConvert.DeserializeObject<Config>(json)));
 
-            json = await File.ReadAllTextAsync(SettingsPath);
-            IoC.Bind(await Task.Run(() => JsonConvert.DeserializeObject<Settings>(json)));
+            if (File.Exists(SettingsPath))
+            {
+                json = await File.ReadAllTextAsync(SettingsPath);
+                IoC.Bind(await Task.Run(() => JsonConvert.DeserializeObject<Settings>(json)));
+            }
+            else
+            {
+                IoC.Bind(new Settings());
+            }
         }
 
         public async Task SaveSettings()

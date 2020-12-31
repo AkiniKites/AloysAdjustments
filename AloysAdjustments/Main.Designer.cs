@@ -81,6 +81,7 @@ namespace AloysAdjustments
             // 
             // tssStatus
             // 
+            this.tssStatus.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.tssStatus.Name = "tssStatus";
             this.tssStatus.Size = new System.Drawing.Size(63, 17);
             this.tssStatus.Text = "Status Text";
