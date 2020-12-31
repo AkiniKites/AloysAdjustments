@@ -19,8 +19,7 @@ namespace AloysAdjustments.Modules
         public async Task<Dictionary<BaseGGUUID, Upgrade>> GenerateUpgradeList()
         {
             //TODO: Fix hack to ignore patch files
-            var patch = Path.Combine(Configs.GamePackDir, IoC.Config.PatchFile);
-            using var rn = new FileRenamer(patch);
+            using var rn = new FileRenamer(Configs.PatchPath);
 
             //extract game files
             var upgrades = await GenerateUpgradeListFromPath(Configs.GamePackDir);

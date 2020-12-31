@@ -188,7 +188,8 @@ namespace AloysAdjustments
 
         private bool UpdateGameDirStatus()
         {
-            var valid = Directory.Exists(Configs.GamePackDir);
+            var dir = Configs.GamePackDir;
+            var valid = dir != null && Directory.Exists(dir);
             lblGameDir.ForeColor = valid ? SystemColors.ControlText : _errorColor;
 
             if (!valid)
