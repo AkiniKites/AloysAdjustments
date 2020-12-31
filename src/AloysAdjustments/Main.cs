@@ -21,7 +21,6 @@ namespace AloysAdjustments
     public partial class Main : Form
     {
         private const string ConfigPath = "config.json";
-        private const string SettingsPath = "settings.json";
 
         private readonly Color _errorColor = Color.FromArgb(204, 0, 0);
         private readonly Color _okColor = Color.ForestGreen;
@@ -178,8 +177,7 @@ namespace AloysAdjustments
             foreach (var module in Modules)
                 await module.LoadPatch(ofd.FileName);
 
-            IoC.Settings.LastOpen = ofd.FileName;
-            await SaveSettings();
+            IoC.Settings.LastPackOpen = ofd.FileName;
 
             SetStatus($"Loaded pack: {Path.GetFileName(ofd.FileName)}");
         }
@@ -190,7 +188,6 @@ namespace AloysAdjustments
         }
         private async void tbGameDir_TypingFinished(object sender, EventArgs e)
         {
-            await SaveSettings();
             if (UpdateGameDirStatus() && _initialized)
                 await Initialize();
         }
@@ -231,8 +228,7 @@ namespace AloysAdjustments
                 tbGameDir.EnableTypingEvent = false;
                 tbGameDir.Text = ofd.SelectedPath;
                 tbGameDir.EnableTypingEvent = true;
-
-                await SaveSettings();
+                
                 if (UpdateGameDirStatus() && _initialized)
                     await Initialize();
             }
@@ -242,22 +238,7 @@ namespace AloysAdjustments
         {
             var json = await File.ReadAllTextAsync(ConfigPath);
             IoC.Bind(await Task.Run(() => JsonConvert.DeserializeObject<Config>(json)));
-
-            if (File.Exists(SettingsPath))
-            {
-                json = await File.ReadAllTextAsync(SettingsPath);
-                IoC.Bind(await Task.Run(() => JsonConvert.DeserializeObject<Settings>(json)));
-            }
-            else
-            {
-                IoC.Bind(new Settings());
-            }
-        }
-
-        public async Task SaveSettings()
-        {
-            var json = JsonConvert.SerializeObject(IoC.Settings, Formatting.Indented);
-            await File.WriteAllTextAsync(SettingsPath, json);
+            IoC.Bind(await SettingsManager.Load());
         }
 
         private void tcMain_SelectedIndexChanged(object sender, EventArgs e)
