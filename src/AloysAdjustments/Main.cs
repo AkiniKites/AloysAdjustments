@@ -169,7 +169,7 @@ namespace AloysAdjustments
                 return;
 
             foreach (var module in Modules)
-                await module.Load(ofd.FileName);
+                await module.LoadPatch(ofd.FileName);
 
             IoC.Settings.LastOpen = ofd.FileName;
             await SaveSettings();

@@ -16,7 +16,7 @@ namespace AloysAdjustments.Modules
 
         void Activate();
         void DeActivate();
-        Task Load(string path);
+        Task LoadPatch(string path);
         Task CreatePatch(string patchDir);
 
         Task Initialize();

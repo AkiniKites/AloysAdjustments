@@ -93,7 +93,7 @@ namespace AloysAdjustments.Modules
             ResetSelected.Click -= ResetSelected_Click;
         }
 
-        public async Task Load(string path)
+        public async Task LoadPatch(string path)
         {
             await Initialize();
 
