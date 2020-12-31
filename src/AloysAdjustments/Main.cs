@@ -95,6 +95,8 @@ namespace AloysAdjustments
                 tcMain.TabPages.Insert(0, tab);
             }
 
+            UpdatePatchStatus();
+
             tcMain.SelectedIndex = 0;
             if (!await Initialize())
                 tcMain.SelectedIndex = tcMain.TabPages.Count - 1;
@@ -137,7 +139,9 @@ namespace AloysAdjustments
             oldPatch.Delete();
 
             await FileManager.Cleanup(IoC.Config.TempPath);
-            
+
+            UpdatePatchStatus();
+
             SetStatus("Patch installed");
         }
 
@@ -275,6 +279,33 @@ namespace AloysAdjustments
                 btnReset.Enabled = false;
                 btnResetSelected.Enabled = false;
             }
+        }
+
+        private void btnDeletePack_Click(object sender, EventArgs e)
+        {
+            if (MessageBox.Show($"Are you sure you want to delete {IoC.Config.PatchFile}?", $"Delete File", 
+                MessageBoxButtons.YesNo, MessageBoxIcon.Warning) != DialogResult.Yes)
+            {
+                return;
+            }
+
+            if (File.Exists(Configs.PatchPath))
+                File.Delete(Configs.PatchPath);
+
+            UpdatePatchStatus();
+        }
+
+        private bool UpdatePatchStatus()
+        {
+            var valid = File.Exists(Configs.PatchPath);
+            if (valid)
+                lblPackStatus.Text = $"Pack installed: {IoC.Config.PatchFile}";
+            else
+                lblPackStatus.Text = "Pack not installed";
+
+            btnDeletePack.Enabled = valid;
+
+            return valid;
         }
     }
 }

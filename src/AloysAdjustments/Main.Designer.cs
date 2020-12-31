@@ -52,10 +52,16 @@ namespace AloysAdjustments
             this.lblDecimaExe = new System.Windows.Forms.Label();
             this.lblDecimaLib = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
+            this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.lblPackStatus = new System.Windows.Forms.Label();
+            this.button1 = new System.Windows.Forms.Button();
+            this.label5 = new System.Windows.Forms.Label();
+            this.btnDeletePack = new System.Windows.Forms.Button();
             this.ssMain.SuspendLayout();
             this.tcMain.SuspendLayout();
             this.tabPage2.SuspendLayout();
             this.groupBox1.SuspendLayout();
+            this.groupBox2.SuspendLayout();
             this.SuspendLayout();
             // 
             // btnLoadPatch
@@ -65,7 +71,7 @@ namespace AloysAdjustments
             this.btnLoadPatch.Name = "btnLoadPatch";
             this.btnLoadPatch.Size = new System.Drawing.Size(100, 28);
             this.btnLoadPatch.TabIndex = 0;
-            this.btnLoadPatch.Text = "Load Patch";
+            this.btnLoadPatch.Text = "Load";
             this.btnLoadPatch.UseVisualStyleBackColor = true;
             this.btnLoadPatch.Click += new System.EventHandler(this.btnLoadPatch_Click);
             // 
@@ -83,7 +89,7 @@ namespace AloysAdjustments
             // 
             this.tssStatus.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.tssStatus.Name = "tssStatus";
-            this.tssStatus.Size = new System.Drawing.Size(63, 17);
+            this.tssStatus.Size = new System.Drawing.Size(70, 17);
             this.tssStatus.Text = "Status Text";
             // 
             // btnPatch
@@ -93,7 +99,7 @@ namespace AloysAdjustments
             this.btnPatch.Name = "btnPatch";
             this.btnPatch.Size = new System.Drawing.Size(100, 42);
             this.btnPatch.TabIndex = 4;
-            this.btnPatch.Text = "Create Patch";
+            this.btnPatch.Text = "Install Pack";
             this.btnPatch.UseVisualStyleBackColor = true;
             this.btnPatch.Click += new System.EventHandler(this.btnPatch_Click);
             // 
@@ -185,6 +191,7 @@ namespace AloysAdjustments
             // 
             // tabPage2
             // 
+            this.tabPage2.Controls.Add(this.groupBox2);
             this.tabPage2.Controls.Add(this.groupBox1);
             this.tabPage2.Controls.Add(this.lblGameDir);
             this.tabPage2.Controls.Add(this.tbGameDir);
@@ -242,6 +249,60 @@ namespace AloysAdjustments
             this.label3.TabIndex = 11;
             this.label3.Text = "DLL:";
             // 
+            // groupBox2
+            // 
+            this.groupBox2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox2.Controls.Add(this.btnDeletePack);
+            this.groupBox2.Controls.Add(this.lblPackStatus);
+            this.groupBox2.Controls.Add(this.button1);
+            this.groupBox2.Controls.Add(this.label5);
+            this.groupBox2.Location = new System.Drawing.Point(3, 522);
+            this.groupBox2.Name = "groupBox2";
+            this.groupBox2.Size = new System.Drawing.Size(616, 47);
+            this.groupBox2.TabIndex = 13;
+            this.groupBox2.TabStop = false;
+            this.groupBox2.Text = "Game Pack";
+            // 
+            // lblPackStatus
+            // 
+            this.lblPackStatus.AutoSize = true;
+            this.lblPackStatus.Location = new System.Drawing.Point(79, 23);
+            this.lblPackStatus.Name = "lblPackStatus";
+            this.lblPackStatus.Size = new System.Drawing.Size(100, 15);
+            this.lblPackStatus.TabIndex = 12;
+            this.lblPackStatus.Text = "Pack not installed";
+            // 
+            // button1
+            // 
+            this.button1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.button1.Location = new System.Drawing.Point(926, 14);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(100, 25);
+            this.button1.TabIndex = 5;
+            this.button1.Text = "Update Decima";
+            this.button1.UseVisualStyleBackColor = true;
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(6, 23);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(42, 15);
+            this.label5.TabIndex = 10;
+            this.label5.Text = "Status:";
+            // 
+            // btnDeletePack
+            // 
+            this.btnDeletePack.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnDeletePack.Location = new System.Drawing.Point(510, 16);
+            this.btnDeletePack.Name = "btnDeletePack";
+            this.btnDeletePack.Size = new System.Drawing.Size(100, 25);
+            this.btnDeletePack.TabIndex = 14;
+            this.btnDeletePack.Text = "Delete Pack";
+            this.btnDeletePack.UseVisualStyleBackColor = true;
+            this.btnDeletePack.Click += new System.EventHandler(this.btnDeletePack_Click);
+            // 
             // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
@@ -263,6 +324,8 @@ namespace AloysAdjustments
             this.tabPage2.PerformLayout();
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
+            this.groupBox2.ResumeLayout(false);
+            this.groupBox2.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -286,6 +349,11 @@ namespace AloysAdjustments
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label lblDecimaExe;
         private System.Windows.Forms.Label lblDecimaLib;
+        private System.Windows.Forms.GroupBox groupBox2;
+        private System.Windows.Forms.Button btnDeletePack;
+        private System.Windows.Forms.Label lblPackStatus;
+        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Label label5;
     }
 }
 

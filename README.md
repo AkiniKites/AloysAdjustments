@@ -31,8 +31,8 @@ The multipler buttons will apply a multiplier to all upgrades.
 | --- | --- |
 | Reset Selected | Resets the current item to its default value |
 | Reset All | Resets all items in the current tab to their default values |
-| Create Patch | Creates a bin file with the changes and installs it into the games `Packed_DX12` folder |
-| Load Patch | Loads an existing patch |
+| Install Pack | Creates a bin file with the changes and installs it into the games `Packed_DX12` folder |
+| Load | Loads an existing pack file |
 
 ## Troubleshooting
 Status and errors are displayed in the bottom left. There isn't a lot of validation if things break restart the program.
