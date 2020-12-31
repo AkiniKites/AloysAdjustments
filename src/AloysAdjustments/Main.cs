@@ -145,6 +145,9 @@ namespace AloysAdjustments
         {
             using var _ = new ControlLock(btnDecima);
 
+            if (!UpdateGameDirStatus())
+                return;
+
             SetStatus("Downloading Decima...");
             await IoC.Decima.Download();
             SetStatus("Copying Decima library...");
