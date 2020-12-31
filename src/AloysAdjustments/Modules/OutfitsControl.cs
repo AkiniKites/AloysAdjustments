@@ -219,12 +219,14 @@ namespace AloysAdjustments.Modules
             //get all matching outfits from the default mapping
             var origOutfits = DefaultMaps.SelectMany(x => x.Outfits)
                 .Where(x => x.Equals(outfit)).ToHashSet();
-
+            
             //find the outfit in the new mapping by reference and update the model
             foreach (var newOutfit in NewMaps.SelectMany(x => x.Outfits)
                 .Where(x => origOutfits.Contains(x)))
             {
-                newOutfit.Modified = !newOutfit.ModelId.Equals(model.Id);
+                origOutfits.TryGetValue(newOutfit, out var orig);
+
+                newOutfit.Modified = !orig.ModelId.Equals(model.Id);
                 newOutfit.ModelId.AssignFromOther(model.Id);
             }
         }
