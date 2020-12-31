@@ -102,7 +102,9 @@ namespace AloysAdjustments
 
         private async Task<bool> Initialize()
         {
-            var settingsValid = UpdateGameDirStatus() && UpdateDecimaStatus();
+            var settingsValid = UpdateGameDirStatus();
+            settingsValid = UpdateDecimaStatus() && settingsValid;
+
             if (!settingsValid)
                 return false;
 
