@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace AloysAdjustments
+namespace AloysAdjustments.Configuration
 {
     public class Config
-    {
+    { 
         public DecimaConfig Decima { get; set; }
 
         public string PlayerComponentsFile { get; set; }
