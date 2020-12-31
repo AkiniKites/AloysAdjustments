@@ -16,11 +16,15 @@ It creates patch files for Horizon Zero Dawn and doesn't edit exiting game files
 #### Outfits (Swaping outfit models)
 Select the outfit(s) you want to modify from the right `Outfits` list.  
 Check-off the new model for the outfit(s) on the left `Model Mapping` list.  
+  
+![](docs/outfits.png)
 
 #### Upgrade (Change resource upgrades)
 Upgrade values are the increased capacity that the upgrade provides, not the absolute value.  
 Values can be changed by entering a new number in the grid (not tested with high values).  
 The multipler buttons will apply a multiplier to all upgrades.  
+  
+![](docs/upgrades.png)
 
 ### Buttons:  
 | Button  | Description |
