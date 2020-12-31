@@ -1,3 +1,3 @@
-[submodule "HZDCoreEditor"]
-	path = HZDCoreEditor
+[submodule "src/HZDCoreEditor"]
+	path = src/HZDCoreEditor
 	url = https://github.com/akini-kites/HZDCoreEditor.git
