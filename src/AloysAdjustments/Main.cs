@@ -7,6 +7,8 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using AloysAdjustments.Configuration;
+using AloysAdjustments.Logic;
 using AloysAdjustments.Modules;
 using Decima;
 using Decima.HZD;
@@ -64,7 +66,7 @@ namespace AloysAdjustments
             SetStatus("Loading config...");
             await LoadConfigs();
 
-            IoC.Bind(new Decima());
+            IoC.Bind(new Logic.Decima());
             IoC.Bind(new Localization(ELanguage.English));
             IoC.SetStatus = x => SetStatus(x, false);
             IoC.SetError = x => SetStatus(x, true);
@@ -117,9 +119,7 @@ namespace AloysAdjustments
         private async void btnPatch_Click(object sender, EventArgs e)
         {
             using var _ = new ControlLock(btnPatch);
-
-            if (File.Exists(Path.Combine(Configs.GamePackDir, IoC.Config.PatchFile)))
-                File.Delete(Path.Combine(Configs.GamePackDir, IoC.Config.PatchFile));
+            using var oldPatch = new FileRenamer(Configs.PatchPath);
 
             SetStatus("Generating patch...");
             var patcher = new Patcher();
@@ -130,10 +130,12 @@ namespace AloysAdjustments
             var patch = await patcher.PackPatch(dir);
 
             SetStatus("Copying patch...");
-            await new Patcher().InstallPatch(patch);
+            await patcher.InstallPatch(patch);
 
-            //await FileManager.Cleanup(IoC.Config.TempPath);
+            oldPatch.Delete();
 
+            await FileManager.Cleanup(IoC.Config.TempPath);
+            
             SetStatus("Patch installed");
         }
 

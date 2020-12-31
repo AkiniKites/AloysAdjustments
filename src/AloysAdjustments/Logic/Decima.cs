@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using AloysAdjustments.Utility;
 using Octokit;
 
-namespace AloysAdjustments
+namespace AloysAdjustments.Logic
 {
     public class Decima
     {

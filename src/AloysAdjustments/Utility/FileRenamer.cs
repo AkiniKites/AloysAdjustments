@@ -30,10 +30,16 @@ namespace AloysAdjustments.Utility
             }
         }
 
+        public void Delete()
+        {
+            if (_tempPath != null && File.Exists(_tempPath))
+                File.Delete(_tempPath);
+        }
+
         public void Dispose()
         {
             if (_tempPath != null && File.Exists(_tempPath))
-                File.Move(_tempPath, _path);
+                File.Move(_tempPath, _path, true);
         }
     }
 }

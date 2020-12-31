@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using AloysAdjustments.Utility;
 
-namespace AloysAdjustments
+namespace AloysAdjustments.Logic
 {
     public class FileManager
     {

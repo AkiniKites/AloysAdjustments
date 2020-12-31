@@ -4,8 +4,9 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using AloysAdjustments.Configuration;
 
-namespace AloysAdjustments
+namespace AloysAdjustments.Logic
 {
     public class Patcher
     {

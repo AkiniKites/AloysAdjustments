@@ -4,10 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using AloysAdjustments.Configuration;
 using Decima;
 using Decima.HZD;
 
-namespace AloysAdjustments
+namespace AloysAdjustments.Logic
 {
     public class Localization
     {

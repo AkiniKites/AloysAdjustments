@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Ninject;
 using Ninject.Planning.Bindings.Resolvers;
 
-namespace AloysAdjustments
+namespace AloysAdjustments.Logic
 {
     public class IoC
     {

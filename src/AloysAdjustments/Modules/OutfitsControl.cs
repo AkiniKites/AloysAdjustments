@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using AloysAdjustments.Data;
+using AloysAdjustments.Logic;
 using AloysAdjustments.Utility;
 
 namespace AloysAdjustments.Modules

@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using Decima;
 using Decima.HZD;
 
-namespace AloysAdjustments
+namespace AloysAdjustments.Logic
 {
     public class HzdCore
     {
