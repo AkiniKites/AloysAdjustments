@@ -12,9 +12,7 @@ namespace AloysAdjustments.Configuration
     {
         public string GamePath { get; set; }
         public string LastPackOpen { get; set; }
-
-#pragma warning disable 0067
+        
         public event PropertyChangedEventHandler PropertyChanged;
-#pragma warning restore 0067
     }
 }
