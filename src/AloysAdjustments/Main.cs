@@ -28,7 +28,7 @@ namespace AloysAdjustments
         
         private bool _initialized = true;
 
-        private List<IModule> Modules { get; set; }
+        private List<ModuleBase> Modules { get; set; }
         
         public Main()
         {
@@ -75,7 +75,7 @@ namespace AloysAdjustments
             tbGameDir.Text = IoC.Settings.GamePath;
             tbGameDir.EnableTypingEvent = true;
 
-            Modules = new List<IModule>()
+            Modules = new List<ModuleBase>()
             {
                 new OutfitsControl(),
                 new UpgradesControl()
@@ -86,8 +86,8 @@ namespace AloysAdjustments
                 var tab = new TabPage();
 
                 tab.Text = module.ModuleName;
-                tab.Controls.Add(module.ModuleControl);
-                module.ModuleControl.Dock = DockStyle.Fill;
+                tab.Controls.Add(module);
+                module.Dock = DockStyle.Fill;
 
                 tcMain.TabPages.Insert(0, tab);
             }

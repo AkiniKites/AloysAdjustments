@@ -10,7 +10,6 @@ namespace AloysAdjustments.Modules
     public interface IModule
     {
         string ModuleName { get; }
-        Control ModuleControl { get; }
 
         ControlRelay Reset { get; }
         ControlRelay ResetSelected { get; }

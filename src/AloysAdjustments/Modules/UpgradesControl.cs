@@ -15,26 +15,17 @@ using Decima;
 
 namespace AloysAdjustments.Modules
 {
-    public partial class UpgradesControl : UserControl, IModule
+    public partial class UpgradesControl : ModuleBase
     {
         private UpgradesLogic Logic { get; }
         private Dictionary<BaseGGUUID, Upgrade> DefaultUpgrades { get; set; }
         private List<Upgrade> NewUpgrades { get; set; }
 
-        public string ModuleName => "Upgrades";
-        public Control ModuleControl => this;
-
-        public ControlRelay Reset { get; set; }
-        public ControlRelay ResetSelected { get; set; }
+        public override string ModuleName => "Upgrades";
 
         public UpgradesControl()
         {
             Logic = new UpgradesLogic();
-            Reset = new ControlRelay();
-            ResetSelected = new ControlRelay();
-
-            Reset.Click += Reset_Click;
-            ResetSelected.Click += ResetSelected_Click;
 
             InitializeComponent();
 
@@ -81,7 +72,7 @@ namespace AloysAdjustments.Modules
             };
         }
 
-        public async Task LoadPatch(string path)
+        public override async Task LoadPatch(string path)
         {
             await Initialize();
 
@@ -101,7 +92,7 @@ namespace AloysAdjustments.Modules
             dgvUpgrades.Refresh();
         }
 
-        public async Task CreatePatch(string patchDir)
+        public override async Task CreatePatch(string patchDir)
         {
             foreach (var upgrade in NewUpgrades)
             {
@@ -114,7 +105,7 @@ namespace AloysAdjustments.Modules
             }
         }
 
-        public async Task Initialize()
+        public override async Task Initialize()
         {
             ResetSelected.Enabled = false;
 
@@ -127,8 +118,8 @@ namespace AloysAdjustments.Modules
             await UpdateDisplayNames(NewUpgrades);
             dgvUpgrades.DataSource = NewUpgrades;
         }
-        
-        private async void Reset_Click()
+
+        protected override async void Reset_Click()
         {
             using var _ = new ControlLock(Reset);
 
@@ -137,7 +128,7 @@ namespace AloysAdjustments.Modules
             IoC.SetStatus("Reset complete");
         }
 
-        private void ResetSelected_Click()
+        protected override void ResetSelected_Click()
         {
             if (dgvUpgrades.SelectedRows.Count > 0)
             {
