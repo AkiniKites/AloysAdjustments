@@ -99,7 +99,7 @@ namespace AloysAdjustments.Modules
 
             IoC.SetStatus("Loading upgrades...");
             
-            var loadedUpgrades = await Logic.GenerateUpgradeListFromPath(path);
+            var loadedUpgrades = await Logic.GenerateUpgradeListFromPath(path, false);
 
             foreach (var upgrade in NewUpgrades)
             {
@@ -115,7 +115,15 @@ namespace AloysAdjustments.Modules
 
         public async Task CreatePatch(string patchDir)
         {
-            await Logic.CreatePatch(patchDir, NewUpgrades);
+            foreach (var upgrade in NewUpgrades)
+            {
+                var defaultUpgrade = DefaultUpgrades[upgrade.Id];
+                if (defaultUpgrade.Value != upgrade.Value)
+                {
+                    await Logic.CreatePatch(patchDir, NewUpgrades);
+                    break;
+                }
+            }
         }
 
         public async Task Initialize()

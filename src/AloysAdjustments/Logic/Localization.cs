@@ -49,10 +49,7 @@ namespace AloysAdjustments.Logic
 
         private async Task<Dictionary<BaseGGUUID, string>> LoadFile(string path)
         {
-            var file = await FileManager.ExtractFile(IoC.Decima,
-                IoC.Config.TempPath, Configs.GamePackDir, false, path);
-
-            var core = HzdCore.Load(file.Output);
+            var core = await FileManager.LoadFile(Configs.GamePackDir, path);
             var texts = new Dictionary<BaseGGUUID, string>();
 
             foreach (var obj in core.Components)

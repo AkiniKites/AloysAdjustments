@@ -21,25 +21,24 @@ namespace AloysAdjustments.Modules
             using var rn = new FileRenamer(Configs.PatchPath);
 
             //extract game files
-            var maps = await GenerateOutfitFilesFromPath(Configs.GamePackDir);
+            var maps = await GenerateOutfitFilesFromPath(Configs.GamePackDir, true);
             return maps;
         }
 
-        public async Task<OutfitFile[]> GenerateOutfitFilesFromPath(string path)
+        public async Task<OutfitFile[]> GenerateOutfitFilesFromPath(string path, bool checkMissing)
         {
-            var files = await FileManager.ExtractFiles(IoC.Decima, 
-                IoC.Config.TempPath, path, false, IoC.Config.OutfitFiles);
+            var cores = await Task.WhenAll(IoC.Config.OutfitFiles.Select(
+                async f => await FileManager.LoadFile(path, f, checkMissing)));
 
-            var maps = files.Select(x => {
-                var map = new OutfitFile { File = x.Source };
+            var maps = cores.Where(x => x != null).Select(core =>
+            {
+                var map = new OutfitFile { File = core.Source };
 
-                var core = HzdCore.Load(x.Output);
                 foreach (var item in GetOutfits(core))
                     map.Outfits.Add(item);
 
                 return map;
             }).ToArray();
-            //await SaveOutfitMaps(maps);
 
             await FileManager.Cleanup(IoC.Config.TempPath);
 
@@ -103,7 +102,7 @@ namespace AloysAdjustments.Modules
             var models = new List<Model>();
 
             //player models
-            var playerComponents = (await LoadPlayerComponents(IoC.Config.TempPath)).Core;
+            var playerComponents = (await LoadPlayerComponents(IoC.Config.TempPath));
             var playerModels = GetPlayerModels(playerComponents);
 
             models.AddRange(playerModels.Select(x => new Model
@@ -115,20 +114,20 @@ namespace AloysAdjustments.Modules
             return models;
         }
 
-        public async Task<(HzdCore Core, string File)> LoadPlayerComponents(
+        public async Task<HzdCore> LoadPlayerComponents(
             string outputPath, bool retainPath = false)
         {
             //TODO: Fix hack to ignore patch files
             using var rn = new FileRenamer(Configs.PatchPath);
 
-            var file = await FileManager.ExtractFile(IoC.Decima,
-                outputPath, Configs.GamePackDir, retainPath, IoC.Config.PlayerComponentsFile);
+            var file = await FileManager.ExtractFile(outputPath, 
+                Configs.GamePackDir, retainPath, IoC.Config.PlayerComponentsFile);
 
-            var core = HzdCore.Load(file.Output);
-            return (core, file.Output);
+            var core = HzdCore.Load(file);
+            return core;
         }
 
-        public List<global::Decima.HZD.StreamingRef<HumanoidBodyVariant>> GetPlayerModels(HzdCore core)
+        public List<StreamingRef<HumanoidBodyVariant>> GetPlayerModels(HzdCore core)
         {
             var resource = core.GetTypes<BodyVariantComponentResource>().FirstOrDefault().Value;
             if (resource == null)
@@ -137,18 +136,18 @@ namespace AloysAdjustments.Modules
             return resource.Variants;
         }
 
-        public async Task CreatePatch(string patchDir, OutfitFile[] maps)
+        public async Task CreatePatch(string patchDir, IEnumerable<OutfitFile> maps)
         {
             foreach (var map in maps)
             {
                 //extract original outfit files to temp
-                var file = await FileManager.ExtractFile(
-                    IoC.Decima, patchDir, Configs.GamePackDir, true, map.File);
+                var file = await FileManager.ExtractFile(patchDir, 
+                    Configs.GamePackDir, true, map.File);
 
                 var refs = map.Outfits.ToDictionary(x => x.RefId, x => x.ModelId);
 
                 //update references from based on new maps
-                var core = HzdCore.Load(file.Output);
+                var core = HzdCore.Load(file);
                 foreach (var reference in core.GetTypes<NodeGraphHumanoidBodyVariantUUIDRefVariableOverride>().Values)
                 {
                     if (refs.TryGetValue(reference.ObjectUUID, out var newModel))

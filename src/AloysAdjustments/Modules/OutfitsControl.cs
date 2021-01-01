@@ -94,7 +94,7 @@ namespace AloysAdjustments.Modules
             await Initialize();
 
             IoC.SetStatus("Loading outfits...");
-            NewMaps = await Logic.GenerateOutfitFilesFromPath(path);
+            NewMaps = await Logic.GenerateOutfitFilesFromPath(path, false);
 
             var newOutfits = NewMaps.SelectMany(x => x.Outfits).ToHashSet();
 
@@ -112,7 +112,23 @@ namespace AloysAdjustments.Modules
 
         public async Task CreatePatch(string patchDir)
         {
-            await Logic.CreatePatch(patchDir, NewMaps);
+            var updatedMaps = new List<OutfitFile>();
+            foreach (var map in NewMaps)
+            {
+                var defaultMap = DefaultMaps.First(x => x.File == map.File)
+                    .Outfits.ToDictionary(x=>x.RefId, x=>x.ModelId);
+
+                foreach (var outfit in map.Outfits)
+                {
+                    if (!defaultMap[outfit.RefId].Equals(outfit.ModelId))
+                    {
+                        updatedMaps.Add(map);
+                        break;
+                    }
+                }
+            }
+
+            await Logic.CreatePatch(patchDir, updatedMaps);
         }
 
         public async Task Initialize()

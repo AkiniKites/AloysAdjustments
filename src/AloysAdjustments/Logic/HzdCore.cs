@@ -10,6 +10,7 @@ namespace AloysAdjustments.Logic
 {
     public class HzdCore
     {
+        public string Source { get; set; }
         public string FilePath { get; private set; }
         public List<object> Components { get; private set; }
 

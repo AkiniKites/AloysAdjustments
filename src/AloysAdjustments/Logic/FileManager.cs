@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using AloysAdjustments.Utility;
@@ -10,51 +11,62 @@ namespace AloysAdjustments.Logic
 {
     public class FileManager
     {
-        public static async Task<(string Source, string Output)> ExtractFile(
-            Decima decima, string extractPath, string pakPath, bool retainPath, string file)
+        public static async Task<HzdCore> LoadFile(string pakPath, string file, bool throwError = true)
         {
-            return (await ExtractFiles(decima, extractPath, pakPath, retainPath, file)).FirstOrDefault();
+            var (success, output) = await TryExtractFile(IoC.Config.TempPath, pakPath, false, file);
+
+            if (!success)
+            {
+                if (throwError)
+                    throw new HzdException($"Failed to extract: {file}");
+                return null;
+            }
+
+            var core = HzdCore.Load(output);
+            core.Source = file;
+
+            return core;
         }
 
-        public static async Task<List<(string Source, string Output)>> ExtractFiles(
-            Decima decima, string extractPath, string pakPath, bool retainPath, params string[] files)
+        public static async Task<string> ExtractFile(string extractPath, 
+            string pakPath, bool retainPaths, string file)
+        {
+            var (success, output) = await TryExtractFile(extractPath, pakPath, retainPaths, file);
+
+            if (!success)
+                throw new HzdException($"Failed to extract: {file}");
+
+            return output;
+        }
+        public static async Task<(bool Success, string Output)> TryExtractFile(
+            string extractPath, string pakPath, bool retainPaths, string file)
         {
             if (!Directory.Exists(pakPath) && !File.Exists(pakPath))
-                throw new HzdException($"Pack file/directory not found at: {pakPath}");
+                throw new HzdException($"Pack file or directory not found at: {pakPath}");
 
             Paths.CheckDirectory(extractPath);
 
-            var tempFiles = new List<(string Source, string Output)>();
+            if (!file.EndsWith(".core", StringComparison.OrdinalIgnoreCase))
+                file += ".core";
 
-            foreach (var temp in files)
+            string output;
+            if (retainPaths)
             {
-                var f = temp;
-                if (!f.EndsWith(".core", StringComparison.OrdinalIgnoreCase))
-                    f += ".core";
-
-                string output;
-                if (retainPath)
-                {
-                    output = Path.Combine(extractPath, f);
-                    Paths.CheckDirectory(Path.GetDirectoryName(output));
-                }
-                else
-                {
-                    var ext = Path.GetExtension(f);
-                    output = Path.Combine(extractPath, Guid.NewGuid() + ext);
-                }
-                
-                await decima.ExtractFile(pakPath, f, output);
-
-                if (!File.Exists(output))
-                    throw new HzdException($"Failed to extract: {f}");
-
-                tempFiles.Add((f, output));
+                output = Path.Combine(extractPath, file);
+                Paths.CheckDirectory(Path.GetDirectoryName(output));
+            }
+            else
+            {
+                var ext = Path.GetExtension(file);
+                output = Path.Combine(extractPath, Guid.NewGuid() + ext);
             }
 
-            return tempFiles;
+            await IoC.Decima.ExtractFile(pakPath, file, output);
+
+            var success = File.Exists(output);
+            return (success, output);
         }
-        
+
         public static async Task InstallPatch(string patchFile, string packDir)
         {
             if (!File.Exists(patchFile))

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.SqlTypes;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -22,18 +23,18 @@ namespace AloysAdjustments.Modules
             using var rn = new FileRenamer(Configs.PatchPath);
 
             //extract game files
-            var upgrades = await GenerateUpgradeListFromPath(Configs.GamePackDir);
+            var upgrades = await GenerateUpgradeListFromPath(Configs.GamePackDir, true);
             return upgrades;
         }
 
-        public async Task<Dictionary<BaseGGUUID, Upgrade>> GenerateUpgradeListFromPath(string path)
+        public async Task<Dictionary<BaseGGUUID, Upgrade>> GenerateUpgradeListFromPath(string path, bool checkMissing)
         {
             var ignored = IoC.Config.IgnoredUpgrades.ToHashSet();
 
-            var file = await FileManager.ExtractFile(IoC.Decima,
-                IoC.Config.TempPath, path, false, IoC.Config.UpgradeFile);
-            
-            var core = HzdCore.Load(file.Output);
+            var core = await FileManager.LoadFile(path, IoC.Config.UpgradeFile, checkMissing);
+
+            if (core == null)
+                return new Dictionary<BaseGGUUID, Upgrade>();
 
             var charUpgrades = core.GetTypes<CharacterUpgrade>();
             var invMods = core.GetTypes<InventoryCapacityModificationComponentResource>();
@@ -78,12 +79,12 @@ namespace AloysAdjustments.Modules
         public async Task CreatePatch(string patchDir, List<Upgrade> upgrades)
         {
             //extract original outfit files to temp
-            var file = await FileManager.ExtractFile(
-                IoC.Decima, patchDir, Configs.GamePackDir, true, IoC.Config.UpgradeFile);
+            var file = await FileManager.ExtractFile(patchDir, 
+                Configs.GamePackDir, true, IoC.Config.UpgradeFile);
 
             var upgradeChanges = upgrades.ToDictionary(x => x.Id, x => x);
 
-            var core = HzdCore.Load(file.Output);
+            var core = HzdCore.Load(file);
             var invMods = core.GetTypes<InventoryCapacityModificationComponentResource>();
 
             foreach (var invMod in invMods.Values)
