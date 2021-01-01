@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -82,9 +83,6 @@ namespace AloysAdjustments
 
             foreach (var module in Modules.AsEnumerable().Reverse())
             {
-                module.Reset = btnReset;
-                module.ResetSelected = btnResetSelected;
-
                 var tab = new TabPage();
 
                 tab.Text = module.ModuleName;
@@ -250,9 +248,9 @@ namespace AloysAdjustments
                 for (int i = 0; i < Modules.Count; i++)
                 {
                     if (i == tcMain.SelectedIndex)
-                        Modules[i].Activate();
+                        EnableModule(Modules[i]);
                     else
-                        Modules[i].DeActivate();
+                        DisableModule(Modules[i]);
                 }
             }
             else
@@ -260,6 +258,38 @@ namespace AloysAdjustments
                 btnReset.Enabled = false;
                 btnResetSelected.Enabled = false;
             }
+        }
+
+        private void EnableModule(IModule module)
+        {
+            module.Reset.PropertyValueChanged = (p, v) => Relay_PropertyValueChanged(btnReset, p, v);
+            //module.Reset.FirePropertyChanges();
+
+            module.ResetSelected.PropertyValueChanged = (p, v) => Relay_PropertyValueChanged(btnResetSelected, p, v);
+            module.ResetSelected.FirePropertyChanges();
+        }
+
+        private void DisableModule(IModule module)
+        {
+            module.Reset.PropertyValueChanged = null;
+            module.ResetSelected.PropertyValueChanged = null;
+        }
+
+        private void Relay_PropertyValueChanged(Control control, string propertyName, object value)
+        {
+            var pi = control.GetType().GetProperty(propertyName);
+            pi?.SetValue(control, value);
+        }
+
+        private void btnResetSelected_Click(object sender, EventArgs e)
+        {
+            if (tcMain.SelectedIndex >= 0 && tcMain.SelectedIndex < Modules.Count)
+                Modules[tcMain.SelectedIndex].ResetSelected.OnClick();
+        }
+        private void btnReset_Click(object sender, EventArgs e)
+        {
+            if (tcMain.SelectedIndex >= 0 && tcMain.SelectedIndex < Modules.Count)
+                Modules[tcMain.SelectedIndex].Reset.OnClick();
         }
 
         private void btnDeletePack_Click(object sender, EventArgs e)

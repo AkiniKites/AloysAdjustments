@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using AloysAdjustments.UI;
 
 namespace AloysAdjustments.Modules
 {
@@ -11,11 +12,9 @@ namespace AloysAdjustments.Modules
         string ModuleName { get; }
         Control ModuleControl { get; }
 
-        Button Reset { get; set; }
-        Button ResetSelected { get; set; }
+        ControlRelay Reset { get; }
+        ControlRelay ResetSelected { get; }
 
-        void Activate();
-        void DeActivate();
         Task LoadPatch(string path);
         Task CreatePatch(string patchDir);
 

@@ -48,20 +48,20 @@ namespace AloysAdjustments
             this.btnResetSelected = new System.Windows.Forms.Button();
             this.tcMain = new System.Windows.Forms.TabControl();
             this.tabPage2 = new System.Windows.Forms.TabPage();
+            this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.btnDeletePack = new System.Windows.Forms.Button();
+            this.lblPackStatus = new System.Windows.Forms.Label();
+            this.button1 = new System.Windows.Forms.Button();
+            this.label5 = new System.Windows.Forms.Label();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.lblDecimaExe = new System.Windows.Forms.Label();
             this.lblDecimaLib = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
-            this.groupBox2 = new System.Windows.Forms.GroupBox();
-            this.lblPackStatus = new System.Windows.Forms.Label();
-            this.button1 = new System.Windows.Forms.Button();
-            this.label5 = new System.Windows.Forms.Label();
-            this.btnDeletePack = new System.Windows.Forms.Button();
             this.ssMain.SuspendLayout();
             this.tcMain.SuspendLayout();
             this.tabPage2.SuspendLayout();
-            this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
+            this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
             // btnLoadPatch
@@ -123,6 +123,7 @@ namespace AloysAdjustments
             this.btnReset.TabIndex = 6;
             this.btnReset.Text = "Reset All";
             this.btnReset.UseVisualStyleBackColor = true;
+            this.btnReset.Click += new System.EventHandler(this.btnReset_Click);
             // 
             // lblGameDir
             // 
@@ -175,6 +176,7 @@ namespace AloysAdjustments
             this.btnResetSelected.TabIndex = 12;
             this.btnResetSelected.Text = "Reset Selected";
             this.btnResetSelected.UseVisualStyleBackColor = true;
+            this.btnResetSelected.Click += new System.EventHandler(this.btnResetSelected_Click);
             // 
             // tcMain
             // 
@@ -203,6 +205,60 @@ namespace AloysAdjustments
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "Settings";
             this.tabPage2.UseVisualStyleBackColor = true;
+            // 
+            // groupBox2
+            // 
+            this.groupBox2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox2.Controls.Add(this.btnDeletePack);
+            this.groupBox2.Controls.Add(this.lblPackStatus);
+            this.groupBox2.Controls.Add(this.button1);
+            this.groupBox2.Controls.Add(this.label5);
+            this.groupBox2.Location = new System.Drawing.Point(3, 522);
+            this.groupBox2.Name = "groupBox2";
+            this.groupBox2.Size = new System.Drawing.Size(616, 47);
+            this.groupBox2.TabIndex = 13;
+            this.groupBox2.TabStop = false;
+            this.groupBox2.Text = "Game Pack";
+            // 
+            // btnDeletePack
+            // 
+            this.btnDeletePack.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnDeletePack.Location = new System.Drawing.Point(510, 16);
+            this.btnDeletePack.Name = "btnDeletePack";
+            this.btnDeletePack.Size = new System.Drawing.Size(100, 25);
+            this.btnDeletePack.TabIndex = 14;
+            this.btnDeletePack.Text = "Delete Pack";
+            this.btnDeletePack.UseVisualStyleBackColor = true;
+            this.btnDeletePack.Click += new System.EventHandler(this.btnDeletePack_Click);
+            // 
+            // lblPackStatus
+            // 
+            this.lblPackStatus.AutoSize = true;
+            this.lblPackStatus.Location = new System.Drawing.Point(79, 23);
+            this.lblPackStatus.Name = "lblPackStatus";
+            this.lblPackStatus.Size = new System.Drawing.Size(100, 15);
+            this.lblPackStatus.TabIndex = 12;
+            this.lblPackStatus.Text = "Pack not installed";
+            // 
+            // button1
+            // 
+            this.button1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.button1.Location = new System.Drawing.Point(926, 14);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(100, 25);
+            this.button1.TabIndex = 5;
+            this.button1.Text = "Update Decima";
+            this.button1.UseVisualStyleBackColor = true;
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(6, 23);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(42, 15);
+            this.label5.TabIndex = 10;
+            this.label5.Text = "Status:";
             // 
             // groupBox1
             // 
@@ -249,60 +305,6 @@ namespace AloysAdjustments
             this.label3.TabIndex = 11;
             this.label3.Text = "DLL:";
             // 
-            // groupBox2
-            // 
-            this.groupBox2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.groupBox2.Controls.Add(this.btnDeletePack);
-            this.groupBox2.Controls.Add(this.lblPackStatus);
-            this.groupBox2.Controls.Add(this.button1);
-            this.groupBox2.Controls.Add(this.label5);
-            this.groupBox2.Location = new System.Drawing.Point(3, 522);
-            this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(616, 47);
-            this.groupBox2.TabIndex = 13;
-            this.groupBox2.TabStop = false;
-            this.groupBox2.Text = "Game Pack";
-            // 
-            // lblPackStatus
-            // 
-            this.lblPackStatus.AutoSize = true;
-            this.lblPackStatus.Location = new System.Drawing.Point(79, 23);
-            this.lblPackStatus.Name = "lblPackStatus";
-            this.lblPackStatus.Size = new System.Drawing.Size(100, 15);
-            this.lblPackStatus.TabIndex = 12;
-            this.lblPackStatus.Text = "Pack not installed";
-            // 
-            // button1
-            // 
-            this.button1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.button1.Location = new System.Drawing.Point(926, 14);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(100, 25);
-            this.button1.TabIndex = 5;
-            this.button1.Text = "Update Decima";
-            this.button1.UseVisualStyleBackColor = true;
-            // 
-            // label5
-            // 
-            this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(6, 23);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(42, 15);
-            this.label5.TabIndex = 10;
-            this.label5.Text = "Status:";
-            // 
-            // btnDeletePack
-            // 
-            this.btnDeletePack.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnDeletePack.Location = new System.Drawing.Point(510, 16);
-            this.btnDeletePack.Name = "btnDeletePack";
-            this.btnDeletePack.Size = new System.Drawing.Size(100, 25);
-            this.btnDeletePack.TabIndex = 14;
-            this.btnDeletePack.Text = "Delete Pack";
-            this.btnDeletePack.UseVisualStyleBackColor = true;
-            this.btnDeletePack.Click += new System.EventHandler(this.btnDeletePack_Click);
-            // 
             // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
@@ -322,10 +324,10 @@ namespace AloysAdjustments
             this.tcMain.ResumeLayout(false);
             this.tabPage2.ResumeLayout(false);
             this.tabPage2.PerformLayout();
-            this.groupBox1.ResumeLayout(false);
-            this.groupBox1.PerformLayout();
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
+            this.groupBox1.ResumeLayout(false);
+            this.groupBox1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 

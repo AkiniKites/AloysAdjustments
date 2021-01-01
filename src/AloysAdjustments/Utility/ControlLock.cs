@@ -4,22 +4,30 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using AloysAdjustments.UI;
 
 namespace AloysAdjustments.Utility
 {
     public class ControlLock : IDisposable
     {
         private readonly Control _control;
+        private readonly ControlRelay _controlRelay;
 
         public ControlLock(Control control)
         {
             _control = control;
             control.Enabled = false;
         }
+        public ControlLock(ControlRelay control)
+        {
+            _controlRelay = control;
+            control.Enabled = false;
+        }
 
         public void Dispose()
         {
-            _control.Enabled = true;
+            if (_control != null) _control.Enabled = true;
+            if (_controlRelay != null) _controlRelay.Enabled = true;
         }
     }
 }

@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using AloysAdjustments.Data;
 using AloysAdjustments.Logic;
+using AloysAdjustments.UI;
 using AloysAdjustments.Utility;
 
 namespace AloysAdjustments.Modules
@@ -17,7 +18,7 @@ namespace AloysAdjustments.Modules
     {
         private bool _updatingLists;
 
-        private OutfitsLogic Logic { get; set; }
+        private OutfitsLogic Logic { get; }
 
         private OutfitFile[] DefaultMaps { get; set; }
         private OutfitFile[] NewMaps { get; set; }
@@ -25,8 +26,8 @@ namespace AloysAdjustments.Modules
         private List<Outfit> Outfits { get; set; }
         private List<Model> Models { get; set; }
 
-        public Button Reset { get; set; }
-        public Button ResetSelected { get; set; }
+        public ControlRelay Reset { get; set; }
+        public ControlRelay ResetSelected { get; set; }
 
         public string ModuleName => "Outfits";
         public Control ModuleControl => this;
@@ -34,6 +35,11 @@ namespace AloysAdjustments.Modules
         public OutfitsControl()
         {
             Logic = new OutfitsLogic();
+            Reset = new ControlRelay();
+            ResetSelected = new ControlRelay();
+
+            Reset.Click += Reset_Click;
+            ResetSelected.Click += ResetSelected_Click;
 
             InitializeComponent();
 
@@ -73,20 +79,6 @@ namespace AloysAdjustments.Modules
                 }
                 e.DrawFocusRectangle();
             };
-        }
-        
-        public void Activate()
-        {
-            Reset.Click += Reset_Click;
-            ResetSelected.Click += ResetSelected_Click;
-
-            ResetSelected.Enabled = lbOutfits.SelectedIndex >= 0;
-        }
-
-        public void DeActivate()
-        {
-            Reset.Click -= Reset_Click;
-            ResetSelected.Click -= ResetSelected_Click;
         }
 
         public async Task LoadPatch(string path)
@@ -259,7 +251,7 @@ namespace AloysAdjustments.Modules
             }
         }
 
-        private async void Reset_Click(object sender, EventArgs e)
+        private async void Reset_Click()
         {
             using var _ = new ControlLock(Reset);
 
@@ -269,7 +261,7 @@ namespace AloysAdjustments.Modules
             IoC.SetStatus("Reset complete");
         }
 
-        private void ResetSelected_Click(object sender, EventArgs e)
+        private void ResetSelected_Click()
         {
             if (lbOutfits.SelectedIndex < 0)
                 return;
