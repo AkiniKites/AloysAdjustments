@@ -218,10 +218,13 @@ namespace AloysAdjustments.Modules
 
         private void UpdateMapping(Outfit outfit, Model model)
         {
-            //get all matching outfits from the default mapping
+            //get all matching outfits by model from the default mapping
+            //there are multiple outfits with the same name/model but different properties
+            var origOutfitModels = DefaultMaps.SelectMany(x => x.Outfits)
+                .Where(x => x.Equals(outfit)).Select(x => x.ModelId).ToHashSet();
             var origOutfits = DefaultMaps.SelectMany(x => x.Outfits)
-                .Where(x => x.Equals(outfit)).ToHashSet();
-            
+                .Where(x => origOutfitModels.Contains(x.ModelId)).ToHashSet();
+
             //find the outfit in the new mapping by reference and update the model
             foreach (var newOutfit in NewMaps.SelectMany(x => x.Outfits)
                 .Where(x => origOutfits.Contains(x)))
