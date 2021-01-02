@@ -14,6 +14,9 @@ namespace AloysAdjustments.Configuration
         public string[] OutfitFiles { get; set; }
         public string UpgradeFile { get; set; }
         public string[] IgnoredUpgrades { get; set; }
+
+
+        public string PackagerLib { get; set; }
         public string TempPath { get; set; }
         public string PatchFile { get; set; }
         public string PackDir { get; set; }

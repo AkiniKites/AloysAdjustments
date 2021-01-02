@@ -67,6 +67,7 @@ namespace AloysAdjustments
             await LoadConfigs();
 
             IoC.Bind(new Logic.Decima());
+            IoC.Bind(new Packager());
             IoC.Bind(new Localization(ELanguage.English));
             IoC.SetStatus = x => SetStatus(x, false);
             IoC.SetError = x => SetStatus(x, true);

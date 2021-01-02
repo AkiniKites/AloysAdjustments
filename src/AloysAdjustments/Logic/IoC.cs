@@ -27,6 +27,7 @@ namespace AloysAdjustments.Logic
         public static Config Config => Kernel.Get<Config>();
         public static UserSettings Settings => Kernel.Get<UserSettings>();
         public static Decima Decima => Kernel.Get<Decima>();
+        public static Packager Packager => Kernel.Get<Packager>();
         public static Localization Localization => Kernel.Get<Localization>();
         
         public static Action<string> SetStatus { get; set; }
