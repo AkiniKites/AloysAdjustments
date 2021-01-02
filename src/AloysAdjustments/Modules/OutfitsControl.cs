@@ -171,8 +171,11 @@ namespace AloysAdjustments.Modules
             var lb = (ListBox)sender;
             ResetSelected.Enabled = lb.SelectedIndex >= 0;
 
-            var modelIds = lb.SelectedItems.Cast<Outfit>()
-                .Select(x => x.ModelId).ToHashSet();
+            var selected = lb.SelectedItems.Cast<Outfit>().ToHashSet();
+            
+            var modelIds = NewMaps.SelectMany(x=>x.Outfits)
+                .Where(x=>selected.Contains(x)).Select(x => x.ModelId)
+                .ToHashSet();
 
             for (int i = 0; i < clbModels.Items.Count; i++)
             {
@@ -227,6 +230,12 @@ namespace AloysAdjustments.Modules
 
                 newOutfit.Modified = !orig.ModelId.Equals(model.Id);
                 newOutfit.ModelId.AssignFromOther(model.Id);
+
+                if (newOutfit.Equals(outfit))
+                {
+                    outfit.ModelId.AssignFromOther(model.Id);
+                    outfit.Modified = newOutfit.Modified;
+                }
             }
         }
 
