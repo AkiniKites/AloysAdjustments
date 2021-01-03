@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,7 +10,7 @@ using AloysAdjustments.Utility;
 using Decima.HZD;
 using Model = AloysAdjustments.Data.Model;
 
-namespace AloysAdjustments.Modules
+namespace AloysAdjustments.Modules.Outfits
 {
     public class OutfitsLogic
     {
@@ -95,6 +94,8 @@ namespace AloysAdjustments.Modules
         public async Task<List<Model>> GenerateModelList()
         {
             var models = new List<Model>();
+            var cmb = new CharacterModelBuilder();
+            await cmb.GetCharacterModels();
 
             //player models
             var playerComponents = (await LoadPlayerComponents(IoC.Config.TempPath));

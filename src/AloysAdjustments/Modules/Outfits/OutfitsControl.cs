@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Text;
@@ -9,14 +7,14 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using AloysAdjustments.Data;
 using AloysAdjustments.Logic;
-using AloysAdjustments.UI;
 using AloysAdjustments.Utility;
 
-namespace AloysAdjustments.Modules
+namespace AloysAdjustments.Modules.Outfits
 {
     public partial class OutfitsControl : ModuleBase
     {
         private bool _updatingLists;
+        private bool _characterMode;
 
         private OutfitsLogic Logic { get; }
 
@@ -289,6 +287,12 @@ namespace AloysAdjustments.Modules
         {
             lbOutfits.ClearSelected();
             lbOutfits.Invalidate();
+        }
+
+        private void cbSwapCharacters_CheckedChanged(object sender, EventArgs e)
+        {
+            _characterMode = cbSwapCharacters.Checked;
+            IoC.Settings.SwapCharacterMode = _characterMode;
         }
     }
 }

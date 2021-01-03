@@ -11,6 +11,7 @@ using System.Windows.Forms;
 using AloysAdjustments.Configuration;
 using AloysAdjustments.Logic;
 using AloysAdjustments.Modules;
+using AloysAdjustments.Modules.Outfits;
 using Decima;
 using Decima.HZD;
 using AloysAdjustments.Utility;

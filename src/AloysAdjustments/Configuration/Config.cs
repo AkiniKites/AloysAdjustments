@@ -12,6 +12,7 @@ namespace AloysAdjustments.Configuration
         public string[] OutfitFiles { get; set; }
         public string UpgradeFile { get; set; }
         public string[] IgnoredUpgrades { get; set; }
+        public string PrefetchFile { get; set; }
 
 
         public string ArchiverLib { get; set; }

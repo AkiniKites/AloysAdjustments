@@ -127,9 +127,12 @@ namespace AloysAdjustments.Logic
 
             foreach (var packFile in packFiles)
             {
-                var pack = new Packfile(packFile);
+                Packfile pack = null;
+
                 try
                 {
+                    pack = new Packfile(packFile);
+
                     bool needed = false;
                     for (int i = 0; i < pack.FileEntries.Count; i++)
                     {
@@ -146,14 +149,14 @@ namespace AloysAdjustments.Logic
                     if (!needed)
                         pack.Dispose();
                 }
-                catch
+                catch (Exception ex)
                 {
-                    pack.Dispose();
+                    pack?.Dispose();
 
                     foreach (var loadedPacksValue in loadedPacks.Values)
                         loadedPacksValue.Dispose();
 
-                    throw;
+                    throw new HzdException($"Failed to extract: {packFile}", ex);
                 }
             }
 
