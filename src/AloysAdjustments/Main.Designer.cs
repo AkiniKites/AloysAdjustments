@@ -38,6 +38,7 @@ namespace AloysAdjustments
             this.btnLoadPatch = new System.Windows.Forms.Button();
             this.ssMain = new System.Windows.Forms.StatusStrip();
             this.tssStatus = new System.Windows.Forms.ToolStripStatusLabel();
+            this.tpbStatus = new System.Windows.Forms.ToolStripProgressBar();
             this.btnPatch = new System.Windows.Forms.Button();
             this.btnArchiver = new System.Windows.Forms.Button();
             this.btnReset = new System.Windows.Forms.Button();
@@ -47,6 +48,11 @@ namespace AloysAdjustments
             this.btnResetSelected = new System.Windows.Forms.Button();
             this.tcMain = new System.Windows.Forms.TabControl();
             this.tabPage2 = new System.Windows.Forms.TabPage();
+            this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.btnClearCache = new System.Windows.Forms.Button();
+            this.lblCacheSize = new System.Windows.Forms.Label();
+            this.button2 = new System.Windows.Forms.Button();
+            this.label2 = new System.Windows.Forms.Label();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.btnDeletePack = new System.Windows.Forms.Button();
             this.lblPackStatus = new System.Windows.Forms.Label();
@@ -55,10 +61,10 @@ namespace AloysAdjustments
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.lblArchiverLib = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
-            this.tpbStatus = new System.Windows.Forms.ToolStripProgressBar();
             this.ssMain.SuspendLayout();
             this.tcMain.SuspendLayout();
             this.tabPage2.SuspendLayout();
+            this.groupBox3.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
@@ -92,6 +98,12 @@ namespace AloysAdjustments
             this.tssStatus.Name = "tssStatus";
             this.tssStatus.Size = new System.Drawing.Size(70, 17);
             this.tssStatus.Text = "Status Text";
+            // 
+            // tpbStatus
+            // 
+            this.tpbStatus.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
+            this.tpbStatus.Name = "tpbStatus";
+            this.tpbStatus.Size = new System.Drawing.Size(200, 16);
             // 
             // btnPatch
             // 
@@ -185,6 +197,7 @@ namespace AloysAdjustments
             // 
             // tabPage2
             // 
+            this.tabPage2.Controls.Add(this.groupBox3);
             this.tabPage2.Controls.Add(this.groupBox2);
             this.tabPage2.Controls.Add(this.groupBox1);
             this.tabPage2.Controls.Add(this.lblGameDir);
@@ -197,6 +210,60 @@ namespace AloysAdjustments
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "Settings";
             this.tabPage2.UseVisualStyleBackColor = true;
+            // 
+            // groupBox3
+            // 
+            this.groupBox3.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox3.Controls.Add(this.btnClearCache);
+            this.groupBox3.Controls.Add(this.lblCacheSize);
+            this.groupBox3.Controls.Add(this.button2);
+            this.groupBox3.Controls.Add(this.label2);
+            this.groupBox3.Location = new System.Drawing.Point(3, 89);
+            this.groupBox3.Name = "groupBox3";
+            this.groupBox3.Size = new System.Drawing.Size(616, 47);
+            this.groupBox3.TabIndex = 13;
+            this.groupBox3.TabStop = false;
+            this.groupBox3.Text = "Cache";
+            // 
+            // btnClearCache
+            // 
+            this.btnClearCache.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnClearCache.Location = new System.Drawing.Point(510, 15);
+            this.btnClearCache.Name = "btnClearCache";
+            this.btnClearCache.Size = new System.Drawing.Size(100, 25);
+            this.btnClearCache.TabIndex = 13;
+            this.btnClearCache.Text = "Clear Cache";
+            this.btnClearCache.UseVisualStyleBackColor = true;
+            this.btnClearCache.Click += new System.EventHandler(this.btnClearCache_Click);
+            // 
+            // lblCacheSize
+            // 
+            this.lblCacheSize.AutoSize = true;
+            this.lblCacheSize.Location = new System.Drawing.Point(80, 22);
+            this.lblCacheSize.Name = "lblCacheSize";
+            this.lblCacheSize.Size = new System.Drawing.Size(30, 15);
+            this.lblCacheSize.TabIndex = 12;
+            this.lblCacheSize.Text = "0 KB";
+            // 
+            // button2
+            // 
+            this.button2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.button2.Location = new System.Drawing.Point(926, 15);
+            this.button2.Name = "button2";
+            this.button2.Size = new System.Drawing.Size(100, 25);
+            this.button2.TabIndex = 5;
+            this.button2.Text = "Get Oodle DLL";
+            this.button2.UseVisualStyleBackColor = true;
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(6, 22);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(30, 15);
+            this.label2.TabIndex = 11;
+            this.label2.Text = "Size:";
             // 
             // groupBox2
             // 
@@ -227,7 +294,7 @@ namespace AloysAdjustments
             // lblPackStatus
             // 
             this.lblPackStatus.AutoSize = true;
-            this.lblPackStatus.Location = new System.Drawing.Point(79, 22);
+            this.lblPackStatus.Location = new System.Drawing.Point(80, 22);
             this.lblPackStatus.Name = "lblPackStatus";
             this.lblPackStatus.Size = new System.Drawing.Size(100, 15);
             this.lblPackStatus.TabIndex = 12;
@@ -270,7 +337,7 @@ namespace AloysAdjustments
             // 
             this.lblArchiverLib.AutoSize = true;
             this.lblArchiverLib.ForeColor = System.Drawing.Color.ForestGreen;
-            this.lblArchiverLib.Location = new System.Drawing.Point(79, 22);
+            this.lblArchiverLib.Location = new System.Drawing.Point(80, 22);
             this.lblArchiverLib.Name = "lblArchiverLib";
             this.lblArchiverLib.Size = new System.Drawing.Size(23, 15);
             this.lblArchiverLib.TabIndex = 12;
@@ -284,12 +351,6 @@ namespace AloysAdjustments
             this.label3.Size = new System.Drawing.Size(65, 15);
             this.label3.TabIndex = 11;
             this.label3.Text = "Oodle DLL:";
-            // 
-            // tpbStatus
-            // 
-            this.tpbStatus.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
-            this.tpbStatus.Name = "tpbStatus";
-            this.tpbStatus.Size = new System.Drawing.Size(200, 16);
             // 
             // Main
             // 
@@ -310,6 +371,8 @@ namespace AloysAdjustments
             this.tcMain.ResumeLayout(false);
             this.tabPage2.ResumeLayout(false);
             this.tabPage2.PerformLayout();
+            this.groupBox3.ResumeLayout(false);
+            this.groupBox3.PerformLayout();
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
             this.groupBox1.ResumeLayout(false);
@@ -341,6 +404,11 @@ namespace AloysAdjustments
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.ToolStripProgressBar tpbStatus;
+        private System.Windows.Forms.GroupBox groupBox3;
+        private System.Windows.Forms.Button btnClearCache;
+        private System.Windows.Forms.Label lblCacheSize;
+        private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.Label label2;
     }
 }
 

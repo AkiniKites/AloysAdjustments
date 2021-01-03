@@ -9,6 +9,8 @@ namespace AloysAdjustments.Logic
         private readonly Action<string, bool> _statusSetter;
         private readonly Action<int, int, bool, bool> _progressSetter;
 
+        public Action CacheUpdate { get; set; }
+
         public Notifications(Action<string, bool> statusSetter, 
             Action<int, int, bool, bool> progressSetter)
         {

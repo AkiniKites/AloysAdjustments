@@ -47,12 +47,16 @@ namespace AloysAdjustments.Utility
 
             CheckDirectory();
             File.WriteAllText(CachePath, json);
+
+            IoC.Notif.CacheUpdate?.Invoke();
         }
 
         public void ClearCache()
         {
             if (File.Exists(CachePath))
                 File.Delete(CachePath);
+
+            IoC.Notif.CacheUpdate?.Invoke();
         }
 
         private void CheckDirectory()

@@ -43,12 +43,12 @@ namespace AloysAdjustments.Logic
             await Task.Run(() => File.Copy(patchFile, dest, true));
         }
 
-        public static async Task Cleanup(string tempPath)
+        public static async Task Cleanup(string path)
         {
             await Task.Run(() =>
             {
-                if (Directory.Exists(tempPath))
-                    Directory.Delete(tempPath, true);
+                if (Directory.Exists(path))
+                    Directory.Delete(path, true);
             });
         }
     }

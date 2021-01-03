@@ -82,10 +82,14 @@ namespace AloysAdjustments
         {
             SetStatus("Loading config...");
             await LoadConfigs();
-            
+
             IoC.Bind(new Archiver(new[] { IoC.Config.PatchFile }));
             IoC.Bind(new Localization(ELanguage.English));
-            IoC.Bind(new Notifications(SetStatus, SetProgress));
+            var notif = new Notifications(SetStatus, SetProgress)
+            {
+                CacheUpdate = UpdateCacheStatus
+            };
+            IoC.Bind(notif);
 
             tbGameDir.EnableTypingEvent = false;
             tbGameDir.Text = IoC.Settings.GamePath;
@@ -109,6 +113,7 @@ namespace AloysAdjustments
             }
 
             UpdatePatchStatus();
+            UpdateCacheStatus();
 
             tcMain.SelectedIndex = 0;
             if (!await Initialize())
@@ -131,7 +136,7 @@ namespace AloysAdjustments
             }
 
             _initialized = true;
-
+            
             IoC.Notif.HideProgress();
             SetStatus("Loading complete");
             return true;
@@ -347,6 +352,28 @@ namespace AloysAdjustments
             btnDeletePack.Enabled = valid;
 
             return valid;
+        }
+
+        private void UpdateCacheStatus()
+        {
+            Task.Run(() =>
+            {
+                var size = 0L;
+                var dir = new DirectoryInfo(IoC.Config.CachePath);
+                if (dir.Exists)
+                    size = dir.GetFiles("*.json", SearchOption.AllDirectories).Sum(x => x.Length);
+
+                this.TryBeginInvoke(() =>
+                {
+                    lblCacheSize.Text = $"{(size / 1024):0,0} KB";
+                });
+            });
+        }
+
+        private async void btnClearCache_Click(object sender, EventArgs e)
+        {
+            await FileManager.Cleanup(IoC.Config.CachePath);
+            UpdateCacheStatus();
         }
     }
 }
