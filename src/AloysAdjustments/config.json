@@ -1,14 +1,28 @@
 ﻿{
-  "PlayerComponentsFile": "entities/characters/humanoids/player/player_components.core",
-  "OutfitFiles": [
-    "entities/armor/newgameplus/ng_outfits.core",
-    "entities/armor/outfits/outfits.core",
-    "entities/dlc1/outfits/dlc1_outfits.core"
-  ],
+  "ModuleConfigs": {
+    "Outfits": {
+      "AloyCharacterName": "AloyPlayerCharacter",
+      "PlayerComponentsFile": "entities/characters/humanoids/player/player_components.core",
+      "PlayerCharacterFile": "entities/characters/humanoids/player/playercharacter.core",
+      "OutfitFiles": [
+        "entities/armor/newgameplus/ng_outfits.core",
+        "entities/armor/outfits/outfits.core",
+        "entities/dlc1/outfits/dlc1_outfits.core"
+      ],
+      "HumanoidMatcher": "^entities/.*humanoids/.+",
+      "UniqueHumanoidMatcher": "^entities/.*humanoids/.*(?:individual_characters|uniquecharacters).+",
+      "IgnoredCharacters": [
+        "playercostume",
+        "playercharacter",
+        "debug"
+      ]
+    }
+  },
   "UpgradeFile": "entities/characters/craftingrecipes.core",
   "IgnoredUpgrades": [
     "{82882593-A2FA-F541-A3FA-3FE2A2C69165}"
   ],
+  "PrefetchFile": "prefetch/fullgame.prefetch.core",
   "ArchiverLib": "oo2core_3_win64.dll",
   "TempPath": "temp",
   "PatchFile": "Patch_AloysAdjustments.bin",

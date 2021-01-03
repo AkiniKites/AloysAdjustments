@@ -1,5 +1,11 @@
 ﻿
-namespace AloysAdjustments.Modules
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace AloysAdjustments.Modules.Outfits
 {
     partial class OutfitsControl
     {
@@ -34,6 +40,7 @@ namespace AloysAdjustments.Modules
             this.lbOutfits = new AloysAdjustments.Utility.ListBoxNF();
             this.label2 = new System.Windows.Forms.Label();
             this.clbModels = new System.Windows.Forms.CheckedListBox();
+            this.cbSwapCharacters = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).BeginInit();
             this.splitContainer.Panel1.SuspendLayout();
             this.splitContainer.Panel2.SuspendLayout();
@@ -42,8 +49,8 @@ namespace AloysAdjustments.Modules
             // 
             // splitContainer
             // 
-            this.splitContainer.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.splitContainer.Location = new System.Drawing.Point(0, 0);
+            this.splitContainer.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.splitContainer.Location = new System.Drawing.Point(0, 9);
             this.splitContainer.Name = "splitContainer";
             // 
             // splitContainer.Panel1
@@ -55,7 +62,7 @@ namespace AloysAdjustments.Modules
             // 
             this.splitContainer.Panel2.Controls.Add(this.label2);
             this.splitContainer.Panel2.Controls.Add(this.clbModels);
-            this.splitContainer.Size = new System.Drawing.Size(616, 566);
+            this.splitContainer.Size = new System.Drawing.Size(616, 557);
             this.splitContainer.SplitterDistance = 250;
             this.splitContainer.TabIndex = 3;
             this.splitContainer.Text = "splitContainer1";
@@ -82,7 +89,7 @@ namespace AloysAdjustments.Modules
             this.lbOutfits.Location = new System.Drawing.Point(0, 18);
             this.lbOutfits.Name = "lbOutfits";
             this.lbOutfits.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
-            this.lbOutfits.Size = new System.Drawing.Size(247, 548);
+            this.lbOutfits.Size = new System.Drawing.Size(247, 539);
             this.lbOutfits.TabIndex = 1;
             this.lbOutfits.SelectedValueChanged += new System.EventHandler(this.lbOutfits_SelectedValueChanged);
             this.lbOutfits.KeyDown += new System.Windows.Forms.KeyEventHandler(this.lbOutfits_KeyDown);
@@ -107,14 +114,26 @@ namespace AloysAdjustments.Modules
             this.clbModels.IntegralHeight = false;
             this.clbModels.Location = new System.Drawing.Point(0, 18);
             this.clbModels.Name = "clbModels";
-            this.clbModels.Size = new System.Drawing.Size(362, 548);
+            this.clbModels.Size = new System.Drawing.Size(362, 539);
             this.clbModels.TabIndex = 0;
             this.clbModels.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.clbModels_ItemCheck);
+            // 
+            // cbSwapCharacters
+            // 
+            this.cbSwapCharacters.AutoSize = true;
+            this.cbSwapCharacters.Location = new System.Drawing.Point(469, 0);
+            this.cbSwapCharacters.Name = "cbSwapCharacters";
+            this.cbSwapCharacters.Size = new System.Drawing.Size(147, 19);
+            this.cbSwapCharacters.TabIndex = 4;
+            this.cbSwapCharacters.Text = "Swap Characters Mode";
+            this.cbSwapCharacters.UseVisualStyleBackColor = true;
+            this.cbSwapCharacters.CheckedChanged += new System.EventHandler(this.cbSwapCharacters_CheckedChanged);
             // 
             // OutfitsControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.cbSwapCharacters);
             this.Controls.Add(this.splitContainer);
             this.Name = "OutfitsControl";
             this.Size = new System.Drawing.Size(616, 566);
@@ -125,6 +144,7 @@ namespace AloysAdjustments.Modules
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).EndInit();
             this.splitContainer.ResumeLayout(false);
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -135,5 +155,6 @@ namespace AloysAdjustments.Modules
         private Utility.ListBoxNF lbOutfits;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.CheckedListBox clbModels;
+        private System.Windows.Forms.CheckBox cbSwapCharacters;
     }
 }

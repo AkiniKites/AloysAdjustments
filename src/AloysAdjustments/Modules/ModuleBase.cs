@@ -7,9 +7,10 @@ using AloysAdjustments.UI;
 
 namespace AloysAdjustments.Modules
 {
-    public abstract class ModuleBase : UserControl, IModule
+    //can't be abstract because win forms designer is shit
+    public class ModuleBase : UserControl, IModule
     {
-        public abstract string ModuleName { get; }
+        public virtual string ModuleName { get; }
 
         public ControlRelay Reset { get; set; }
         public ControlRelay ResetSelected { get; set; }
@@ -23,9 +24,9 @@ namespace AloysAdjustments.Modules
             ResetSelected.Click += ResetSelected_Click;
         }
 
-        public abstract Task LoadPatch(string path);
-        public abstract Task CreatePatch(string patchDir);
-        public abstract Task Initialize();
+        public virtual Task LoadPatch(string path) => null;
+        public virtual Task CreatePatch(string patchDir) => null;
+        public virtual Task Initialize() => null;
 
         protected virtual void Reset_Click() { }
         protected virtual void ResetSelected_Click() { }

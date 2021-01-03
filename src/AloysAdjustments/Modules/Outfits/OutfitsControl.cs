@@ -1,24 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using AloysAdjustments.Configuration;
 using AloysAdjustments.Data;
 using AloysAdjustments.Logic;
-using AloysAdjustments.UI;
 using AloysAdjustments.Utility;
 
-namespace AloysAdjustments.Modules
+namespace AloysAdjustments.Modules.Outfits
 {
     public partial class OutfitsControl : ModuleBase
     {
         private bool _updatingLists;
+        private bool _loading;
 
-        private OutfitsLogic Logic { get; }
+        private OutfitsLogic OutfitLogic { get; }
+        private CharacterLogic CharacterLogic { get; }
 
         private OutfitFile[] DefaultMaps { get; set; }
         private OutfitFile[] NewMaps { get; set; }
@@ -30,12 +30,21 @@ namespace AloysAdjustments.Modules
 
         public OutfitsControl()
         {
-            Logic = new OutfitsLogic();
+            _loading = true;
+
+            IoC.Bind(Configs.LoadModuleConfig<OutfitConfig>(ModuleName));
+
+            OutfitLogic = new OutfitsLogic();
+            CharacterLogic = new CharacterLogic();
 
             InitializeComponent();
 
+            cbSwapCharacters.Checked = IoC.Settings.SwapCharacterMode;
             SetupLists();
+
+            _loading = false;
         }
+
 
         private void SetupLists()
         {
@@ -76,8 +85,8 @@ namespace AloysAdjustments.Modules
         {
             await Initialize();
 
-            IoC.SetStatus("Loading outfits...");
-            NewMaps = await Logic.GenerateOutfitFilesFromPath(path, false);
+            IoC.Notif.ShowStatus("Loading outfits...");
+            NewMaps = await OutfitLogic.GenerateOutfitFilesFromPath(path, false);
 
             var newOutfits = NewMaps.SelectMany(x => x.Outfits).ToHashSet();
 
@@ -111,19 +120,26 @@ namespace AloysAdjustments.Modules
                 }
             }
 
-            await Logic.CreatePatch(patchDir, updatedMaps);
+            await OutfitLogic.CreatePatch(patchDir, updatedMaps);
+
+            if (IoC.Settings.SwapCharacterMode)
+            {
+                await CharacterLogic.CreatePatch(patchDir,
+                    Models.Cast<CharacterModel>(), updatedMaps);
+            }
         }
 
         public override async Task Initialize()
         {
             ResetSelected.Enabled = false;
+            IoC.Notif.ShowUnknownProgress();
 
-            IoC.SetStatus("Generating outfit maps...");
-            DefaultMaps = await Logic.GenerateOutfitFiles();
+            IoC.Notif.ShowStatus("Generating outfit maps...");
+            DefaultMaps = await OutfitLogic.GenerateOutfitFiles();
             NewMaps = DefaultMaps.Select(x => x.Clone()).ToArray();
 
-            IoC.SetStatus("Loading outfit list...");
-            var outfits = Logic.GenerateOutfitList(NewMaps);
+            IoC.Notif.ShowStatus("Loading outfit list...");
+            var outfits = OutfitLogic.GenerateOutfitList(NewMaps);
             await UpdateOutfitDisplayNames(outfits);
             Outfits = outfits.OrderBy(x => x.DisplayName).ToList();
 
@@ -131,16 +147,32 @@ namespace AloysAdjustments.Modules
             foreach (var item in Outfits)
                 lbOutfits.Items.Add(item);
 
-            IoC.SetStatus("Loading models list...");
-            var models = await Logic.GenerateModelList();
-            //sort models to match outfits
-            var outfitSorting = Outfits.Select((x, i) => (x, i)).ToDictionary(x => x.x.ModelId, x => x.i);
-            Models = models.OrderBy(x => outfitSorting.TryGetValue(x.Id, out var sort) ? sort : int.MaxValue).ToList();
+            if (IoC.Settings.SwapCharacterMode)
+                await LoadCharacterModelList();
+            else
+                await LoadOutfitModelList();
+
             UpdateModelDisplayNames(Outfits, Models);
 
             clbModels.Items.Clear();
             foreach (var item in Models)
                 clbModels.Items.Add(item);
+        }
+
+        private async Task LoadCharacterModelList()
+        {
+            IoC.Notif.ShowStatus("Loading characters list...");
+            var models = await CharacterLogic.GetCharacterModels();
+            Models = models.OrderBy(x => x.ToString()).Cast<Model>().ToList();
+        }
+
+        private async Task LoadOutfitModelList()
+        {
+            IoC.Notif.ShowStatus("Loading models list...");
+            var models = await OutfitLogic.GenerateModelList();
+            //sort models to match outfits
+            var outfitSorting = Outfits.Select((x, i) => (x, i)).ToDictionary(x => x.x.ModelId, x => x.i);
+            Models = models.OrderBy(x => outfitSorting.TryGetValue(x.Id, out var sort) ? sort : int.MaxValue).ToList();
         }
 
         public async Task UpdateOutfitDisplayNames(List<Outfit> outfits)
@@ -261,7 +293,8 @@ namespace AloysAdjustments.Modules
             await Initialize();
             RefreshLists();
 
-            IoC.SetStatus("Reset complete");
+            IoC.Notif.HideProgress();
+            IoC.Notif.ShowStatus("Reset complete");
         }
 
         protected override void ResetSelected_Click()
@@ -289,6 +322,17 @@ namespace AloysAdjustments.Modules
         {
             lbOutfits.ClearSelected();
             lbOutfits.Invalidate();
+        }
+
+        private async void cbSwapCharacters_CheckedChanged(object sender, EventArgs e)
+        {
+            if (_loading) return;
+            IoC.Settings.SwapCharacterMode = cbSwapCharacters.Checked;
+
+            await Initialize();
+
+            IoC.Notif.HideProgress();
+            IoC.Notif.ShowStatus("Loading complete");
         }
     }
 }

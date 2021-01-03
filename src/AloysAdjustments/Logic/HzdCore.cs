@@ -18,20 +18,34 @@ namespace AloysAdjustments.Logic
 
         public static HzdCore Load(string file, string source)
         {
-            return new HzdCore()
+            try
             {
-                FilePath = file,
-                Source = source,
-                Components = CoreBinary.Load(file)
-            };
+                return new HzdCore()
+                {
+                    FilePath = file,
+                    Source = source,
+                    Components = CoreBinary.Load(file)
+                };
+            }
+            catch(Exception ex)
+            {
+                throw new HzdException($"Failed to load: {source ?? "null"}", ex);
+            }
         }
         public static HzdCore Load(Stream stream, string source)
         {
-            return new HzdCore()
+            try
             {
-                Source = source,
-                Components = CoreBinary.Load(stream)
-            };
+                return new HzdCore()
+                {
+                    Source = source,
+                    Components = CoreBinary.Load(stream)
+                };
+            }
+            catch (Exception ex)
+            {
+                throw new HzdException($"Failed to load: {source ?? "null"}", ex);
+            }
         }
 
         private HzdCore() { }

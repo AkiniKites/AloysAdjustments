@@ -55,6 +55,7 @@ namespace AloysAdjustments
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.lblArchiverLib = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
+            this.tpbStatus = new System.Windows.Forms.ToolStripProgressBar();
             this.ssMain.SuspendLayout();
             this.tcMain.SuspendLayout();
             this.tabPage2.SuspendLayout();
@@ -77,7 +78,9 @@ namespace AloysAdjustments
             // 
             this.ssMain.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.ssMain.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tssStatus});
+            this.tssStatus,
+            this.tpbStatus});
+            this.ssMain.LayoutStyle = System.Windows.Forms.ToolStripLayoutStyle.HorizontalStackWithOverflow;
             this.ssMain.Location = new System.Drawing.Point(0, 615);
             this.ssMain.Name = "ssMain";
             this.ssMain.Size = new System.Drawing.Size(760, 22);
@@ -282,6 +285,12 @@ namespace AloysAdjustments
             this.label3.TabIndex = 11;
             this.label3.Text = "Oodle DLL:";
             // 
+            // tpbStatus
+            // 
+            this.tpbStatus.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
+            this.tpbStatus.Name = "tpbStatus";
+            this.tpbStatus.Size = new System.Drawing.Size(200, 16);
+            // 
             // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
@@ -331,6 +340,7 @@ namespace AloysAdjustments
         private System.Windows.Forms.Label lblPackStatus;
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.ToolStripProgressBar tpbStatus;
     }
 }
 

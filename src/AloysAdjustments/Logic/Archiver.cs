@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -17,11 +18,14 @@ namespace AloysAdjustments.Logic
         private const string PatchPrefix = "Patch";
         private const string PackExt = ".bin";
 
+        private readonly ConcurrentDictionary<PackList, Dictionary<ulong, string>> _packCache;
+
         public System.Collections.Generic.HashSet<string> IgnoreList { get; }
 
         public Archiver(IEnumerable<string> ignoreList)
         {
             IgnoreList = ignoreList.ToHashSet(StringComparer.OrdinalIgnoreCase);
+            _packCache = new ConcurrentDictionary<PackList, Dictionary<ulong, string>>();
         }
 
         public bool CheckArchiverLib()
@@ -33,6 +37,11 @@ namespace AloysAdjustments.Logic
         {
             if (!CheckArchiverLib())
                 throw new HzdException($"Packager support library not found: {IoC.Config.ArchiverLib}");
+        }
+
+        public void ClearCache()
+        {
+            _packCache.Clear();
         }
 
         public async Task ExtractFile(string dir, string source, string output)
@@ -67,40 +76,35 @@ namespace AloysAdjustments.Logic
 
         private bool TryExtractFile(string path, Stream stream, string file)
         {
-            List<string> packFiles;
+            PackList packs;
 
             if (!file.EndsWith(".core", StringComparison.OrdinalIgnoreCase))
                 file += ".core";
 
             if (Directory.Exists(path))
-            {
-                packFiles = GetPackFiles(path, PackExt);
-                packFiles.RemoveAll(x => IgnoreList.Contains(Path.GetFileName(x)));
-            }
+                packs = GetPackFiles(path, PackExt);
             else if (File.Exists(path))
-            {
-                packFiles = new List<string>() { path };
-            }
+                packs = new PackList(new []{ path });
             else
-            {
                 throw new HzdException($"Unable to extract file, source path not found: {path}");
-            }
+
+            var fileMap = BuildFileMap(packs);
 
             var hash = Packfile.GetHashForPath(file);
-            var packMap = LoadPacks(packFiles, new[] { hash });
-
-            if (!packMap.TryGetValue(hash, out var pack))
+            if (!fileMap.TryGetValue(hash, out var packFile))
                 return false;
 
+            using var pack = new Packfile(packFile);
             pack.ExtractFile(hash, stream);
 
             return true;
         }
 
-        private List<string> GetPackFiles(string dir, string ext)
+        private PackList GetPackFiles(string dir, string ext)
         {
             var files = Directory.GetFiles(dir, $"*{ext}", SearchOption.AllDirectories)
                 .OrderBy(x => x).ToList();
+            files.RemoveAll(x => IgnoreList.Contains(Path.GetFileName(x)));
 
             //move patch files to end, same as game load order
             int moved = 0;
@@ -117,7 +121,7 @@ namespace AloysAdjustments.Logic
                 }
             }
 
-            return files;
+            return new PackList(files);
         }
 
         private Dictionary<ulong, Packfile> LoadPacks(List<string> packFiles, IEnumerable<ulong> nameHashes)
@@ -127,9 +131,12 @@ namespace AloysAdjustments.Logic
 
             foreach (var packFile in packFiles)
             {
-                var pack = new Packfile(packFile);
+                Packfile pack = null;
+
                 try
                 {
+                    pack = new Packfile(packFile);
+
                     bool needed = false;
                     for (int i = 0; i < pack.FileEntries.Count; i++)
                     {
@@ -146,18 +153,39 @@ namespace AloysAdjustments.Logic
                     if (!needed)
                         pack.Dispose();
                 }
-                catch
+                catch (Exception ex)
                 {
-                    pack.Dispose();
+                    pack?.Dispose();
 
                     foreach (var loadedPacksValue in loadedPacks.Values)
                         loadedPacksValue.Dispose();
 
-                    throw;
+                    throw new HzdException($"Failed to extract: {packFile}", ex);
                 }
             }
 
             return loadedPacks;
+        }
+
+        private Dictionary<ulong, string> BuildFileMap(PackList packFiles)
+        {
+            if (_packCache.TryGetValue(packFiles, out var files))
+                return files;
+
+            files = new Dictionary<ulong, string>();
+
+            foreach (var packFile in packFiles.Packs)
+            {
+                using var pack = new Packfile(packFile);
+                for (int i = 0; i < pack.FileEntries.Count; i++)
+                {
+                    var hash = pack.FileEntries[i].PathHash;
+                    files[hash] = packFile;
+                }
+            }
+
+            _packCache.TryAdd(packFiles, files);
+            return files;
         }
 
         public async Task PackFiles(string dir, string output)

@@ -11,32 +11,24 @@ namespace AloysAdjustments.Logic
 {
     public class FileManager
     {
-        public static async Task<string> ExtractFile(string extractPath, 
-            string pakPath, bool retainPaths, string file)
+        /// <summary>
+        /// Extract a core file to it's relative path
+        /// </summary>
+        public static async Task<HzdCore> ExtractFile(
+            string extractPath, string pakPath, string file)
         {
             if (!Directory.Exists(pakPath) && !File.Exists(pakPath))
                 throw new HzdException($"Pack file or directory not found at: {pakPath}");
-
-            Paths.CheckDirectory(extractPath);
-
+            
             if (!file.EndsWith(".core", StringComparison.OrdinalIgnoreCase))
                 file += ".core";
 
-            string output;
-            if (retainPaths)
-            {
-                output = Path.Combine(extractPath, file);
-                Paths.CheckDirectory(Path.GetDirectoryName(output));
-            }
-            else
-            {
-                var ext = Path.GetExtension(file);
-                output = Path.Combine(extractPath, Guid.NewGuid() + ext);
-            }
+            string output = Path.Combine(extractPath, file);
+            Paths.CheckDirectory(Path.GetDirectoryName(output));
             
             await IoC.Archiver.ExtractFile(pakPath, file, output);
 
-            return output;
+            return HzdCore.Load(output, file);
         }
 
         public static async Task InstallPatch(string patchFile, string packDir)
