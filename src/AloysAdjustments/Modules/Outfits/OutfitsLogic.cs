@@ -99,7 +99,7 @@ namespace AloysAdjustments.Modules.Outfits
 
             //player models
             var playerComponents = await IoC.Archiver.LoadFile(
-                IoC.Settings.GamePath, IoC.Get<OutfitConfig>().PlayerComponentsFile);
+                Configs.GamePackDir, IoC.Get<OutfitConfig>().PlayerComponentsFile);
             var playerModels = GetPlayerModels(playerComponents);
 
             models.AddRange(playerModels.Select(x => new Model

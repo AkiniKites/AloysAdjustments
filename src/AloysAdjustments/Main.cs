@@ -129,7 +129,14 @@ namespace AloysAdjustments
 
                 var dir = await patcher.SetupPatchDir();
                 foreach (var module in Modules)
+                {
+                    SetStatus($"Generating patch ({module.ModuleName})...");
                     await module.CreatePatch(dir);
+                }
+
+                SetStatus("Generating patch (rebuild prefetch)...");
+                await Prefetch.RebuildPrefetch(dir);
+
                 var patch = await patcher.PackPatch(dir);
 
                 SetStatus("Copying patch...");
@@ -137,7 +144,7 @@ namespace AloysAdjustments
 
                 oldPatch.Delete();
 
-                await FileManager.Cleanup(IoC.Config.TempPath);
+                //await FileManager.Cleanup(IoC.Config.TempPath);
 
                 UpdatePatchStatus();
             }

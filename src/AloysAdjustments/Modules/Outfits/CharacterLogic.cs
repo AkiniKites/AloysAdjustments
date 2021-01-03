@@ -9,6 +9,7 @@ using AloysAdjustments.Configuration;
 using AloysAdjustments.Data;
 using AloysAdjustments.Logic;
 using AloysAdjustments.Utility;
+using Decima;
 using Decima.HZD;
 
 namespace AloysAdjustments.Modules.Outfits
@@ -74,42 +75,34 @@ namespace AloysAdjustments.Modules.Outfits
 
             return models;
         }
-        
-        //public async Task CreatePatch(string patchDir, List<CharacterModel> characters, IEnumerable<OutfitFile> maps)
-        //{
-        //    await AddCharacterReferences(patchDir);
-        //    await RebuildPrefetch(patchDir);
-        //}
 
-        //private async Task AddCharacterReferences(string patchDir)
-        //{
-        //    var pcFile = await FileManager.ExtractFile(
-        //        patchDir, IoC.Settings.GamePath, IoC.Get<OutfitConfig>().PlayerComponentsFile);
-        //    var pcCore = HzdCore.Load(pcFile)
+        public async Task CreatePatch(string patchDir, IEnumerable<CharacterModel> characters, IEnumerable<OutfitFile> maps)
+        {
+            var models = maps.SelectMany(x => x.Outfits).Select(x => x.ModelId).ToHashSet();
+            var newCharacters = characters.Where(x => models.Contains(x.Id));
 
-        //    var components = await LoadPlayerComponents(patchDir, true);
-        //    var outfits = GetPlayerModels(components);
+            await AddCharacterReferences(patchDir, newCharacters);
+            await RemoveAloyHair(patchDir);
+        }
 
-        //    var models = await GenerateModelList();
-        //    var id = models.First(x => x.Name == "DLC1_Ikrie");
+        private async Task AddCharacterReferences(string patchDir, IEnumerable<CharacterModel> characters)
+        {
+            var pcCore = await FileManager.ExtractFile(patchDir, 
+                Configs.GamePackDir, IoC.Get<OutfitConfig>().PlayerComponentsFile);
+            var variants = OutfitsLogic.GetPlayerModels(pcCore);
 
-        //    var sRef = new StreamingRef<HumanoidBodyVariant>();
-        //    sRef.ExternalFile = new BaseString("entities/dlc1/characters/humanoids/uniquecharacters/dlc1_ikrie");
-        //    sRef.Type = BaseRef<HumanoidBodyVariant>.Types.StreamingRef;
-        //    sRef.GUID = BaseGGUUID.FromOther(id.Id);
+            foreach (var character in characters)
+            {
+                var sRef = new StreamingRef<HumanoidBodyVariant>();
+                sRef.ExternalFile = new BaseString(character.Source);
+                sRef.Type = BaseRef<HumanoidBodyVariant>.Types.StreamingRef;
+                sRef.GUID = BaseGGUUID.FromOther(character.Id);
 
-        //    outfits.Add(sRef);
+                variants.Add(sRef);
+            }
 
-        //    components.Save();
-
-        //    var file = await FileManager.ExtractFile(patchDir,
-        //        Configs.GamePackDir, true, "entities/characters/humanoids/player/playercharacter.core");
-        //    var core = HzdCore.Load(file);
-
-        //    var adult = core.GetTypes<SoldierResource>().Values.Last();
-        //    adult.EntityComponentResources.RemoveAll(x => x.GUID.ToString().StartsWith("{0622D348"));
-        //    core.Save();
-        //}
+            pcCore.Save();
+        }
 
         public async Task RemoveAloyHair(string patchDir)
         {
