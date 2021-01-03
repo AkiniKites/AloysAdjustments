@@ -39,7 +39,9 @@ namespace AloysAdjustments.Modules.Outfits
 
             InitializeComponent();
 
-            cbSwapCharacters.Checked = IoC.Settings.SwapCharacterMode;
+            cbShowAll.Checked = IoC.Settings.ShowAllCharacters;
+
+            UpdateMode();
             SetupLists();
 
             _loading = false;
@@ -162,7 +164,7 @@ namespace AloysAdjustments.Modules.Outfits
         private async Task LoadCharacterModelList()
         {
             IoC.Notif.ShowStatus("Loading characters list...");
-            var models = await CharacterLogic.Search.GetCharacterModels();
+            var models = await CharacterLogic.Search.GetCharacterModels(IoC.Settings.ShowAllCharacters);
             Models = models.OrderBy(x => x.ToString()).Cast<Model>().ToList();
         }
 
@@ -286,14 +288,19 @@ namespace AloysAdjustments.Modules.Outfits
             }
         }
 
-        protected override async void Reset_Click()
+        private async Task Reload()
         {
-            using var _ = new ControlLock(Reset);
-
             await Initialize();
             RefreshLists();
 
             IoC.Notif.HideProgress();
+        }
+
+        protected override async void Reset_Click()
+        {
+            using var _ = new ControlLock(Reset);
+
+            await Reload();
             IoC.Notif.ShowStatus("Reset complete");
         }
 
@@ -324,15 +331,34 @@ namespace AloysAdjustments.Modules.Outfits
             lbOutfits.Invalidate();
         }
 
-        private async void cbSwapCharacters_CheckedChanged(object sender, EventArgs e)
+        private async void cbShowAll_CheckedChanged(object sender, EventArgs e)
         {
             if (_loading) return;
-            IoC.Settings.SwapCharacterMode = cbSwapCharacters.Checked;
+            IoC.Settings.ShowAllCharacters = cbShowAll.Checked;
 
-            await Initialize();
+            UpdateMode();
 
-            IoC.Notif.HideProgress();
-            IoC.Notif.ShowStatus("Loading complete");
+            await Reload();
+            IoC.Notif.ShowStatus($"Showing: {(IoC.Settings.ShowAllCharacters ? "All" : "Unique")} characters");
+        }
+
+        private async void btnMode_Click(object sender, EventArgs e)
+        {
+            if (_loading) return;
+            IoC.Settings.SwapCharacterMode = !IoC.Settings.SwapCharacterMode;
+
+            UpdateMode();
+
+            await Reload();
+            IoC.Notif.ShowStatus($"Mode changed to: {btnMode.Text}");
+        }
+
+        private void UpdateMode()
+        {
+            var charMode = IoC.Settings.SwapCharacterMode;
+            btnMode.Text = charMode ? "Character Swaps" : "Armor Swaps";
+            lblModels.Text = charMode ? "Character Mapping" : "Model Mapping";
+            cbShowAll.Visible = charMode;
         }
     }
 }

@@ -38,9 +38,10 @@ namespace AloysAdjustments.Modules.Outfits
             this.splitContainer = new System.Windows.Forms.SplitContainer();
             this.label1 = new System.Windows.Forms.Label();
             this.lbOutfits = new AloysAdjustments.Utility.ListBoxNF();
-            this.label2 = new System.Windows.Forms.Label();
+            this.lblModels = new System.Windows.Forms.Label();
             this.clbModels = new System.Windows.Forms.CheckedListBox();
-            this.cbSwapCharacters = new System.Windows.Forms.CheckBox();
+            this.cbShowAll = new System.Windows.Forms.CheckBox();
+            this.btnMode = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).BeginInit();
             this.splitContainer.Panel1.SuspendLayout();
             this.splitContainer.Panel2.SuspendLayout();
@@ -49,8 +50,10 @@ namespace AloysAdjustments.Modules.Outfits
             // 
             // splitContainer
             // 
-            this.splitContainer.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.splitContainer.Location = new System.Drawing.Point(0, 9);
+            this.splitContainer.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.splitContainer.Location = new System.Drawing.Point(0, 15);
             this.splitContainer.Name = "splitContainer";
             // 
             // splitContainer.Panel1
@@ -60,10 +63,10 @@ namespace AloysAdjustments.Modules.Outfits
             // 
             // splitContainer.Panel2
             // 
-            this.splitContainer.Panel2.Controls.Add(this.label2);
+            this.splitContainer.Panel2.Controls.Add(this.lblModels);
             this.splitContainer.Panel2.Controls.Add(this.clbModels);
-            this.splitContainer.Size = new System.Drawing.Size(616, 557);
-            this.splitContainer.SplitterDistance = 250;
+            this.splitContainer.Size = new System.Drawing.Size(646, 551);
+            this.splitContainer.SplitterDistance = 262;
             this.splitContainer.TabIndex = 3;
             this.splitContainer.Text = "splitContainer1";
             // 
@@ -89,20 +92,20 @@ namespace AloysAdjustments.Modules.Outfits
             this.lbOutfits.Location = new System.Drawing.Point(0, 18);
             this.lbOutfits.Name = "lbOutfits";
             this.lbOutfits.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
-            this.lbOutfits.Size = new System.Drawing.Size(247, 539);
+            this.lbOutfits.Size = new System.Drawing.Size(259, 533);
             this.lbOutfits.TabIndex = 1;
             this.lbOutfits.SelectedValueChanged += new System.EventHandler(this.lbOutfits_SelectedValueChanged);
             this.lbOutfits.KeyDown += new System.Windows.Forms.KeyEventHandler(this.lbOutfits_KeyDown);
             // 
-            // label2
+            // lblModels
             // 
-            this.label2.AutoSize = true;
-            this.label2.Dock = System.Windows.Forms.DockStyle.Top;
-            this.label2.Location = new System.Drawing.Point(0, 0);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(92, 15);
-            this.label2.TabIndex = 5;
-            this.label2.Text = "Model Mapping";
+            this.lblModels.AutoSize = true;
+            this.lblModels.Dock = System.Windows.Forms.DockStyle.Top;
+            this.lblModels.Location = new System.Drawing.Point(0, 0);
+            this.lblModels.Name = "lblModels";
+            this.lblModels.Size = new System.Drawing.Size(92, 15);
+            this.lblModels.TabIndex = 5;
+            this.lblModels.Text = "Model Mapping";
             // 
             // clbModels
             // 
@@ -114,29 +117,42 @@ namespace AloysAdjustments.Modules.Outfits
             this.clbModels.IntegralHeight = false;
             this.clbModels.Location = new System.Drawing.Point(0, 18);
             this.clbModels.Name = "clbModels";
-            this.clbModels.Size = new System.Drawing.Size(362, 539);
+            this.clbModels.Size = new System.Drawing.Size(380, 533);
             this.clbModels.TabIndex = 0;
             this.clbModels.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.clbModels_ItemCheck);
             // 
-            // cbSwapCharacters
+            // cbShowAll
             // 
-            this.cbSwapCharacters.AutoSize = true;
-            this.cbSwapCharacters.Location = new System.Drawing.Point(469, 0);
-            this.cbSwapCharacters.Name = "cbSwapCharacters";
-            this.cbSwapCharacters.Size = new System.Drawing.Size(147, 19);
-            this.cbSwapCharacters.TabIndex = 4;
-            this.cbSwapCharacters.Text = "Swap Characters Mode";
-            this.cbSwapCharacters.UseVisualStyleBackColor = true;
-            this.cbSwapCharacters.CheckedChanged += new System.EventHandler(this.cbSwapCharacters_CheckedChanged);
+            this.cbShowAll.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.cbShowAll.AutoSize = true;
+            this.cbShowAll.Location = new System.Drawing.Point(396, 14);
+            this.cbShowAll.Name = "cbShowAll";
+            this.cbShowAll.Size = new System.Drawing.Size(72, 19);
+            this.cbShowAll.TabIndex = 4;
+            this.cbShowAll.Text = "Show All";
+            this.cbShowAll.UseVisualStyleBackColor = true;
+            this.cbShowAll.CheckedChanged += new System.EventHandler(this.cbShowAll_CheckedChanged);
+            // 
+            // btnMode
+            // 
+            this.btnMode.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnMode.Location = new System.Drawing.Point(474, 2);
+            this.btnMode.Name = "btnMode";
+            this.btnMode.Size = new System.Drawing.Size(172, 27);
+            this.btnMode.TabIndex = 5;
+            this.btnMode.Text = "Character Mode";
+            this.btnMode.UseVisualStyleBackColor = true;
+            this.btnMode.Click += new System.EventHandler(this.btnMode_Click);
             // 
             // OutfitsControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.Controls.Add(this.cbSwapCharacters);
+            this.Controls.Add(this.btnMode);
+            this.Controls.Add(this.cbShowAll);
             this.Controls.Add(this.splitContainer);
             this.Name = "OutfitsControl";
-            this.Size = new System.Drawing.Size(616, 566);
+            this.Size = new System.Drawing.Size(646, 566);
             this.splitContainer.Panel1.ResumeLayout(false);
             this.splitContainer.Panel1.PerformLayout();
             this.splitContainer.Panel2.ResumeLayout(false);
@@ -153,8 +169,9 @@ namespace AloysAdjustments.Modules.Outfits
         private System.Windows.Forms.SplitContainer splitContainer;
         private System.Windows.Forms.Label label1;
         private Utility.ListBoxNF lbOutfits;
-        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.Label lblModels;
         private System.Windows.Forms.CheckedListBox clbModels;
-        private System.Windows.Forms.CheckBox cbSwapCharacters;
+        private System.Windows.Forms.CheckBox cbShowAll;
+        private System.Windows.Forms.Button btnMode;
     }
 }

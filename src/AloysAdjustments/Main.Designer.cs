@@ -72,7 +72,7 @@ namespace AloysAdjustments
             // btnLoadPatch
             // 
             this.btnLoadPatch.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnLoadPatch.Location = new System.Drawing.Point(648, 12);
+            this.btnLoadPatch.Location = new System.Drawing.Point(672, 12);
             this.btnLoadPatch.Name = "btnLoadPatch";
             this.btnLoadPatch.Size = new System.Drawing.Size(100, 28);
             this.btnLoadPatch.TabIndex = 0;
@@ -89,7 +89,7 @@ namespace AloysAdjustments
             this.ssMain.LayoutStyle = System.Windows.Forms.ToolStripLayoutStyle.HorizontalStackWithOverflow;
             this.ssMain.Location = new System.Drawing.Point(0, 615);
             this.ssMain.Name = "ssMain";
-            this.ssMain.Size = new System.Drawing.Size(760, 22);
+            this.ssMain.Size = new System.Drawing.Size(784, 22);
             this.ssMain.TabIndex = 3;
             // 
             // tssStatus
@@ -108,7 +108,7 @@ namespace AloysAdjustments
             // btnPatch
             // 
             this.btnPatch.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnPatch.Location = new System.Drawing.Point(648, 570);
+            this.btnPatch.Location = new System.Drawing.Point(672, 570);
             this.btnPatch.Name = "btnPatch";
             this.btnPatch.Size = new System.Drawing.Size(100, 42);
             this.btnPatch.TabIndex = 4;
@@ -119,7 +119,7 @@ namespace AloysAdjustments
             // btnArchiver
             // 
             this.btnArchiver.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnArchiver.Location = new System.Drawing.Point(510, 15);
+            this.btnArchiver.Location = new System.Drawing.Point(534, 15);
             this.btnArchiver.Name = "btnArchiver";
             this.btnArchiver.Size = new System.Drawing.Size(100, 25);
             this.btnArchiver.TabIndex = 5;
@@ -130,7 +130,7 @@ namespace AloysAdjustments
             // btnReset
             // 
             this.btnReset.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnReset.Location = new System.Drawing.Point(648, 114);
+            this.btnReset.Location = new System.Drawing.Point(672, 114);
             this.btnReset.Name = "btnReset";
             this.btnReset.Size = new System.Drawing.Size(100, 28);
             this.btnReset.TabIndex = 6;
@@ -150,7 +150,7 @@ namespace AloysAdjustments
             // btnGameDir
             // 
             this.btnGameDir.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnGameDir.Location = new System.Drawing.Point(549, 6);
+            this.btnGameDir.Location = new System.Drawing.Point(573, 6);
             this.btnGameDir.Name = "btnGameDir";
             this.btnGameDir.Size = new System.Drawing.Size(70, 25);
             this.btnGameDir.TabIndex = 9;
@@ -165,7 +165,7 @@ namespace AloysAdjustments
             this.tbGameDir.EnableTypingEvent = true;
             this.tbGameDir.Location = new System.Drawing.Point(83, 6);
             this.tbGameDir.Name = "tbGameDir";
-            this.tbGameDir.Size = new System.Drawing.Size(460, 23);
+            this.tbGameDir.Size = new System.Drawing.Size(484, 23);
             this.tbGameDir.TabIndex = 11;
             this.tbGameDir.TypingFinished += new System.EventHandler(this.tbGameDir_TypingFinished);
             this.tbGameDir.TextChanged += new System.EventHandler(this.tbGameDir_TextChanged);
@@ -174,7 +174,7 @@ namespace AloysAdjustments
             // 
             this.btnResetSelected.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.btnResetSelected.Enabled = false;
-            this.btnResetSelected.Location = new System.Drawing.Point(648, 80);
+            this.btnResetSelected.Location = new System.Drawing.Point(672, 80);
             this.btnResetSelected.Name = "btnResetSelected";
             this.btnResetSelected.Size = new System.Drawing.Size(100, 28);
             this.btnResetSelected.TabIndex = 12;
@@ -191,7 +191,7 @@ namespace AloysAdjustments
             this.tcMain.Location = new System.Drawing.Point(12, 12);
             this.tcMain.Name = "tcMain";
             this.tcMain.SelectedIndex = 0;
-            this.tcMain.Size = new System.Drawing.Size(630, 600);
+            this.tcMain.Size = new System.Drawing.Size(654, 600);
             this.tcMain.TabIndex = 13;
             this.tcMain.SelectedIndexChanged += new System.EventHandler(this.tcMain_SelectedIndexChanged);
             // 
@@ -206,7 +206,7 @@ namespace AloysAdjustments
             this.tabPage2.Location = new System.Drawing.Point(4, 24);
             this.tabPage2.Name = "tabPage2";
             this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage2.Size = new System.Drawing.Size(622, 572);
+            this.tabPage2.Size = new System.Drawing.Size(646, 572);
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "Settings";
             this.tabPage2.UseVisualStyleBackColor = true;
@@ -221,7 +221,7 @@ namespace AloysAdjustments
             this.groupBox3.Controls.Add(this.label2);
             this.groupBox3.Location = new System.Drawing.Point(3, 89);
             this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(616, 47);
+            this.groupBox3.Size = new System.Drawing.Size(640, 47);
             this.groupBox3.TabIndex = 13;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Cache";
@@ -229,7 +229,7 @@ namespace AloysAdjustments
             // btnClearCache
             // 
             this.btnClearCache.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnClearCache.Location = new System.Drawing.Point(510, 15);
+            this.btnClearCache.Location = new System.Drawing.Point(534, 15);
             this.btnClearCache.Name = "btnClearCache";
             this.btnClearCache.Size = new System.Drawing.Size(100, 25);
             this.btnClearCache.TabIndex = 13;
@@ -249,7 +249,7 @@ namespace AloysAdjustments
             // button2
             // 
             this.button2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.button2.Location = new System.Drawing.Point(926, 15);
+            this.button2.Location = new System.Drawing.Point(950, 15);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(100, 25);
             this.button2.TabIndex = 5;
@@ -275,7 +275,7 @@ namespace AloysAdjustments
             this.groupBox2.Controls.Add(this.label5);
             this.groupBox2.Location = new System.Drawing.Point(3, 522);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(616, 47);
+            this.groupBox2.Size = new System.Drawing.Size(640, 47);
             this.groupBox2.TabIndex = 13;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Game Pack";
@@ -283,7 +283,7 @@ namespace AloysAdjustments
             // btnDeletePack
             // 
             this.btnDeletePack.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnDeletePack.Location = new System.Drawing.Point(510, 15);
+            this.btnDeletePack.Location = new System.Drawing.Point(534, 15);
             this.btnDeletePack.Name = "btnDeletePack";
             this.btnDeletePack.Size = new System.Drawing.Size(100, 25);
             this.btnDeletePack.TabIndex = 14;
@@ -303,7 +303,7 @@ namespace AloysAdjustments
             // button1
             // 
             this.button1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.button1.Location = new System.Drawing.Point(926, 14);
+            this.button1.Location = new System.Drawing.Point(950, 14);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(100, 25);
             this.button1.TabIndex = 5;
@@ -328,7 +328,7 @@ namespace AloysAdjustments
             this.groupBox1.Controls.Add(this.label3);
             this.groupBox1.Location = new System.Drawing.Point(3, 36);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(616, 47);
+            this.groupBox1.Size = new System.Drawing.Size(640, 47);
             this.groupBox1.TabIndex = 12;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Packager";
@@ -356,7 +356,7 @@ namespace AloysAdjustments
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(760, 637);
+            this.ClientSize = new System.Drawing.Size(784, 637);
             this.Controls.Add(this.btnResetSelected);
             this.Controls.Add(this.btnReset);
             this.Controls.Add(this.btnPatch);

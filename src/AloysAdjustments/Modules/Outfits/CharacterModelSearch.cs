@@ -43,7 +43,7 @@ namespace AloysAdjustments.Modules.Outfits
                     {
                         var validCached = cached.Models.Where(x => IsValid(x.Source, all)).ToList();
                         if (validCached.Any())
-                            return cached.Models;
+                            return validCached;
                     }
                 }
 
