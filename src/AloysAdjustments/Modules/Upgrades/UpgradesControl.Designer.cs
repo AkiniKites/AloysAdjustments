@@ -40,6 +40,9 @@ namespace AloysAdjustments.Modules
             // 
             this.dgvUpgrades.AllowUserToAddRows = false;
             this.dgvUpgrades.AllowUserToDeleteRows = false;
+            this.dgvUpgrades.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.dgvUpgrades.BackgroundColor = System.Drawing.SystemColors.Control;
             this.dgvUpgrades.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dgvUpgrades.Location = new System.Drawing.Point(0, 0);
@@ -53,6 +56,7 @@ namespace AloysAdjustments.Modules
             // 
             // btnMulti10
             // 
+            this.btnMulti10.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.btnMulti10.Location = new System.Drawing.Point(556, 62);
             this.btnMulti10.Name = "btnMulti10";
             this.btnMulti10.Size = new System.Drawing.Size(60, 25);
@@ -63,6 +67,7 @@ namespace AloysAdjustments.Modules
             // 
             // btnMulti2
             // 
+            this.btnMulti2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.btnMulti2.Location = new System.Drawing.Point(556, 0);
             this.btnMulti2.Name = "btnMulti2";
             this.btnMulti2.Size = new System.Drawing.Size(60, 25);
@@ -73,6 +78,7 @@ namespace AloysAdjustments.Modules
             // 
             // btnMulti5
             // 
+            this.btnMulti5.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.btnMulti5.Location = new System.Drawing.Point(556, 31);
             this.btnMulti5.Name = "btnMulti5";
             this.btnMulti5.Size = new System.Drawing.Size(60, 25);
