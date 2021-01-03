@@ -17,9 +17,6 @@ namespace AloysAdjustments.Modules
     {
         public async Task<OutfitFile[]> GenerateOutfitFiles()
         {
-            //TODO: Fix hack to ignore patch files
-            using var rn = new FileRenamer(Configs.PatchPath);
-
             //extract game files
             var maps = await GenerateOutfitFilesFromPath(Configs.GamePackDir, true);
             return maps;
@@ -115,9 +112,6 @@ namespace AloysAdjustments.Modules
         public async Task<HzdCore> LoadPlayerComponents(
             string outputPath, bool retainPath = false)
         {
-            //TODO: Fix hack to ignore patch files
-            using var rn = new FileRenamer(Configs.PatchPath);
-
             var file = await FileManager.ExtractFile(outputPath, 
                 Configs.GamePackDir, retainPath, IoC.Config.PlayerComponentsFile);
 
