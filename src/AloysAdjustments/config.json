@@ -25,6 +25,7 @@
   "PrefetchFile": "prefetch/fullgame.prefetch.core",
   "ArchiverLib": "oo2core_3_win64.dll",
   "TempPath": "temp",
+  "CachePath": "caches",
   "PatchFile": "Patch_AloysAdjustments.bin",
   "PackDir": "Packed_DX12"
 }

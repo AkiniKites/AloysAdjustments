@@ -55,23 +55,25 @@ namespace AloysAdjustments.Logic
                     throw new HzdException($"Unable to extract file, file not found: {source}");
             });
         }
-        public async Task<HzdCore> LoadFile(string dir, string file, bool throwError = true)
+
+        public async Task<HzdCore> LoadFileAsync(string dir, string file, bool throwError = true)
+        {
+            return await Task.Run(() => LoadFile(dir, file, throwError));
+        }
+        public HzdCore LoadFile(string dir, string file, bool throwError = true)
         {
             ValidatePackager();
 
-            return await Task.Run(() =>
+            using var ms = new MemoryStream();
+            if (!TryExtractFile(dir, ms, file))
             {
-                using var ms = new MemoryStream();
-                if (!TryExtractFile(dir, ms, file))
-                {
-                    if (throwError)
-                        throw new HzdException($"Unable to extract file, file not found: {file}");
-                    return null;
-                }
+                if (throwError)
+                    throw new HzdException($"Unable to extract file, file not found: {file}");
+                return null;
+            }
 
-                ms.Position = 0;
-                return HzdCore.Load(ms, file);
-            });
+            ms.Position = 0;
+            return HzdCore.Load(ms, file);
         }
 
         private bool TryExtractFile(string path, Stream stream, string file)

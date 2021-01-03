@@ -24,7 +24,7 @@ namespace AloysAdjustments.Modules.Outfits
         public async Task<OutfitFile[]> GenerateOutfitFilesFromPath(string path, bool checkMissing)
         {
             var cores = await Task.WhenAll(IoC.Get<OutfitConfig>().OutfitFiles.Select(
-                async f => await IoC.Archiver.LoadFile(path, f, checkMissing)));
+                async f => await IoC.Archiver.LoadFileAsync(path, f, checkMissing)));
 
             var maps = cores.Where(x => x != null).Select(core =>
             {
@@ -94,11 +94,9 @@ namespace AloysAdjustments.Modules.Outfits
         public async Task<List<Model>> GenerateModelList()
         {
             var models = new List<Model>();
-            var cmb = new CharacterLogic();
-            await cmb.GetCharacterModels();
 
             //player models
-            var playerComponents = await IoC.Archiver.LoadFile(
+            var playerComponents = await IoC.Archiver.LoadFileAsync(
                 Configs.GamePackDir, IoC.Get<OutfitConfig>().PlayerComponentsFile);
             var playerModels = GetPlayerModels(playerComponents);
 

@@ -11,9 +11,13 @@ namespace AloysAdjustments.Logic
 {
     public static class Prefetch
     {
-        public static async Task<Dictionary<string, int>> LoadPrefetch()
+        public static async Task<Dictionary<string, int>> LoadPrefetchAsync()
         {
-            var core = await IoC.Archiver.LoadFile(Configs.GamePackDir, IoC.Config.PrefetchFile);
+            return await Task.Run(LoadPrefetch);
+        }
+        public static Dictionary<string, int> LoadPrefetch()
+        {
+            var core = IoC.Archiver.LoadFile(Configs.GamePackDir, IoC.Config.PrefetchFile);
             var data = core.GetTypes<PrefetchList>().Values.First();
 
             var files = new Dictionary<string, int>();

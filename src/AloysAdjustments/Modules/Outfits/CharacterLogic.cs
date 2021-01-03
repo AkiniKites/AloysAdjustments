@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -16,64 +17,11 @@ namespace AloysAdjustments.Modules.Outfits
 {
     public class CharacterLogic
     {
-        private static readonly Regex HumanoidMatcher = new Regex("^entities/.*humanoids/.+");
-        private static readonly Regex UniqueHumanoidMatcher = new Regex("^entities/.*humanoids/.*(?:individual_characters|uniquecharacters).+");
-        private static readonly string[] Ignored = new string[]
+        public CharacterModelSearch Search { get; }
+
+        public CharacterLogic()
         {
-            "playercostume",
-            "playercharacter",
-            "debug"
-        };
-
-        public async Task<List<CharacterModel>> GetCharacterModels(bool all = false)
-        {
-            var files = (await Prefetch.LoadPrefetch()).Keys;
-
-            var modelGroups = await Task.WhenAll(files.Select(async file => {
-                if (!IsValid(file, all))
-                    return null;
-                return await GetCharacterModels(file);
-            }));
-
-            var models = modelGroups.Where(x => x != null).SelectMany(x => x).ToList();
-            return models;
-        }
-
-        private bool IsValid(string file, bool all)
-        {
-            var matcher = all ? HumanoidMatcher : UniqueHumanoidMatcher;
-            if (!matcher.IsMatch(file))
-                return false;
-            for (int i = 0; i < Ignored.Length; i++)
-            {
-                if (file.Contains(Ignored[i]))
-                    return false;
-            }
-
-            return true;
-        }
-
-        private async Task<List<CharacterModel>> GetCharacterModels(string file)
-        {
-            var pack = await IoC.Archiver.LoadFile(Configs.GamePackDir, file);
-            var variants = pack.GetTypes<HumanoidBodyVariant>().Values.ToList();
-            if (!variants.Any())
-                return null;
-
-            Debug.WriteLine(file);
-
-            var models = new List<CharacterModel>();
-            foreach (var variant in variants)
-            {
-                models.Add(new CharacterModel()
-                {
-                    Id = variant.ObjectUUID,
-                    Name = variant.Name,
-                    Source = pack.Source
-                }); ;
-            }
-
-            return models;
+            Search = new CharacterModelSearch();
         }
 
         public async Task CreatePatch(string patchDir, IEnumerable<CharacterModel> characters, IEnumerable<OutfitFile> maps)

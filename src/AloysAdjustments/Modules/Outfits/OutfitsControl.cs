@@ -162,7 +162,7 @@ namespace AloysAdjustments.Modules.Outfits
         private async Task LoadCharacterModelList()
         {
             IoC.Notif.ShowStatus("Loading characters list...");
-            var models = await CharacterLogic.GetCharacterModels();
+            var models = await CharacterLogic.Search.GetCharacterModels();
             Models = models.OrderBy(x => x.ToString()).Cast<Model>().ToList();
         }
 

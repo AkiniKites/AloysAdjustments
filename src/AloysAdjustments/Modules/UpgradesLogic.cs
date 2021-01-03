@@ -27,7 +27,7 @@ namespace AloysAdjustments.Modules
         {
             var ignored = IoC.Config.IgnoredUpgrades.ToHashSet();
 
-            var core = await IoC.Archiver.LoadFile(path, IoC.Config.UpgradeFile, checkMissing);
+            var core = await IoC.Archiver.LoadFileAsync(path, IoC.Config.UpgradeFile, checkMissing);
 
             if (core == null)
                 return new Dictionary<BaseGGUUID, Upgrade>();
