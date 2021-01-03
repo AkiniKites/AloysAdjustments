@@ -23,7 +23,7 @@ namespace AloysAdjustments.Modules.Outfits
 
         public async Task<OutfitFile[]> GenerateOutfitFilesFromPath(string path, bool checkMissing)
         {
-            var cores = await Task.WhenAll(IoC.Config.OutfitFiles.Select(
+            var cores = await Task.WhenAll(IoC.Get<OutfitConfig>().OutfitFiles.Select(
                 async f => await IoC.Archiver.LoadFile(path, f, checkMissing)));
 
             var maps = cores.Where(x => x != null).Select(core =>
@@ -94,7 +94,7 @@ namespace AloysAdjustments.Modules.Outfits
         public async Task<List<Model>> GenerateModelList()
         {
             var models = new List<Model>();
-            var cmb = new CharacterModelBuilder();
+            var cmb = new CharacterLogic();
             await cmb.GetCharacterModels();
 
             //player models
@@ -114,9 +114,9 @@ namespace AloysAdjustments.Modules.Outfits
             string outputPath, bool retainPath = false)
         {
             var file = await FileManager.ExtractFile(outputPath, 
-                Configs.GamePackDir, retainPath, IoC.Config.PlayerComponentsFile);
+                Configs.GamePackDir, retainPath, IoC.Get<OutfitConfig>().PlayerComponentsFile);
 
-            var core = HzdCore.Load(file, IoC.Config.PlayerComponentsFile);
+            var core = HzdCore.Load(file, IoC.Get<OutfitConfig>().PlayerComponentsFile);
             return core;
         }
 

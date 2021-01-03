@@ -27,12 +27,12 @@ namespace AloysAdjustments.Data
         public override bool Equals(object obj)
         {
             return obj is Model model &&
-                   EqualityComparer<BaseGGUUID>.Default.Equals(Id, model.Id);
+                EqualityComparer<BaseGGUUID>.Default.Equals(Id, model.Id);
         }
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(Id);
+            return Id.GetHashCode();
         }
     }
 }

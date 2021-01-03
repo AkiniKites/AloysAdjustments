@@ -187,6 +187,7 @@ namespace AloysAdjustments
         }
         private async void tbGameDir_TypingFinished(object sender, EventArgs e)
         {
+            IoC.Archiver.ClearCache();
             if (UpdateGameDirStatus() && !_initialized)
                 await Initialize();
         }
