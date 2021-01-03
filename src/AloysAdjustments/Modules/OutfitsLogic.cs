@@ -28,7 +28,7 @@ namespace AloysAdjustments.Modules
         public async Task<OutfitFile[]> GenerateOutfitFilesFromPath(string path, bool checkMissing)
         {
             var cores = await Task.WhenAll(IoC.Config.OutfitFiles.Select(
-                async f => await FileManager.LoadFile(path, f, checkMissing)));
+                async f => await IoC.Archiver.LoadFile(path, f, checkMissing)));
 
             var maps = cores.Where(x => x != null).Select(core =>
             {
@@ -39,8 +39,6 @@ namespace AloysAdjustments.Modules
 
                 return map;
             }).ToArray();
-
-            await FileManager.Cleanup(IoC.Config.TempPath);
 
             return maps;
         }
@@ -123,7 +121,7 @@ namespace AloysAdjustments.Modules
             var file = await FileManager.ExtractFile(outputPath, 
                 Configs.GamePackDir, retainPath, IoC.Config.PlayerComponentsFile);
 
-            var core = HzdCore.Load(file);
+            var core = HzdCore.Load(file, IoC.Config.PlayerComponentsFile);
             return core;
         }
 
@@ -147,7 +145,7 @@ namespace AloysAdjustments.Modules
                 var refs = map.Outfits.ToDictionary(x => x.RefId, x => x.ModelId);
 
                 //update references from based on new maps
-                var core = HzdCore.Load(file);
+                var core = HzdCore.Load(file, map.File);
                 foreach (var reference in core.GetTypes<NodeGraphHumanoidBodyVariantUUIDRefVariableOverride>().Values)
                 {
                     if (refs.TryGetValue(reference.ObjectUUID, out var newModel))

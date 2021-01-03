@@ -99,7 +99,7 @@ namespace AloysAdjustments.Modules
             foreach (var map in NewMaps)
             {
                 var defaultMap = DefaultMaps.First(x => x.File == map.File)
-                    .Outfits.ToDictionary(x=>x.RefId, x=>x.ModelId);
+                    .Outfits.ToDictionary(x => x.RefId, x => x.ModelId);
 
                 foreach (var outfit in map.Outfits)
                 {

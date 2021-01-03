@@ -49,7 +49,7 @@ namespace AloysAdjustments.Logic
 
         private async Task<Dictionary<BaseGGUUID, string>> LoadFile(string path)
         {
-            var core = await FileManager.LoadFile(Configs.GamePackDir, path);
+            var core = await IoC.Archiver.LoadFile(Configs.GamePackDir, path);
             var texts = new Dictionary<BaseGGUUID, string>();
 
             foreach (var obj in core.Components)
@@ -57,8 +57,6 @@ namespace AloysAdjustments.Logic
                 if (obj is LocalizedTextResource asResource)
                     texts[asResource.ObjectUUID] = asResource.GetStringForLanguage(Language);
             }
-
-            await FileManager.Cleanup(IoC.Config.TempPath);
 
             return texts;
         }

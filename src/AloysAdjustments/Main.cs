@@ -67,7 +67,7 @@ namespace AloysAdjustments
             await LoadConfigs();
 
             IoC.Bind(new Logic.Decima());
-            IoC.Bind(new Packager());
+            IoC.Bind(new Archiver(new[] { Configs.PatchPath }));
             IoC.Bind(new Localization(ELanguage.English));
             IoC.SetStatus = x => SetStatus(x, false);
             IoC.SetError = x => SetStatus(x, true);
@@ -121,24 +121,25 @@ namespace AloysAdjustments
         private async void btnPatch_Click(object sender, EventArgs e)
         {
             using var _ = new ControlLock(btnPatch);
-            using var oldPatch = new FileRenamer(Configs.PatchPath);
+            using (var oldPatch = new FileRenamer(Configs.PatchPath))
+            {
+                SetStatus("Generating patch...");
+                var patcher = new Patcher();
 
-            SetStatus("Generating patch...");
-            var patcher = new Patcher();
+                var dir = await patcher.SetupPatchDir();
+                foreach (var module in Modules)
+                    await module.CreatePatch(dir);
+                var patch = await patcher.PackPatch(dir);
 
-            var dir = await patcher.SetupPatchDir();
-            foreach (var module in Modules)
-                await module.CreatePatch(dir);
-            var patch = await patcher.PackPatch(dir);
+                SetStatus("Copying patch...");
+                await patcher.InstallPatch(patch);
 
-            SetStatus("Copying patch...");
-            await patcher.InstallPatch(patch);
+                oldPatch.Delete();
 
-            oldPatch.Delete();
+                await FileManager.Cleanup(IoC.Config.TempPath);
 
-            await FileManager.Cleanup(IoC.Config.TempPath);
-
-            UpdatePatchStatus();
+                UpdatePatchStatus();
+            }
 
             SetStatus("Patch installed");
         }

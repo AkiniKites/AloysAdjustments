@@ -6,17 +6,17 @@
     "RepoName": "Decima-Explorer",
     "RepoFile": "DecimaExplorer.exe"
   },
-  "PlayerComponentsFile": "entities/characters/humanoids/player/player_components",
+  "PlayerComponentsFile": "entities/characters/humanoids/player/player_components.core",
   "OutfitFiles": [
-    "entities/armor/newgameplus/ng_outfits",
-    "entities/armor/outfits/outfits",
-    "entities/dlc1/outfits/dlc1_outfits"
+    "entities/armor/newgameplus/ng_outfits.core",
+    "entities/armor/outfits/outfits.core",
+    "entities/dlc1/outfits/dlc1_outfits.core"
   ],
-  "UpgradeFile": "entities/characters/craftingrecipes",
+  "UpgradeFile": "entities/characters/craftingrecipes.core",
   "IgnoredUpgrades": [
     "{82882593-A2FA-F541-A3FA-3FE2A2C69165}"
   ],
-  "PackagerLib": "oo2core_3_win64.dll",
+  "ArchiverLib": "oo2core_3_win64.dll",
   "TempPath": "temp",
   "PatchFile": "Patch_AloysAdjustments.bin",
   "PackDir": "Packed_DX12"

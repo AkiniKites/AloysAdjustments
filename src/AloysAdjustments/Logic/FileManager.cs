@@ -11,35 +11,8 @@ namespace AloysAdjustments.Logic
 {
     public class FileManager
     {
-        public static async Task<HzdCore> LoadFile(string pakPath, string file, bool throwError = true)
-        {
-            var (success, output) = await TryExtractFile(IoC.Config.TempPath, pakPath, false, file);
-
-            if (!success)
-            {
-                if (throwError)
-                    throw new HzdException($"Failed to extract: {file}");
-                return null;
-            }
-
-            var core = HzdCore.Load(output);
-            core.Source = file;
-
-            return core;
-        }
-
         public static async Task<string> ExtractFile(string extractPath, 
             string pakPath, bool retainPaths, string file)
-        {
-            var (success, output) = await TryExtractFile(extractPath, pakPath, retainPaths, file);
-
-            if (!success)
-                throw new HzdException($"Failed to extract: {file}");
-
-            return output;
-        }
-        public static async Task<(bool Success, string Output)> TryExtractFile(
-            string extractPath, string pakPath, bool retainPaths, string file)
         {
             if (!Directory.Exists(pakPath) && !File.Exists(pakPath))
                 throw new HzdException($"Pack file or directory not found at: {pakPath}");
@@ -60,11 +33,10 @@ namespace AloysAdjustments.Logic
                 var ext = Path.GetExtension(file);
                 output = Path.Combine(extractPath, Guid.NewGuid() + ext);
             }
+            
+            await IoC.Archiver.ExtractFile(pakPath, file, output);
 
-            await IoC.Decima.ExtractFile(pakPath, file, output);
-
-            var success = File.Exists(output);
-            return (success, output);
+            return output;
         }
 
         public static async Task InstallPatch(string patchFile, string packDir)

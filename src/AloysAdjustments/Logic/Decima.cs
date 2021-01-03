@@ -28,36 +28,6 @@ namespace AloysAdjustments.Logic
             if (!File.Exists(IoC.Config.Decima.Lib))
                 throw new HzdException($"Decima support library not found: {IoC.Config.Decima.Lib}");
         }
-
-        public async Task ExtractFile(string dir, string source, string output)
-        {
-            ValidateDecima();
-
-            dir = Path.GetFullPath(dir);
-            output = Path.GetFullPath(output);
-            
-            var p = new ProcessRunner(IoC.Config.Decima.Path, $"-extract \"{dir}\" \"{source}\" \"{output}\"");
-            var result = await p.Run();
-            if (result.ExitCode != 0)
-                throw new HzdException($"Unable to extract file '{source}' from '{dir}', error code: {result.ExitCode}");
-        }
-        
-        public async Task PackFiles(string dir, string output)
-        {
-            ValidateDecima();
-
-            if (!Directory.Exists(dir))
-                throw new HzdException($"Unable to pack directory, doesn't exist: {dir}");
-
-            dir = Path.GetFullPath(dir);
-            output = Path.GetFullPath(output);
-
-            var p = new ProcessRunner(IoC.Config.Decima.Path, $"-pack \"{dir}\" \"{output}\"");
-            var result = await p.Run();
-            if (result.ExitCode != 0)
-                throw new HzdException($"Unable to pack dir '{dir}' to '{output}', error code: {result.ExitCode}");
-        }
-
         public async Task Download()
         {
             var client = new GitHubClient(new ProductHeaderValue("none"));

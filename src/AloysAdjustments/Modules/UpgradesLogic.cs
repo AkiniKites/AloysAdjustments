@@ -31,7 +31,7 @@ namespace AloysAdjustments.Modules
         {
             var ignored = IoC.Config.IgnoredUpgrades.ToHashSet();
 
-            var core = await FileManager.LoadFile(path, IoC.Config.UpgradeFile, checkMissing);
+            var core = await IoC.Archiver.LoadFile(path, IoC.Config.UpgradeFile, checkMissing);
 
             if (core == null)
                 return new Dictionary<BaseGGUUID, Upgrade>();
@@ -71,8 +71,6 @@ namespace AloysAdjustments.Modules
                 upgrades.Add(up.Id, up);
             }
 
-            await FileManager.Cleanup(IoC.Config.TempPath);
-
             return upgrades;
         }
 
@@ -84,7 +82,7 @@ namespace AloysAdjustments.Modules
 
             var upgradeChanges = upgrades.ToDictionary(x => x.Id, x => x);
 
-            var core = HzdCore.Load(file);
+            var core = HzdCore.Load(file, IoC.Config.UpgradeFile);
             var invMods = core.GetTypes<InventoryCapacityModificationComponentResource>();
 
             foreach (var invMod in invMods.Values)

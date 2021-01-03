@@ -16,7 +16,7 @@ namespace AloysAdjustments.Configuration
         public string[] IgnoredUpgrades { get; set; }
 
 
-        public string PackagerLib { get; set; }
+        public string ArchiverLib { get; set; }
         public string TempPath { get; set; }
         public string PatchFile { get; set; }
         public string PackDir { get; set; }

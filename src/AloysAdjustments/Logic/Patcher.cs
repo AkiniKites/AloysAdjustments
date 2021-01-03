@@ -23,7 +23,7 @@ namespace AloysAdjustments.Logic
         {
             var output = Path.Combine(IoC.Config.TempPath, IoC.Config.PatchFile);
 
-            await IoC.Packager.PackFiles(patchDir, output);
+            await IoC.Archiver.PackFiles(patchDir, output);
 
             return output;
         }
