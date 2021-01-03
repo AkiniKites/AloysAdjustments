@@ -18,5 +18,6 @@ namespace AloysAdjustments.Modules
         Task CreatePatch(string patchDir);
 
         Task Initialize();
+        bool ValidateChanges();
     }
 }

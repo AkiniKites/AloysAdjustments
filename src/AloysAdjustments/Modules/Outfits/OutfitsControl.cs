@@ -131,6 +131,20 @@ namespace AloysAdjustments.Modules.Outfits
             }
         }
 
+        public override bool ValidateChanges()
+        {
+            if (!IoC.Settings.SwapCharacterMode)
+                return true;
+
+            var someChanged = Outfits.Any(x => x.Modified) && !Outfits.All(x => x.Modified);
+            if (!someChanged) 
+                return true;
+
+            return MessageBox.Show("Not all outfits have been assigned to characters. " +
+                "Swapping characters removes Aloy's hair and some outfits may look weird.",
+                "Aloy Hair Warning", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning) == DialogResult.OK;
+        }
+
         public override async Task Initialize()
         {
             ResetSelected.Enabled = false;

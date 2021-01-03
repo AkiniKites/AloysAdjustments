@@ -149,6 +149,13 @@ namespace AloysAdjustments
             SetStatus("Generating patch...");
             IoC.Notif.ShowUnknownProgress();
 
+            if (Modules.Any() && !Modules.All(x => x.ValidateChanges()))
+            {
+                IoC.Notif.HideProgress();
+                SetStatus("Patch install aborted");
+                return;
+            }
+
             using (var oldPatch = new FileRenamer(Configs.PatchPath))
             {
                 var patcher = new Patcher();

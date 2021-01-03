@@ -27,6 +27,7 @@ namespace AloysAdjustments.Modules
         public virtual Task LoadPatch(string path) => null;
         public virtual Task CreatePatch(string patchDir) => null;
         public virtual Task Initialize() => null;
+        public virtual bool ValidateChanges() => true;
 
         protected virtual void Reset_Click() { }
         protected virtual void ResetSelected_Click() { }
