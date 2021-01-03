@@ -372,7 +372,7 @@ namespace AloysAdjustments
 
                 this.TryBeginInvoke(() =>
                 {
-                    lblCacheSize.Text = $"{(size / 1024):0,0} KB";
+                    lblCacheSize.Text = $"{(size / 1024):n0} KB";
                 });
             });
         }
