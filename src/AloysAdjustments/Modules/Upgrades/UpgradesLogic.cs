@@ -1,19 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.SqlTypes;
-using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using AloysAdjustments.Configuration;
-using AloysAdjustments.Data;
 using AloysAdjustments.Logic;
-using AloysAdjustments.Utility;
 using Decima;
 using Decima.HZD;
 using Upgrade = AloysAdjustments.Data.Upgrade;
 
-namespace AloysAdjustments.Modules
+namespace AloysAdjustments.Modules.Upgrades
 {
     public class UpgradesLogic
     {
@@ -25,9 +21,9 @@ namespace AloysAdjustments.Modules
 
         public async Task<Dictionary<BaseGGUUID, Upgrade>> GenerateUpgradeListFromPath(string path, bool checkMissing)
         {
-            var ignored = IoC.Config.IgnoredUpgrades.ToHashSet();
+            var ignored = IoC.Get<UpgradeConfig>().IgnoredUpgrades.ToHashSet();
 
-            var core = await IoC.Archiver.LoadFileAsync(path, IoC.Config.UpgradeFile, checkMissing);
+            var core = await IoC.Archiver.LoadFileAsync(path, IoC.Get<UpgradeConfig>().UpgradeFile, checkMissing);
 
             if (core == null)
                 return new Dictionary<BaseGGUUID, Upgrade>();
@@ -74,7 +70,7 @@ namespace AloysAdjustments.Modules
         {
             //extract original outfit files to temp
             var core = await FileManager.ExtractFile(patchDir, 
-                Configs.GamePackDir, IoC.Config.UpgradeFile);
+                Configs.GamePackDir, IoC.Get<UpgradeConfig>().UpgradeFile);
 
             var upgradeChanges = upgrades.ToDictionary(x => x.Id, x => x);
             

@@ -7,8 +7,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using AloysAdjustments.Configuration;
 using AloysAdjustments.Data;
 using AloysAdjustments.Logic;
+using AloysAdjustments.Modules.Upgrades;
 using AloysAdjustments.UI;
 using AloysAdjustments.Utility;
 using Decima;
@@ -25,6 +27,8 @@ namespace AloysAdjustments.Modules
 
         public UpgradesControl()
         {
+            IoC.Bind(Configs.LoadModuleConfig<UpgradeConfig>(ModuleName));
+
             Logic = new UpgradesLogic();
 
             InitializeComponent();

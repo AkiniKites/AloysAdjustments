@@ -11,8 +11,6 @@ namespace AloysAdjustments.Configuration
     { 
         public Dictionary<string, JObject> ModuleConfigs { get; set; }
 
-        public string UpgradeFile { get; set; }
-        public string[] IgnoredUpgrades { get; set; }
         public string PrefetchFile { get; set; }
 
         public string ArchiverLib { get; set; }

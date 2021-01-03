@@ -16,12 +16,14 @@
         "playercharacter",
         "debug"
       ]
+    },
+    "Upgrades": {
+      "UpgradeFile": "entities/characters/craftingrecipes.core",
+      "IgnoredUpgrades": [
+        "{82882593-A2FA-F541-A3FA-3FE2A2C69165}"
+      ]
     }
   },
-  "UpgradeFile": "entities/characters/craftingrecipes.core",
-  "IgnoredUpgrades": [
-    "{82882593-A2FA-F541-A3FA-3FE2A2C69165}"
-  ],
   "PrefetchFile": "prefetch/fullgame.prefetch.core",
   "ArchiverLib": "oo2core_3_win64.dll",
   "TempPath": "temp",
