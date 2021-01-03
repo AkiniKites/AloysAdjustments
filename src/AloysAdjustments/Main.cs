@@ -66,7 +66,7 @@ namespace AloysAdjustments
             SetStatus("Loading config...");
             await LoadConfigs();
             
-            IoC.Bind(new Archiver(new[] { Configs.PatchPath }));
+            IoC.Bind(new Archiver(new[] { IoC.Config.PatchFile }));
             IoC.Bind(new Localization(ELanguage.English));
             IoC.SetStatus = x => SetStatus(x, false);
             IoC.SetError = x => SetStatus(x, true);
