@@ -26,9 +26,8 @@ namespace AloysAdjustments.Logic
         {
             var prefetchFile = Path.GetFileName(IoC.Config.PrefetchFile);
 
-            var file = await FileManager.ExtractFile(patchDir,
-                Configs.GamePackDir, true, IoC.Config.PrefetchFile);
-            var core = HzdCore.Load(file, IoC.Config.PrefetchFile);
+            var core = await FileManager.ExtractFile(patchDir,
+                Configs.GamePackDir, IoC.Config.PrefetchFile);
 
             var data = core.GetTypes<PrefetchList>().Values.First();
 

@@ -74,12 +74,47 @@ namespace AloysAdjustments.Modules.Outfits
 
             return models;
         }
+        
+        //public async Task CreatePatch(string patchDir, List<CharacterModel> characters, IEnumerable<OutfitFile> maps)
+        //{
+        //    await AddCharacterReferences(patchDir);
+        //    await RebuildPrefetch(patchDir);
+        //}
+
+        //private async Task AddCharacterReferences(string patchDir)
+        //{
+        //    var pcFile = await FileManager.ExtractFile(
+        //        patchDir, IoC.Settings.GamePath, IoC.Get<OutfitConfig>().PlayerComponentsFile);
+        //    var pcCore = HzdCore.Load(pcFile)
+
+        //    var components = await LoadPlayerComponents(patchDir, true);
+        //    var outfits = GetPlayerModels(components);
+
+        //    var models = await GenerateModelList();
+        //    var id = models.First(x => x.Name == "DLC1_Ikrie");
+
+        //    var sRef = new StreamingRef<HumanoidBodyVariant>();
+        //    sRef.ExternalFile = new BaseString("entities/dlc1/characters/humanoids/uniquecharacters/dlc1_ikrie");
+        //    sRef.Type = BaseRef<HumanoidBodyVariant>.Types.StreamingRef;
+        //    sRef.GUID = BaseGGUUID.FromOther(id.Id);
+
+        //    outfits.Add(sRef);
+
+        //    components.Save();
+
+        //    var file = await FileManager.ExtractFile(patchDir,
+        //        Configs.GamePackDir, true, "entities/characters/humanoids/player/playercharacter.core");
+        //    var core = HzdCore.Load(file);
+
+        //    var adult = core.GetTypes<SoldierResource>().Values.Last();
+        //    adult.EntityComponentResources.RemoveAll(x => x.GUID.ToString().StartsWith("{0622D348"));
+        //    core.Save();
+        //}
 
         public async Task RemoveAloyHair(string patchDir)
         {
-            var file = await FileManager.ExtractFile(patchDir,
-                Configs.GamePackDir, true, IoC.Get<OutfitConfig>().PlayerCharacterFile);
-            var core = HzdCore.Load(file, IoC.Get<OutfitConfig>().PlayerCharacterFile);
+            var core = await FileManager.ExtractFile(patchDir,
+                Configs.GamePackDir, IoC.Get<OutfitConfig>().PlayerCharacterFile);
 
             var hairModel = core.GetTypes<HairModelComponentResource>().Values.FirstOrDefault();
             if (hairModel == null)

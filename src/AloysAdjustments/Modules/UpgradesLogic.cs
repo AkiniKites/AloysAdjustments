@@ -73,12 +73,11 @@ namespace AloysAdjustments.Modules
         public async Task CreatePatch(string patchDir, List<Upgrade> upgrades)
         {
             //extract original outfit files to temp
-            var file = await FileManager.ExtractFile(patchDir, 
-                Configs.GamePackDir, true, IoC.Config.UpgradeFile);
+            var core = await FileManager.ExtractFile(patchDir, 
+                Configs.GamePackDir, IoC.Config.UpgradeFile);
 
             var upgradeChanges = upgrades.ToDictionary(x => x.Id, x => x);
-
-            var core = HzdCore.Load(file, IoC.Config.UpgradeFile);
+            
             var invMods = core.GetTypes<InventoryCapacityModificationComponentResource>();
 
             foreach (var invMod in invMods.Values)
