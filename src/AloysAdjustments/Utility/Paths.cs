@@ -11,6 +11,8 @@ namespace AloysAdjustments.Utility
     {
         public static void CheckDirectory(string dir)
         {
+            if (String.IsNullOrEmpty(dir))
+                return;
             if (!Directory.Exists(dir))
                 Directory.CreateDirectory(dir);
         }

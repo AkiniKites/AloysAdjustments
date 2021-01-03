@@ -26,7 +26,7 @@ namespace AloysAdjustments
         private readonly Color _errorColor = Color.FromArgb(204, 0, 0);
         private readonly Color _okColor = Color.ForestGreen;
         
-        private bool _initialized = true;
+        private bool _initialized = false;
 
         private List<ModuleBase> Modules { get; set; }
         
@@ -65,8 +65,7 @@ namespace AloysAdjustments
         {
             SetStatus("Loading config...");
             await LoadConfigs();
-
-            IoC.Bind(new Logic.Decima());
+            
             IoC.Bind(new Archiver(new[] { Configs.PatchPath }));
             IoC.Bind(new Localization(ELanguage.English));
             IoC.SetStatus = x => SetStatus(x, false);
@@ -103,7 +102,7 @@ namespace AloysAdjustments
         private async Task<bool> Initialize()
         {
             var settingsValid = UpdateGameDirStatus();
-            settingsValid = UpdateDecimaStatus() && settingsValid;
+            settingsValid = UpdateArchiverStatus() && settingsValid;
 
             if (!settingsValid)
                 return false;
@@ -113,8 +112,9 @@ namespace AloysAdjustments
                 await module.Initialize();
             }
 
+            _initialized = true;
+            
             SetStatus("Loading complete");
-
             return true;
         }
 
@@ -144,20 +144,18 @@ namespace AloysAdjustments
             SetStatus("Patch installed");
         }
 
-        private async void btnDecima_Click(object sender, EventArgs e)
+        private async void btnArchiver_Click(object sender, EventArgs e)
         {
-            using var _ = new ControlLock(btnDecima);
+            using var _ = new ControlLock(btnArchiver);
 
             if (!UpdateGameDirStatus())
                 return;
-
-            SetStatus("Downloading Decima...");
-            await IoC.Decima.Download();
-            SetStatus("Copying Decima library...");
-            await IoC.Decima.GetLibrary();
-            SetStatus("Decima updated");
             
-            if (UpdateDecimaStatus() && _initialized)
+            SetStatus("Copying Oodle library...");
+            await IoC.Archiver.GetLibrary();
+            SetStatus("Oodle updated");
+            
+            if (UpdateArchiverStatus() && !_initialized)
                 await Initialize();
         }
 
@@ -188,7 +186,7 @@ namespace AloysAdjustments
         }
         private async void tbGameDir_TypingFinished(object sender, EventArgs e)
         {
-            if (UpdateGameDirStatus() && _initialized)
+            if (UpdateGameDirStatus() && !_initialized)
                 await Initialize();
         }
 
@@ -203,20 +201,16 @@ namespace AloysAdjustments
 
             return valid;
         }
-        private bool UpdateDecimaStatus()
+        private bool UpdateArchiverStatus()
         {
-            var validExe = IoC.Decima.CheckDecimaExe();
-            lblDecimaExe.Text = validExe ? "OK" : "Missing";
-            lblDecimaExe.ForeColor = validExe ? _okColor : _errorColor;
+            var validLib = IoC.Archiver.CheckArchiverLib();
+            lblArchiverLib.Text = validLib ? "OK" : "Missing";
+            lblArchiverLib.ForeColor = validLib ? _okColor : _errorColor;
 
-            var validLib = IoC.Decima.CheckDecimaLib();
-            lblDecimaLib.Text = validLib ? "OK" : "Missing";
-            lblDecimaLib.ForeColor = validLib ? _okColor : _errorColor;
+            if (!validLib)
+                SetStatus("Missing Oodle support library", true);
 
-            if (!validExe || !validLib)
-                SetStatus("Missing Decima Extractor", true);
-
-            return validExe && validLib;
+            return validLib;
         }
 
         private async void btnGameDir_Click(object sender, EventArgs e)
@@ -229,7 +223,7 @@ namespace AloysAdjustments
                 tbGameDir.Text = ofd.SelectedPath;
                 tbGameDir.EnableTypingEvent = true;
                 
-                if (UpdateGameDirStatus() && _initialized)
+                if (UpdateGameDirStatus() && !_initialized)
                     await Initialize();
             }
         }

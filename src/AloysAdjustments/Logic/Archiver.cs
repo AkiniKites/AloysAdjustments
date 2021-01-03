@@ -184,11 +184,10 @@ namespace AloysAdjustments.Logic
         
         public async Task GetLibrary()
         {
-            var libPath = Path.Combine(IoC.Settings.GamePath, Path.GetFileName(IoC.Config.ArchiverLib));
+            var libPath = Path.Combine(IoC.Settings.GamePath, IoC.Config.ArchiverLib);
             if (!File.Exists(libPath))
-                throw new HzdException($"Unable to find packager support library in: {IoC.Settings.GamePath}");
-
-            Paths.CheckDirectory(Path.GetDirectoryName(IoC.Config.ArchiverLib));
+                throw new HzdException($"Unable to find archiver support library in: {IoC.Settings.GamePath}");
+            
             await Task.Run(() => File.Copy(libPath, IoC.Config.ArchiverLib, true));
         }
     }

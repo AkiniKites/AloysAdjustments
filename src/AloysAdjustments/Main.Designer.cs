@@ -39,11 +39,10 @@ namespace AloysAdjustments
             this.ssMain = new System.Windows.Forms.StatusStrip();
             this.tssStatus = new System.Windows.Forms.ToolStripStatusLabel();
             this.btnPatch = new System.Windows.Forms.Button();
-            this.btnDecima = new System.Windows.Forms.Button();
+            this.btnArchiver = new System.Windows.Forms.Button();
             this.btnReset = new System.Windows.Forms.Button();
             this.lblGameDir = new System.Windows.Forms.Label();
             this.btnGameDir = new System.Windows.Forms.Button();
-            this.label4 = new System.Windows.Forms.Label();
             this.tbGameDir = new AloysAdjustments.Utility.TypeDelayTextBox();
             this.btnResetSelected = new System.Windows.Forms.Button();
             this.tcMain = new System.Windows.Forms.TabControl();
@@ -54,8 +53,7 @@ namespace AloysAdjustments
             this.button1 = new System.Windows.Forms.Button();
             this.label5 = new System.Windows.Forms.Label();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.lblDecimaExe = new System.Windows.Forms.Label();
-            this.lblDecimaLib = new System.Windows.Forms.Label();
+            this.lblArchiverLib = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.ssMain.SuspendLayout();
             this.tcMain.SuspendLayout();
@@ -103,16 +101,16 @@ namespace AloysAdjustments
             this.btnPatch.UseVisualStyleBackColor = true;
             this.btnPatch.Click += new System.EventHandler(this.btnPatch_Click);
             // 
-            // btnDecima
+            // btnArchiver
             // 
-            this.btnDecima.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnDecima.Location = new System.Drawing.Point(510, 14);
-            this.btnDecima.Name = "btnDecima";
-            this.btnDecima.Size = new System.Drawing.Size(100, 25);
-            this.btnDecima.TabIndex = 5;
-            this.btnDecima.Text = "Update Decima";
-            this.btnDecima.UseVisualStyleBackColor = true;
-            this.btnDecima.Click += new System.EventHandler(this.btnDecima_Click);
+            this.btnArchiver.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnArchiver.Location = new System.Drawing.Point(510, 15);
+            this.btnArchiver.Name = "btnArchiver";
+            this.btnArchiver.Size = new System.Drawing.Size(100, 25);
+            this.btnArchiver.TabIndex = 5;
+            this.btnArchiver.Text = "Get Oodle DLL";
+            this.btnArchiver.UseVisualStyleBackColor = true;
+            this.btnArchiver.Click += new System.EventHandler(this.btnArchiver_Click);
             // 
             // btnReset
             // 
@@ -144,15 +142,6 @@ namespace AloysAdjustments
             this.btnGameDir.Text = ". . .";
             this.btnGameDir.UseVisualStyleBackColor = true;
             this.btnGameDir.Click += new System.EventHandler(this.btnGameDir_Click);
-            // 
-            // label4
-            // 
-            this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(6, 21);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(67, 15);
-            this.label4.TabIndex = 10;
-            this.label4.Text = "Executable:";
             // 
             // tbGameDir
             // 
@@ -224,7 +213,7 @@ namespace AloysAdjustments
             // btnDeletePack
             // 
             this.btnDeletePack.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnDeletePack.Location = new System.Drawing.Point(510, 16);
+            this.btnDeletePack.Location = new System.Drawing.Point(510, 15);
             this.btnDeletePack.Name = "btnDeletePack";
             this.btnDeletePack.Size = new System.Drawing.Size(100, 25);
             this.btnDeletePack.TabIndex = 14;
@@ -235,7 +224,7 @@ namespace AloysAdjustments
             // lblPackStatus
             // 
             this.lblPackStatus.AutoSize = true;
-            this.lblPackStatus.Location = new System.Drawing.Point(79, 23);
+            this.lblPackStatus.Location = new System.Drawing.Point(79, 22);
             this.lblPackStatus.Name = "lblPackStatus";
             this.lblPackStatus.Size = new System.Drawing.Size(100, 15);
             this.lblPackStatus.TabIndex = 12;
@@ -254,7 +243,7 @@ namespace AloysAdjustments
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(6, 23);
+            this.label5.Location = new System.Drawing.Point(6, 22);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(42, 15);
             this.label5.TabIndex = 10;
@@ -264,46 +253,34 @@ namespace AloysAdjustments
             // 
             this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.groupBox1.Controls.Add(this.lblDecimaExe);
-            this.groupBox1.Controls.Add(this.lblDecimaLib);
-            this.groupBox1.Controls.Add(this.btnDecima);
-            this.groupBox1.Controls.Add(this.label4);
+            this.groupBox1.Controls.Add(this.lblArchiverLib);
+            this.groupBox1.Controls.Add(this.btnArchiver);
             this.groupBox1.Controls.Add(this.label3);
             this.groupBox1.Location = new System.Drawing.Point(3, 36);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(616, 64);
+            this.groupBox1.Size = new System.Drawing.Size(616, 47);
             this.groupBox1.TabIndex = 12;
             this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "Decima Extractor";
+            this.groupBox1.Text = "Packager";
             // 
-            // lblDecimaExe
+            // lblArchiverLib
             // 
-            this.lblDecimaExe.AutoSize = true;
-            this.lblDecimaExe.ForeColor = System.Drawing.Color.ForestGreen;
-            this.lblDecimaExe.Location = new System.Drawing.Point(79, 21);
-            this.lblDecimaExe.Name = "lblDecimaExe";
-            this.lblDecimaExe.Size = new System.Drawing.Size(23, 15);
-            this.lblDecimaExe.TabIndex = 12;
-            this.lblDecimaExe.Text = "OK";
-            // 
-            // lblDecimaLib
-            // 
-            this.lblDecimaLib.AutoSize = true;
-            this.lblDecimaLib.ForeColor = System.Drawing.Color.ForestGreen;
-            this.lblDecimaLib.Location = new System.Drawing.Point(79, 41);
-            this.lblDecimaLib.Name = "lblDecimaLib";
-            this.lblDecimaLib.Size = new System.Drawing.Size(23, 15);
-            this.lblDecimaLib.TabIndex = 13;
-            this.lblDecimaLib.Text = "OK";
+            this.lblArchiverLib.AutoSize = true;
+            this.lblArchiverLib.ForeColor = System.Drawing.Color.ForestGreen;
+            this.lblArchiverLib.Location = new System.Drawing.Point(79, 22);
+            this.lblArchiverLib.Name = "lblArchiverLib";
+            this.lblArchiverLib.Size = new System.Drawing.Size(23, 15);
+            this.lblArchiverLib.TabIndex = 12;
+            this.lblArchiverLib.Text = "OK";
             // 
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(6, 41);
+            this.label3.Location = new System.Drawing.Point(6, 22);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(30, 15);
+            this.label3.Size = new System.Drawing.Size(65, 15);
             this.label3.TabIndex = 11;
-            this.label3.Text = "DLL:";
+            this.label3.Text = "Oodle DLL:";
             // 
             // Main
             // 
@@ -337,20 +314,18 @@ namespace AloysAdjustments
         private System.Windows.Forms.StatusStrip ssMain;
         private System.Windows.Forms.ToolStripStatusLabel tssStatus;
         private System.Windows.Forms.Button btnPatch;
-        private System.Windows.Forms.Button btnDecima;
+        private System.Windows.Forms.Button btnArchiver;
         private System.Windows.Forms.Button btnLoadPatch;
         private System.Windows.Forms.Button btnReset;
         private System.Windows.Forms.Label lblGameDir;
         private System.Windows.Forms.Button btnGameDir;
-        private System.Windows.Forms.Label label4;
         private TypeDelayTextBox tbGameDir;
         private System.Windows.Forms.Button btnResetSelected;
         private System.Windows.Forms.TabControl tcMain;
         private System.Windows.Forms.TabPage tabPage2;
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.Label lblDecimaExe;
-        private System.Windows.Forms.Label lblDecimaLib;
+        private System.Windows.Forms.Label lblArchiverLib;
         private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.Button btnDeletePack;
         private System.Windows.Forms.Label lblPackStatus;
