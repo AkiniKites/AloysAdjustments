@@ -85,7 +85,7 @@ namespace AloysAdjustments.Modules.Outfits
         {
             await Initialize();
 
-            IoC.SetStatus("Loading outfits...");
+            IoC.Notif.ShowStatus("Loading outfits...");
             NewMaps = await OutfitLogic.GenerateOutfitFilesFromPath(path, false);
 
             var newOutfits = NewMaps.SelectMany(x => x.Outfits).ToHashSet();
@@ -132,12 +132,13 @@ namespace AloysAdjustments.Modules.Outfits
         public override async Task Initialize()
         {
             ResetSelected.Enabled = false;
+            IoC.Notif.ShowUnknownProgress();
 
-            IoC.SetStatus("Generating outfit maps...");
+            IoC.Notif.ShowStatus("Generating outfit maps...");
             DefaultMaps = await OutfitLogic.GenerateOutfitFiles();
             NewMaps = DefaultMaps.Select(x => x.Clone()).ToArray();
 
-            IoC.SetStatus("Loading outfit list...");
+            IoC.Notif.ShowStatus("Loading outfit list...");
             var outfits = OutfitLogic.GenerateOutfitList(NewMaps);
             await UpdateOutfitDisplayNames(outfits);
             Outfits = outfits.OrderBy(x => x.DisplayName).ToList();
@@ -160,14 +161,14 @@ namespace AloysAdjustments.Modules.Outfits
 
         private async Task LoadCharacterModelList()
         {
-            IoC.SetStatus("Loading characters list...");
+            IoC.Notif.ShowStatus("Loading characters list...");
             var models = await CharacterLogic.GetCharacterModels();
             Models = models.OrderBy(x => x.ToString()).Cast<Model>().ToList();
         }
 
         private async Task LoadOutfitModelList()
         {
-            IoC.SetStatus("Loading models list...");
+            IoC.Notif.ShowStatus("Loading models list...");
             var models = await OutfitLogic.GenerateModelList();
             //sort models to match outfits
             var outfitSorting = Outfits.Select((x, i) => (x, i)).ToDictionary(x => x.x.ModelId, x => x.i);
@@ -292,7 +293,8 @@ namespace AloysAdjustments.Modules.Outfits
             await Initialize();
             RefreshLists();
 
-            IoC.SetStatus("Reset complete");
+            IoC.Notif.HideProgress();
+            IoC.Notif.ShowStatus("Reset complete");
         }
 
         protected override void ResetSelected_Click()
@@ -322,10 +324,15 @@ namespace AloysAdjustments.Modules.Outfits
             lbOutfits.Invalidate();
         }
 
-        private void cbSwapCharacters_CheckedChanged(object sender, EventArgs e)
+        private async void cbSwapCharacters_CheckedChanged(object sender, EventArgs e)
         {
             if (_loading) return;
             IoC.Settings.SwapCharacterMode = cbSwapCharacters.Checked;
+
+            await Initialize();
+
+            IoC.Notif.HideProgress();
+            IoC.Notif.ShowStatus("Loading complete");
         }
     }
 }

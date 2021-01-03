@@ -76,7 +76,7 @@ namespace AloysAdjustments.Modules
         {
             await Initialize();
 
-            IoC.SetStatus("Loading upgrades...");
+            IoC.Notif.ShowStatus("Loading upgrades...");
             
             var loadedUpgrades = await Logic.GenerateUpgradeListFromPath(path, false);
 
@@ -109,7 +109,7 @@ namespace AloysAdjustments.Modules
         {
             ResetSelected.Enabled = false;
 
-            IoC.SetStatus("Loading upgrades list...");
+            IoC.Notif.ShowStatus("Loading upgrades list...");
             DefaultUpgrades = await Logic.GenerateUpgradeList();
             NewUpgrades = DefaultUpgrades.Values
                 .Select(x=>x.Clone())
@@ -125,7 +125,7 @@ namespace AloysAdjustments.Modules
 
             await Initialize();
 
-            IoC.SetStatus("Reset complete");
+            IoC.Notif.ShowStatus("Reset complete");
         }
 
         protected override void ResetSelected_Click()

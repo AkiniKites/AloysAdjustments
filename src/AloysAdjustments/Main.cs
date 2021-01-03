@@ -61,6 +61,22 @@ namespace AloysAdjustments
                 tssStatus.ForeColor = error ? _errorColor : SystemColors.ControlText;
             });
         }
+        public void SetProgress(int current, int max, bool unknown, bool visible)
+        {
+            this.TryBeginInvoke(() =>
+            {
+                tpbStatus.Visible = visible;
+                if (visible)
+                {
+                    tpbStatus.Style = unknown ? ProgressBarStyle.Marquee : ProgressBarStyle.Continuous;
+                    if (!unknown)
+                    {
+                        tpbStatus.Value = current;
+                        tpbStatus.Maximum = max;
+                    }
+                }
+            });
+        }
 
         private async void Main_Load(object sender, EventArgs e)
         {
@@ -69,8 +85,7 @@ namespace AloysAdjustments
             
             IoC.Bind(new Archiver(new[] { IoC.Config.PatchFile }));
             IoC.Bind(new Localization(ELanguage.English));
-            IoC.SetStatus = x => SetStatus(x, false);
-            IoC.SetError = x => SetStatus(x, true);
+            IoC.Bind(new Notifications(SetStatus, SetProgress));
 
             tbGameDir.EnableTypingEvent = false;
             tbGameDir.Text = IoC.Settings.GamePath;
@@ -108,13 +123,16 @@ namespace AloysAdjustments
             if (!settingsValid)
                 return false;
 
+            IoC.Notif.ShowUnknownProgress();
+
             foreach (var module in Modules)
             {
                 await module.Initialize();
             }
 
             _initialized = true;
-            
+
+            IoC.Notif.HideProgress();
             SetStatus("Loading complete");
             return true;
         }
@@ -122,9 +140,12 @@ namespace AloysAdjustments
         private async void btnPatch_Click(object sender, EventArgs e)
         {
             using var _ = new ControlLock(btnPatch);
+
+            SetStatus("Generating patch...");
+            IoC.Notif.ShowUnknownProgress();
+
             using (var oldPatch = new FileRenamer(Configs.PatchPath))
             {
-                SetStatus("Generating patch...");
                 var patcher = new Patcher();
 
                 var dir = await patcher.SetupPatchDir();
@@ -149,6 +170,7 @@ namespace AloysAdjustments
                 UpdatePatchStatus();
             }
 
+            IoC.Notif.HideProgress();
             SetStatus("Patch installed");
         }
 
@@ -180,11 +202,14 @@ namespace AloysAdjustments
             if (ofd.ShowDialog() != DialogResult.OK)
                 return;
 
+            IoC.Notif.ShowUnknownProgress();
+
             foreach (var module in Modules)
                 await module.LoadPatch(ofd.FileName);
 
             IoC.Settings.LastPackOpen = ofd.FileName;
 
+            IoC.Notif.HideProgress();
             SetStatus($"Loaded pack: {Path.GetFileName(ofd.FileName)}");
         }
 
