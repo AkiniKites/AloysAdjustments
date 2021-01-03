@@ -101,6 +101,7 @@ namespace AloysAdjustments
                 new UpgradesControl()
             };
 
+            SetStatus("Loading modules...");
             foreach (var module in Modules.AsEnumerable().Reverse())
             {
                 var tab = new TabPage();
@@ -130,10 +131,13 @@ namespace AloysAdjustments
 
             IoC.Notif.ShowUnknownProgress();
 
+            SetStatus("Removing old version...");
+            await Compatibility.CleanupOldVersions();
+            //remove failed patches
+            await FileManager.CleanupFile(Configs.PatchPath, true);
+
             foreach (var module in Modules)
-            {
                 await module.Initialize();
-            }
 
             _initialized = true;
             
@@ -156,6 +160,9 @@ namespace AloysAdjustments
                 return;
             }
 
+            //remove failed patches
+            await FileManager.CleanupFile(Configs.PatchPath, true);
+
             using (var oldPatch = new FileRenamer(Configs.PatchPath))
             {
                 var patcher = new Patcher();
@@ -177,7 +184,7 @@ namespace AloysAdjustments
 
                 oldPatch.Delete();
 
-                //await FileManager.Cleanup(IoC.Config.TempPath);
+                await FileManager.Cleanup(IoC.Config.TempPath);
 
                 UpdatePatchStatus();
             }

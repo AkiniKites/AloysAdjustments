@@ -29,5 +29,8 @@
   "TempPath": "temp",
   "CachePath": "caches",
   "PatchFile": "Patch_AloysAdjustments.bin",
+  "OldVersionsToDelete": [
+    "zMod_AloysAdjustments.bin"
+  ],
   "PackDir": "Packed_DX12"
 }

@@ -18,5 +18,6 @@ namespace AloysAdjustments.Configuration
         public string CachePath { get; set; }
         public string PatchFile { get; set; }
         public string PackDir { get; set; }
+        public string[] OldVersionsToDelete { get; set; }
     }
 }
