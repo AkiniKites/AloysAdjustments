@@ -92,7 +92,7 @@ namespace AloysAdjustments
 
             IoC.Bind(new Archiver(new[] { IoC.Config.PatchFile }));
             IoC.Bind(new Localization(ELanguage.English));
-            
+
 
             tbGameDir.EnableTypingEvent = false;
             tbGameDir.Text = IoC.Settings.GamePath;
@@ -121,7 +121,14 @@ namespace AloysAdjustments
 
             tcMain.SelectedIndex = 0;
             if (!await Initialize())
+            {
                 tcMain.SelectedIndex = tcMain.TabPages.Count - 1;
+            }
+            else if (File.Exists(Configs.PatchPath))
+            {
+                await LoadExistingPack(Configs.PatchPath, true);
+                IoC.Notif.ShowStatus("Loading complete");
+            }
         }
 
         private async Task<bool> Initialize()
@@ -209,17 +216,25 @@ namespace AloysAdjustments
             if (ofd.ShowDialog() != DialogResult.OK)
                 return;
 
+            await LoadExistingPack(ofd.FileName, false);
+        }
+
+        private async Task LoadExistingPack(string path, bool initial)
+        {
             IoC.Notif.ShowUnknownProgress();
 
             foreach (var module in Modules)
-                await module.LoadPatch(ofd.FileName);
-
-            IoC.Settings.LastPackOpen = ofd.FileName;
+                await module.LoadPatch(path);
 
             IoC.Notif.HideProgress();
-            IoC.Notif.ShowStatus($"Loaded pack: {Path.GetFileName(ofd.FileName)}");
+
+            if (!initial)
+            {
+                IoC.Settings.LastPackOpen = path;
+                IoC.Notif.ShowStatus($"Loaded pack: {Path.GetFileName(path)}");
+            }
         }
-        
+
         public async Task LoadConfigs()
         {
             var json = await File.ReadAllTextAsync(ConfigPath);
