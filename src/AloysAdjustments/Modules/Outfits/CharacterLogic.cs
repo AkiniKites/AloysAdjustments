@@ -27,10 +27,13 @@ namespace AloysAdjustments.Modules.Outfits
         public async Task CreatePatch(string patchDir, IEnumerable<CharacterModel> characters, IEnumerable<OutfitFile> maps)
         {
             var models = maps.SelectMany(x => x.Outfits).Select(x => x.ModelId).ToHashSet();
-            var newCharacters = characters.Where(x => models.Contains(x.Id));
+            var newCharacters = characters.Where(x => models.Contains(x.Id)).ToList();
 
-            await AddCharacterReferences(patchDir, newCharacters);
-            await RemoveAloyHair(patchDir);
+            if (newCharacters.Any())
+            {
+                await AddCharacterReferences(patchDir, newCharacters);
+                await RemoveAloyHair(patchDir);
+            }
         }
 
         private async Task AddCharacterReferences(string patchDir, IEnumerable<CharacterModel> characters)
