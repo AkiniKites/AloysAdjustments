@@ -6,7 +6,9 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using AloysAdjustments.Configuration;
 using AloysAdjustments.Data;
 using AloysAdjustments.Logic;
@@ -48,8 +50,11 @@ namespace AloysAdjustments.Modules.Outfits
                 }
 
                 var files = Prefetch.LoadPrefetch().Keys;
-
+                
+                int progress = 0;
+                int lastProgress = 0;
                 var modelBag = new ConcurrentBag<CharacterModel>();
+
                 Parallel.ForEach(files, file =>
                 {
                     if (IsValid(file, all))
@@ -57,7 +62,17 @@ namespace AloysAdjustments.Modules.Outfits
                         foreach (var model in GetCharacterModels(file))
                             modelBag.Add(model);
                     }
+                    
+                    //rough progress estimate
+                    var newProgress = Interlocked.Increment(ref progress) * 50 / files.Count;
+                    if (newProgress > lastProgress)
+                    {
+                        lastProgress = newProgress;
+                        IoC.Notif.ShowProgress(newProgress, 50);
+                    }
                 });
+
+                IoC.Notif.ShowUnknownProgress();
 
                 var modelList = modelBag.ToList();
                 _cache.Save((all, modelList));
@@ -88,8 +103,6 @@ namespace AloysAdjustments.Modules.Outfits
             var variants = pack.GetTypes<HumanoidBodyVariant>().Values.ToList();
             if (!variants.Any())
                 return new List<CharacterModel>();
-
-            Debug.WriteLine(file);
 
             var models = new List<CharacterModel>();
             foreach (var variant in variants)
