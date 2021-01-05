@@ -41,11 +41,11 @@ namespace AloysAdjustments.Modules.Outfits
 
         private IEnumerable<Outfit> GetOutfits(HzdCore core)
         {
-            var items = core.GetTypes<InventoryEntityResource>().Values;
-            var itemComponents = core.GetTypes<InventoryItemComponentResource>();
-            var componentResources = core.GetTypes<NodeGraphComponentResource>();
-            var overrides = core.GetTypes< OverrideGraphProgramResource>();
-            var mappings = core.GetTypes< NodeGraphHumanoidBodyVariantUUIDRefVariableOverride>();
+            var items = core.GetTypes<InventoryEntityResource>();
+            var itemComponents = core.GetTypesById<InventoryItemComponentResource>();
+            var componentResources = core.GetTypesById<NodeGraphComponentResource>();
+            var overrides = core.GetTypesById<OverrideGraphProgramResource>();
+            var mappings = core.GetTypesById<NodeGraphHumanoidBodyVariantUUIDRefVariableOverride>();
 
             foreach (var item in items)
             {
@@ -111,7 +111,7 @@ namespace AloysAdjustments.Modules.Outfits
 
         public static List<StreamingRef<HumanoidBodyVariant>> GetPlayerModels(HzdCore core)
         {
-            var resource = core.GetTypes<BodyVariantComponentResource>().FirstOrDefault().Value;
+            var resource = core.GetTypes<BodyVariantComponentResource>().FirstOrDefault();
             if (resource == null)
                 throw new HzdException("Unable to find PlayerBodyVariants");
 
@@ -129,7 +129,7 @@ namespace AloysAdjustments.Modules.Outfits
                 var refs = map.Outfits.ToDictionary(x => x.RefId, x => x.ModelId);
 
                 //update references from based on new maps
-                foreach (var reference in core.GetTypes<NodeGraphHumanoidBodyVariantUUIDRefVariableOverride>().Values)
+                foreach (var reference in core.GetTypes<NodeGraphHumanoidBodyVariantUUIDRefVariableOverride>())
                 {
                     if (refs.TryGetValue(reference.ObjectUUID, out var newModel))
                         reference.Object.GUID.AssignFromOther(newModel);

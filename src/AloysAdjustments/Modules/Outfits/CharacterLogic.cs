@@ -60,11 +60,11 @@ namespace AloysAdjustments.Modules.Outfits
             var core = await FileManager.ExtractFile(patchDir,
                 Configs.GamePackDir, IoC.Get<OutfitConfig>().PlayerCharacterFile);
 
-            var hairModel = core.GetTypes<HairModelComponentResource>().Values.FirstOrDefault();
+            var hairModel = core.GetTypes<HairModelComponentResource>().FirstOrDefault();
             if (hairModel == null)
                 throw new HzdException($"Failed to remove Aloy's hair, unable to find HairModelComponentResource");
 
-            var adult = core.GetTypes<SoldierResource>().Values.FirstOrDefault(x=>x.Name == IoC.Get<OutfitConfig>().AloyCharacterName);
+            var adult = core.GetTypes<SoldierResource>().FirstOrDefault(x=>x.Name == IoC.Get<OutfitConfig>().AloyCharacterName);
             if (adult == null)
                 throw new HzdException($"Failed to remove Aloy's hair, unable to find SoldierResource with name: {IoC.Get<OutfitConfig>().AloyCharacterName}");
             

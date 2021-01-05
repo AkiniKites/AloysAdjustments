@@ -28,8 +28,8 @@ namespace AloysAdjustments.Modules.Upgrades
             if (core == null)
                 return new Dictionary<BaseGGUUID, Upgrade>();
 
-            var charUpgrades = core.GetTypes<CharacterUpgrade>();
-            var invMods = core.GetTypes<InventoryCapacityModificationComponentResource>();
+            var charUpgrades = core.GetTypesById<CharacterUpgrade>();
+            var invMods = core.GetTypesById<InventoryCapacityModificationComponentResource>();
             
             var upgrades = new Dictionary<BaseGGUUID, Upgrade>();
             foreach (var charUpgrade in charUpgrades.Values)
@@ -76,7 +76,7 @@ namespace AloysAdjustments.Modules.Upgrades
             
             var invMods = core.GetTypes<InventoryCapacityModificationComponentResource>();
 
-            foreach (var invMod in invMods.Values)
+            foreach (var invMod in invMods)
             {
                 if (!upgradeChanges.TryGetValue(invMod.ObjectUUID, out var upgrade))
                     continue;

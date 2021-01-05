@@ -49,7 +49,7 @@ namespace AloysAdjustments.Modules
             this.dgvUpgrades.Name = "dgvUpgrades";
             this.dgvUpgrades.RowTemplate.Height = 25;
             this.dgvUpgrades.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dgvUpgrades.Size = new System.Drawing.Size(550, 566);
+            this.dgvUpgrades.Size = new System.Drawing.Size(580, 572);
             this.dgvUpgrades.TabIndex = 0;
             this.dgvUpgrades.CellValueChanged += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvUpgrades_CellValueChanged);
             this.dgvUpgrades.SelectionChanged += new System.EventHandler(this.dgvUpgrades_SelectionChanged);
@@ -57,7 +57,7 @@ namespace AloysAdjustments.Modules
             // btnMulti10
             // 
             this.btnMulti10.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnMulti10.Location = new System.Drawing.Point(556, 62);
+            this.btnMulti10.Location = new System.Drawing.Point(586, 62);
             this.btnMulti10.Name = "btnMulti10";
             this.btnMulti10.Size = new System.Drawing.Size(60, 25);
             this.btnMulti10.TabIndex = 1;
@@ -68,7 +68,7 @@ namespace AloysAdjustments.Modules
             // btnMulti2
             // 
             this.btnMulti2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnMulti2.Location = new System.Drawing.Point(556, 0);
+            this.btnMulti2.Location = new System.Drawing.Point(586, 0);
             this.btnMulti2.Name = "btnMulti2";
             this.btnMulti2.Size = new System.Drawing.Size(60, 25);
             this.btnMulti2.TabIndex = 2;
@@ -79,7 +79,7 @@ namespace AloysAdjustments.Modules
             // btnMulti5
             // 
             this.btnMulti5.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnMulti5.Location = new System.Drawing.Point(556, 31);
+            this.btnMulti5.Location = new System.Drawing.Point(586, 31);
             this.btnMulti5.Name = "btnMulti5";
             this.btnMulti5.Size = new System.Drawing.Size(60, 25);
             this.btnMulti5.TabIndex = 3;
@@ -96,7 +96,7 @@ namespace AloysAdjustments.Modules
             this.Controls.Add(this.btnMulti10);
             this.Controls.Add(this.dgvUpgrades);
             this.Name = "UpgradesControl";
-            this.Size = new System.Drawing.Size(616, 566);
+            this.Size = new System.Drawing.Size(646, 572);
             ((System.ComponentModel.ISupportInitialize)(this.dgvUpgrades)).EndInit();
             this.ResumeLayout(false);
 

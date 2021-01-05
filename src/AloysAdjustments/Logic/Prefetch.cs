@@ -18,7 +18,7 @@ namespace AloysAdjustments.Logic
         public static Dictionary<string, int> LoadPrefetch()
         {
             var core = IoC.Archiver.LoadFile(Configs.GamePackDir, IoC.Config.PrefetchFile);
-            var data = core.GetTypes<PrefetchList>().Values.First();
+            var data = core.GetTypes<PrefetchList>().First();
 
             var files = new Dictionary<string, int>();
             for (int i = 0; i < data.Files.Count; i++)
@@ -33,7 +33,7 @@ namespace AloysAdjustments.Logic
             var core = await FileManager.ExtractFile(patchDir,
                 Configs.GamePackDir, IoC.Config.PrefetchFile);
 
-            var data = core.GetTypes<PrefetchList>().Values.First();
+            var data = core.GetTypes<PrefetchList>().First();
 
             var files = new Dictionary<string, int>();
             for (int i = 0; i < data.Files.Count; i++)
