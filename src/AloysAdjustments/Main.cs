@@ -18,8 +18,6 @@ using Decima;
 using Decima.HZD;
 using AloysAdjustments.Utility;
 using Newtonsoft.Json;
-using Onova;
-using Onova.Services;
 using Application = System.Windows.Forms.Application;
 
 namespace AloysAdjustments

@@ -32,9 +32,10 @@
   "ArchiverLib": "oo2core_3_win64.dll",
   "TempPath": "temp",
   "CachePath": "caches",
+  "PackDir": "Packed_DX12",
   "PatchFile": "Patch_AloysAdjustments.bin",
+  "UpdatesRepo": "AkiniKites/AloysAdjustments",
   "OldVersionsToDelete": [
     "zMod_AloysAdjustments.bin"
-  ],
-  "PackDir": "Packed_DX12"
+  ]
 }
