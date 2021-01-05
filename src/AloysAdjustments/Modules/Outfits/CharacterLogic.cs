@@ -33,6 +33,7 @@ namespace AloysAdjustments.Modules.Outfits
             {
                 await AddCharacterReferences(patchDir, newCharacters);
                 await RemoveAloyHair(patchDir);
+                await FixRagdolls(patchDir, newCharacters);
             }
         }
 
@@ -55,7 +56,7 @@ namespace AloysAdjustments.Modules.Outfits
             pcCore.Save();
         }
 
-        public async Task RemoveAloyHair(string patchDir)
+        private async Task RemoveAloyHair(string patchDir)
         {
             var core = await FileManager.ExtractFile(patchDir,
                 Configs.GamePackDir, IoC.Get<OutfitConfig>().PlayerCharacterFile);
@@ -70,6 +71,23 @@ namespace AloysAdjustments.Modules.Outfits
             
             adult.EntityComponentResources.RemoveAll(x => x.GUID.Equals(hairModel.ObjectUUID));
             core.Save();
+        }
+
+        private async Task FixRagdolls(string patchDir, IEnumerable<CharacterModel> characters)
+        {
+            foreach (var character in characters)
+            {
+                var core = await FileManager.ExtractFile(patchDir,
+                    Configs.GamePackDir, character.Source);
+
+                var hbv = core.GetTypes<HumanoidBodyVariant>().FirstOrDefault();
+
+                //core.GetTypes<ScaleEntityFromAnimationComponentResource>().FirstOrDefault().ScaleMessageName = "ScaleTo";
+                hbv.EntityComponentResources.RemoveAt(2);
+                //hbv.EntityComponentResources.Add(comp);
+
+                core.Save();
+            }
         }
     }
 }
