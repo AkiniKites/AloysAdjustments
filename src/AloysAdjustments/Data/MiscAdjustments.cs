@@ -7,5 +7,13 @@ namespace AloysAdjustments.Data
     public class MiscAdjustments
     {
         public bool? SkipIntroLogos { get; set; }
+
+        public MiscAdjustments Clone()
+        {
+            return new MiscAdjustments()
+            {
+                SkipIntroLogos = SkipIntroLogos
+            };
+        }
     }
 }

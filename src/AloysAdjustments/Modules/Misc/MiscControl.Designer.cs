@@ -41,7 +41,7 @@ namespace AloysAdjustments.Modules.Misc
             // cbIntroLogos
             // 
             this.cbIntroLogos.AutoSize = true;
-            this.cbIntroLogos.Location = new System.Drawing.Point(0, 10);
+            this.cbIntroLogos.Location = new System.Drawing.Point(9, 9);
             this.cbIntroLogos.Name = "cbIntroLogos";
             this.cbIntroLogos.Size = new System.Drawing.Size(132, 19);
             this.cbIntroLogos.TabIndex = 4;

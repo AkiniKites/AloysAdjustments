@@ -17,6 +17,7 @@ namespace AloysAdjustments.Modules.Misc
         private bool _loading;
 
         private MiscLogic MiscLogic { get; }
+        private MiscAdjustments DefaultAdjustments { get; set; }
         private MiscAdjustments Adjustments { get; set; }
         
         public override string ModuleName => "Misc";
@@ -39,7 +40,8 @@ namespace AloysAdjustments.Modules.Misc
             IoC.Notif.ShowUnknownProgress();
 
             IoC.Notif.ShowStatus("Loading misc data...");
-            Adjustments = await MiscLogic.GenerateMiscData();
+            DefaultAdjustments = await MiscLogic.GenerateMiscData();
+            Adjustments = DefaultAdjustments.Clone();
 
             RefreshControls();
         }
@@ -59,6 +61,11 @@ namespace AloysAdjustments.Modules.Misc
 
         public override async Task CreatePatch(string patchDir)
         {
+            var changedValues = Adjustments.Clone();
+
+            if (Adjustments.SkipIntroLogos == DefaultAdjustments.SkipIntroLogos)
+                changedValues.SkipIntroLogos = null;
+
             await MiscLogic.CreatePatch(patchDir, Adjustments);
         }
 
@@ -81,7 +88,9 @@ namespace AloysAdjustments.Modules.Misc
         private void cbIntroLogos_CheckedChanged(object sender, EventArgs e)
         {
             if (_loading) return;
+
             Adjustments.SkipIntroLogos = cbIntroLogos.Checked;
+            RefreshControls();
         }
 
         private void RefreshControls()
@@ -89,6 +98,8 @@ namespace AloysAdjustments.Modules.Misc
             _loading = true;
 
             cbIntroLogos.Checked = Adjustments.SkipIntroLogos == true;
+            cbIntroLogos.Text = DefaultAdjustments.SkipIntroLogos == Adjustments.SkipIntroLogos 
+                ? "Remove Intro Logos" : "Remove Intro Logos *";
 
             _loading = false;
         }
