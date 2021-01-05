@@ -53,6 +53,12 @@ namespace AloysAdjustments.Modules
                 DataPropertyName = "Value",
                 Width = 130
             });
+            //dummy
+            dgvUpgrades.Columns.Add(new DataGridViewTextBoxColumn()
+            {
+                HeaderText = "",
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
+            });
 
             dgvUpgrades.CellValidating += (s, e) =>
             {

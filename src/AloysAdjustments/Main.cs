@@ -110,7 +110,8 @@ namespace AloysAdjustments
             foreach (var module in Modules.AsEnumerable().Reverse())
             {
                 var tab = new TabPage();
-
+                
+                tab.UseVisualStyleBackColor = true;
                 tab.Text = module.ModuleName;
                 tab.Controls.Add(module);
                 module.Dock = DockStyle.Fill;
@@ -125,11 +126,6 @@ namespace AloysAdjustments
             if (!await Initialize())
             {
                 tcMain.SelectedIndex = tcMain.TabPages.Count - 1;
-            }
-            else if (File.Exists(Configs.PatchPath))
-            {
-                await LoadExistingPack(Configs.PatchPath, true);
-                IoC.Notif.ShowStatus("Loading complete");
             }
         }
 
@@ -152,7 +148,10 @@ namespace AloysAdjustments
                 await module.Initialize();
 
             _initialized = true;
-            
+
+            if (File.Exists(Configs.PatchPath))
+                await LoadExistingPack(Configs.PatchPath, true);
+
             IoC.Notif.HideProgress();
             IoC.Notif.ShowStatus("Loading complete");
             return true;
@@ -227,12 +226,12 @@ namespace AloysAdjustments
 
             foreach (var module in Modules)
                 await module.LoadPatch(path);
-
-            IoC.Notif.HideProgress();
-
+            
             if (!initial)
             {
                 IoC.Settings.LastPackOpen = path;
+
+                IoC.Notif.HideProgress();
                 IoC.Notif.ShowStatus($"Loaded pack: {Path.GetFileName(path)}");
             }
         }
