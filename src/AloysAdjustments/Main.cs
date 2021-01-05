@@ -13,6 +13,7 @@ using AloysAdjustments.Logic;
 using AloysAdjustments.Modules;
 using AloysAdjustments.Modules.Misc;
 using AloysAdjustments.Modules.Outfits;
+using AloysAdjustments.UI;
 using AloysAdjustments.Updates;
 using Decima;
 using Decima.HZD;
@@ -25,22 +26,22 @@ namespace AloysAdjustments
     public partial class Main : Form
     {
         private const string ConfigPath = "config.json";
-
-        private readonly Color _errorColor = Color.FromArgb(204, 0, 0);
-        private readonly Color _okColor = Color.ForestGreen;
         
         private bool _initialized = false;
 
         private List<ModuleBase> Modules { get; set; }
+        private SettingsControl Settings { get; set; }
         
         public Main()
         {
+            Application.ThreadException += Application_ThreadException;
+            AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
+
+            IoC.Bind(new Notifications(SetStatus, SetProgress));
+
             InitializeComponent();
             
             RTTI.SetGameMode(GameType.HZD);
-
-            Application.ThreadException += Application_ThreadException;
-            AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
         }
 
         private void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
@@ -60,7 +61,7 @@ namespace AloysAdjustments
             this.TryBeginInvoke(() =>
             {
                 tssStatus.Text = text;
-                tssStatus.ForeColor = error ? _errorColor : SystemColors.ControlText;
+                tssStatus.ForeColor = error ? UIColors.ErrorColor : SystemColors.ControlText;
             });
         }
 
@@ -83,23 +84,13 @@ namespace AloysAdjustments
 
         private async void Main_Load(object sender, EventArgs e)
         {
-            var notif = new Notifications(SetStatus, SetProgress)
-            {
-                CacheUpdate = UpdateCacheStatus
-            };
-            IoC.Bind(notif);
-
             IoC.Notif.ShowStatus("Loading config...");
             await LoadConfigs();
 
             IoC.Bind(new Archiver(new[] { IoC.Config.PatchFile }));
             IoC.Bind(new Localization(ELanguage.English));
 
-
-            tbGameDir.EnableTypingEvent = false;
-            tbGameDir.Text = IoC.Settings.GamePath;
-            tbGameDir.EnableTypingEvent = true;
-
+            Settings = new SettingsControl();
             Modules = new List<ModuleBase>()
             {
                 new OutfitsControl(),
@@ -108,7 +99,7 @@ namespace AloysAdjustments
             };
 
             IoC.Notif.ShowStatus("Loading modules...");
-            foreach (var module in Modules.AsEnumerable().Reverse())
+            foreach (var module in Modules.AsEnumerable().Concat(new[] { Settings }).Reverse())
             {
                 var tab = new TabPage();
                 
@@ -120,8 +111,8 @@ namespace AloysAdjustments
                 tcMain.TabPages.Insert(0, tab);
             }
 
-            UpdatePatchStatus();
-            UpdateCacheStatus();
+            await Settings.Initialize();
+            Settings.SettingsOkay += Settings_SettingsOkay;
 
             tcMain.SelectedIndex = 0;
             if (!await Initialize())
@@ -133,12 +124,15 @@ namespace AloysAdjustments
             //await new Updater().PerformUpdate();
         }
 
+        private async void Settings_SettingsOkay()
+        {
+            if (!_initialized)
+                await Initialize();
+        }
+
         private async Task<bool> Initialize()
         {
-            var settingsValid = UpdateGameDirStatus();
-            settingsValid = UpdateArchiverStatus() && settingsValid;
-
-            if (!settingsValid)
+            if (!Settings.ValidateAll())
                 return false;
 
             IoC.Notif.ShowUnknownProgress();
@@ -201,7 +195,7 @@ namespace AloysAdjustments
 
                 await FileManager.Cleanup(IoC.Config.TempPath);
 
-                UpdatePatchStatus();
+                Settings.UpdatePatchStatus();
             }
 
             IoC.Notif.HideProgress();
@@ -298,120 +292,6 @@ namespace AloysAdjustments
         {
             if (tcMain.SelectedIndex >= 0 && tcMain.SelectedIndex < Modules.Count)
                 Modules[tcMain.SelectedIndex].Reset.OnClick();
-        }
-        
-        private void tbGameDir_TextChanged(object sender, EventArgs e)
-        {
-            IoC.Settings.GamePath = tbGameDir.Text;
-        }
-        private async void tbGameDir_TypingFinished(object sender, EventArgs e)
-        {
-            IoC.Archiver.ClearCache();
-            if (UpdateGameDirStatus() && !_initialized)
-                await Initialize();
-        }
-
-        private async void btnGameDir_Click(object sender, EventArgs e)
-        {
-            using var ofd = new FolderBrowserDialog();
-
-            if (ofd.ShowDialog() == DialogResult.OK)
-            {
-                tbGameDir.EnableTypingEvent = false;
-                tbGameDir.Text = ofd.SelectedPath;
-                tbGameDir.EnableTypingEvent = true;
-
-                if (UpdateGameDirStatus() && !_initialized)
-                    await Initialize();
-            }
-        }
-
-        private async void btnArchiver_Click(object sender, EventArgs e)
-        {
-            using var _ = new ControlLock(btnArchiver);
-
-            if (!UpdateGameDirStatus())
-                return;
-
-            IoC.Notif.ShowStatus("Copying Oodle library...");
-            await IoC.Archiver.GetLibrary();
-            IoC.Notif.ShowStatus("Oodle updated");
-
-            if (UpdateArchiverStatus() && !_initialized)
-                await Initialize();
-        }
-
-        private async void btnClearCache_Click(object sender, EventArgs e)
-        {
-            await FileManager.Cleanup(IoC.Config.CachePath);
-            UpdateCacheStatus();
-        }
-
-        private void btnDeletePack_Click(object sender, EventArgs e)
-        {
-            if (MessageBox.Show($"Are you sure you want to delete {IoC.Config.PatchFile}?", $"Delete File", 
-                MessageBoxButtons.YesNo, MessageBoxIcon.Warning) != DialogResult.Yes)
-            {
-                return;
-            }
-
-            if (File.Exists(Configs.PatchPath))
-                File.Delete(Configs.PatchPath);
-
-            UpdatePatchStatus();
-        }
-
-        private bool UpdateGameDirStatus()
-        {
-            var dir = Configs.GamePackDir;
-            var valid = dir != null && Directory.Exists(dir);
-            lblGameDir.ForeColor = valid ? SystemColors.ControlText : _errorColor;
-
-            if (!valid)
-                IoC.Notif.ShowError("Missing Game Folder");
-
-            return valid;
-        }
-        private bool UpdateArchiverStatus()
-        {
-            var validLib = IoC.Archiver.CheckArchiverLib();
-            lblArchiverLib.Text = validLib ? "OK" : "Missing";
-            lblArchiverLib.ForeColor = validLib ? _okColor : _errorColor;
-
-            if (!validLib)
-                IoC.Notif.ShowError("Missing Oodle support library");
-
-            return validLib;
-        }
-
-        private bool UpdatePatchStatus()
-        {
-            var valid = File.Exists(Configs.PatchPath);
-            if (valid)
-                lblPackStatus.Text = $"Pack installed: {IoC.Config.PatchFile}";
-            else
-                lblPackStatus.Text = "Pack not installed";
-
-            btnDeletePack.Enabled = valid;
-
-            return valid;
-        }
-
-        private void UpdateCacheStatus()
-        {
-            Task.Run(() =>
-            {
-                var size = 0L;
-                var dir = new DirectoryInfo(IoC.Config.CachePath);
-                if (dir.Exists)
-                    size = dir.GetFiles("*.json", SearchOption.AllDirectories).Sum(x => x.Length);
-
-                this.TryBeginInvoke(() =>
-                {
-                    lblCacheSize.Text = $"{(size / 1024):n0} KB";
-                    btnClearCache.Enabled = size > 0;
-                });
-            });
         }
     }
 }
