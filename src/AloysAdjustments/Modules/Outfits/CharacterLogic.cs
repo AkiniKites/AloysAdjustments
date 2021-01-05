@@ -34,9 +34,10 @@ namespace AloysAdjustments.Modules.Outfits
             if (!newCharacters.Any())
                 return;
             
-            await AddCharacterReferences(patchDir, newCharacters);
             await RemoveAloyHair(patchDir);
             var variantMapping = await FixRagdolls(patchDir, newCharacters);
+
+            await AddCharacterReferences(patchDir, newCharacters, variantMapping);
 
             await outfitsLogic.CreatePatch(patchDir, maps, map =>
             {
@@ -52,7 +53,8 @@ namespace AloysAdjustments.Modules.Outfits
             });
         }
 
-        private async Task AddCharacterReferences(string patchDir, IEnumerable<CharacterModel> characters)
+        private async Task AddCharacterReferences(string patchDir, IEnumerable<CharacterModel> characters,
+            Dictionary<BaseGGUUID, BaseGGUUID> variantMapping)
         {
             var pcCore = await FileManager.ExtractFile(patchDir, 
                 Configs.GamePackDir, IoC.Get<OutfitConfig>().PlayerComponentsFile);
@@ -63,7 +65,11 @@ namespace AloysAdjustments.Modules.Outfits
                 var sRef = new StreamingRef<HumanoidBodyVariant>();
                 sRef.ExternalFile = new BaseString(character.Source);
                 sRef.Type = BaseRef<HumanoidBodyVariant>.Types.StreamingRef;
-                sRef.GUID = BaseGGUUID.FromOther(character.Id);
+
+                if (!variantMapping.TryGetValue(character.Id, out var varId))
+                    varId = character.Id;
+
+                sRef.GUID = BaseGGUUID.FromOther(varId);
 
                 variants.Add(sRef);
             }
