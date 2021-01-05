@@ -18,11 +18,11 @@ namespace AloysAdjustments.Modules.Outfits
         public async Task<OutfitFile[]> GenerateOutfitFiles()
         {
             //extract game files
-            var maps = await GenerateOutfitFilesFromPath(Configs.GamePackDir, true);
+            var maps = await GenerateOutfitFiles(Configs.GamePackDir, true);
             return maps;
         }
 
-        public async Task<OutfitFile[]> GenerateOutfitFilesFromPath(string path, bool checkMissing)
+        public async Task<OutfitFile[]> GenerateOutfitFiles(string path, bool checkMissing)
         {
             var cores = await Task.WhenAll(IoC.Get<OutfitConfig>().OutfitFiles.Select(
                 async f => await IoC.Archiver.LoadFileAsync(path, f, checkMissing)));
@@ -94,20 +94,33 @@ namespace AloysAdjustments.Modules.Outfits
 
         public async Task<List<Model>> GenerateModelList()
         {
+            return await GenerateModelList(Configs.GamePackDir);
+        }
+        public async Task<List<Model>> GenerateModelList(string path)
+        {
             var models = new List<Model>();
 
             //player models
             var playerComponents = await IoC.Archiver.LoadFileAsync(
-                Configs.GamePackDir, IoC.Get<OutfitConfig>().PlayerComponentsFile);
+                path, IoC.Get<OutfitConfig>().PlayerComponentsFile);
             var playerModels = GetPlayerModels(playerComponents);
 
             models.AddRange(playerModels.Select(x => new Model
             {
                 Id = x.GUID,
-                Name = x.ExternalFile.ToString()
+                Name = GetModelName(x),
+                Source = x.ExternalFile.ToString()
             }));
 
             return models;
+        }
+        private string GetModelName(StreamingRef<HumanoidBodyVariant> model)
+        {
+            var source = model.ExternalFile.ToString();
+
+            var key = "playercostume_";
+            var idx = source.LastIndexOf(key);
+            return idx < 0 ? source : source.Substring(idx + key.Length);
         }
 
         public static List<StreamingRef<HumanoidBodyVariant>> GetPlayerModels(HzdCore core)

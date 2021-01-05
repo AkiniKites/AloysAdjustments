@@ -18,6 +18,9 @@ namespace AloysAdjustments.Modules.Outfits
 {
     public class CharacterLogic
     {
+        private const string VariantNameFormat = "-AA-";
+        private readonly Regex VariantNameMatcher = new Regex($"^(?<name>.+?){VariantNameFormat}(?<id>.+)$");
+
         public CharacterModelSearch Search { get; }
 
         public CharacterLogic()
@@ -94,6 +97,26 @@ namespace AloysAdjustments.Modules.Outfits
             await core.Save();
         }
 
+        public async Task<bool> IsCharacterModeFile(string path)
+        {
+            //check if aloy has hair, if so the file was made for character edits
+            var core = await IoC.Archiver.LoadFileAsync(path, 
+                IoC.Get<OutfitConfig>().PlayerCharacterFile, false);
+
+            if (core == null)
+                return false;
+            
+            var hairModel = core.GetTypes<HairModelComponentResource>().FirstOrDefault();
+            var adult = core.GetTypes<SoldierResource>().FirstOrDefault(x => x.Name == IoC.Get<OutfitConfig>().AloyCharacterName);
+
+            if (hairModel == null || adult == null)
+                return false;
+
+            var hasHair = adult.EntityComponentResources.All(x => x.GUID.Equals(hairModel.ObjectUUID));
+
+            return !hasHair;
+        }
+
         private async Task<Dictionary<BaseGGUUID, BaseGGUUID>> FixRagdolls(
             string patchDir, IEnumerable<CharacterModel> characters)
         {
@@ -134,9 +157,32 @@ namespace AloysAdjustments.Modules.Outfits
             var newVariant = HzdCloner.Clone(variant);
 
             newVariant.ObjectUUID = new GGUUID(BaseGGUUID.FromString($"{Guid.NewGuid():B}"));
-            newVariant.Name = $"{variant.Name}-AA-{variant.ObjectUUID}";
+            newVariant.Name = $"{variant.Name}{VariantNameFormat}{variant.ObjectUUID}";
 
             return newVariant;
+        }
+
+        public async Task<Dictionary<BaseGGUUID, BaseGGUUID>> GetVariantMapping(string path, OutfitsLogic outfitsLogic)
+        {
+            var variantMapping = new Dictionary<BaseGGUUID, BaseGGUUID>();
+
+            var models = await outfitsLogic.GenerateModelList(path);
+            foreach (var model in models)
+            {
+                var core = await IoC.Archiver.LoadFileAsync(path, model.Source, false);
+                if (core == null) continue;
+
+                if (!core.GetTypesById<HumanoidBodyVariant>().TryGetValue(model.Id, out var variant))
+                    continue;
+
+                var name = VariantNameMatcher.Match(variant.Name);
+                if (name.Success)
+                {
+                    variantMapping.Add(model.Id, BaseGGUUID.FromString(name.Groups["id"].Value));
+                }
+            }
+
+            return variantMapping;
         }
     }
 }
