@@ -65,7 +65,7 @@ namespace AloysAdjustments.Modules.Outfits
             // 
             this.splitContainer.Panel2.Controls.Add(this.lblModels);
             this.splitContainer.Panel2.Controls.Add(this.clbModels);
-            this.splitContainer.Size = new System.Drawing.Size(646, 551);
+            this.splitContainer.Size = new System.Drawing.Size(646, 557);
             this.splitContainer.SplitterDistance = 262;
             this.splitContainer.TabIndex = 3;
             this.splitContainer.Text = "splitContainer1";
@@ -92,7 +92,7 @@ namespace AloysAdjustments.Modules.Outfits
             this.lbOutfits.Location = new System.Drawing.Point(0, 18);
             this.lbOutfits.Name = "lbOutfits";
             this.lbOutfits.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
-            this.lbOutfits.Size = new System.Drawing.Size(259, 533);
+            this.lbOutfits.Size = new System.Drawing.Size(259, 539);
             this.lbOutfits.TabIndex = 1;
             this.lbOutfits.SelectedValueChanged += new System.EventHandler(this.lbOutfits_SelectedValueChanged);
             this.lbOutfits.KeyDown += new System.Windows.Forms.KeyEventHandler(this.lbOutfits_KeyDown);
@@ -117,7 +117,7 @@ namespace AloysAdjustments.Modules.Outfits
             this.clbModels.IntegralHeight = false;
             this.clbModels.Location = new System.Drawing.Point(0, 18);
             this.clbModels.Name = "clbModels";
-            this.clbModels.Size = new System.Drawing.Size(380, 533);
+            this.clbModels.Size = new System.Drawing.Size(380, 539);
             this.clbModels.TabIndex = 0;
             this.clbModels.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.clbModels_ItemCheck);
             // 
@@ -152,7 +152,7 @@ namespace AloysAdjustments.Modules.Outfits
             this.Controls.Add(this.cbShowAll);
             this.Controls.Add(this.splitContainer);
             this.Name = "OutfitsControl";
-            this.Size = new System.Drawing.Size(646, 566);
+            this.Size = new System.Drawing.Size(646, 572);
             this.splitContainer.Panel1.ResumeLayout(false);
             this.splitContainer.Panel1.PerformLayout();
             this.splitContainer.Panel2.ResumeLayout(false);

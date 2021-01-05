@@ -11,6 +11,7 @@ using System.Windows.Forms;
 using AloysAdjustments.Configuration;
 using AloysAdjustments.Logic;
 using AloysAdjustments.Modules;
+using AloysAdjustments.Modules.Misc;
 using AloysAdjustments.Modules.Outfits;
 using Decima;
 using Decima.HZD;
@@ -101,7 +102,8 @@ namespace AloysAdjustments
             Modules = new List<ModuleBase>()
             {
                 new OutfitsControl(),
-                new UpgradesControl()
+                new UpgradesControl(),
+                new MiscControl()
             };
 
             IoC.Notif.ShowStatus("Loading modules...");

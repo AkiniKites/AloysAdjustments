@@ -22,6 +22,10 @@
       "IgnoredUpgrades": [
         "{82882593-A2FA-F541-A3FA-3FE2A2C69165}"
       ]
+    },
+    "Misc": {
+      "IntroFile": "interface/menu/pages/intro.core",
+      "IntroMenuName": "GGLogoAnimation"
     }
   },
   "PrefetchFile": "prefetch/fullgame.prefetch.core",

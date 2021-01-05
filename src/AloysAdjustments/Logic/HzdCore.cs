@@ -24,7 +24,7 @@ namespace AloysAdjustments.Logic
                 {
                     FilePath = file,
                     Source = source,
-                    Components = CoreBinary.Load(file)
+                    Components = CoreBinary.Load(file, true)
                 };
             }
             catch(Exception ex)
@@ -39,7 +39,7 @@ namespace AloysAdjustments.Logic
                 return new HzdCore()
                 {
                     Source = source,
-                    Components = CoreBinary.Load(stream)
+                    Components = CoreBinary.Load(stream, true)
                 };
             }
             catch (Exception ex)
@@ -59,12 +59,19 @@ namespace AloysAdjustments.Logic
             CoreBinary.Save(savePath, Components);
         }
 
-        public Dictionary<BaseGGUUID, T> GetTypes<T>(string typeName = null) where T : RTTIRefObject
+        public Dictionary<BaseGGUUID, T> GetTypesById<T>(string typeName = null) where T : RTTIRefObject
         {
             typeName ??= typeof(T).Name;
 
             return Components.Where(x => x.GetType().Name == typeName)
                 .ToDictionary(x => (BaseGGUUID)((T)x).ObjectUUID, x => (T)x);
+        }
+        public List<T> GetTypes<T>(string typeName = null)
+        {
+            typeName ??= typeof(T).Name;
+
+            return Components.Where(x => x.GetType().Name == typeName)
+                .Cast<T>().ToList();
         }
     }
 }

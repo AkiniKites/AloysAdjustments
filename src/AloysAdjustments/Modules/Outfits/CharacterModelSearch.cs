@@ -100,7 +100,7 @@ namespace AloysAdjustments.Modules.Outfits
         private List<CharacterModel> GetCharacterModels(string file)
         {
             var pack = IoC.Archiver.LoadFile(Configs.GamePackDir, file);
-            var variants = pack.GetTypes<HumanoidBodyVariant>().Values.ToList();
+            var variants = pack.GetTypes<HumanoidBodyVariant>();
             if (!variants.Any())
                 return new List<CharacterModel>();
 
