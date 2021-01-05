@@ -8,8 +8,6 @@ using System.Text;
 using System.Threading.Tasks;
 using AloysAdjustments.Utility;
 using Decima;
-using Decima.DS;
-using FileMode = System.IO.FileMode;
 
 namespace AloysAdjustments.Logic
 {
