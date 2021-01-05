@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -23,18 +24,32 @@ namespace AloysAdjustments.Modules.Outfits
         {
             Search = new CharacterModelSearch();
         }
-
-        public async Task CreatePatch(string patchDir, IEnumerable<CharacterModel> characters, IEnumerable<OutfitFile> maps)
+        
+        public async Task CreatePatch(string patchDir, IEnumerable<OutfitFile> maps, 
+            IEnumerable<CharacterModel> characters, OutfitsLogic outfitsLogic)
         {
             var models = maps.SelectMany(x => x.Outfits).Select(x => x.ModelId).ToHashSet();
             var newCharacters = characters.Where(x => models.Contains(x.Id)).ToList();
 
-            if (newCharacters.Any())
+            if (!newCharacters.Any())
+                return;
+            
+            await AddCharacterReferences(patchDir, newCharacters);
+            await RemoveAloyHair(patchDir);
+            var variantMapping = await FixRagdolls(patchDir, newCharacters);
+
+            await outfitsLogic.CreatePatch(patchDir, maps, map =>
             {
-                await AddCharacterReferences(patchDir, newCharacters);
-                await RemoveAloyHair(patchDir);
-                await FixRagdolls(patchDir, newCharacters);
-            }
+                var mapping = new Dictionary<BaseGGUUID, BaseGGUUID>();
+                foreach (var outfit in map.Outfits)
+                {
+                    if (variantMapping.TryGetValue(outfit.ModelId, out var varId))
+                        mapping.Add(outfit.RefId, varId);
+                    else
+                        mapping.Add(outfit.RefId, outfit.ModelId);
+                }
+                return mapping;
+            });
         }
 
         private async Task AddCharacterReferences(string patchDir, IEnumerable<CharacterModel> characters)
@@ -53,7 +68,7 @@ namespace AloysAdjustments.Modules.Outfits
                 variants.Add(sRef);
             }
 
-            pcCore.Save();
+            await pcCore.Save();
         }
 
         private async Task RemoveAloyHair(string patchDir)
@@ -70,24 +85,52 @@ namespace AloysAdjustments.Modules.Outfits
                 throw new HzdException($"Failed to remove Aloy's hair, unable to find SoldierResource with name: {IoC.Get<OutfitConfig>().AloyCharacterName}");
             
             adult.EntityComponentResources.RemoveAll(x => x.GUID.Equals(hairModel.ObjectUUID));
-            core.Save();
+            await core.Save();
         }
 
-        private async Task FixRagdolls(string patchDir, IEnumerable<CharacterModel> characters)
+        private async Task<Dictionary<BaseGGUUID, BaseGGUUID>> FixRagdolls(
+            string patchDir, IEnumerable<CharacterModel> characters)
         {
-            foreach (var character in characters)
+            var ragdollFile = IoC.Get<OutfitConfig>().RagdollComponentsFile;
+            var variantMapping = new Dictionary<BaseGGUUID, BaseGGUUID>();
+
+            foreach (var group in characters.GroupBy(x => x.Source))
             {
                 var core = await FileManager.ExtractFile(patchDir,
-                    Configs.GamePackDir, character.Source);
+                    Configs.GamePackDir, group.Key);
 
-                var hbv = core.GetTypes<HumanoidBodyVariant>().FirstOrDefault();
+                var variants = core.GetTypesById<HumanoidBodyVariant>();
+                foreach (var character in group)
+                {
+                    var variant = variants[character.Id];
 
-                //core.GetTypes<ScaleEntityFromAnimationComponentResource>().FirstOrDefault().ScaleMessageName = "ScaleTo";
-                hbv.EntityComponentResources.RemoveAt(2);
-                //hbv.EntityComponentResources.Add(comp);
+                    if (variant.EntityComponentResources.Any(x => x.ExternalFile?.Value == ragdollFile))
+                    {
+                        //copy the variant
+                        var newVariant = CopyVariant(variant);
+                        variantMapping.Add(variant.ObjectUUID, newVariant.ObjectUUID);
 
-                core.Save();
+                        //remove npc ragdoll repositioning
+                        newVariant.EntityComponentResources.RemoveAll(x => x.ExternalFile?.Value == ragdollFile);
+
+                        core.Components.Add(newVariant);
+                    }
+                }
+
+                await core.Save();
             }
+
+            return variantMapping;
+        }
+
+        private HumanoidBodyVariant CopyVariant(HumanoidBodyVariant variant)
+        {
+            var newVariant = HzdCloner.Clone(variant);
+
+            newVariant.ObjectUUID = new GGUUID(BaseGGUUID.FromString($"{Guid.NewGuid():B}"));
+            newVariant.Name = $"{variant.Name}-AA-{variant.ObjectUUID}";
+
+            return newVariant;
         }
     }
 }

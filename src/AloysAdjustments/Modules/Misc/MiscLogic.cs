@@ -52,7 +52,7 @@ namespace AloysAdjustments.Modules.Misc
             menu.PropertyAnimations.Clear();
             menu.Blendtime = 0;
 
-            core.Save();
+            await core.Save();
         }
 
         private MenuAnimationResource GetIntroMenu(HzdCore core)

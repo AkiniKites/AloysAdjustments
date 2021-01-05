@@ -121,13 +121,15 @@ namespace AloysAdjustments.Modules.Outfits
                     }
                 }
             }
-
-            await OutfitLogic.CreatePatch(patchDir, updatedMaps);
-
+            
             if (IoC.Settings.SwapCharacterMode)
             {
-                await CharacterLogic.CreatePatch(patchDir,
-                    Models.Cast<CharacterModel>(), updatedMaps);
+                await CharacterLogic.CreatePatch(patchDir, updatedMaps, 
+                    Models.Cast<CharacterModel>(), OutfitLogic);
+            }
+            else
+            {
+                await OutfitLogic.CreatePatch(patchDir, updatedMaps);
             }
         }
 

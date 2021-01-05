@@ -7,6 +7,7 @@ using AloysAdjustments.Configuration;
 using AloysAdjustments.Data;
 using AloysAdjustments.Logic;
 using AloysAdjustments.Utility;
+using Decima;
 using Decima.HZD;
 using Model = AloysAdjustments.Data.Model;
 
@@ -120,13 +121,19 @@ namespace AloysAdjustments.Modules.Outfits
 
         public async Task CreatePatch(string patchDir, IEnumerable<OutfitFile> maps)
         {
+            await CreatePatch(patchDir, maps,
+                map => map.Outfits.ToDictionary(x => x.RefId, x => x.ModelId));
+        }
+        public async Task CreatePatch(string patchDir, IEnumerable<OutfitFile> maps,
+            Func<OutfitFile, Dictionary<BaseGGUUID, BaseGGUUID>> getRefMapping)
+        {
             foreach (var map in maps)
             {
                 //extract original outfit files to temp
                 var core = await FileManager.ExtractFile(patchDir, 
                     Configs.GamePackDir, map.File);
 
-                var refs = map.Outfits.ToDictionary(x => x.RefId, x => x.ModelId);
+                var refs = getRefMapping(map);
 
                 //update references from based on new maps
                 foreach (var reference in core.GetTypes<NodeGraphHumanoidBodyVariantUUIDRefVariableOverride>())
@@ -135,7 +142,7 @@ namespace AloysAdjustments.Modules.Outfits
                         reference.Object.GUID.AssignFromOther(newModel);
                 }
 
-                core.Save();
+                await core.Save();
             }
         }
     }
