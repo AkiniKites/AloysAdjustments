@@ -13,10 +13,13 @@ using AloysAdjustments.Logic;
 using AloysAdjustments.Modules;
 using AloysAdjustments.Modules.Misc;
 using AloysAdjustments.Modules.Outfits;
+using AloysAdjustments.Updates;
 using Decima;
 using Decima.HZD;
 using AloysAdjustments.Utility;
 using Newtonsoft.Json;
+using Onova;
+using Onova.Services;
 using Application = System.Windows.Forms.Application;
 
 namespace AloysAdjustments
@@ -127,6 +130,9 @@ namespace AloysAdjustments
             {
                 tcMain.SelectedIndex = tcMain.TabPages.Count - 1;
             }
+
+            //await new Updater().Cleanup();
+            //await new Updater().PerformUpdate();
         }
 
         private async Task<bool> Initialize()
