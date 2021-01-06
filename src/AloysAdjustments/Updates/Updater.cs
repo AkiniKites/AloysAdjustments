@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using AloysAdjustments.Logic;
 using AloysAdjustments.Utility;
 using Onova;
@@ -76,8 +78,11 @@ namespace AloysAdjustments.Updates
             var repo = UpdateRepoMatcher.Match(IoC.Config.UpdatesRepo.Trim());
             if (!repo.Success)
                 throw new UpdateException($"Update repo is not in the correct format: {IoC.Config.UpdatesRepo}");
-            
+
+            var meta = GetMetaData();
+
             var updater = new UpdateManager(
+                meta,
                 new GithubPackageResolver(repo.Groups["user"].Value, repo.Groups["repo"].Value, "*.zip"),
                 new ReleaseExtractor());
 
@@ -109,6 +114,18 @@ namespace AloysAdjustments.Updates
             return (T)typeof(UpdateManager)
                 .GetField(name, BindingFlags.Instance | BindingFlags.NonPublic)
                 .GetValue(updater);
+        }
+
+        private AssemblyMetadata GetMetaData()
+        {
+            var entry = Assembly.GetEntryAssembly();
+            if (entry == null)
+                throw new InvalidOperationException("Cannot get entry assembly");
+            
+            return new AssemblyMetadata(
+                entry.GetName().Name, 
+                entry.GetName().Version,
+                Process.GetCurrentProcess().MainModule.FileName);
         }
     }
 }
