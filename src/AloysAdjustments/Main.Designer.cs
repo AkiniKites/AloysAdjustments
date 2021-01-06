@@ -43,9 +43,7 @@ namespace AloysAdjustments
             this.btnReset = new System.Windows.Forms.Button();
             this.btnResetSelected = new System.Windows.Forms.Button();
             this.tcMain = new System.Windows.Forms.TabControl();
-            this.tabPage2 = new System.Windows.Forms.TabPage();
             this.ssMain.SuspendLayout();
-            this.tcMain.SuspendLayout();
             this.SuspendLayout();
             // 
             // btnLoadPatch
@@ -123,23 +121,12 @@ namespace AloysAdjustments
             this.tcMain.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.tcMain.Controls.Add(this.tabPage2);
             this.tcMain.Location = new System.Drawing.Point(12, 12);
             this.tcMain.Name = "tcMain";
             this.tcMain.SelectedIndex = 0;
             this.tcMain.Size = new System.Drawing.Size(654, 600);
             this.tcMain.TabIndex = 13;
             this.tcMain.SelectedIndexChanged += new System.EventHandler(this.tcMain_SelectedIndexChanged);
-            // 
-            // tabPage2
-            // 
-            this.tabPage2.Location = new System.Drawing.Point(4, 24);
-            this.tabPage2.Name = "tabPage2";
-            this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage2.Size = new System.Drawing.Size(646, 572);
-            this.tabPage2.TabIndex = 1;
-            this.tabPage2.Text = "Settings";
-            this.tabPage2.UseVisualStyleBackColor = true;
             // 
             // Main
             // 
@@ -157,7 +144,6 @@ namespace AloysAdjustments
             this.Load += new System.EventHandler(this.Main_Load);
             this.ssMain.ResumeLayout(false);
             this.ssMain.PerformLayout();
-            this.tcMain.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -171,7 +157,6 @@ namespace AloysAdjustments
         private System.Windows.Forms.Button btnReset;
         private System.Windows.Forms.Button btnResetSelected;
         private System.Windows.Forms.TabControl tcMain;
-        private System.Windows.Forms.TabPage tabPage2;
         private System.Windows.Forms.ToolStripProgressBar tpbStatus;
     }
 }

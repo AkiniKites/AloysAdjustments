@@ -14,7 +14,6 @@ using AloysAdjustments.Modules;
 using AloysAdjustments.Modules.Misc;
 using AloysAdjustments.Modules.Outfits;
 using AloysAdjustments.UI;
-using AloysAdjustments.Updates;
 using Decima;
 using Decima.HZD;
 using AloysAdjustments.Utility;
@@ -47,13 +46,13 @@ namespace AloysAdjustments
         private void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
             SetStatus($"Error: {e.ExceptionObject}", true);
-            File.AppendAllText("error.log", $"{e.ExceptionObject}\r\n");
+            Errors.WriteError(e.ExceptionObject);
         }
 
         private void Application_ThreadException(object sender, ThreadExceptionEventArgs e)
         {
             SetStatus($"Error: {e.Exception.Message}", true);
-            File.AppendAllText("error.log", $"{e.Exception}\r\n");
+            Errors.WriteError(e.Exception);
         }
 
         public void SetStatus(string text, bool error)

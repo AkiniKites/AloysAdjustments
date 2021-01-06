@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -12,6 +14,7 @@ using AloysAdjustments.Configuration;
 using AloysAdjustments.Logic;
 using AloysAdjustments.Modules;
 using AloysAdjustments.UI;
+using AloysAdjustments.Updates;
 using AloysAdjustments.Utility;
 
 namespace AloysAdjustments
@@ -22,9 +25,14 @@ namespace AloysAdjustments
 
         public override string ModuleName => "Settings";
 
+        public Updater Updater { get; }
+
         public SettingsControl()
         {
             InitializeComponent();
+
+            Updater = new Updater();
+            UpdateVersion();
         }
 
         public override Task LoadPatch(string path) => throw new NotImplementedException();
@@ -36,6 +44,7 @@ namespace AloysAdjustments
 
             UpdatePatchStatus();
             UpdateCacheStatus();
+            CheckUpdates().ConfigureAwait(false);
 
             tbGameDir.EnableTypingEvent = false;
             tbGameDir.Text = IoC.Settings.GamePath;
@@ -163,6 +172,84 @@ namespace AloysAdjustments
                     btnClearCache.Enabled = size > 0;
                 });
             });
+        }
+
+        private void UpdateVersion()
+        {
+            var version = Assembly.GetEntryAssembly()?.GetName().Version;
+            lblCurrentVersion.Text = version?.ToString(2) ?? "Unknown";
+        }
+
+        private async Task CheckUpdates()
+        {
+            try
+            {
+                lblUpdateStatus.ForeColor = SystemColors.ControlText;
+                lblUpdateStatus.Text = $"Checking for latest version...";
+
+                try
+                {
+                    await Updater.Cleanup();
+                }
+                catch { }
+
+                var updates = await Updater.CheckForUpdates();
+                
+                if (updates.CanUpdate)
+                {
+                    lblUpdateStatus.Text = "New version available";
+                    btnUpdates.Text = "Get Update";
+                }
+                else
+                {
+                    lblUpdateStatus.Text = "Running latest version";
+                    btnUpdates.Text = "Check Update";
+                }
+
+                lblLatestVersion.Text = updates.LastVersion?.ToString() ?? "Unknown";
+            }
+            catch (Exception ex)
+            {
+                lblUpdateStatus.ForeColor = UIColors.ErrorColor;
+                lblUpdateStatus.Text = $"Error: {ex.Message}";
+                lblLatestVersion.Text = "Unknown";
+                Errors.WriteError(ex);
+            }
+        }
+
+        private async void btnUpdates_Click(object sender, EventArgs e)
+        {
+            if (Updater.Prepared)
+            {
+                Environment.Exit(0);
+                return;
+            }
+
+            if (!Updater.Status.CanUpdate)
+            {
+                await CheckUpdates();
+                return;
+            }
+            
+            lblUpdateStatus.ForeColor = SystemColors.ControlText;
+            lblUpdateStatus.Text = $"Updating...";
+            IoC.Notif.ShowUnknownProgress();
+
+            try
+            {
+                await Updater.PrepareUpdate();
+
+                lblUpdateStatus.Text = "Update ready, restart to install";
+                btnUpdates.Text = "Restart";
+            }
+            catch(Exception ex)
+            {
+                lblUpdateStatus.ForeColor = UIColors.ErrorColor;
+                lblUpdateStatus.Text = $"Error: {ex.Message}";
+                Errors.WriteError(ex);
+            }
+
+            IoC.Notif.HideProgress();
         }
     }
 }

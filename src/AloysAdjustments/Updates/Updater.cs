@@ -16,17 +16,33 @@ namespace AloysAdjustments.Updates
     {
         private const string UpdateDir = "update";
         private readonly Regex UpdateRepoMatcher = new Regex("^(?<user>.+?)[\\/](?<repo>.+)$");
+        
+        public CheckForUpdatesResult Status { get; private set; }
+        public bool Prepared { get; private set; }
+
+        public Updater()
+        {
+            Status = new CheckForUpdatesResult(new List<Version>(), null, false);
+        }
 
         public async Task<CheckForUpdatesResult> CheckForUpdates()
         {
             using var manager = CreateUpdater();
-            return await manager.CheckForUpdatesAsync();
+            Status = await manager.CheckForUpdatesAsync();
+            return Status;
         }
 
-        public async Task PerformUpdate()
+        public async Task PrepareUpdate()
         {
             using var manager = CreateUpdater();
-            await manager.CheckPerformUpdateAsync();
+
+            Status = await manager.CheckForUpdatesAsync();
+            if (Status.CanUpdate)
+            {
+                await manager.PrepareUpdateAsync(Status.LastVersion);
+                manager.LaunchUpdater(Status.LastVersion);
+                Prepared = true;
+            }
         }
 
         public async Task Cleanup()
