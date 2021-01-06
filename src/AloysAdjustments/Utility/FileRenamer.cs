@@ -9,8 +9,8 @@ namespace AloysAdjustments.Utility
 {
     public class FileRenamer : IDisposable
     {
-        private string _path;
-        private string _tempPath;
+        private readonly string _path;
+        private readonly string _tempPath;
 
         public FileRenamer(string path)
         {
