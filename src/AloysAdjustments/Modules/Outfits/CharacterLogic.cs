@@ -37,7 +37,7 @@ namespace AloysAdjustments.Modules.Outfits
             if (!newCharacters.Any())
                 return;
             
-            await RemoveAloyHair(patchDir);
+            await RemoveAloyComponents(patchDir);
             var variantMapping = await FixRagdolls(patchDir, newCharacters);
 
             await AddCharacterReferences(patchDir, newCharacters, variantMapping);
@@ -80,21 +80,33 @@ namespace AloysAdjustments.Modules.Outfits
             await pcCore.Save();
         }
 
-        private async Task RemoveAloyHair(string patchDir)
+        private async Task RemoveAloyComponents(string patchDir)
         {
-            var core = await FileManager.ExtractFile(patchDir,
+            var charCore = await FileManager.ExtractFile(patchDir,
                 Configs.GamePackDir, IoC.Get<OutfitConfig>().PlayerCharacterFile);
 
-            var hairModel = core.GetTypes<HairModelComponentResource>().FirstOrDefault();
+            var hairModel = charCore.GetTypes<HairModelComponentResource>().FirstOrDefault();
             if (hairModel == null)
                 throw new HzdException($"Failed to remove Aloy's hair, unable to find HairModelComponentResource");
 
-            var adult = core.GetTypes<SoldierResource>().FirstOrDefault(x=>x.Name == IoC.Get<OutfitConfig>().AloyCharacterName);
+            var adult = charCore.GetTypes<SoldierResource>().FirstOrDefault(x=>x.Name == IoC.Get<OutfitConfig>().AloyCharacterName);
             if (adult == null)
                 throw new HzdException($"Failed to remove Aloy's hair, unable to find SoldierResource with name: {IoC.Get<OutfitConfig>().AloyCharacterName}");
+
+            var compCore = await IoC.Archiver.LoadFileAsync(Configs.GamePackDir, IoC.Get<OutfitConfig>().PlayerComponentsFile);
+
+            var facePaint = compCore.GetTypes<FacialPaintComponentResource>().FirstOrDefault();
+            if (facePaint == null)
+                throw new HzdException($"Failed to remove Aloy's facepaint overrides, unable to find FacialPaintComponentResource");
             
-            adult.EntityComponentResources.RemoveAll(x => x.GUID.Equals(hairModel.ObjectUUID));
-            await core.Save();
+            var toRemove = new[] { 
+                hairModel.ObjectUUID,
+                facePaint.ObjectUUID
+            }.ToHashSet();
+
+            adult.EntityComponentResources.RemoveAll(x => toRemove.Contains(x.GUID));
+
+            await charCore.Save();
         }
 
         public async Task<bool> IsCharacterModeFile(string path)
