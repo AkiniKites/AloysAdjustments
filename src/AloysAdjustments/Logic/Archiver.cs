@@ -46,17 +46,17 @@ namespace AloysAdjustments.Logic
         {
             ValidatePackager();
 
-            await Task.Run(() =>
+            await Async.Run(() =>
             {
                 using var fs = File.OpenWrite(output);
                 if (!TryExtractFile(dir, fs, source))
                     throw new HzdException($"Unable to extract file, file not found: {source}");
             });
         }
-
+        
         public async Task<HzdCore> LoadFileAsync(string dir, string file, bool throwError = true)
         {
-            return await Task.Run(() => LoadFile(dir, file, throwError));
+            return await Async.Run(() => LoadFile(dir, file, throwError));
         }
         public HzdCore LoadFile(string dir, string file, bool throwError = true)
         {
@@ -206,7 +206,7 @@ namespace AloysAdjustments.Logic
             dir = Path.GetFullPath(dir);
             output = Path.GetFullPath(output);
 
-            await Task.Run(() =>
+            await Async.Run(() =>
             {
                 var files = Directory.GetFiles(dir, "*", SearchOption.AllDirectories);
                 var fileNames = files.Select(x => x.Substring(dir.Length + 1).Replace("\\", "/")).ToArray();
@@ -224,7 +224,7 @@ namespace AloysAdjustments.Logic
             if (!File.Exists(libPath))
                 throw new HzdException($"Unable to find archiver support library in: {IoC.Settings.GamePath}");
             
-            await Task.Run(() => File.Copy(libPath, IoC.Config.ArchiverLib, true));
+            await Async.Run(() => File.Copy(libPath, IoC.Config.ArchiverLib, true));
         }
     }
 }

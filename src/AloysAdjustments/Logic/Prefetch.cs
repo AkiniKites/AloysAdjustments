@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using AloysAdjustments.Configuration;
+using AloysAdjustments.Utility;
 using Decima.HZD;
 
 namespace AloysAdjustments.Logic
@@ -13,7 +14,7 @@ namespace AloysAdjustments.Logic
     {
         public static async Task<Dictionary<string, int>> LoadPrefetchAsync()
         {
-            return await Task.Run(LoadPrefetch);
+            return await Async.Run(LoadPrefetch);
         }
         public static Dictionary<string, int> LoadPrefetch()
         {

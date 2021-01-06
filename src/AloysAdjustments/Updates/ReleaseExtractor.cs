@@ -16,7 +16,7 @@ namespace AloysAdjustments.Updates
         public async Task ExtractPackageAsync(string sourceFilePath, string destDirPath, 
             IProgress<double> progress = null, CancellationToken cancellationToken = new CancellationToken())
         {
-            await Task.Run(() =>
+            await Async.Run(() =>
             {
                 ExtractRelease(sourceFilePath, destDirPath);
             }, cancellationToken);

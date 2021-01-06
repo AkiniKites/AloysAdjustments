@@ -21,16 +21,19 @@ namespace AloysAdjustments.Modules
             Reset = new ControlRelay();
             ResetSelected = new ControlRelay();
 
-            Reset.Click += Reset_Click;
-            ResetSelected.Click += ResetSelected_Click;
+            Reset.Click += Reset_ClickCommand;
+            ResetSelected.Click += ResetSelected_ClickCommand;
         }
 
         public abstract Task LoadPatch(string path);
         public abstract Task CreatePatch(string patchDir);
         public abstract Task Initialize();
         public virtual bool ValidateChanges() => true;
+        
+        private async void Reset_ClickCommand() => await Relay.To(Reset_Click);
+        protected virtual Task Reset_Click() => Task.CompletedTask;
 
-        protected virtual void Reset_Click() { }
-        protected virtual void ResetSelected_Click() { }
+        private async void ResetSelected_ClickCommand() => await Relay.To(ResetSelected_Click);
+        protected virtual Task ResetSelected_Click() => Task.CompletedTask;
     }
 }

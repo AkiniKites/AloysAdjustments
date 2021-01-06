@@ -52,7 +52,7 @@ namespace AloysAdjustments.Logic
 
         public async Task Save(string filePath = null)
         {
-            await Task.Run(() =>
+            await Async.Run(() =>
             {
                 var savePath = filePath ?? FilePath;
                 if (savePath == null)

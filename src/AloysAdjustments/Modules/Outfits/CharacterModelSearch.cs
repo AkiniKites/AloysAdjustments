@@ -37,7 +37,7 @@ namespace AloysAdjustments.Modules.Outfits
 
         public async Task<List<CharacterModel>> GetCharacterModels(bool all = false)
         {
-            var models = await Task.Run(() =>
+            var models = await Async.Run(() =>
             {
                 if (_cache.TryLoadCache(out var cached))
                 {

@@ -13,7 +13,6 @@ if exist out rmdir /s/q %out%
 dotnet publish src\AloysAdjustments\AloysAdjustments.csproj -c Release -r win-x64 -o %out% --self-contained false -p:PublishSingleFile=true -p:AssemblyVersion=%version% -p:FileVersion=%version%
 
 del %out%\*.pdb
-del %out%\settings.json
 
 set pack="%out%\%publishName%-v%version%.zip"
 
@@ -31,6 +30,6 @@ if not exist %sz% (
 %sz% a %pack% .\%out%\*
 
 echo Cleaup
-rmdir /s/q "%out%\%publishName%"
+rem rmdir /s/q "%out%\%publishName%"
 
 echo Publish complete

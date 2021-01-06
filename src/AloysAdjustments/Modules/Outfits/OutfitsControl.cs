@@ -326,7 +326,7 @@ namespace AloysAdjustments.Modules.Outfits
             IoC.Notif.HideProgress();
         }
 
-        protected override async void Reset_Click()
+        protected override async Task Reset_Click()
         {
             using var _ = new ControlLock(Reset);
 
@@ -334,10 +334,10 @@ namespace AloysAdjustments.Modules.Outfits
             IoC.Notif.ShowStatus("Reset complete");
         }
 
-        protected override void ResetSelected_Click()
+        protected override Task ResetSelected_Click()
         {
             if (lbOutfits.SelectedIndex < 0)
-                return;
+                return Task.CompletedTask;
 
             var defaultOutfits = DefaultMaps.SelectMany(x => x.Outfits).ToHashSet();
             var selected = lbOutfits.SelectedItems.Cast<Outfit>().ToList();
@@ -353,6 +353,8 @@ namespace AloysAdjustments.Modules.Outfits
 
             lbOutfits.Invalidate();
             lbOutfits_SelectedValueChanged(lbOutfits, EventArgs.Empty);
+
+            return Task.CompletedTask;
         }
 
         private void RefreshLists()

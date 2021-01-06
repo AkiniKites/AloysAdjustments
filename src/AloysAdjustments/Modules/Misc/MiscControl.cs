@@ -77,7 +77,7 @@ namespace AloysAdjustments.Modules.Misc
             IoC.Notif.HideProgress();
         }
 
-        protected override async void Reset_Click()
+        protected override async Task Reset_Click()
         {
             using var _ = new ControlLock(Reset);
 

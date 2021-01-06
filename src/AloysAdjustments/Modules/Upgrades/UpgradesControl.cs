@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Text;
@@ -10,12 +8,10 @@ using System.Windows.Forms;
 using AloysAdjustments.Configuration;
 using AloysAdjustments.Data;
 using AloysAdjustments.Logic;
-using AloysAdjustments.Modules.Upgrades;
-using AloysAdjustments.UI;
 using AloysAdjustments.Utility;
 using Decima;
 
-namespace AloysAdjustments.Modules
+namespace AloysAdjustments.Modules.Upgrades
 {
     public partial class UpgradesControl : ModuleBase
     {
@@ -129,7 +125,7 @@ namespace AloysAdjustments.Modules
             dgvUpgrades.DataSource = NewUpgrades;
         }
 
-        protected override async void Reset_Click()
+        protected override async Task Reset_Click()
         {
             using var _ = new ControlLock(Reset);
 
@@ -138,7 +134,7 @@ namespace AloysAdjustments.Modules
             IoC.Notif.ShowStatus("Reset complete");
         }
 
-        protected override void ResetSelected_Click()
+        protected override Task ResetSelected_Click()
         {
             if (dgvUpgrades.SelectedRows.Count > 0)
             {
@@ -151,6 +147,8 @@ namespace AloysAdjustments.Modules
             }
 
             dgvUpgrades.Refresh();
+
+            return Task.CompletedTask;
         }
 
         public async Task UpdateDisplayNames(IEnumerable<Upgrade> upgrades)

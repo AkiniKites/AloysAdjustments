@@ -55,7 +55,7 @@ namespace AloysAdjustments
             this.btnLoadPatch.TabIndex = 0;
             this.btnLoadPatch.Text = "Load";
             this.btnLoadPatch.UseVisualStyleBackColor = true;
-            this.btnLoadPatch.Click += new System.EventHandler(this.btnLoadPatch_Click);
+            this.btnLoadPatch.Click += new System.EventHandler(this.btnLoadPatch_ClickCommand);
             // 
             // ssMain
             // 
@@ -91,7 +91,7 @@ namespace AloysAdjustments
             this.btnPatch.TabIndex = 4;
             this.btnPatch.Text = "Install Pack";
             this.btnPatch.UseVisualStyleBackColor = true;
-            this.btnPatch.Click += new System.EventHandler(this.btnPatch_Click);
+            this.btnPatch.Click += new System.EventHandler(this.btnPatch_ClickCommand);
             // 
             // btnReset
             // 
@@ -142,7 +142,7 @@ namespace AloysAdjustments
             this.Name = "Main";
             this.Text = "Aloy\'s Adjustments";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Main_FormClosing);
-            this.Load += new System.EventHandler(this.Main_Load);
+            this.Load += new System.EventHandler(this.Main_LoadCommand);
             this.ssMain.ResumeLayout(false);
             this.ssMain.PerformLayout();
             this.ResumeLayout(false);

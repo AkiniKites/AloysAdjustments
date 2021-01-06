@@ -82,7 +82,8 @@ namespace AloysAdjustments.Modules.Settings
             }
         }
 
-        private async void btnArchiver_Click(object sender, EventArgs e)
+        private async void btnArchiver_ClickCommand(object sender, EventArgs e) => await Relay.To(sender, e, btnArchiver_Click);
+        private async Task btnArchiver_Click(object sender, EventArgs e)
         {
             using var _ = new ControlLock(btnArchiver);
 
@@ -97,7 +98,8 @@ namespace AloysAdjustments.Modules.Settings
                 SettingsOkay?.Invoke();
         }
 
-        private async void btnClearCache_Click(object sender, EventArgs e)
+        private async void btnClearCache_ClickCommand(object sender, EventArgs e) => await Relay.To(sender, e, btnClearCache_Click);
+        private async Task btnClearCache_Click(object sender, EventArgs e)
         {
             await FileManager.Cleanup(IoC.Config.CachePath);
             UpdateCacheStatus();
@@ -155,7 +157,7 @@ namespace AloysAdjustments.Modules.Settings
 
         private void UpdateCacheStatus()
         {
-            Task.Run(() =>
+            Async.Run(() =>
             {
                 var size = 0L;
                 var dir = new DirectoryInfo(IoC.Config.CachePath);
@@ -167,13 +169,13 @@ namespace AloysAdjustments.Modules.Settings
                     lblCacheSize.Text = $"{(size / 1024):n0} KB";
                     btnClearCache.Enabled = size > 0;
                 });
-            });
+            }).ConfigureAwait(false);
         }
 
         private void UpdateVersion()
         {
             var version = Assembly.GetEntryAssembly()?.GetName().Version;
-            lblCurrentVersion.Text = version?.ToString(2) ?? "Unknown";
+            lblCurrentVersion.Text = version?.ToString(3) ?? "Unknown";
         }
 
         private async Task CheckUpdates()
@@ -213,7 +215,8 @@ namespace AloysAdjustments.Modules.Settings
             }
         }
 
-        private async void btnUpdates_Click(object sender, EventArgs e)
+        private async void btnUpdates_ClickCommand(object sender, EventArgs e) => await Relay.To(sender, e, btnUpdates_Click);
+        private async Task btnUpdates_Click(object sender, EventArgs e)
         {
             if (Updater.Prepared)
             {

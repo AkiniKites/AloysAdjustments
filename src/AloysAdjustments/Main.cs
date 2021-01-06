@@ -14,6 +14,7 @@ using AloysAdjustments.Modules;
 using AloysAdjustments.Modules.Misc;
 using AloysAdjustments.Modules.Outfits;
 using AloysAdjustments.Modules.Settings;
+using AloysAdjustments.Modules.Upgrades;
 using AloysAdjustments.UI;
 using Decima;
 using Decima.HZD;
@@ -82,7 +83,8 @@ namespace AloysAdjustments
             });
         }
 
-        private async void Main_Load(object sender, EventArgs e)
+        private async void Main_LoadCommand(object sender, EventArgs e) => await Relay.To(sender, e, Main_Load);
+        private async Task Main_Load(object sender, EventArgs e)
         {
             IoC.Notif.ShowStatus("Loading config...");
             await LoadConfigs();
@@ -102,7 +104,7 @@ namespace AloysAdjustments
             foreach (var module in Modules.AsEnumerable().Concat(new[] { Settings }).Reverse())
             {
                 var tab = new TabPage();
-                
+
                 tab.UseVisualStyleBackColor = true;
                 tab.Text = module.ModuleName;
                 tab.Controls.Add(module);
@@ -112,25 +114,23 @@ namespace AloysAdjustments
             }
 
             await Settings.Initialize();
-            Settings.SettingsOkay += Settings_SettingsOkay;
+            Settings.SettingsOkay += Settings_SettingsOkayCommand;
 
             tcMain.SelectedIndex = 0;
-            if (!await Initialize())
+            if (!await InitializeModules())
             {
                 tcMain.SelectedIndex = tcMain.TabPages.Count - 1;
             }
-
-            //await new Updater().Cleanup();
-            //await new Updater().PerformUpdate();
         }
 
-        private async void Settings_SettingsOkay()
+        private async void Settings_SettingsOkayCommand() => await Relay.To(Settings_SettingsOkay);
+        private async Task Settings_SettingsOkay()
         {
             if (!_initialized)
-                await Initialize();
+                await InitializeModules();
         }
 
-        private async Task<bool> Initialize()
+        private async Task<bool> InitializeModules()
         {
             if (!Settings.ValidateAll())
                 return false;
@@ -155,7 +155,8 @@ namespace AloysAdjustments
             return true;
         }
 
-        private async void btnPatch_Click(object sender, EventArgs e)
+        private async void btnPatch_ClickCommand(object sender, EventArgs e) => await Relay.To(sender, e, btnPatch_Click);
+        private async Task btnPatch_Click(object sender, EventArgs e)
         {
             using var _ = new ControlLock(btnPatch);
 
@@ -204,7 +205,8 @@ namespace AloysAdjustments
             IoC.Notif.ShowStatus("Patch installed");
         }
 
-        private async void btnLoadPatch_Click(object sender, EventArgs e)
+        private async void btnLoadPatch_ClickCommand(object sender, EventArgs e) => await Relay.To(sender, e, btnLoadPatch_Click);
+        private async Task btnLoadPatch_Click(object sender, EventArgs e)
         {
             using var _ = new ControlLock(btnLoadPatch);
             using var ofd = new OpenFileDialog
@@ -239,7 +241,7 @@ namespace AloysAdjustments
         public async Task LoadConfigs()
         {
             var json = await File.ReadAllTextAsync(ConfigPath);
-            IoC.Bind(await Task.Run(() => JsonConvert.DeserializeObject<Config>(json)));
+            IoC.Bind(await Async.Run(() => JsonConvert.DeserializeObject<Config>(json)));
             IoC.Bind(await SettingsManager.Load());
         }
 

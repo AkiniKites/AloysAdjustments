@@ -86,7 +86,7 @@ namespace AloysAdjustments.Modules.Settings
             this.btnClearCache.TabIndex = 13;
             this.btnClearCache.Text = "Clear Cache";
             this.btnClearCache.UseVisualStyleBackColor = true;
-            this.btnClearCache.Click += new System.EventHandler(this.btnClearCache_Click);
+            this.btnClearCache.Click += new System.EventHandler(this.btnClearCache_ClickCommand);
             // 
             // lblCacheSize
             // 
@@ -185,7 +185,7 @@ namespace AloysAdjustments.Modules.Settings
             this.btnArchiver.TabIndex = 5;
             this.btnArchiver.Text = "Get Oodle DLL";
             this.btnArchiver.UseVisualStyleBackColor = true;
-            this.btnArchiver.Click += new System.EventHandler(this.btnArchiver_Click);
+            this.btnArchiver.Click += new System.EventHandler(this.btnArchiver_ClickCommand);
             // 
             // label3
             // 
@@ -290,7 +290,7 @@ namespace AloysAdjustments.Modules.Settings
             this.btnUpdates.TabIndex = 5;
             this.btnUpdates.Text = "Check Updates";
             this.btnUpdates.UseVisualStyleBackColor = true;
-            this.btnUpdates.Click += new System.EventHandler(this.btnUpdates_Click);
+            this.btnUpdates.Click += new System.EventHandler(this.btnUpdates_ClickCommand);
             // 
             // label4
             // 

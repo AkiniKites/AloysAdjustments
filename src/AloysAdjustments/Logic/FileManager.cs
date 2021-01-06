@@ -54,12 +54,12 @@ namespace AloysAdjustments.Logic
 
             var dest = Path.Combine(packDir, Path.GetFileName(patchFile));
 
-            await Task.Run(() => File.Copy(patchFile, dest, true));
+            await Async.Run(() => File.Copy(patchFile, dest, true));
         }
 
         public static async Task Cleanup(string path)
         {
-            await Task.Run(() =>
+            await Async.Run(() =>
             {
                 if (Directory.Exists(path))
                     Directory.Delete(path, true);
@@ -68,7 +68,7 @@ namespace AloysAdjustments.Logic
 
         public static async Task CleanupFile(string path, bool tempFilesOnly)
         {
-            await Task.Run(() =>
+            await Async.Run(() =>
             {
                 var filename = Path.GetFileName(path);
                 var matcher = new Regex($"^{Regex.Escape(filename)}{GuidPattern}$", RegexOptions.IgnoreCase);

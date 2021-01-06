@@ -6,6 +6,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using AloysAdjustments.Logic;
+using AloysAdjustments.Utility;
 using Onova;
 using Onova.Models;
 using Onova.Services;
@@ -57,7 +58,7 @@ namespace AloysAdjustments.Updates
 
         public async Task Cleanup()
         {
-            await Task.Run(() =>
+            await Async.Run(() =>
             {
                 try
                 {
