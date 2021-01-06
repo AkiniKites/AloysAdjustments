@@ -4,6 +4,7 @@
       "AloyCharacterName": "AloyPlayerCharacter",
       "PlayerComponentsFile": "entities/characters/humanoids/player/player_components.core",
       "PlayerCharacterFile": "entities/characters/humanoids/player/playercharacter.core",
+      "RagdollComponentsFile": "entities/characters/components/humanoidragdollcomponents",
       "OutfitFiles": [
         "entities/armor/newgameplus/ng_outfits.core",
         "entities/armor/outfits/outfits.core",

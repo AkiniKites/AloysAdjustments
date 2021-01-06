@@ -77,18 +77,25 @@ namespace AloysAdjustments.Logic
         private bool TryExtractFile(string path, Stream stream, string file)
         {
             PackList packs;
+            bool isDir;
 
             if (!file.EndsWith(".core", StringComparison.OrdinalIgnoreCase))
                 file += ".core";
 
             if (Directory.Exists(path))
+            {
                 packs = GetPackFiles(path, PackExt);
+                isDir = true;
+            }
             else if (File.Exists(path))
-                packs = new PackList(new []{ path });
+            {
+                packs = new PackList(new[] { path });
+                isDir = false;
+            }
             else
                 throw new HzdException($"Unable to extract file, source path not found: {path}");
 
-            var fileMap = BuildFileMap(packs);
+            var fileMap = BuildFileMap(packs, isDir);
 
             var hash = Packfile.GetHashForPath(file);
             if (!fileMap.TryGetValue(hash, out var packFile))
@@ -167,9 +174,9 @@ namespace AloysAdjustments.Logic
             return loadedPacks;
         }
 
-        private Dictionary<ulong, string> BuildFileMap(PackList packFiles)
+        private Dictionary<ulong, string> BuildFileMap(PackList packFiles, bool useCache)
         {
-            if (_packCache.TryGetValue(packFiles, out var files))
+            if (useCache && _packCache.TryGetValue(packFiles, out var files))
                 return files;
 
             files = new Dictionary<ulong, string>();
@@ -184,7 +191,8 @@ namespace AloysAdjustments.Logic
                 }
             }
 
-            _packCache.TryAdd(packFiles, files);
+            if (useCache)
+                _packCache.TryAdd(packFiles, files);
             return files;
         }
 

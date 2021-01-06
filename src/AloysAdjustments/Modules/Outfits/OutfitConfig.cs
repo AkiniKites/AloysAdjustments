@@ -9,6 +9,7 @@ namespace AloysAdjustments.Modules.Outfits
         public string AloyCharacterName { get; set; }
         public string PlayerComponentsFile { get; set; }
         public string PlayerCharacterFile { get; set; }
+        public string RagdollComponentsFile { get; set; }
         public string[] OutfitFiles { get; set; }
 
         public string HumanoidMatcher { get; set; }

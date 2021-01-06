@@ -88,7 +88,7 @@ namespace AloysAdjustments.Modules.Upgrades
                 else if (invMod.ToolsCapacityIncrease > 0) invMod.ToolsCapacityIncrease = upgrade.Value;
             }
 
-            core.Save();
+            await core.Save();
         }
     }
 }

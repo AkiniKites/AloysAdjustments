@@ -11,16 +11,11 @@ namespace AloysAdjustments.Data
     {
         public BaseGGUUID Id { get; set; }
         public string Name { get; set; }
+        public string Source { get; set; }
         public string DisplayName { get; set; }
 
         public override string ToString()
         {
-            var key = "playercostume_";
-            var idx = Name.LastIndexOf(key);
-
-            if (idx >= 0)
-                return Name.Substring(idx + key.Length);
-
             return Name;
         }
 

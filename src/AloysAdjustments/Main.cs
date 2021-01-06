@@ -193,7 +193,7 @@ namespace AloysAdjustments
 
                 oldPatch.Delete();
 
-                await FileManager.Cleanup(IoC.Config.TempPath);
+                //await FileManager.Cleanup(IoC.Config.TempPath);
 
                 Settings.UpdatePatchStatus();
             }

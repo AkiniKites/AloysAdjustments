@@ -52,7 +52,7 @@ namespace AloysAdjustments.Logic
             }
 
             if (changed)
-                core.Save();
+                await core.Save();
             else
                 File.Delete(core.FilePath);
         }

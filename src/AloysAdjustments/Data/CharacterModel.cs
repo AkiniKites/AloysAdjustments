@@ -7,6 +7,6 @@ namespace AloysAdjustments.Data
 {
     public class CharacterModel : Model
     {
-        public string Source { get; set; }
+        public BaseGGUUID NewVariant { get; set; }
     }
 }

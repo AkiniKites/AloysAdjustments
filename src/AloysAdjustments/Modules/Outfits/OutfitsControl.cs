@@ -9,6 +9,7 @@ using AloysAdjustments.Configuration;
 using AloysAdjustments.Data;
 using AloysAdjustments.Logic;
 using AloysAdjustments.Utility;
+using Decima;
 
 namespace AloysAdjustments.Modules.Outfits
 {
@@ -38,9 +39,7 @@ namespace AloysAdjustments.Modules.Outfits
             CharacterLogic = new CharacterLogic();
 
             InitializeComponent();
-
-            cbShowAll.Checked = IoC.Settings.ShowAllCharacters;
-
+            
             UpdateMode();
             SetupLists();
 
@@ -85,19 +84,34 @@ namespace AloysAdjustments.Modules.Outfits
 
         public override async Task LoadPatch(string path)
         {
+            IoC.Notif.ShowStatus("Loading outfits...");
+
+            var characterMode = await CharacterLogic.IsCharacterModeFile(path);
+            var loadedMaps = await OutfitLogic.GenerateOutfitFiles(path, false);
+            
+            var newOutfits = loadedMaps.SelectMany(x => x.Outfits).ToHashSet();
+
+            if (!loadedMaps.Any())
+                return;
+
+            IoC.Settings.SwapCharacterMode = characterMode;
+            UpdateMode();
+
             await Initialize();
 
-            IoC.Notif.ShowStatus("Loading outfits...");
-            NewMaps = await OutfitLogic.GenerateOutfitFilesFromPath(path, false);
-
-            var newOutfits = NewMaps.SelectMany(x => x.Outfits).ToHashSet();
+            var variantMapping = new Dictionary<BaseGGUUID, BaseGGUUID>();
+            if (IoC.Settings.SwapCharacterMode)
+                variantMapping = await CharacterLogic.GetVariantMapping(path, OutfitLogic);
 
             foreach (var outfit in Outfits)
             {
                 if (newOutfits.TryGetValue(outfit, out var newOutfit))
                 {
-                    outfit.Modified = !outfit.ModelId.Equals(newOutfit.ModelId);
-                    outfit.ModelId.AssignFromOther(newOutfit.ModelId);
+                    if (!variantMapping.TryGetValue(newOutfit.ModelId, out var varId))
+                        varId = newOutfit.ModelId;
+
+                    outfit.Modified = !outfit.ModelId.Equals(varId);
+                    outfit.ModelId.AssignFromOther(varId);
                 }
             }
 
@@ -121,13 +135,15 @@ namespace AloysAdjustments.Modules.Outfits
                     }
                 }
             }
-
-            await OutfitLogic.CreatePatch(patchDir, updatedMaps);
-
+            
             if (IoC.Settings.SwapCharacterMode)
             {
-                await CharacterLogic.CreatePatch(patchDir,
-                    Models.Cast<CharacterModel>(), updatedMaps);
+                await CharacterLogic.CreatePatch(patchDir, updatedMaps, 
+                    Models.Cast<CharacterModel>(), OutfitLogic);
+            }
+            else
+            {
+                await OutfitLogic.CreatePatch(patchDir, updatedMaps);
             }
         }
 
@@ -370,9 +386,12 @@ namespace AloysAdjustments.Modules.Outfits
         private void UpdateMode()
         {
             var charMode = IoC.Settings.SwapCharacterMode;
+
             btnMode.Text = charMode ? "Character Swaps" : "Armor Swaps";
             lblModels.Text = charMode ? "Character Mapping" : "Model Mapping";
+
             cbShowAll.Visible = charMode;
+            cbShowAll.Checked = IoC.Settings.ShowAllCharacters;
         }
     }
 }
