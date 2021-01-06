@@ -15,7 +15,7 @@ dotnet publish src\AloysAdjustments\AloysAdjustments.csproj -c Release -r win-x6
 del %out%\*.pdb
 del %out%\settings.json
 
-set pack="%out%\%publishName%-%version%.zip"
+set pack="%out%\%publishName%-v%version%.zip"
 
 echo Packaging to %pack%
 
