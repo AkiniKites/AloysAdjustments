@@ -13,6 +13,7 @@ using AloysAdjustments.Logic;
 using AloysAdjustments.Modules;
 using AloysAdjustments.Modules.Misc;
 using AloysAdjustments.Modules.Outfits;
+using AloysAdjustments.Modules.Settings;
 using AloysAdjustments.UI;
 using Decima;
 using Decima.HZD;
@@ -291,6 +292,11 @@ namespace AloysAdjustments
         {
             if (tcMain.SelectedIndex >= 0 && tcMain.SelectedIndex < Modules.Count)
                 Modules[tcMain.SelectedIndex].Reset.OnClick();
+        }
+
+        private void Main_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            Settings.Updater?.TryLaunchUpdater(false);
         }
     }
 }

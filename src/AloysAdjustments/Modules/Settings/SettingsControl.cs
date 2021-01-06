@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -12,12 +9,11 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using AloysAdjustments.Configuration;
 using AloysAdjustments.Logic;
-using AloysAdjustments.Modules;
 using AloysAdjustments.UI;
 using AloysAdjustments.Updates;
 using AloysAdjustments.Utility;
 
-namespace AloysAdjustments
+namespace AloysAdjustments.Modules.Settings
 {
     public partial class SettingsControl : ModuleBase
     {
@@ -221,6 +217,7 @@ namespace AloysAdjustments
         {
             if (Updater.Prepared)
             {
+                Updater.TryLaunchUpdater(true);
                 Environment.Exit(0);
                 return;
             }
@@ -232,14 +229,14 @@ namespace AloysAdjustments
             }
             
             lblUpdateStatus.ForeColor = SystemColors.ControlText;
-            lblUpdateStatus.Text = $"Updating...";
-            IoC.Notif.ShowUnknownProgress();
+            lblUpdateStatus.Text = $"Downloading update...";
+            IoC.Notif.ShowProgress(0, 100);
 
             try
             {
-                await Updater.PrepareUpdate();
+                await Updater.PrepareUpdate(x => IoC.Notif.ShowProgress((int)(x * 100), 100));
 
-                lblUpdateStatus.Text = "Update ready, restart to install";
+                lblUpdateStatus.Text = "Download complete, restart to update";
                 btnUpdates.Text = "Restart";
             }
             catch(Exception ex)

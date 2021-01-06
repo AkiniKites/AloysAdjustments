@@ -32,17 +32,27 @@ namespace AloysAdjustments.Updates
             return Status;
         }
 
-        public async Task PrepareUpdate()
+        public async Task PrepareUpdate(Action<double> progress = null)
         {
+            var reporter = progress == null ? null : new Progress<double>(progress);
+
             using var manager = CreateUpdater();
 
             Status = await manager.CheckForUpdatesAsync();
             if (Status.CanUpdate)
             {
-                await manager.PrepareUpdateAsync(Status.LastVersion);
-                manager.LaunchUpdater(Status.LastVersion);
+                await manager.PrepareUpdateAsync(Status.LastVersion, reporter);
                 Prepared = true;
             }
+        }
+
+        public void TryLaunchUpdater(bool restart)
+        {
+            if (!Prepared || Status.LastVersion == null)
+                return;
+
+            using var manager = CreateUpdater();
+            manager.LaunchUpdater(Status.LastVersion, restart);
         }
 
         public async Task Cleanup()

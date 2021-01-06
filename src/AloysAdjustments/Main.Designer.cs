@@ -141,6 +141,7 @@ namespace AloysAdjustments
             this.Controls.Add(this.tcMain);
             this.Name = "Main";
             this.Text = "Aloy\'s Adjustments";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Main_FormClosing);
             this.Load += new System.EventHandler(this.Main_Load);
             this.ssMain.ResumeLayout(false);
             this.ssMain.PerformLayout();
