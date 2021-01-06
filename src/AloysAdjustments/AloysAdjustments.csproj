@@ -19,7 +19,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Ben.Demystifier" Version="0.3.0" />
     <PackageReference Include="Fody" Version="6.3.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
