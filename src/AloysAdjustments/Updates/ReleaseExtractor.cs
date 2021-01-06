@@ -14,7 +14,7 @@ namespace AloysAdjustments.Updates
     public class ReleaseExtractor : IPackageExtractor
     {
         public async Task ExtractPackageAsync(string sourceFilePath, string destDirPath, 
-            IProgress<double>? progress = null, CancellationToken cancellationToken = new CancellationToken())
+            IProgress<double> progress = null, CancellationToken cancellationToken = new CancellationToken())
         {
             await Task.Run(() =>
             {
