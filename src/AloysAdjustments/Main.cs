@@ -184,9 +184,12 @@ namespace AloysAdjustments
                     await module.CreatePatch(dir);
                 }
 
+                IoC.Notif.ShowStatus("Generating plugin patches...");
+                await patcher.ApplyCustomPatches(dir);
+
                 IoC.Notif.ShowStatus("Generating patch (rebuild prefetch)...");
                 await Prefetch.RebuildPrefetch(dir);
-
+                
                 var patch = await patcher.PackPatch(dir);
 
                 IoC.Notif.ShowStatus("Copying patch...");
