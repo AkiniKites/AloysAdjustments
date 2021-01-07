@@ -1,15 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using AloysAdjustments.Configuration;
+﻿using AloysAdjustments.Configuration;
 using AloysAdjustments.Data;
 using AloysAdjustments.Logic;
 using AloysAdjustments.Utility;
 using Decima;
+using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace AloysAdjustments.Modules.Outfits
 {
@@ -231,11 +230,10 @@ namespace AloysAdjustments.Modules.Outfits
         private void lbOutfits_SelectedValueChanged(object sender, EventArgs e)
         {
             _updatingLists = true;
+            
+            ResetSelected.Enabled = lbOutfits.SelectedIndex >= 0;
 
-            var lb = (ListBox)sender;
-            ResetSelected.Enabled = lb.SelectedIndex >= 0;
-
-            var selected = lb.SelectedItems.Cast<Outfit>().ToHashSet();
+            var selected = GetSelectedOutfits().ToHashSet();
             
             var modelIds = NewMaps.SelectMany(x=>x.Outfits)
                 .Where(x=>selected.Contains(x)).Select(x => x.ModelId)
@@ -271,7 +269,7 @@ namespace AloysAdjustments.Modules.Outfits
 
                 var model = Models[e.Index];
 
-                foreach (var outfit in lbOutfits.SelectedItems.Cast<Outfit>())
+                foreach (var outfit in GetSelectedOutfits())
                     UpdateMapping(outfit, model);
 
                 lbOutfits.Invalidate();
@@ -340,7 +338,7 @@ namespace AloysAdjustments.Modules.Outfits
                 return Task.CompletedTask;
 
             var defaultOutfits = DefaultMaps.SelectMany(x => x.Outfits).ToHashSet();
-            var selected = lbOutfits.SelectedItems.Cast<Outfit>().ToList();
+            var selected = GetSelectedOutfits();
 
             foreach (var outfit in selected)
             {
@@ -394,6 +392,37 @@ namespace AloysAdjustments.Modules.Outfits
 
             cbShowAll.Visible = charMode;
             cbShowAll.Checked = IoC.Settings.ShowAllCharacters;
+        }
+
+        private List<Outfit> GetSelectedOutfits()
+        {
+            if (IoC.Settings.ApplyToAllOutfits)
+                return Outfits.ToList();
+            return lbOutfits.SelectedItems.Cast<Outfit>().ToList();
+        }
+
+        private void cbAllOutfits_CheckedChanged(object sender, EventArgs e)
+        {
+            IoC.Settings.ApplyToAllOutfits = cbAllOutfits.Checked;
+            UpdateAllOutfitsSelection();
+        }
+
+        private void UpdateAllOutfitsSelection()
+        {
+            if (IoC.Settings.ApplyToAllOutfits)
+            {
+                lbOutfits.SelectionMode = SelectionMode.None;
+                lbOutfits.Items.Clear();
+                lbOutfits.Items.Add("All Outfits");
+            }
+            else
+            {
+                lbOutfits.Items.Clear();
+                foreach (var item in Outfits)
+                    lbOutfits.Items.Add(item);
+            }
+
+            lbOutfits_SelectedValueChanged(lbOutfits, EventArgs.Empty);
         }
     }
 }

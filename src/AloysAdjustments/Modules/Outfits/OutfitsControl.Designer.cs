@@ -42,6 +42,7 @@ namespace AloysAdjustments.Modules.Outfits
             this.clbModels = new System.Windows.Forms.CheckedListBox();
             this.cbShowAll = new System.Windows.Forms.CheckBox();
             this.btnMode = new System.Windows.Forms.Button();
+            this.cbAllOutfits = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).BeginInit();
             this.splitContainer.Panel1.SuspendLayout();
             this.splitContainer.Panel2.SuspendLayout();
@@ -74,9 +75,10 @@ namespace AloysAdjustments.Modules.Outfits
             // 
             this.label1.AutoSize = true;
             this.label1.Dock = System.Windows.Forms.DockStyle.Top;
+            this.label1.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.label1.Location = new System.Drawing.Point(0, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(43, 15);
+            this.label1.Size = new System.Drawing.Size(46, 15);
             this.label1.TabIndex = 4;
             this.label1.Text = "Outfits";
             // 
@@ -101,9 +103,10 @@ namespace AloysAdjustments.Modules.Outfits
             // 
             this.lblModels.AutoSize = true;
             this.lblModels.Dock = System.Windows.Forms.DockStyle.Top;
+            this.lblModels.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.lblModels.Location = new System.Drawing.Point(0, 0);
             this.lblModels.Name = "lblModels";
-            this.lblModels.Size = new System.Drawing.Size(92, 15);
+            this.lblModels.Size = new System.Drawing.Size(93, 15);
             this.lblModels.TabIndex = 5;
             this.lblModels.Text = "Model Mapping";
             // 
@@ -144,10 +147,22 @@ namespace AloysAdjustments.Modules.Outfits
             this.btnMode.UseVisualStyleBackColor = true;
             this.btnMode.Click += new System.EventHandler(this.btnMode_Click);
             // 
+            // cbAllOutfits
+            // 
+            this.cbAllOutfits.AutoSize = true;
+            this.cbAllOutfits.Location = new System.Drawing.Point(170, 14);
+            this.cbAllOutfits.Name = "cbAllOutfits";
+            this.cbAllOutfits.Size = new System.Drawing.Size(89, 19);
+            this.cbAllOutfits.TabIndex = 6;
+            this.cbAllOutfits.Text = "Apply To All";
+            this.cbAllOutfits.UseVisualStyleBackColor = true;
+            this.cbAllOutfits.CheckedChanged += new System.EventHandler(this.cbAllOutfits_CheckedChanged);
+            // 
             // OutfitsControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.cbAllOutfits);
             this.Controls.Add(this.btnMode);
             this.Controls.Add(this.cbShowAll);
             this.Controls.Add(this.splitContainer);
@@ -173,5 +188,6 @@ namespace AloysAdjustments.Modules.Outfits
         private System.Windows.Forms.CheckedListBox clbModels;
         private System.Windows.Forms.CheckBox cbShowAll;
         private System.Windows.Forms.Button btnMode;
+        private System.Windows.Forms.CheckBox cbAllOutfits;
     }
 }
