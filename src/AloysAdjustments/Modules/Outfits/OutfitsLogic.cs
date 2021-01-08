@@ -87,9 +87,7 @@ namespace AloysAdjustments.Modules.Outfits
 
         public List<Outfit> GenerateOutfitList(OutfitFile[] files)
         {
-            //ignore duplicate names
-            return files.SelectMany(x => x.Outfits)
-                .GroupBy(x => x.ModelId).Select(x => x.First()).ToList();
+            return files.SelectMany(x => x.Outfits).ToList();
         }
 
         public async Task<List<Model>> GenerateModelList()

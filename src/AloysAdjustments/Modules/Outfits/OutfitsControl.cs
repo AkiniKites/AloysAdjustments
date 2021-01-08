@@ -203,7 +203,7 @@ namespace AloysAdjustments.Modules.Outfits
             IoC.Notif.ShowStatus("Loading models list...");
             var models = await OutfitLogic.GenerateModelList();
             //sort models to match outfits
-            var outfitSorting = Outfits.Select((x, i) => (x, i)).ToDictionary(x => x.x.ModelId, x => x.i);
+            var outfitSorting = Outfits.Select((x, i) => (x, i)).ToSoftDictionary(x => x.x.ModelId, x => x.i);
             Models = models.OrderBy(x => outfitSorting.TryGetValue(x.Id, out var sort) ? sort : int.MaxValue).ToList();
         }
 
@@ -282,28 +282,21 @@ namespace AloysAdjustments.Modules.Outfits
 
         private void UpdateMapping(Outfit outfit, Model model)
         {
-            //get all matching outfits by model from the default mapping
-            //there are multiple outfits with the same name/model but different properties
-            var origOutfitModels = DefaultMaps.SelectMany(x => x.Outfits)
-                .Where(x => x.Equals(outfit)).Select(x => x.ModelId).ToHashSet();
-            var origOutfits = DefaultMaps.SelectMany(x => x.Outfits)
-                .Where(x => origOutfitModels.Contains(x.ModelId)).ToHashSet();
-
+            //get the original outfit
+            var origOutfit = DefaultMaps.SelectMany(x => x.Outfits)
+                .First(x => x.Equals(outfit));
+            
             //find the outfit in the new mapping by reference and update the model
-            foreach (var newOutfit in NewMaps.SelectMany(x => x.Outfits)
-                .Where(x => origOutfits.Contains(x)))
-            {
-                origOutfits.TryGetValue(newOutfit, out var orig);
-
-                newOutfit.Modified = !orig.ModelId.Equals(model.Id);
-                newOutfit.ModelId.AssignFromOther(model.Id);
-
-                if (newOutfit.Equals(outfit))
-                {
-                    outfit.ModelId.AssignFromOther(model.Id);
-                    outfit.Modified = newOutfit.Modified;
-                }
-            }
+            var newOutfit = NewMaps.SelectMany(x => x.Outfits)
+                .First(x => x.Equals(outfit));
+            
+            //update mapping
+            newOutfit.Modified = !origOutfit.ModelId.Equals(model.Id);
+            newOutfit.ModelId.AssignFromOther(model.Id);
+            
+            //update list
+            outfit.ModelId.AssignFromOther(model.Id);
+            outfit.Modified = newOutfit.Modified;
         }
 
         private void lbOutfits_KeyDown(object sender, KeyEventArgs e)
