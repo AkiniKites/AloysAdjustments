@@ -171,6 +171,8 @@ namespace AloysAdjustments
                 return;
             }
 
+            var sw = new Stopwatch(); sw.Start();
+
             //remove failed patches
             await FileManager.CleanupFile(Configs.PatchPath, true);
 
@@ -210,7 +212,7 @@ namespace AloysAdjustments
             }
 
             IoC.Notif.HideProgress();
-            IoC.Notif.ShowStatus("Patch installed");
+            IoC.Notif.ShowStatus($"Patch installed ({sw.Elapsed.TotalMilliseconds:n0} ms)");
         }
 
         private async void btnLoadPatch_ClickCommand(object sender, EventArgs e) => await Relay.To(sender, e, btnLoadPatch_Click);

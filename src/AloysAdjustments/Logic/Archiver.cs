@@ -168,7 +168,7 @@ namespace AloysAdjustments.Logic
                 var files = Directory.GetFiles(dir, "*", SearchOption.AllDirectories);
                 var fileNames = files.Select(x => x.Substring(dir.Length + 1).Replace("\\", "/")).ToArray();
 
-                using var pack = new PackfileWriter(output, false, true);
+                using var pack = new PackfileWriterFast(output, false, true);
                 pack.BuildFromFileList(dir, fileNames);
             });
         }

@@ -62,7 +62,7 @@ namespace AloysAdjustments.Logic
                             Data.Sizes[idx] = (int)f.Length;
                         }
 
-                        UpdateLinks(links, name);
+                        UpdateLinks(links, f.FullName, name);
                     }
                 }
 
@@ -92,10 +92,12 @@ namespace AloysAdjustments.Logic
             return fileLinks;
         }
 
-        private void UpdateLinks(Dictionary<int, int[]> fileLinks, string name)
+        private void UpdateLinks(Dictionary<int, int[]> fileLinks, string filepath, string name)
         {
+            var fileCore = HzdCore.Load(filepath, name);
+
             // Regenerate links for this specific file (don't forget to remove duplicates (Distinct()!!!))
-            fileLinks[Files[name]] = Core.Binary.GetAllReferences()
+            fileLinks[Files[name]] = fileCore.Binary.GetAllReferences()
                 .Where(x => x.Type == BaseRef.Types.ExternalCoreUUID)
                 .Select(x => Files[x.ExternalFile.Value])
                 .Distinct()
