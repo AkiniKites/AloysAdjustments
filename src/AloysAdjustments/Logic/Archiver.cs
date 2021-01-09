@@ -101,7 +101,7 @@ namespace AloysAdjustments.Logic
             if (!fileMap.TryGetValue(hash, out var packFile))
                 return false;
 
-            using var pack = new Packfile(packFile);
+            using var pack = new PackfileReader(packFile);
             pack.ExtractFile(hash, stream);
 
             return true;
@@ -131,49 +131,6 @@ namespace AloysAdjustments.Logic
             return new PackList(files);
         }
 
-        private Dictionary<ulong, Packfile> LoadPacks(List<string> packFiles, IEnumerable<ulong> nameHashes)
-        {
-            var loadedPacks = new Dictionary<ulong, Packfile>();
-            var hashes = nameHashes.ToHashSet();
-
-            foreach (var packFile in packFiles)
-            {
-                Packfile pack = null;
-
-                try
-                {
-                    pack = new Packfile(packFile);
-
-                    bool needed = false;
-                    for (int i = 0; i < pack.FileEntries.Count; i++)
-                    {
-                        var hash = pack.FileEntries[i].PathHash;
-                        if (hashes.Contains(hash))
-                        {
-                            if (loadedPacks.TryGetValue(hash, out var oldPack) && !ReferenceEquals(oldPack, pack))
-                                oldPack.Dispose();
-                            loadedPacks[hash] = pack;
-                            needed = true;
-                        }
-                    }
-
-                    if (!needed)
-                        pack.Dispose();
-                }
-                catch (Exception ex)
-                {
-                    pack?.Dispose();
-
-                    foreach (var loadedPacksValue in loadedPacks.Values)
-                        loadedPacksValue.Dispose();
-
-                    throw new HzdException($"Failed to extract: {packFile}", ex);
-                }
-            }
-
-            return loadedPacks;
-        }
-
         private Dictionary<ulong, string> BuildFileMap(PackList packFiles, bool useCache)
         {
             if (useCache && _packCache.TryGetValue(packFiles, out var files))
@@ -183,7 +140,7 @@ namespace AloysAdjustments.Logic
 
             foreach (var packFile in packFiles.Packs)
             {
-                using var pack = new Packfile(packFile);
+                using var pack = new PackfileReader(packFile);
                 for (int i = 0; i < pack.FileEntries.Count; i++)
                 {
                     var hash = pack.FileEntries[i].PathHash;
@@ -211,10 +168,8 @@ namespace AloysAdjustments.Logic
                 var files = Directory.GetFiles(dir, "*", SearchOption.AllDirectories);
                 var fileNames = files.Select(x => x.Substring(dir.Length + 1).Replace("\\", "/")).ToArray();
 
-                using (var pack = new Packfile(output, FileMode.Create))
-                {
-                    pack.BuildFromFileList(dir, fileNames);
-                }
+                using var pack = new PackfileWriter(output, false, true);
+                pack.BuildFromFileList(dir, fileNames);
             });
         }
         

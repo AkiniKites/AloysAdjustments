@@ -14,7 +14,7 @@ namespace AloysAdjustments.Logic
     {
         public string Source { get; set; }
         public string FilePath { get; private set; }
-        public List<object> Components { get; private set; }
+        public CoreBinary Binary { get; private set; }
 
         public static HzdCore Load(string file, string source)
         {
@@ -24,7 +24,7 @@ namespace AloysAdjustments.Logic
                 {
                     FilePath = file,
                     Source = source,
-                    Components = CoreBinary.Load(file, true)
+                    Binary = CoreBinary.FromFile(file, true)
                 };
             }
             catch(Exception ex)
@@ -36,10 +36,12 @@ namespace AloysAdjustments.Logic
         {
             try
             {
+                using var br = new BinaryReader(stream, Encoding.UTF8, true);
+
                 return new HzdCore()
                 {
                     Source = source,
-                    Components = CoreBinary.Load(stream, true)
+                    Binary = CoreBinary.FromData(br, true)
                 };
             }
             catch (Exception ex)
@@ -58,7 +60,7 @@ namespace AloysAdjustments.Logic
                 if (savePath == null)
                     throw new HzdException("Cannot save pack file, save path null");
 
-                CoreBinary.Save(savePath, Components);
+                Binary.ToFile(savePath);
             });
         }
 
@@ -66,14 +68,14 @@ namespace AloysAdjustments.Logic
         {
             typeName ??= typeof(T).Name;
 
-            return Components.Where(x => x.GetType().Name == typeName)
+            return Binary.Where(x => x.GetType().Name == typeName)
                 .ToDictionary(x => (BaseGGUUID)((T)x).ObjectUUID, x => (T)x);
         }
         public List<T> GetTypes<T>(string typeName = null)
         {
             typeName ??= typeof(T).Name;
 
-            return Components.Where(x => x.GetType().Name == typeName)
+            return Binary.Where(x => x.GetType().Name == typeName)
                 .Cast<T>().ToList();
         }
     }

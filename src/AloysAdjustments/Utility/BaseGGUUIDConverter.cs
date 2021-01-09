@@ -17,7 +17,7 @@ namespace AloysAdjustments.Utility
                 return null;
 
             var data = reader.Value as string;
-            return BaseGGUUID.FromString(data);
+            return data;
         }
 
         public override void WriteJson(JsonWriter writer, [AllowNull] BaseGGUUID value, JsonSerializer serializer)

@@ -37,7 +37,7 @@ namespace AloysAdjustments.Modules.Outfits
             if (!newCharacters.Any())
                 return;
             
-            await RemoveAloyComponents(patchDir);
+            var removed = await RemoveAloyComponents(patchDir);
             var variantMapping = await FixRagdolls(patchDir, newCharacters);
 
             await AddCharacterReferences(patchDir, newCharacters, variantMapping);
@@ -67,7 +67,7 @@ namespace AloysAdjustments.Modules.Outfits
             {
                 var sRef = new StreamingRef<HumanoidBodyVariant>();
                 sRef.ExternalFile = new BaseString(character.Source);
-                sRef.Type = BaseRef<HumanoidBodyVariant>.Types.StreamingRef;
+                sRef.Type = BaseRef.Types.StreamingRef;
 
                 if (!variantMapping.TryGetValue(character.Id, out var varId))
                     varId = character.Id;
@@ -80,7 +80,7 @@ namespace AloysAdjustments.Modules.Outfits
             await pcCore.Save();
         }
 
-        private async Task RemoveAloyComponents(string patchDir)
+        private async Task<List<Ref<EntityComponentResource>>> RemoveAloyComponents(string patchDir)
         {
             var charCore = await FileManager.ExtractFile(patchDir,
                 Configs.GamePackDir, IoC.Get<OutfitConfig>().PlayerCharacterFile);
@@ -104,9 +104,21 @@ namespace AloysAdjustments.Modules.Outfits
                 facePaint.ObjectUUID
             }.ToHashSet();
 
-            adult.EntityComponentResources.RemoveAll(x => toRemove.Contains(x.GUID));
+            var removedComponents = new List<Ref<EntityComponentResource>>();
+            for (int i = 0; i < adult.EntityComponentResources.Count; i++)
+            {
+                var comp = adult.EntityComponentResources[i];
+                if (toRemove.Contains(comp.GUID))
+                {
+                    removedComponents.Add(comp);
+                    adult.EntityComponentResources.RemoveAt(i);
+                    i--;
+                }
+            }
 
             await charCore.Save();
+
+            return removedComponents;
         }
 
         public async Task<bool> IsCharacterModeFile(string path)
@@ -154,7 +166,7 @@ namespace AloysAdjustments.Modules.Outfits
                         //remove npc ragdoll repositioning
                         newVariant.EntityComponentResources.RemoveAll(x => x.ExternalFile?.Value == ragdollFile);
 
-                        core.Components.Add(newVariant);
+                        core.Binary.AddObject(newVariant);
                     }
                 }
 
@@ -168,7 +180,7 @@ namespace AloysAdjustments.Modules.Outfits
         {
             var newVariant = HzdCloner.Clone(variant);
 
-            newVariant.ObjectUUID = new GGUUID(BaseGGUUID.FromString($"{Guid.NewGuid():B}"));
+            newVariant.ObjectUUID = $"{Guid.NewGuid():B}";
             newVariant.Name = $"{variant.Name}{VariantNameFormat}{variant.ObjectUUID}";
 
             return newVariant;
@@ -190,7 +202,7 @@ namespace AloysAdjustments.Modules.Outfits
                 var name = VariantNameMatcher.Match(variant.Name);
                 if (name.Success)
                 {
-                    variantMapping.Add(model.Id, BaseGGUUID.FromString(name.Groups["id"].Value));
+                    variantMapping.Add(model.Id, name.Groups["id"].Value);
                 }
             }
 
