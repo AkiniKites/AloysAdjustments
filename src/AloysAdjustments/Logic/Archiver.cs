@@ -18,7 +18,7 @@ namespace AloysAdjustments.Logic
 
         private readonly ConcurrentDictionary<PackList, Dictionary<ulong, string>> _packCache;
 
-        public System.Collections.Generic.HashSet<string> IgnoreList { get; }
+        public HashSet<string> IgnoreList { get; }
 
         public Archiver(IEnumerable<string> ignoreList)
         {

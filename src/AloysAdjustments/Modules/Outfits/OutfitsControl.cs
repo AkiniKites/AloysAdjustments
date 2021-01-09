@@ -286,7 +286,7 @@ namespace AloysAdjustments.Modules.Outfits
             var origOutfit = DefaultMaps.SelectMany(x => x.Outfits)
                 .First(x => x.Equals(outfit));
             
-            //find the outfit in the new mapping by reference and update the model
+            //find the outfit in the new mapping
             var newOutfit = NewMaps.SelectMany(x => x.Outfits)
                 .First(x => x.Equals(outfit));
             
