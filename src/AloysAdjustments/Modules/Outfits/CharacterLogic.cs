@@ -36,8 +36,9 @@ namespace AloysAdjustments.Modules.Outfits
 
             if (!newCharacters.Any())
                 return;
-            
-            var removed = await RemoveAloyComponents(patchDir);
+
+            var toRemove = await FindAloyComponents();
+            await RemoveAloyComponents(patchDir, toRemove);
             var variantMapping = await FixRagdolls(patchDir, newCharacters);
 
             await AddCharacterReferences(patchDir, newCharacters, variantMapping);
@@ -79,46 +80,45 @@ namespace AloysAdjustments.Modules.Outfits
 
             await pcCore.Save();
         }
-
-        private async Task<List<Ref<EntityComponentResource>>> RemoveAloyComponents(string patchDir)
+        
+        private async Task<List<(string File, BaseGGUUID Id)>> FindAloyComponents()
         {
-            var charCore = await FileManager.ExtractFile(patchDir,
-                Configs.GamePackDir, IoC.Get<OutfitConfig>().PlayerCharacterFile);
+            var components = new  List<(string, BaseGGUUID)>();
+
+            var charCore = await IoC.Archiver.LoadFileAsync(Configs.GamePackDir, 
+                IoC.Get<OutfitConfig>().PlayerCharacterFile);
 
             var hairModel = charCore.GetTypes<HairModelComponentResource>().FirstOrDefault();
             if (hairModel == null)
                 throw new HzdException($"Failed to remove Aloy's hair, unable to find HairModelComponentResource");
 
-            var adult = charCore.GetTypes<SoldierResource>().FirstOrDefault(x=>x.Name == IoC.Get<OutfitConfig>().AloyCharacterName);
-            if (adult == null)
-                throw new HzdException($"Failed to remove Aloy's hair, unable to find SoldierResource with name: {IoC.Get<OutfitConfig>().AloyCharacterName}");
-
+            components.Add((charCore.Source, hairModel.ObjectUUID));
+            
             var compCore = await IoC.Archiver.LoadFileAsync(Configs.GamePackDir, IoC.Get<OutfitConfig>().PlayerComponentsFile);
 
             var facePaint = compCore.GetTypes<FacialPaintComponentResource>().FirstOrDefault();
             if (facePaint == null)
                 throw new HzdException($"Failed to remove Aloy's facepaint overrides, unable to find FacialPaintComponentResource");
+
+            components.Add((compCore.Source, facePaint.ObjectUUID));
             
-            var toRemove = new[] { 
-                hairModel.ObjectUUID,
-                facePaint.ObjectUUID
-            }.ToHashSet();
+            return components;
+        }
 
-            var removedComponents = new List<Ref<EntityComponentResource>>();
-            for (int i = 0; i < adult.EntityComponentResources.Count; i++)
-            {
-                var comp = adult.EntityComponentResources[i];
-                if (toRemove.Contains(comp.GUID))
-                {
-                    removedComponents.Add(comp);
-                    adult.EntityComponentResources.RemoveAt(i);
-                    i--;
-                }
-            }
+        private async Task RemoveAloyComponents(string patchDir, List<(string File, BaseGGUUID Id)> components)
+        {
+            var core = await FileManager.ExtractFile(patchDir,
+                Configs.GamePackDir, IoC.Get<OutfitConfig>().PlayerCharacterFile);
+            
+            var adult = core.GetTypes<SoldierResource>().FirstOrDefault(x=>x.Name == IoC.Get<OutfitConfig>().AloyCharacterName);
+            if (adult == null)
+                throw new HzdException($"Failed to remove Aloy's hair, unable to find SoldierResource with name: {IoC.Get<OutfitConfig>().AloyCharacterName}");
 
-            await charCore.Save();
+            var toRemove = components.Select(x => x.Id).ToHashSet();
 
-            return removedComponents;
+            adult.EntityComponentResources.RemoveAll(x => toRemove.Contains(x.GUID));
+
+            await core.Save();
         }
 
         public async Task<bool> IsCharacterModeFile(string path)
