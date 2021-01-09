@@ -72,9 +72,9 @@ namespace AloysAdjustments.Logic
             });
         }
 
-        private Dictionary<int, int[]> GetLinks()
+        private int[][] GetLinks()
         {
-            var fileLinks = new Dictionary<int, int[]>();
+            var fileLinks = new int[Data.Files.Count][];
 
             int linkIdx = 0;
 
@@ -84,7 +84,7 @@ namespace AloysAdjustments.Logic
                 var links = new int[count];
 
                 Data.Links.CopyTo(linkIdx + 1, links, 0, count);
-                fileLinks.Add(i, links);
+                fileLinks[i] = links;
 
                 linkIdx += count + 1;
             }
@@ -92,19 +92,21 @@ namespace AloysAdjustments.Logic
             return fileLinks;
         }
 
-        private void UpdateLinks(Dictionary<int, int[]> fileLinks, string filepath, string name)
+        private void UpdateLinks(int[][] fileLinks, string filepath, string name)
         {
             var fileCore = HzdCore.Load(filepath, name);
 
             // Regenerate links for this specific file (don't forget to remove duplicates (Distinct()!!!))
-            fileLinks[Files[name]] = fileCore.Binary.GetAllReferences()
+            var newLinks = fileCore.Binary.GetAllReferences()
                 .Where(x => x.Type == BaseRef.Types.ExternalCoreUUID)
                 .Select(x => Files[x.ExternalFile.Value])
                 .Distinct()
                 .ToArray();
+
+            fileLinks[Files[name]] = newLinks;
         }
 
-        private void RebuildLinks(Dictionary<int, int[]> fileLinks)
+        private void RebuildLinks(int[][] fileLinks)
         {
             // Dictionary of links -> linear array
             Data.Links.Clear();
@@ -112,7 +114,7 @@ namespace AloysAdjustments.Logic
             for (int i = 0; i < Data.Files.Count; i++)
             {
                 var indices = fileLinks[i];
-                Data.Links.Add(indices.Count());
+                Data.Links.Add(indices.Length);
 
                 foreach (int index in indices)
                     Data.Links.Add(index);
