@@ -49,7 +49,7 @@ namespace AloysAdjustments.Modules.Outfits
                     }
                 }
 
-                var files = Prefetch.LoadPrefetch().Keys;
+                var files = Prefetch.Load().Files.Keys;
                 
                 int progress = 0;
                 int lastProgress = 0;
