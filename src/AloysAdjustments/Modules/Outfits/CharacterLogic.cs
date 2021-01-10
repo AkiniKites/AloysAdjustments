@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -28,10 +29,10 @@ namespace AloysAdjustments.Modules.Outfits
             Search = new CharacterModelSearch();
         }
         
-        public async Task CreatePatch(string patchDir, IEnumerable<OutfitFile> maps, 
+        public async Task CreatePatch(string patchDir, ReadOnlyCollection<Outfit> outfits,
             IEnumerable<CharacterModel> characters, OutfitsLogic outfitsLogic)
         {
-            var models = maps.SelectMany(x => x.Outfits).Select(x => x.ModelId).ToHashSet();
+            var models = outfits.Where(x => x.Modified).Select(x => x.ModelId).ToHashSet();
             var newCharacters = characters.Where(x => models.Contains(x.Id)).ToList();
 
             if (!newCharacters.Any())
@@ -43,18 +44,9 @@ namespace AloysAdjustments.Modules.Outfits
 
             await AddCharacterReferences(patchDir, newCharacters, variantMapping);
 
-            await outfitsLogic.CreatePatch(patchDir, maps, map =>
-            {
-                var mapping = new Dictionary<BaseGGUUID, BaseGGUUID>();
-                foreach (var outfit in map.Outfits)
-                {
-                    if (variantMapping.TryGetValue(outfit.ModelId, out var varId))
-                        mapping.Add(outfit.RefId, varId);
-                    else
-                        mapping.Add(outfit.RefId, outfit.ModelId);
-                }
-                return mapping;
-            });
+            var mapping = new Dictionary<BaseGGUUID, BaseGGUUID>();
+
+            await outfitsLogic.CreatePatch(patchDir, outfits, variantMapping);
         }
 
         private async Task AddCharacterReferences(string patchDir, IEnumerable<CharacterModel> characters,
