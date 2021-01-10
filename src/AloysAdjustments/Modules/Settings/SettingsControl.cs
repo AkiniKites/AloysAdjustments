@@ -32,7 +32,7 @@ namespace AloysAdjustments.Modules.Settings
         }
 
         public override Task LoadPatch(string path) => throw new NotImplementedException();
-        public override Task CreatePatch(string patchDir) => throw new NotImplementedException();
+        public override Task ApplyChanges(Patch patch) => throw new NotImplementedException();
 
         public override Task Initialize()
         {

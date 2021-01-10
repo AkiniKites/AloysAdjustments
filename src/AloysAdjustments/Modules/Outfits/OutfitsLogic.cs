@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -15,39 +16,46 @@ namespace AloysAdjustments.Modules.Outfits
 {
     public class OutfitsLogic
     {
-        public async Task<OutfitFile[]> GenerateOutfitFiles()
+        public async Task<List<Outfit>> GenerateOutfits()
         {
             //extract game files
-            var maps = await GenerateOutfitFiles(Configs.GamePackDir, true);
-            return maps;
+            var outfits = await GenerateOutfits(Configs.GamePackDir, true);
+            return outfits;
         }
 
-        public async Task<OutfitFile[]> GenerateOutfitFiles(string path, bool checkMissing)
+        public async Task<List<Outfit>> GenerateOutfits(string path, bool checkMissing)
         {
+            var outfits = new List<Outfit>();
+
+            var pcCore = await IoC.Archiver.LoadFileAsync(path, 
+                IoC.Get<OutfitConfig>().PlayerComponentsFile, checkMissing);
+
+            var models = pcCore != null ? GetPlayerModels(pcCore) : new List<StreamingRef<HumanoidBodyVariant>>();
+            var variantFiles = models.ToSoftDictionary(x => x.GUID, x => x.ExternalFile?.ToString());
+
             var cores = await Task.WhenAll(IoC.Get<OutfitConfig>().OutfitFiles.Select(
                 async f => await IoC.Archiver.LoadFileAsync(path, f, checkMissing)));
 
-            var maps = cores.Where(x => x != null).Select(core =>
+            foreach (var core in cores)
             {
-                var map = new OutfitFile { File = core.Source };
+                foreach (var item in GetOutfits(core, variantFiles))
+                {
+                    item.SourceFile = core.Source;
+                    outfits.Add(item);
+                }
+            }
 
-                foreach (var item in GetOutfits(core))
-                    map.Outfits.Add(item);
-
-                return map;
-            }).ToArray();
-
-            return maps;
+            return outfits;
         }
 
-        private IEnumerable<Outfit> GetOutfits(HzdCore core)
+        private IEnumerable<Outfit> GetOutfits(HzdCore core, Dictionary<BaseGGUUID, string> variantFiles)
         {
             var items = core.GetTypes<InventoryEntityResource>();
             var itemComponents = core.GetTypesById<InventoryItemComponentResource>();
             var componentResources = core.GetTypesById<NodeGraphComponentResource>();
             var overrides = core.GetTypesById<OverrideGraphProgramResource>();
             var mappings = core.GetTypesById<NodeGraphHumanoidBodyVariantUUIDRefVariableOverride>();
-
+            
             foreach (var item in items)
             {
                 var outfit = new Outfit()
@@ -75,6 +83,10 @@ namespace AloysAdjustments.Modules.Outfits
                             {
                                 outfit.ModelId = mapItem.Object.GUID;
                                 outfit.RefId = mapItem.ObjectUUID;
+
+                                if (variantFiles.TryGetValue(outfit.ModelId, out var modelFile))
+                                    outfit.ModelFile = modelFile;
+
                                 break;
                             }
                         }
@@ -83,13 +95,6 @@ namespace AloysAdjustments.Modules.Outfits
 
                 yield return outfit;
             }
-        }
-
-        public List<Outfit> GenerateOutfitList(OutfitFile[] files)
-        {
-            //ignore duplicate names
-            return files.SelectMany(x => x.Outfits)
-                .GroupBy(x => x.ModelId).Select(x => x.First()).ToList();
         }
 
         public async Task<List<Model>> GenerateModelList()
@@ -132,27 +137,30 @@ namespace AloysAdjustments.Modules.Outfits
             return resource.Variants;
         }
 
-        public async Task CreatePatch(string patchDir, IEnumerable<OutfitFile> maps)
+        public async Task CreatePatch(Patch patch, ReadOnlyCollection<Outfit> outfits)
         {
-            await CreatePatch(patchDir, maps,
-                map => map.Outfits.ToDictionary(x => x.RefId, x => x.ModelId));
+            await CreatePatch(patch, outfits, new Dictionary<BaseGGUUID, BaseGGUUID>());
         }
-        public async Task CreatePatch(string patchDir, IEnumerable<OutfitFile> maps,
-            Func<OutfitFile, Dictionary<BaseGGUUID, BaseGGUUID>> getRefMapping)
+        public async Task CreatePatch(Patch patch, ReadOnlyCollection<Outfit> outfits,
+            Dictionary<BaseGGUUID, BaseGGUUID> variantMapping)
         {
+            var modifiedOutfits = outfits.Where(x => x.Modified).ToDictionary(x => x.RefId, x => x);
+            var maps = modifiedOutfits.Values.Select(x => x.SourceFile).Distinct();
+
             foreach (var map in maps)
             {
                 //extract original outfit files to temp
-                var core = await FileManager.ExtractFile(patchDir, 
-                    Configs.GamePackDir, map.File);
-
-                var refs = getRefMapping(map);
-
+                var core = await patch.AddFile(map);
+                
                 //update references from based on new maps
                 foreach (var reference in core.GetTypes<NodeGraphHumanoidBodyVariantUUIDRefVariableOverride>())
                 {
-                    if (refs.TryGetValue(reference.ObjectUUID, out var newModel))
-                        reference.Object.GUID.AssignFromOther(newModel);
+                    if (modifiedOutfits.TryGetValue(reference.ObjectUUID, out var changed))
+                    {
+                        if (!variantMapping.TryGetValue(changed.ModelId, out var variantId))
+                            variantId = changed.ModelId;
+                        reference.Object.GUID.AssignFromOther(variantId);
+                    }
                 }
 
                 await core.Save();

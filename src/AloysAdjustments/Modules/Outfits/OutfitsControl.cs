@@ -5,6 +5,7 @@ using AloysAdjustments.Utility;
 using Decima;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Drawing;
 using System.Linq;
 using System.Threading.Tasks;
@@ -20,11 +21,9 @@ namespace AloysAdjustments.Modules.Outfits
         private OutfitsLogic OutfitLogic { get; }
         private CharacterLogic CharacterLogic { get; }
 
-        private OutfitFile[] DefaultMaps { get; set; }
-        private OutfitFile[] NewMaps { get; set; }
-
-        private List<Outfit> Outfits { get; set; }
-        private List<Model> Models { get; set; }
+        private HashSet<Outfit> DefaultOutfits { get; set; }
+        private ReadOnlyCollection<Outfit> Outfits { get; set; }
+        private ReadOnlyCollection<Model> Models { get; set; }
         
         public override string ModuleName => "Outfits";
 
@@ -44,8 +43,7 @@ namespace AloysAdjustments.Modules.Outfits
 
             _loading = false;
         }
-
-
+        
         private void SetupLists()
         {
             clbModels.DisplayMember = "DisplayName";
@@ -81,98 +79,17 @@ namespace AloysAdjustments.Modules.Outfits
             };
         }
 
-        public override async Task LoadPatch(string path)
-        {
-            IoC.Notif.ShowStatus("Loading outfits...");
-
-            var characterMode = await CharacterLogic.IsCharacterModeFile(path);
-            var loadedMaps = await OutfitLogic.GenerateOutfitFiles(path, false);
-            
-            var newOutfits = loadedMaps.SelectMany(x => x.Outfits).ToHashSet();
-
-            if (!loadedMaps.Any())
-                return;
-
-            IoC.Settings.SwapCharacterMode = characterMode;
-            UpdateMode();
-
-            await Initialize();
-
-            var variantMapping = new Dictionary<BaseGGUUID, BaseGGUUID>();
-            if (IoC.Settings.SwapCharacterMode)
-                variantMapping = await CharacterLogic.GetVariantMapping(path, OutfitLogic);
-
-            foreach (var outfit in Outfits)
-            {
-                if (newOutfits.TryGetValue(outfit, out var newOutfit))
-                {
-                    if (!variantMapping.TryGetValue(newOutfit.ModelId, out var varId))
-                        varId = newOutfit.ModelId;
-
-                    outfit.Modified = !outfit.ModelId.Equals(varId);
-                    outfit.ModelId.AssignFromOther(varId);
-                }
-            }
-
-            RefreshLists();
-        }
-
-        public override async Task CreatePatch(string patchDir)
-        {
-            var updatedMaps = new List<OutfitFile>();
-            foreach (var map in NewMaps)
-            {
-                var defaultMap = DefaultMaps.First(x => x.File == map.File)
-                    .Outfits.ToDictionary(x => x.RefId, x => x.ModelId);
-
-                foreach (var outfit in map.Outfits)
-                {
-                    if (!defaultMap[outfit.RefId].Equals(outfit.ModelId))
-                    {
-                        updatedMaps.Add(map);
-                        break;
-                    }
-                }
-            }
-            
-            if (IoC.Settings.SwapCharacterMode)
-            {
-                await CharacterLogic.CreatePatch(patchDir, updatedMaps, 
-                    Models.Cast<CharacterModel>(), OutfitLogic);
-            }
-            else
-            {
-                await OutfitLogic.CreatePatch(patchDir, updatedMaps);
-            }
-        }
-
-        public override bool ValidateChanges()
-        {
-            if (!IoC.Settings.SwapCharacterMode)
-                return true;
-
-            var someChanged = Outfits.Any(x => x.Modified) && !Outfits.All(x => x.Modified);
-            if (!someChanged) 
-                return true;
-
-            return MessageBox.Show("Not all outfits have been assigned to characters. " +
-                "Swapping characters removes Aloy's hair and some outfits may look weird.",
-                "Aloy Hair Warning", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning) == DialogResult.OK;
-        }
-
         public override async Task Initialize()
         {
             ResetSelected.Enabled = false;
             IoC.Notif.ShowUnknownProgress();
 
-            IoC.Notif.ShowStatus("Generating outfit maps...");
-            DefaultMaps = await OutfitLogic.GenerateOutfitFiles();
-            NewMaps = DefaultMaps.Select(x => x.Clone()).ToArray();
-
             IoC.Notif.ShowStatus("Loading outfit list...");
-            var outfits = OutfitLogic.GenerateOutfitList(NewMaps);
+            DefaultOutfits = (await OutfitLogic.GenerateOutfits()).ToHashSet();
+            
+            var outfits = DefaultOutfits.Select(x => x.Clone()).ToList();
             await UpdateOutfitDisplayNames(outfits);
-            Outfits = outfits.OrderBy(x => x.DisplayName).ToList();
+            Outfits = outfits.OrderBy(x => x.DisplayName).ToList().AsReadOnly();
 
             lbOutfits.Items.Clear();
             foreach (var item in Outfits)
@@ -194,16 +111,19 @@ namespace AloysAdjustments.Modules.Outfits
         {
             IoC.Notif.ShowStatus("Loading characters list...");
             var models = await CharacterLogic.Search.GetCharacterModels(IoC.Settings.ShowAllCharacters);
-            Models = models.OrderBy(x => x.ToString()).Cast<Model>().ToList();
+            Models = models.OrderBy(x => x.ToString())
+                .Cast<Model>().ToList().AsReadOnly();
         }
 
         private async Task LoadOutfitModelList()
         {
             IoC.Notif.ShowStatus("Loading models list...");
             var models = await OutfitLogic.GenerateModelList();
+
             //sort models to match outfits
-            var outfitSorting = Outfits.Select((x, i) => (x, i)).ToDictionary(x => x.x.ModelId, x => x.i);
-            Models = models.OrderBy(x => outfitSorting.TryGetValue(x.Id, out var sort) ? sort : int.MaxValue).ToList();
+            var outfitSorting = Outfits.Select((x, i) => (x, i)).ToSoftDictionary(x => x.x.ModelId, x => x.i);
+            Models = models.OrderBy(x => outfitSorting.TryGetValue(x.Id, out var sort) ? sort : int.MaxValue)
+                .ToList().AsReadOnly();
         }
 
         public async Task UpdateOutfitDisplayNames(List<Outfit> outfits)
@@ -214,7 +134,7 @@ namespace AloysAdjustments.Modules.Outfits
             }
         }
 
-        public void UpdateModelDisplayNames(List<Outfit> outfits, List<Model> models)
+        public void UpdateModelDisplayNames(IList<Outfit> outfits, IList<Model> models)
         {
             var names = outfits.ToSoftDictionary(x => x.ModelId, x => x.DisplayName);
 
@@ -227,22 +147,72 @@ namespace AloysAdjustments.Modules.Outfits
             }
         }
 
+        public override async Task LoadPatch(string path)
+        {
+            IoC.Notif.ShowStatus("Loading outfits...");
+
+            var characterMode = await CharacterLogic.IsCharacterModeFile(path);
+            var patchOutfits = await OutfitLogic.GenerateOutfits(path, false);
+            
+            if (!patchOutfits.Any())
+                return;
+
+            var loadedOutfits = patchOutfits.ToHashSet();
+
+            IoC.Settings.SwapCharacterMode = characterMode;
+            UpdateMode();
+
+            await Initialize();
+
+            var variantMapping = new Dictionary<BaseGGUUID, BaseGGUUID>();
+            if (IoC.Settings.SwapCharacterMode)
+            {
+                variantMapping = await CharacterLogic.GetVariantMapping(path, OutfitLogic);
+            }
+
+            foreach (var outfit in Outfits)
+            {
+                if (loadedOutfits.TryGetValue(outfit, out var loadedOutfit))
+                {
+                    if (!variantMapping.TryGetValue(loadedOutfit.ModelId, out var varId))
+                        varId = loadedOutfit.ModelId;
+
+                    outfit.Modified = !outfit.ModelId.Equals(varId);
+                    outfit.ModelId.AssignFromOther(varId);
+                }
+            }
+
+            RefreshLists();
+        }
+
+        public override async Task ApplyChanges(Patch patch)
+        {
+            if (IoC.Settings.SwapCharacterMode)
+            {
+                await CharacterLogic.CreatePatch(patch, Outfits, 
+                    Models.Cast<CharacterModel>(), OutfitLogic);
+            }
+            else
+            {
+                await OutfitLogic.CreatePatch(patch, Outfits);
+            }
+        }
+        
         private void lbOutfits_SelectedValueChanged(object sender, EventArgs e)
         {
             _updatingLists = true;
             
             ResetSelected.Enabled = lbOutfits.SelectedIndex >= 0;
 
-            var selected = GetSelectedOutfits().ToHashSet();
-            
-            var modelIds = NewMaps.SelectMany(x=>x.Outfits)
-                .Where(x=>selected.Contains(x)).Select(x => x.ModelId)
-                .ToHashSet();
+            var selected = GetSelectedOutfits()
+                .Select(x => x.ModelId).ToHashSet();
+
+            var checkState = modelIds.Count > 1 ? CheckState.Indeterminate : CheckState.Checked;
 
             for (int i = 0; i < clbModels.Items.Count; i++)
             {
                 if (modelIds.Contains(Models[i].Id))
-                    clbModels.SetItemCheckState(i, modelIds.Count > 1 ? CheckState.Indeterminate : CheckState.Checked);
+                    clbModels.SetItemCheckState(i, checkState);
                 else
                     clbModels.SetItemCheckState(i, CheckState.Unchecked);
             }
@@ -280,28 +250,10 @@ namespace AloysAdjustments.Modules.Outfits
 
         private void UpdateMapping(Outfit outfit, Model model)
         {
-            //get all matching outfits by model from the default mapping
-            //there are multiple outfits with the same name/model but different properties
-            var origOutfitModels = DefaultMaps.SelectMany(x => x.Outfits)
-                .Where(x => x.Equals(outfit)).Select(x => x.ModelId).ToHashSet();
-            var origOutfits = DefaultMaps.SelectMany(x => x.Outfits)
-                .Where(x => origOutfitModels.Contains(x.ModelId)).ToHashSet();
+            DefaultOutfits.TryGetValue(outfit, out var defaultOutfit);
 
-            //find the outfit in the new mapping by reference and update the model
-            foreach (var newOutfit in NewMaps.SelectMany(x => x.Outfits)
-                .Where(x => origOutfits.Contains(x)))
-            {
-                origOutfits.TryGetValue(newOutfit, out var orig);
-
-                newOutfit.Modified = !orig.ModelId.Equals(model.Id);
-                newOutfit.ModelId.AssignFromOther(model.Id);
-
-                if (newOutfit.Equals(outfit))
-                {
-                    outfit.ModelId.AssignFromOther(model.Id);
-                    outfit.Modified = newOutfit.Modified;
-                }
-            }
+            outfit.Modified = !defaultOutfit.ModelId.Equals(model.Id);
+            outfit.ModelId.AssignFromOther(model.Id);
         }
 
         private void lbOutfits_KeyDown(object sender, KeyEventArgs e)
@@ -336,13 +288,12 @@ namespace AloysAdjustments.Modules.Outfits
         {
             if (lbOutfits.SelectedIndex < 0)
                 return Task.CompletedTask;
-
-            var defaultOutfits = DefaultMaps.SelectMany(x => x.Outfits).ToHashSet();
+            
             var selected = GetSelectedOutfits();
 
             foreach (var outfit in selected)
             {
-                if (defaultOutfits.TryGetValue(outfit, out var defaultOutfit))
+                if (DefaultOutfits.TryGetValue(outfit, out var defaultOutfit))
                 {
                     outfit.Modified = false;
                     outfit.ModelId.AssignFromOther(defaultOutfit.ModelId);

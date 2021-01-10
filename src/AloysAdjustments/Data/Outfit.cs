@@ -10,9 +10,14 @@ namespace AloysAdjustments.Data
     public class Outfit
     {
         public BaseGGUUID ModelId { get; set; }
+        public string ModelFile { get; set; }
+
         public string Name { get; set; }
         public bool Modified { get; set; }
+
         public BaseGGUUID RefId { get; set; }
+        public string SourceFile {get; set;}
+
         public BaseGGUUID LocalNameId { get; set; }
         public string LocalNameFile { get; set; }
 
@@ -29,8 +34,10 @@ namespace AloysAdjustments.Data
             return new Outfit()
             {
                 ModelId = BaseGGUUID.FromOther(ModelId),
+                ModelFile = ModelFile,
                 Name = Name,
                 RefId = BaseGGUUID.FromOther(RefId),
+                SourceFile = SourceFile,
                 LocalNameId = BaseGGUUID.FromOther(LocalNameId),
                 LocalNameFile = LocalNameFile
             };

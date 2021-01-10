@@ -52,10 +52,9 @@ namespace AloysAdjustments.Logic
             var core = await IoC.Archiver.LoadFileAsync(Configs.GamePackDir, path);
             var texts = new Dictionary<BaseGGUUID, string>();
 
-            foreach (var obj in core.Components)
+            foreach (var obj in core.GetTypes<LocalizedTextResource>())
             {
-                if (obj is LocalizedTextResource asResource)
-                    texts[asResource.ObjectUUID] = asResource.GetStringForLanguage(Language);
+                texts[obj.ObjectUUID] = obj.GetStringForLanguage(Language);
             }
 
             return texts;

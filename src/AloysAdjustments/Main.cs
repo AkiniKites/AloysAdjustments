@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -170,6 +171,8 @@ namespace AloysAdjustments
                 return;
             }
 
+            var sw = new Stopwatch(); sw.Start();
+
             //remove failed patches
             await FileManager.CleanupFile(Configs.PatchPath, true);
 
@@ -177,20 +180,24 @@ namespace AloysAdjustments
             {
                 var patcher = new Patcher();
 
-                var dir = await patcher.SetupPatchDir();
+                var patch = await patcher.StartPatch();
                 foreach (var module in Modules)
                 {
                     IoC.Notif.ShowStatus($"Generating patch ({module.ModuleName})...");
-                    await module.CreatePatch(dir);
+                    await module.ApplyChanges(patch);
                 }
 
                 IoC.Notif.ShowStatus("Generating plugin patches...");
-                await patcher.ApplyCustomPatches(dir);
+                await patcher.ApplyCustomPatches(patch);
 
                 IoC.Notif.ShowStatus("Generating patch (rebuild prefetch)...");
-                await Prefetch.RebuildPrefetch(dir);
                 
-                var patch = await patcher.PackPatch(dir);
+                var p = await Prefetch.LoadAsync();
+                await p.Rebuild(patch);
+                await p.Save(Path.Combine(patch.WorkingDir, p.Core.Source));
+
+                IoC.Notif.ShowStatus("Generating patch (packing)...");
+                await patcher.PackPatch(patch);
 
                 IoC.Notif.ShowStatus("Copying patch...");
                 await patcher.InstallPatch(patch);
@@ -205,7 +212,7 @@ namespace AloysAdjustments
             }
 
             IoC.Notif.HideProgress();
-            IoC.Notif.ShowStatus("Patch installed");
+            IoC.Notif.ShowStatus($"Patch installed ({sw.Elapsed.TotalMilliseconds:n0} ms)");
         }
 
         private async void btnLoadPatch_ClickCommand(object sender, EventArgs e) => await Relay.To(sender, e, btnLoadPatch_Click);

@@ -12,9 +12,11 @@ namespace AloysAdjustments.Logic
 {
     public class HzdCore
     {
+        public const string CoreExt = ".core";
+
         public string Source { get; set; }
         public string FilePath { get; private set; }
-        public List<object> Components { get; private set; }
+        public CoreBinary Binary { get; private set; }
 
         public static HzdCore Load(string file, string source)
         {
@@ -23,8 +25,8 @@ namespace AloysAdjustments.Logic
                 return new HzdCore()
                 {
                     FilePath = file,
-                    Source = source,
-                    Components = CoreBinary.Load(file, true)
+                    Source = NormalizeSource(source),
+                    Binary = CoreBinary.FromFile(file, true)
                 };
             }
             catch(Exception ex)
@@ -36,10 +38,12 @@ namespace AloysAdjustments.Logic
         {
             try
             {
+                using var br = new BinaryReader(stream, Encoding.UTF8, true);
+
                 return new HzdCore()
                 {
-                    Source = source,
-                    Components = CoreBinary.Load(stream, true)
+                    Source = NormalizeSource(source),
+                    Binary = CoreBinary.FromData(br, true)
                 };
             }
             catch (Exception ex)
@@ -58,7 +62,9 @@ namespace AloysAdjustments.Logic
                 if (savePath == null)
                     throw new HzdException("Cannot save pack file, save path null");
 
-                CoreBinary.Save(savePath, Components);
+                savePath = EnsureExt(savePath);
+
+                Binary.ToFile(savePath);
             });
         }
 
@@ -66,15 +72,29 @@ namespace AloysAdjustments.Logic
         {
             typeName ??= typeof(T).Name;
 
-            return Components.Where(x => x.GetType().Name == typeName)
+            return Binary.Where(x => x.GetType().Name == typeName)
                 .ToDictionary(x => (BaseGGUUID)((T)x).ObjectUUID, x => (T)x);
         }
         public List<T> GetTypes<T>(string typeName = null)
         {
             typeName ??= typeof(T).Name;
 
-            return Components.Where(x => x.GetType().Name == typeName)
+            return Binary.Where(x => x.GetType().Name == typeName)
                 .Cast<T>().ToList();
+        }
+
+        private static string NormalizeSource(string path)
+        {
+            if (Path.GetExtension(path) == CoreExt)
+                path = path.Substring(0, path.Length - CoreExt.Length);
+            return path.Replace("\\", "/");
+        }
+
+        public static string EnsureExt(string path)
+        {
+            if (!path.EndsWith(HzdCore.CoreExt, StringComparison.OrdinalIgnoreCase))
+                path += HzdCore.CoreExt;
+            return path;
         }
     }
 }

@@ -28,10 +28,10 @@ namespace AloysAdjustments.Modules.Misc
             return adj;
         }
 
-        public async Task CreatePatch(string patchDir, MiscAdjustments adjustments)
+        public async Task CreatePatch(Patch patch, MiscAdjustments adjustments)
         {
             if (adjustments.SkipIntroLogos == true)
-                await RemoveIntroLogo(patchDir);
+                await RemoveIntroLogo(patch);
         }
 
         
@@ -43,10 +43,9 @@ namespace AloysAdjustments.Modules.Misc
             return GetIntroMenu(core).PropertyAnimations.Any();
         }
 
-        private async Task RemoveIntroLogo(string patchDir)
+        private async Task RemoveIntroLogo(Patch patch)
         {
-            var core = await FileManager.ExtractFile(patchDir,
-                Configs.GamePackDir, IoC.Get<MiscConfig>().IntroFile);
+            var core = await patch.AddFile(IoC.Get<MiscConfig>().IntroFile);
 
             var menu = GetIntroMenu(core);
             menu.PropertyAnimations.Clear();

@@ -18,7 +18,7 @@ namespace AloysAdjustments.Logic
 
         private readonly ConcurrentDictionary<PackList, Dictionary<ulong, string>> _packCache;
 
-        public System.Collections.Generic.HashSet<string> IgnoreList { get; }
+        public HashSet<string> IgnoreList { get; }
 
         public Archiver(IEnumerable<string> ignoreList)
         {
@@ -42,15 +42,16 @@ namespace AloysAdjustments.Logic
             _packCache.Clear();
         }
 
-        public async Task ExtractFile(string dir, string source, string output)
+        public async Task ExtractFile(string dir, string file, string output)
         {
             ValidatePackager();
 
             await Async.Run(() =>
             {
                 using var fs = File.OpenWrite(output);
-                if (!TryExtractFile(dir, fs, source))
-                    throw new HzdException($"Unable to extract file, file not found: {source}");
+
+                if (!TryExtractFile(dir, fs, file))
+                    throw new HzdException($"Unable to extract file, file not found: {file}");
             });
         }
         
@@ -79,9 +80,6 @@ namespace AloysAdjustments.Logic
             PackList packs;
             bool isDir;
 
-            if (!file.EndsWith(".core", StringComparison.OrdinalIgnoreCase))
-                file += ".core";
-
             if (Directory.Exists(path))
             {
                 packs = GetPackFiles(path, PackExt);
@@ -97,11 +95,12 @@ namespace AloysAdjustments.Logic
 
             var fileMap = BuildFileMap(packs, isDir);
 
+            file = HzdCore.EnsureExt(file);
             var hash = Packfile.GetHashForPath(file);
             if (!fileMap.TryGetValue(hash, out var packFile))
                 return false;
 
-            using var pack = new Packfile(packFile);
+            using var pack = new PackfileReader(packFile);
             pack.ExtractFile(hash, stream);
 
             return true;
@@ -131,49 +130,6 @@ namespace AloysAdjustments.Logic
             return new PackList(files);
         }
 
-        private Dictionary<ulong, Packfile> LoadPacks(List<string> packFiles, IEnumerable<ulong> nameHashes)
-        {
-            var loadedPacks = new Dictionary<ulong, Packfile>();
-            var hashes = nameHashes.ToHashSet();
-
-            foreach (var packFile in packFiles)
-            {
-                Packfile pack = null;
-
-                try
-                {
-                    pack = new Packfile(packFile);
-
-                    bool needed = false;
-                    for (int i = 0; i < pack.FileEntries.Count; i++)
-                    {
-                        var hash = pack.FileEntries[i].PathHash;
-                        if (hashes.Contains(hash))
-                        {
-                            if (loadedPacks.TryGetValue(hash, out var oldPack) && !ReferenceEquals(oldPack, pack))
-                                oldPack.Dispose();
-                            loadedPacks[hash] = pack;
-                            needed = true;
-                        }
-                    }
-
-                    if (!needed)
-                        pack.Dispose();
-                }
-                catch (Exception ex)
-                {
-                    pack?.Dispose();
-
-                    foreach (var loadedPacksValue in loadedPacks.Values)
-                        loadedPacksValue.Dispose();
-
-                    throw new HzdException($"Failed to extract: {packFile}", ex);
-                }
-            }
-
-            return loadedPacks;
-        }
-
         private Dictionary<ulong, string> BuildFileMap(PackList packFiles, bool useCache)
         {
             if (useCache && _packCache.TryGetValue(packFiles, out var files))
@@ -183,7 +139,7 @@ namespace AloysAdjustments.Logic
 
             foreach (var packFile in packFiles.Packs)
             {
-                using var pack = new Packfile(packFile);
+                using var pack = new PackfileReader(packFile);
                 for (int i = 0; i < pack.FileEntries.Count; i++)
                 {
                     var hash = pack.FileEntries[i].PathHash;
@@ -211,10 +167,8 @@ namespace AloysAdjustments.Logic
                 var files = Directory.GetFiles(dir, "*", SearchOption.AllDirectories);
                 var fileNames = files.Select(x => x.Substring(dir.Length + 1).Replace("\\", "/")).ToArray();
 
-                using (var pack = new Packfile(output, FileMode.Create))
-                {
-                    pack.BuildFromFileList(dir, fileNames);
-                }
+                using var pack = new PackfileWriterFast(output, false, true);
+                pack.BuildFromFileList(dir, fileNames);
             });
         }
         

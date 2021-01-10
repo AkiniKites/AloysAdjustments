@@ -1,0 +1,3 @@
+﻿Fix undergarments for cutscenes
+Fix shadow carja disguise
+Attach hair to outfits instead of character
