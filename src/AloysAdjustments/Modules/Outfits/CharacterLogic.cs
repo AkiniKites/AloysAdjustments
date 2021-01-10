@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -28,32 +29,29 @@ namespace AloysAdjustments.Modules.Outfits
             Search = new CharacterModelSearch();
         }
         
-        public async Task CreatePatch(string patchDir, IEnumerable<OutfitFile> maps, 
+        public async Task CreatePatch(string patchDir, ReadOnlyCollection<Outfit> outfits,
             IEnumerable<CharacterModel> characters, OutfitsLogic outfitsLogic)
         {
-            var models = maps.SelectMany(x => x.Outfits).Select(x => x.ModelId).ToHashSet();
+            var models = outfits.Where(x => x.Modified).Select(x => x.ModelId).ToHashSet();
             var newCharacters = characters.Where(x => models.Contains(x.Id)).ToList();
 
             if (!newCharacters.Any())
                 return;
-            
-            var removed = await RemoveAloyComponents(patchDir);
+
+            //remove aloy components from player file
+            var toRemove = await FindAloyComponents();
+            await RemoveAloyComponents(patchDir, toRemove);
+
+            //fix character variants
             var variantMapping = await FixRagdolls(patchDir, newCharacters);
 
+            //update outfit mappings
             await AddCharacterReferences(patchDir, newCharacters, variantMapping);
+            await outfitsLogic.CreatePatch(patchDir, outfits, variantMapping);
 
-            await outfitsLogic.CreatePatch(patchDir, maps, map =>
-            {
-                var mapping = new Dictionary<BaseGGUUID, BaseGGUUID>();
-                foreach (var outfit in map.Outfits)
-                {
-                    if (variantMapping.TryGetValue(outfit.ModelId, out var varId))
-                        mapping.Add(outfit.RefId, varId);
-                    else
-                        mapping.Add(outfit.RefId, outfit.ModelId);
-                }
-                return mapping;
-            });
+            //attach removed components to non-character outfit changes
+            var nonCharOutfits = outfits.Where(x => !x.Modified || !newCharacters.Any(c => c.Id.Equals(x.ModelId)));
+            await AttachAloyComponents(patchDir, nonCharOutfits, toRemove);
         }
 
         private async Task AddCharacterReferences(string patchDir, IEnumerable<CharacterModel> characters,
@@ -79,46 +77,45 @@ namespace AloysAdjustments.Modules.Outfits
 
             await pcCore.Save();
         }
-
-        private async Task<List<Ref<EntityComponentResource>>> RemoveAloyComponents(string patchDir)
+        
+        private async Task<List<(string File, BaseGGUUID Id)>> FindAloyComponents()
         {
-            var charCore = await FileManager.ExtractFile(patchDir,
-                Configs.GamePackDir, IoC.Get<OutfitConfig>().PlayerCharacterFile);
+            var components = new  List<(string, BaseGGUUID)>();
+
+            var charCore = await IoC.Archiver.LoadFileAsync(Configs.GamePackDir, 
+                IoC.Get<OutfitConfig>().PlayerCharacterFile);
 
             var hairModel = charCore.GetTypes<HairModelComponentResource>().FirstOrDefault();
             if (hairModel == null)
                 throw new HzdException($"Failed to remove Aloy's hair, unable to find HairModelComponentResource");
 
-            var adult = charCore.GetTypes<SoldierResource>().FirstOrDefault(x=>x.Name == IoC.Get<OutfitConfig>().AloyCharacterName);
-            if (adult == null)
-                throw new HzdException($"Failed to remove Aloy's hair, unable to find SoldierResource with name: {IoC.Get<OutfitConfig>().AloyCharacterName}");
-
+            components.Add((charCore.Source, hairModel.ObjectUUID));
+            
             var compCore = await IoC.Archiver.LoadFileAsync(Configs.GamePackDir, IoC.Get<OutfitConfig>().PlayerComponentsFile);
 
             var facePaint = compCore.GetTypes<FacialPaintComponentResource>().FirstOrDefault();
             if (facePaint == null)
                 throw new HzdException($"Failed to remove Aloy's facepaint overrides, unable to find FacialPaintComponentResource");
+
+            components.Add((compCore.Source, facePaint.ObjectUUID));
             
-            var toRemove = new[] { 
-                hairModel.ObjectUUID,
-                facePaint.ObjectUUID
-            }.ToHashSet();
+            return components;
+        }
 
-            var removedComponents = new List<Ref<EntityComponentResource>>();
-            for (int i = 0; i < adult.EntityComponentResources.Count; i++)
-            {
-                var comp = adult.EntityComponentResources[i];
-                if (toRemove.Contains(comp.GUID))
-                {
-                    removedComponents.Add(comp);
-                    adult.EntityComponentResources.RemoveAt(i);
-                    i--;
-                }
-            }
+        private async Task RemoveAloyComponents(string patchDir, List<(string File, BaseGGUUID Id)> components)
+        {
+            var core = await FileManager.ExtractFile(patchDir,
+                Configs.GamePackDir, IoC.Get<OutfitConfig>().PlayerCharacterFile);
+            
+            var adult = core.GetTypes<SoldierResource>().FirstOrDefault(x=>x.Name == IoC.Get<OutfitConfig>().AloyCharacterName);
+            if (adult == null)
+                throw new HzdException($"Failed to remove Aloy's hair, unable to find SoldierResource with name: {IoC.Get<OutfitConfig>().AloyCharacterName}");
 
-            await charCore.Save();
+            var toRemove = components.Select(x => x.Id).ToHashSet();
 
-            return removedComponents;
+            adult.EntityComponentResources.RemoveAll(x => toRemove.Contains(x.GUID));
+
+            await core.Save();
         }
 
         public async Task<bool> IsCharacterModeFile(string path)
@@ -184,6 +181,30 @@ namespace AloysAdjustments.Modules.Outfits
             newVariant.Name = $"{variant.Name}{VariantNameFormat}{variant.ObjectUUID}";
 
             return newVariant;
+        }
+
+        private async Task AttachAloyComponents(string patchDir, IEnumerable<Outfit> outfits, List<(string File, BaseGGUUID Id)> removed)
+        {
+            foreach (var outfit in outfits)
+            {
+                var core = await FileManager.ExtractFile(patchDir,
+                    Configs.GamePackDir, outfit.ModelFile);
+
+                var resources = core.GetTypes<HumanoidBodyVariant>().First().EntityComponentResources;
+                foreach (var item in removed)
+                {
+                    var comp = new Ref<EntityComponentResource>()
+                    {
+                        GUID = item.Id,
+                        ExternalFile = new BaseString(item.File),
+                        Type = BaseRef.Types.ExternalCoreUUID
+                    };
+
+                    resources.Add(comp);
+                }
+
+                await core.Save();
+            }
         }
 
         public async Task<Dictionary<BaseGGUUID, BaseGGUUID>> GetVariantMapping(string path, OutfitsLogic outfitsLogic)

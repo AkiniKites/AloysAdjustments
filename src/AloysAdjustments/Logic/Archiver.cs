@@ -42,15 +42,16 @@ namespace AloysAdjustments.Logic
             _packCache.Clear();
         }
 
-        public async Task ExtractFile(string dir, string source, string output)
+        public async Task ExtractFile(string dir, string file, string output)
         {
             ValidatePackager();
 
             await Async.Run(() =>
             {
                 using var fs = File.OpenWrite(output);
-                if (!TryExtractFile(dir, fs, source))
-                    throw new HzdException($"Unable to extract file, file not found: {source}");
+
+                if (!TryExtractFile(dir, fs, file))
+                    throw new HzdException($"Unable to extract file, file not found: {file}");
             });
         }
         
@@ -79,9 +80,6 @@ namespace AloysAdjustments.Logic
             PackList packs;
             bool isDir;
 
-            if (!file.EndsWith(".core", StringComparison.OrdinalIgnoreCase))
-                file += ".core";
-
             if (Directory.Exists(path))
             {
                 packs = GetPackFiles(path, PackExt);
@@ -97,6 +95,7 @@ namespace AloysAdjustments.Logic
 
             var fileMap = BuildFileMap(packs, isDir);
 
+            file = HzdCore.EnsureExt(file);
             var hash = Packfile.GetHashForPath(file);
             if (!fileMap.TryGetValue(hash, out var packFile))
                 return false;
@@ -168,7 +167,7 @@ namespace AloysAdjustments.Logic
                 var files = Directory.GetFiles(dir, "*", SearchOption.AllDirectories);
                 var fileNames = files.Select(x => x.Substring(dir.Length + 1).Replace("\\", "/")).ToArray();
 
-                using var pack = new PackfileWriter(output, false, true);
+                using var pack = new PackfileWriterFast(output, false, true);
                 pack.BuildFromFileList(dir, fileNames);
             });
         }

@@ -12,6 +12,8 @@ namespace AloysAdjustments.Logic
 {
     public class HzdCore
     {
+        public const string CoreExt = ".core";
+
         public string Source { get; set; }
         public string FilePath { get; private set; }
         public CoreBinary Binary { get; private set; }
@@ -23,7 +25,7 @@ namespace AloysAdjustments.Logic
                 return new HzdCore()
                 {
                     FilePath = file,
-                    Source = source,
+                    Source = NormalizeSource(source),
                     Binary = CoreBinary.FromFile(file, true)
                 };
             }
@@ -40,7 +42,7 @@ namespace AloysAdjustments.Logic
 
                 return new HzdCore()
                 {
-                    Source = source,
+                    Source = NormalizeSource(source),
                     Binary = CoreBinary.FromData(br, true)
                 };
             }
@@ -60,6 +62,8 @@ namespace AloysAdjustments.Logic
                 if (savePath == null)
                     throw new HzdException("Cannot save pack file, save path null");
 
+                savePath = EnsureExt(savePath);
+
                 Binary.ToFile(savePath);
             });
         }
@@ -77,6 +81,20 @@ namespace AloysAdjustments.Logic
 
             return Binary.Where(x => x.GetType().Name == typeName)
                 .Cast<T>().ToList();
+        }
+
+        private static string NormalizeSource(string path)
+        {
+            if (Path.GetExtension(path) == CoreExt)
+                path = path.Substring(0, path.Length - CoreExt.Length);
+            return path.Replace("\\", "/");
+        }
+
+        public static string EnsureExt(string path)
+        {
+            if (!path.EndsWith(HzdCore.CoreExt, StringComparison.OrdinalIgnoreCase))
+                path += HzdCore.CoreExt;
+            return path;
         }
     }
 }

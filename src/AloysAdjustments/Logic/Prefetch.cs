@@ -6,56 +6,119 @@ using System.Text;
 using System.Threading.Tasks;
 using AloysAdjustments.Configuration;
 using AloysAdjustments.Utility;
+using Decima;
 using Decima.HZD;
 
 namespace AloysAdjustments.Logic
 {
-    public static class Prefetch
+    public class Prefetch
     {
-        public static async Task<Dictionary<string, int>> LoadPrefetchAsync()
+        public HzdCore Core { get; private set; }
+        public Dictionary<string, int> Files { get; private set; }
+        public PrefetchList Data { get; private set; }
+
+        public static async Task<Prefetch> LoadAsync()
         {
-            return await Async.Run(LoadPrefetch);
+            return await Async.Run(Load);
         }
-        public static Dictionary<string, int> LoadPrefetch()
+        public static Prefetch Load()
         {
-            var core = IoC.Archiver.LoadFile(Configs.GamePackDir, IoC.Config.PrefetchFile);
-            var data = core.GetTypes<PrefetchList>().First();
+            var prefetch = new Prefetch();
 
-            var files = new Dictionary<string, int>();
-            for (int i = 0; i < data.Files.Count; i++)
-                files.Add(data.Files[i].Path.Value, i);
-            return files;
+            prefetch.Core = IoC.Archiver.LoadFile(Configs.GamePackDir, IoC.Config.PrefetchFile);
+            prefetch.Data = prefetch.Core.GetTypes<PrefetchList>().First();
+
+            prefetch.Files = new Dictionary<string, int>();
+            for (int i = 0; i < prefetch.Data.Files.Count; i++)
+                prefetch.Files.Add(prefetch.Data.Files[i].Path.Value, i);
+
+            return prefetch;
         }
 
-        public static async Task RebuildPrefetch(string patchDir)
+        private Prefetch() { }
+        
+        public async Task Save(string path)
         {
-            var prefetchFile = Path.GetFileName(IoC.Config.PrefetchFile);
+            Paths.CheckDirectory(Path.GetDirectoryName(path));
+            await Core.Save(path);
+        }
 
-            var core = await FileManager.ExtractFile(patchDir,
-                Configs.GamePackDir, IoC.Config.PrefetchFile);
+        public async Task<bool> Rebuild(string patchDir)
+        {
+            return await Async.Run(() => {
+                var changed = false;
+                var dirLen = Path.GetFullPath(patchDir).Length + 1;
+                var links = GetLinks();
+                
+                foreach (var f in new DirectoryInfo(patchDir).GetFiles("*", SearchOption.AllDirectories))
+                {
+                    var name = f.FullName.Substring(dirLen).Replace(".core", "").Replace("\\", "/");
+                    
+                    if (Files.TryGetValue(name, out int idx))
+                    {
+                        if (Data.Sizes[idx] != (int)f.Length)
+                        {
+                            changed = true;
+                            Data.Sizes[idx] = (int)f.Length;
+                        }
 
-            var data = core.GetTypes<PrefetchList>().First();
+                        UpdateLinks(links, f.FullName, name);
+                    }
+                }
 
-            var files = new Dictionary<string, int>();
-            for (int i = 0; i < data.Files.Count; i++)
-                files[data.Files[i].Path.Value] = i;
+                RebuildLinks(links);
 
-            var changed = false;
-            var dirLen = Path.GetFullPath(patchDir).Length + 1;
-            foreach (var f in new DirectoryInfo(patchDir).GetFiles("*", SearchOption.AllDirectories))
+                return changed;
+            });
+        }
+
+        private int[][] GetLinks()
+        {
+            var fileLinks = new int[Data.Files.Count][];
+
+            int linkIdx = 0;
+
+            for (int i = 0; i < Data.Files.Count; i++)
             {
-                if (f.FullName.Contains(prefetchFile))
-                    continue;
-                var name = f.FullName.Substring(dirLen).Replace(".core", "").Replace("\\", "/");
-                if (data.Sizes[files[name]] != (int)f.Length)
-                    changed = true;
-                data.Sizes[files[name]] = (int)f.Length;
+                int count = Data.Links[linkIdx];
+                var links = new int[count];
+
+                Data.Links.CopyTo(linkIdx + 1, links, 0, count);
+                fileLinks[i] = links;
+
+                linkIdx += count + 1;
             }
 
-            if (changed)
-                await core.Save();
-            else
-                File.Delete(core.FilePath);
+            return fileLinks;
+        }
+
+        private void UpdateLinks(int[][] fileLinks, string filepath, string name)
+        {
+            var fileCore = HzdCore.Load(filepath, name);
+
+            // Regenerate links for this specific file (don't forget to remove duplicates (Distinct()!!!))
+            var newLinks = fileCore.Binary.GetAllReferences()
+                .Where(x => x.Type == BaseRef.Types.ExternalCoreUUID)
+                .Select(x => Files[x.ExternalFile.Value])
+                .Distinct()
+                .ToArray();
+
+            fileLinks[Files[name]] = newLinks;
+        }
+
+        private void RebuildLinks(int[][] fileLinks)
+        {
+            // Dictionary of links -> linear array
+            Data.Links.Clear();
+
+            for (int i = 0; i < Data.Files.Count; i++)
+            {
+                var indices = fileLinks[i];
+                Data.Links.Add(indices.Length);
+
+                foreach (int index in indices)
+                    Data.Links.Add(index);
+            }
         }
     }
 }

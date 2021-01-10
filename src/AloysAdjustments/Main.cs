@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -170,6 +171,8 @@ namespace AloysAdjustments
                 return;
             }
 
+            var sw = new Stopwatch(); sw.Start();
+
             //remove failed patches
             await FileManager.CleanupFile(Configs.PatchPath, true);
 
@@ -188,8 +191,12 @@ namespace AloysAdjustments
                 await patcher.ApplyCustomPatches(dir);
 
                 IoC.Notif.ShowStatus("Generating patch (rebuild prefetch)...");
-                await Prefetch.RebuildPrefetch(dir);
                 
+                var p = await Prefetch.LoadAsync();
+                await p.Rebuild(dir);
+                await p.Save(Path.Combine(dir, p.Core.Source));
+
+                IoC.Notif.ShowStatus("Generating patch (packing)...");
                 var patch = await patcher.PackPatch(dir);
 
                 IoC.Notif.ShowStatus("Copying patch...");
@@ -205,7 +212,7 @@ namespace AloysAdjustments
             }
 
             IoC.Notif.HideProgress();
-            IoC.Notif.ShowStatus("Patch installed");
+            IoC.Notif.ShowStatus($"Patch installed ({sw.Elapsed.TotalMilliseconds:n0} ms)");
         }
 
         private async void btnLoadPatch_ClickCommand(object sender, EventArgs e) => await Relay.To(sender, e, btnLoadPatch_Click);
