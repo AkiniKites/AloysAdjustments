@@ -24,12 +24,17 @@ namespace AloysAdjustments.Modules.Outfits
         private HashSet<Outfit> DefaultOutfits { get; set; }
         private ReadOnlyCollection<Outfit> Outfits { get; set; }
         private ReadOnlyCollection<Model> Models { get; set; }
+
+        private Outfit AllOutfitStub { get; }
         
         public override string ModuleName => "Outfits";
 
         public OutfitsControl()
         {
             _loading = true;
+
+            AllOutfitStub = new Outfit();
+            AllOutfitStub.SetDisplayName("All Outfits");
 
             IoC.Bind(Configs.LoadModuleConfig<OutfitConfig>(ModuleName));
 
@@ -38,7 +43,9 @@ namespace AloysAdjustments.Modules.Outfits
             Outfits = new List<Outfit>().AsReadOnly();
 
             InitializeComponent();
-            
+
+            cbAllOutfits.Checked = IoC.Settings.ApplyToAllOutfits;
+
             UpdateMode();
             SetupLists();
 
@@ -99,9 +106,7 @@ namespace AloysAdjustments.Modules.Outfits
             await UpdateOutfitDisplayNames(outfits);
             Outfits = outfits.OrderBy(x => x.DisplayName).ToList().AsReadOnly();
 
-            lbOutfits.Items.Clear();
-            foreach (var item in Outfits)
-                lbOutfits.Items.Add(item);
+            PopulateOutfitsList();
 
             if (IoC.Settings.SwapCharacterMode)
                 await LoadCharacterModelList();
@@ -113,6 +118,8 @@ namespace AloysAdjustments.Modules.Outfits
             clbModels.Items.Clear();
             foreach (var item in Models)
                 clbModels.Items.Add(item);
+            
+            UpdateAllOutfitsSelection();
         }
 
         private async Task LoadCharacterModelList()
@@ -190,6 +197,7 @@ namespace AloysAdjustments.Modules.Outfits
                 }
             }
 
+            UpdateAllOutfitStub();
             RefreshLists();
         }
 
@@ -247,6 +255,7 @@ namespace AloysAdjustments.Modules.Outfits
 
                 foreach (var outfit in GetSelectedOutfits())
                     UpdateMapping(outfit, model);
+                UpdateAllOutfitStub();
 
                 lbOutfits.Invalidate();
             }
@@ -360,25 +369,38 @@ namespace AloysAdjustments.Modules.Outfits
 
         private void cbAllOutfits_CheckedChanged(object sender, EventArgs e)
         {
+            if (_loading) return;
             IoC.Settings.ApplyToAllOutfits = cbAllOutfits.Checked;
+
+            PopulateOutfitsList();
             UpdateAllOutfitsSelection();
         }
 
-        private void UpdateAllOutfitsSelection()
+        private void PopulateOutfitsList()
         {
             if (IoC.Settings.ApplyToAllOutfits)
             {
-                lbOutfits.SelectionMode = SelectionMode.None;
                 lbOutfits.Items.Clear();
-                lbOutfits.Items.Add("All Outfits");
+                lbOutfits.Items.Add(AllOutfitStub);
+                UpdateAllOutfitStub();
             }
             else
             {
-                lbOutfits.SelectionMode = SelectionMode.MultiExtended;
                 lbOutfits.Items.Clear();
                 foreach (var item in Outfits)
                     lbOutfits.Items.Add(item);
             }
+        }
+
+        private void UpdateAllOutfitStub()
+        {
+            AllOutfitStub.Modified = Outfits.Any(x => x.Modified);
+        }
+
+        private void UpdateAllOutfitsSelection()
+        {
+            lbOutfits.SelectionMode = IoC.Settings.ApplyToAllOutfits ? 
+                SelectionMode.None : SelectionMode.MultiExtended;
 
             lbOutfits_SelectedValueChanged(lbOutfits, EventArgs.Empty);
         }
