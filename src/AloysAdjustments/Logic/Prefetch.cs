@@ -43,14 +43,14 @@ namespace AloysAdjustments.Logic
             await Core.Save(path);
         }
 
-        public async Task<bool> Rebuild(string patchDir)
+        public async Task<bool> Rebuild(Patch patch)
         {
             return await Async.Run(() => {
                 var changed = false;
-                var dirLen = Path.GetFullPath(patchDir).Length + 1;
+                var dirLen = Path.GetFullPath(patch.WorkingDir).Length + 1;
                 var links = GetLinks();
                 
-                foreach (var f in new DirectoryInfo(patchDir).GetFiles("*", SearchOption.AllDirectories))
+                foreach (var f in new DirectoryInfo(patch.WorkingDir).GetFiles("*", SearchOption.AllDirectories))
                 {
                     var name = f.FullName.Substring(dirLen).Replace(".core", "").Replace("\\", "/");
                     

@@ -180,24 +180,24 @@ namespace AloysAdjustments
             {
                 var patcher = new Patcher();
 
-                var dir = await patcher.SetupPatchDir();
+                var patch = await patcher.StartPatch();
                 foreach (var module in Modules)
                 {
                     IoC.Notif.ShowStatus($"Generating patch ({module.ModuleName})...");
-                    await module.CreatePatch(dir);
+                    await module.ApplyChanges(patch);
                 }
 
                 IoC.Notif.ShowStatus("Generating plugin patches...");
-                await patcher.ApplyCustomPatches(dir);
+                await patcher.ApplyCustomPatches(patch);
 
                 IoC.Notif.ShowStatus("Generating patch (rebuild prefetch)...");
                 
                 var p = await Prefetch.LoadAsync();
-                await p.Rebuild(dir);
-                await p.Save(Path.Combine(dir, p.Core.Source));
+                await p.Rebuild(patch);
+                await p.Save(Path.Combine(patch.WorkingDir, p.Core.Source));
 
                 IoC.Notif.ShowStatus("Generating patch (packing)...");
-                var patch = await patcher.PackPatch(dir);
+                await patcher.PackPatch(patch);
 
                 IoC.Notif.ShowStatus("Copying patch...");
                 await patcher.InstallPatch(patch);

@@ -66,11 +66,10 @@ namespace AloysAdjustments.Modules.Upgrades
             return upgrades;
         }
 
-        public async Task CreatePatch(string patchDir, List<Upgrade> upgrades)
+        public async Task CreatePatch(Patch patch, List<Upgrade> upgrades)
         {
             //extract original outfit files to temp
-            var core = await FileManager.ExtractFile(patchDir, 
-                Configs.GamePackDir, IoC.Get<UpgradeConfig>().UpgradeFile);
+            var core = await patch.AddFile(IoC.Get<UpgradeConfig>().UpgradeFile);
 
             var upgradeChanges = upgrades.ToDictionary(x => x.Id, x => x);
             

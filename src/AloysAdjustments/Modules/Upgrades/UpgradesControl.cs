@@ -98,14 +98,14 @@ namespace AloysAdjustments.Modules.Upgrades
             dgvUpgrades.Refresh();
         }
 
-        public override async Task CreatePatch(string patchDir)
+        public override async Task ApplyChanges(Patch patch)
         {
             foreach (var upgrade in NewUpgrades)
             {
                 var defaultUpgrade = DefaultUpgrades[upgrade.Id];
                 if (defaultUpgrade.Value != upgrade.Value)
                 {
-                    await Logic.CreatePatch(patchDir, NewUpgrades);
+                    await Logic.CreatePatch(patch, NewUpgrades);
                     break;
                 }
             }

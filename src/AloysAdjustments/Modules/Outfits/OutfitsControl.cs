@@ -186,16 +186,16 @@ namespace AloysAdjustments.Modules.Outfits
             RefreshLists();
         }
 
-        public override async Task CreatePatch(string patchDir)
+        public override async Task ApplyChanges(Patch patch)
         {
             if (IoC.Settings.SwapCharacterMode)
             {
-                await CharacterLogic.CreatePatch(patchDir, Outfits, 
+                await CharacterLogic.CreatePatch(patch, Outfits, 
                     Models.Cast<CharacterModel>(), OutfitLogic);
             }
             else
             {
-                await OutfitLogic.CreatePatch(patchDir, Outfits);
+                await OutfitLogic.CreatePatch(patch, Outfits);
             }
         }
         

@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using AloysAdjustments.Logic;
 using AloysAdjustments.UI;
 
 namespace AloysAdjustments.Modules
@@ -26,7 +27,7 @@ namespace AloysAdjustments.Modules
         }
 
         public abstract Task LoadPatch(string path);
-        public abstract Task CreatePatch(string patchDir);
+        public abstract Task ApplyChanges(Patch patch);
         public abstract Task Initialize();
         public virtual bool ValidateChanges() => true;
         

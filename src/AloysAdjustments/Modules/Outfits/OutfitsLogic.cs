@@ -137,11 +137,11 @@ namespace AloysAdjustments.Modules.Outfits
             return resource.Variants;
         }
 
-        public async Task CreatePatch(string patchDir, ReadOnlyCollection<Outfit> outfits)
+        public async Task CreatePatch(Patch patch, ReadOnlyCollection<Outfit> outfits)
         {
-            await CreatePatch(patchDir, outfits, new Dictionary<BaseGGUUID, BaseGGUUID>());
+            await CreatePatch(patch, outfits, new Dictionary<BaseGGUUID, BaseGGUUID>());
         }
-        public async Task CreatePatch(string patchDir, ReadOnlyCollection<Outfit> outfits,
+        public async Task CreatePatch(Patch patch, ReadOnlyCollection<Outfit> outfits,
             Dictionary<BaseGGUUID, BaseGGUUID> variantMapping)
         {
             var modifiedOutfits = outfits.Where(x => x.Modified).ToDictionary(x => x.RefId, x => x);
@@ -150,8 +150,7 @@ namespace AloysAdjustments.Modules.Outfits
             foreach (var map in maps)
             {
                 //extract original outfit files to temp
-                var core = await FileManager.ExtractFile(patchDir, 
-                    Configs.GamePackDir, map);
+                var core = await patch.AddFile(map);
                 
                 //update references from based on new maps
                 foreach (var reference in core.GetTypes<NodeGraphHumanoidBodyVariantUUIDRefVariableOverride>())
