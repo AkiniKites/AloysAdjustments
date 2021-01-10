@@ -49,8 +49,9 @@ namespace AloysAdjustments.Modules.Outfits
             await AddCharacterReferences(patchDir, newCharacters, variantMapping);
             await outfitsLogic.CreatePatch(patchDir, outfits, variantMapping);
 
-            //attach removed components to unmodified outfits
-            await AttachAloyComponents(patchDir, outfits.Where(x => !x.Modified), toRemove);
+            //attach removed components to non-character outfit changes
+            var nonCharOutfits = outfits.Where(x => !x.Modified || !newCharacters.Any(c => c.Id.Equals(x.ModelId)));
+            await AttachAloyComponents(patchDir, nonCharOutfits, toRemove);
         }
 
         private async Task AddCharacterReferences(string patchDir, IEnumerable<CharacterModel> characters,
