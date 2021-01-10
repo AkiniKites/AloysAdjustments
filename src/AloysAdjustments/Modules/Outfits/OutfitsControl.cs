@@ -35,6 +35,7 @@ namespace AloysAdjustments.Modules.Outfits
 
             OutfitLogic = new OutfitsLogic();
             CharacterLogic = new CharacterLogic();
+            Outfits = new List<Outfit>().AsReadOnly();
 
             InitializeComponent();
             
@@ -64,7 +65,14 @@ namespace AloysAdjustments.Modules.Outfits
                 }
                 else
                 {
-                    var backColor = Outfits?.Any() == true && Outfits[e.Index].Modified ? Color.LightSkyBlue : e.BackColor;
+                    var backColor = e.BackColor;
+                    var all = IoC.Settings.ApplyToAllOutfits;
+
+                    if ((all && Outfits.Any(x => x.Modified)) ||
+                        (!all && Outfits.Count > e.Index && Outfits[e.Index].Modified))
+                    {
+                        backColor = Color.LightSkyBlue;
+                    }
 
                     using (var b = new SolidBrush(backColor))
                         e.Graphics.FillRectangle(b, e.Bounds);
@@ -204,9 +212,7 @@ namespace AloysAdjustments.Modules.Outfits
             
             ResetSelected.Enabled = lbOutfits.SelectedIndex >= 0;
 
-            var selected = GetSelectedOutfits()
-                .Select(x => x.ModelId).ToHashSet();
-
+            var modelIds = GetSelectedOutfits().Select(x => x.ModelId).ToHashSet();
             var checkState = modelIds.Count > 1 ? CheckState.Indeterminate : CheckState.Checked;
 
             for (int i = 0; i < clbModels.Items.Count; i++)
@@ -368,6 +374,7 @@ namespace AloysAdjustments.Modules.Outfits
             }
             else
             {
+                lbOutfits.SelectionMode = SelectionMode.MultiExtended;
                 lbOutfits.Items.Clear();
                 foreach (var item in Outfits)
                     lbOutfits.Items.Add(item);
