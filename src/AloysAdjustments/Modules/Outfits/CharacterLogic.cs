@@ -38,15 +38,19 @@ namespace AloysAdjustments.Modules.Outfits
             if (!newCharacters.Any())
                 return;
 
+            //remove aloy components from player file
             var toRemove = await FindAloyComponents();
             await RemoveAloyComponents(patchDir, toRemove);
+
+            //fix character variants
             var variantMapping = await FixRagdolls(patchDir, newCharacters);
 
+            //update outfit mappings
             await AddCharacterReferences(patchDir, newCharacters, variantMapping);
-
-            var mapping = new Dictionary<BaseGGUUID, BaseGGUUID>();
-
             await outfitsLogic.CreatePatch(patchDir, outfits, variantMapping);
+
+            //attach removed components to unmodified outfits
+            await AttachAloyComponents(patchDir, outfits.Where(x => !x.Modified), toRemove);
         }
 
         private async Task AddCharacterReferences(string patchDir, IEnumerable<CharacterModel> characters,
@@ -176,6 +180,30 @@ namespace AloysAdjustments.Modules.Outfits
             newVariant.Name = $"{variant.Name}{VariantNameFormat}{variant.ObjectUUID}";
 
             return newVariant;
+        }
+
+        private async Task AttachAloyComponents(string patchDir, IEnumerable<Outfit> outfits, List<(string File, BaseGGUUID Id)> removed)
+        {
+            foreach (var outfit in outfits)
+            {
+                var core = await FileManager.ExtractFile(patchDir,
+                    Configs.GamePackDir, outfit.ModelFile);
+
+                var resources = core.GetTypes<HumanoidBodyVariant>().First().EntityComponentResources;
+                foreach (var item in removed)
+                {
+                    var comp = new Ref<EntityComponentResource>()
+                    {
+                        GUID = item.Id,
+                        ExternalFile = new BaseString(item.File),
+                        Type = BaseRef.Types.ExternalCoreUUID
+                    };
+
+                    resources.Add(comp);
+                }
+
+                await core.Save();
+            }
         }
 
         public async Task<Dictionary<BaseGGUUID, BaseGGUUID>> GetVariantMapping(string path, OutfitsLogic outfitsLogic)
