@@ -4,6 +4,7 @@ using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using AloysAdjustments.Configuration;
+using AloysAdjustments.Utility;
 
 namespace AloysAdjustments.Logic
 {
@@ -14,7 +15,9 @@ namespace AloysAdjustments.Logic
             foreach (var fileName in IoC.Config.OldVersionsToDelete)
             {
                 var path = Path.Combine(Configs.GamePackDir, fileName);
-                await FileManager.CleanupFile(path, false);
+
+                await FileBackup.CleanupBackups(path);
+                if (File.Exists(path)) File.Delete(path);
             }
         }
     }

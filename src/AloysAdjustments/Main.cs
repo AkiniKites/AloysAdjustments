@@ -141,7 +141,7 @@ namespace AloysAdjustments
             IoC.Notif.ShowStatus("Removing old version...");
             await Compatibility.CleanupOldVersions();
             //remove failed patches
-            await FileManager.CleanupFile(Configs.PatchPath, true);
+            await FileBackup.CleanupBackups(Configs.PatchPath);
 
             foreach (var module in Modules)
                 await module.Initialize();
@@ -174,9 +174,9 @@ namespace AloysAdjustments
             var sw = new Stopwatch(); sw.Start();
 
             //remove failed patches
-            await FileManager.CleanupFile(Configs.PatchPath, true);
+            await FileBackup.CleanupBackups(Configs.PatchPath);
 
-            using (var oldPatch = new FileRenamer(Configs.PatchPath))
+            using (var oldPatch = new FileBackup(Configs.PatchPath))
             {
                 var patcher = new Patcher();
 

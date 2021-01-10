@@ -30,7 +30,22 @@ namespace AloysAdjustments.Configuration
             if (_settings != null)
                 _settings.PropertyChanged -= Settings_PropertyChanged;
 
-            if (File.Exists(SettingsPath))
+            var loaded = false;
+            try
+            {
+                if (File.Exists(SettingsPath))
+                {
+                    await using var fs = File.OpenRead(SettingsPath);
+                    _settings = await JsonSerializer.DeserializeAsync<UserSettings>(fs);
+                    loaded = true;
+                }
+            }
+            catch (Exception ex)
+            {
+                Errors.WriteError(ex);
+            }
+
+            if (!loaded && await FileBackup.RestoreBackup(SettingsPath))
             {
                 await using var fs = File.OpenRead(SettingsPath);
                 _settings = await JsonSerializer.DeserializeAsync<UserSettings>(fs);
@@ -39,6 +54,8 @@ namespace AloysAdjustments.Configuration
             {
                 _settings = new UserSettings();
             }
+
+            await FileBackup.CleanupBackups(SettingsPath);
 
             _settings.PropertyChanged += Settings_PropertyChanged;
             return _settings;
@@ -57,11 +74,17 @@ namespace AloysAdjustments.Configuration
 
                 Paths.CheckDirectory(ApplicationSettingsPath);
 
-                await using var fs = File.Open(SettingsPath, FileMode.Create);
-                await JsonSerializer.SerializeAsync(fs, settings, new JsonSerializerOptions()
+                using var backup = new FileBackup(SettingsPath);
+
+                await using (var fs = File.Open(SettingsPath, FileMode.Create))
                 {
-                    WriteIndented = true
-                });
+                    await JsonSerializer.SerializeAsync(fs, settings, new JsonSerializerOptions()
+                    {
+                        WriteIndented = true
+                    });
+                }
+
+                backup.Delete();
             }
             finally
             {
