@@ -6,9 +6,12 @@ using System.IO.IsolatedStorage;
 using System.Reflection;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 using AloysAdjustments.Utility;
+using Newtonsoft.Json;
+using JsonConverter = System.Text.Json.Serialization.JsonConverter;
 
 namespace AloysAdjustments.Configuration
 {
@@ -30,35 +33,18 @@ namespace AloysAdjustments.Configuration
             if (_settings != null)
                 _settings.PropertyChanged -= Settings_PropertyChanged;
 
-            var loaded = false;
-            try
+            if (!await FileBackup.RunWithBackup(SettingsPath, () =>
             {
-                if (File.Exists(SettingsPath))
-                {
-                    await using var fs = File.OpenRead(SettingsPath);
-                    _settings = await JsonSerializer.DeserializeAsync<UserSettings>(fs);
-                    loaded = true;
-                }
-            }
-            catch (Exception ex)
-            {
-                Errors.WriteError(ex);
-            }
+                var json = File.ReadAllText(SettingsPath);
+                if (String.IsNullOrEmpty(json))
+                    return false;
 
-            if (!loaded)
+                _settings = JsonConvert.DeserializeObject<UserSettings>(json);
+                return true;
+            }))
             {
-                if (await FileBackup.RestoreBackup(SettingsPath))
-                {
-                    await using var fs = File.OpenRead(SettingsPath);
-                    _settings = await JsonSerializer.DeserializeAsync<UserSettings>(fs);
-                }
-                else
-                {
-                    _settings = new UserSettings();
-                }
+                _settings = new UserSettings();
             }
-
-            await FileBackup.CleanupBackups(SettingsPath);
 
             _settings.PropertyChanged += Settings_PropertyChanged;
             return _settings;
@@ -71,28 +57,26 @@ namespace AloysAdjustments.Configuration
 
         private static async Task Save(UserSettings settings)
         {
-            try
+            await Async.Run(() =>
             {
-                await _lock.WaitAsync();
-
-                Paths.CheckDirectory(ApplicationSettingsPath);
-
-                using var backup = new FileBackup(SettingsPath);
-
-                await using (var fs = File.Open(SettingsPath, FileMode.Create))
+                try
                 {
-                    await JsonSerializer.SerializeAsync(fs, settings, new JsonSerializerOptions()
-                    {
-                        WriteIndented = true
-                    });
-                }
+                    _lock.Wait();
 
-                backup.Delete();
-            }
-            finally
-            {
-                _lock.Release();
-            }
+                    Paths.CheckDirectory(ApplicationSettingsPath);
+
+                    using var backup = new FileBackup(SettingsPath);
+
+                    var json = JsonConvert.SerializeObject(settings, Formatting.Indented);
+                    File.WriteAllText(SettingsPath, json);
+
+                    backup.Delete();
+                }
+                finally
+                {
+                    _lock.Release();
+                }
+            });
         }
 
     }

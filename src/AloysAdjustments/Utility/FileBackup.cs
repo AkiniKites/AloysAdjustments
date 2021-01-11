@@ -24,15 +24,36 @@ namespace AloysAdjustments.Utility
             });
         }
 
-        public static async Task<bool> RestoreBackup(string path)
+        public static async Task<bool> RunWithBackup(string path, Func<bool> action)
         {
             return await Async.Run(() =>
             {
-                var backup = GetMatchingFiles(path).FirstOrDefault();
-                if (backup != null)
-                    File.Move(backup, path, true);
+                var success = false;
 
-                return backup != null;
+                try
+                {
+                    if (File.Exists(path) && action())
+                        success = true;
+                }
+                catch (Exception ex)
+                {
+                    Errors.WriteError(ex);
+                }
+
+                var backupFiles = GetMatchingFiles(path).ToList();
+
+                if (!success && backupFiles.Any())
+                {
+                    File.Move(backupFiles.First(), path, true);
+                    success = action();
+                }
+
+                foreach (var file in backupFiles)
+                {
+                    if (File.Exists(file)) File.Delete(file);
+                }
+                
+                return success;
             });
         }
 
