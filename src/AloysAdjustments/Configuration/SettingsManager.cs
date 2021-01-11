@@ -45,14 +45,17 @@ namespace AloysAdjustments.Configuration
                 Errors.WriteError(ex);
             }
 
-            if (!loaded && await FileBackup.RestoreBackup(SettingsPath))
+            if (!loaded)
             {
-                await using var fs = File.OpenRead(SettingsPath);
-                _settings = await JsonSerializer.DeserializeAsync<UserSettings>(fs);
-            }
-            else
-            {
-                _settings = new UserSettings();
+                if (await FileBackup.RestoreBackup(SettingsPath))
+                {
+                    await using var fs = File.OpenRead(SettingsPath);
+                    _settings = await JsonSerializer.DeserializeAsync<UserSettings>(fs);
+                }
+                else
+                {
+                    _settings = new UserSettings();
+                }
             }
 
             await FileBackup.CleanupBackups(SettingsPath);
