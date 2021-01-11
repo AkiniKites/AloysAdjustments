@@ -1,16 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using AloysAdjustments.Configuration;
+﻿using AloysAdjustments.Configuration;
 using AloysAdjustments.Data;
 using AloysAdjustments.Logic;
 using AloysAdjustments.Utility;
 using Decima;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Drawing;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace AloysAdjustments.Modules.Outfits
 {
@@ -25,6 +24,8 @@ namespace AloysAdjustments.Modules.Outfits
         private HashSet<Outfit> DefaultOutfits { get; set; }
         private ReadOnlyCollection<Outfit> Outfits { get; set; }
         private ReadOnlyCollection<Model> Models { get; set; }
+
+        private Outfit AllOutfitStub { get; }
         
         public override string ModuleName => "Outfits";
 
@@ -32,13 +33,19 @@ namespace AloysAdjustments.Modules.Outfits
         {
             _loading = true;
 
+            AllOutfitStub = new Outfit();
+            AllOutfitStub.SetDisplayName("All Outfits");
+
             IoC.Bind(Configs.LoadModuleConfig<OutfitConfig>(ModuleName));
 
             OutfitLogic = new OutfitsLogic();
             CharacterLogic = new CharacterLogic();
+            Outfits = new List<Outfit>().AsReadOnly();
 
             InitializeComponent();
-            
+
+            cbAllOutfits.Checked = IoC.Settings.ApplyToAllOutfits;
+
             UpdateMode();
             SetupLists();
 
@@ -65,7 +72,14 @@ namespace AloysAdjustments.Modules.Outfits
                 }
                 else
                 {
-                    var backColor = Outfits?.Any() == true && Outfits[e.Index].Modified ? Color.LightSkyBlue : e.BackColor;
+                    var backColor = e.BackColor;
+                    var all = IoC.Settings.ApplyToAllOutfits;
+
+                    if ((all && Outfits.Any(x => x.Modified)) ||
+                        (!all && Outfits.Count > e.Index && Outfits[e.Index].Modified))
+                    {
+                        backColor = Color.LightSkyBlue;
+                    }
 
                     using (var b = new SolidBrush(backColor))
                         e.Graphics.FillRectangle(b, e.Bounds);
@@ -92,9 +106,7 @@ namespace AloysAdjustments.Modules.Outfits
             await UpdateOutfitDisplayNames(outfits);
             Outfits = outfits.OrderBy(x => x.DisplayName).ToList().AsReadOnly();
 
-            lbOutfits.Items.Clear();
-            foreach (var item in Outfits)
-                lbOutfits.Items.Add(item);
+            PopulateOutfitsList();
 
             if (IoC.Settings.SwapCharacterMode)
                 await LoadCharacterModelList();
@@ -106,6 +118,8 @@ namespace AloysAdjustments.Modules.Outfits
             clbModels.Items.Clear();
             foreach (var item in Models)
                 clbModels.Items.Add(item);
+            
+            UpdateAllOutfitsSelection();
         }
 
         private async Task LoadCharacterModelList()
@@ -183,6 +197,7 @@ namespace AloysAdjustments.Modules.Outfits
                 }
             }
 
+            UpdateAllOutfitStub();
             RefreshLists();
         }
 
@@ -202,13 +217,10 @@ namespace AloysAdjustments.Modules.Outfits
         private void lbOutfits_SelectedValueChanged(object sender, EventArgs e)
         {
             _updatingLists = true;
+            
+            ResetSelected.Enabled = lbOutfits.SelectedIndex >= 0;
 
-            var lb = (ListBox)sender;
-            ResetSelected.Enabled = lb.SelectedIndex >= 0;
-
-            var modelIds = lb.SelectedItems.Cast<Outfit>()
-                .Select(x => x.ModelId).ToHashSet();
-
+            var modelIds = GetSelectedOutfits().Select(x => x.ModelId).ToHashSet();
             var checkState = modelIds.Count > 1 ? CheckState.Indeterminate : CheckState.Checked;
 
             for (int i = 0; i < clbModels.Items.Count; i++)
@@ -241,8 +253,9 @@ namespace AloysAdjustments.Modules.Outfits
 
                 var model = Models[e.Index];
 
-                foreach (var outfit in lbOutfits.SelectedItems.Cast<Outfit>())
+                foreach (var outfit in GetSelectedOutfits())
                     UpdateMapping(outfit, model);
+                UpdateAllOutfitStub();
 
                 lbOutfits.Invalidate();
             }
@@ -291,7 +304,7 @@ namespace AloysAdjustments.Modules.Outfits
             if (lbOutfits.SelectedIndex < 0)
                 return Task.CompletedTask;
             
-            var selected = lbOutfits.SelectedItems.Cast<Outfit>().ToList();
+            var selected = GetSelectedOutfits();
 
             foreach (var outfit in selected)
             {
@@ -345,6 +358,51 @@ namespace AloysAdjustments.Modules.Outfits
 
             cbShowAll.Visible = charMode;
             cbShowAll.Checked = IoC.Settings.ShowAllCharacters;
+        }
+
+        private List<Outfit> GetSelectedOutfits()
+        {
+            if (IoC.Settings.ApplyToAllOutfits)
+                return Outfits.ToList();
+            return lbOutfits.SelectedItems.Cast<Outfit>().ToList();
+        }
+
+        private void cbAllOutfits_CheckedChanged(object sender, EventArgs e)
+        {
+            if (_loading) return;
+            IoC.Settings.ApplyToAllOutfits = cbAllOutfits.Checked;
+
+            PopulateOutfitsList();
+            UpdateAllOutfitsSelection();
+        }
+
+        private void PopulateOutfitsList()
+        {
+            if (IoC.Settings.ApplyToAllOutfits)
+            {
+                lbOutfits.Items.Clear();
+                lbOutfits.Items.Add(AllOutfitStub);
+                UpdateAllOutfitStub();
+            }
+            else
+            {
+                lbOutfits.Items.Clear();
+                foreach (var item in Outfits)
+                    lbOutfits.Items.Add(item);
+            }
+        }
+
+        private void UpdateAllOutfitStub()
+        {
+            AllOutfitStub.Modified = Outfits.Any(x => x.Modified);
+        }
+
+        private void UpdateAllOutfitsSelection()
+        {
+            lbOutfits.SelectionMode = IoC.Settings.ApplyToAllOutfits ? 
+                SelectionMode.None : SelectionMode.MultiExtended;
+
+            lbOutfits_SelectedValueChanged(lbOutfits, EventArgs.Empty);
         }
     }
 }

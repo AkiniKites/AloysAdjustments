@@ -14,6 +14,7 @@ namespace AloysAdjustments.Configuration
         public string LastPackOpen { get; set; }
         public bool SwapCharacterMode { get; set; } = true;
         public bool ShowAllCharacters { get; set; }
+        public bool ApplyToAllOutfits { get; set; }
 
         public event PropertyChangedEventHandler PropertyChanged;
     }
