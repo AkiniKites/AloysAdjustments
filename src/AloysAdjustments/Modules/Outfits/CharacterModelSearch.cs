@@ -1,20 +1,17 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Forms;
 using AloysAdjustments.Configuration;
 using AloysAdjustments.Data;
 using AloysAdjustments.Logic;
 using AloysAdjustments.Utility;
 using Decima.HZD;
-using Newtonsoft.Json;
+using HZDCoreEditor.Util;
 
 namespace AloysAdjustments.Modules.Outfits
 {
@@ -55,22 +52,29 @@ namespace AloysAdjustments.Modules.Outfits
                 int lastProgress = 0;
                 var modelBag = new ConcurrentBag<CharacterModel>();
 
-                Parallel.ForEach(files, file =>
-                {
-                    if (IsValid(file, all))
+                var tasks = new ParallelTasks<string>(
+                    Environment.ProcessorCount, file =>
                     {
-                        foreach (var model in GetCharacterModels(file))
-                            modelBag.Add(model);
-                    }
-                    
-                    //rough progress estimate
-                    var newProgress = Interlocked.Increment(ref progress) * 50 / files.Count;
-                    if (newProgress > lastProgress)
-                    {
-                        lastProgress = newProgress;
-                        IoC.Notif.ShowProgress(newProgress, 50);
-                    }
-                });
+                        if (IsValid(file, all))
+                        {
+                            foreach (var model in GetCharacterModels(file))
+                                modelBag.Add(model);
+                        }
+
+                        //rough progress estimate
+                        var newProgress = Interlocked.Increment(ref progress) * 50 / files.Count;
+                        if (newProgress > lastProgress)
+                        {
+                            lastProgress = newProgress;
+                            IoC.Notif.ShowProgress(newProgress, 50);
+                        }
+                    });
+
+                tasks.Start();
+                tasks.AddItems(files);
+                tasks.WaitForComplete();
+
+                GC.Collect();
 
                 IoC.Notif.ShowUnknownProgress();
 

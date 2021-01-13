@@ -100,8 +100,8 @@ namespace AloysAdjustments.Logic
             if (!fileMap.TryGetValue(hash, out var packFile))
                 return false;
 
-            using var pack = new PackfileReader(packFile);
-            pack.ExtractFile(hash, stream);
+            using (var pack = new PackfileReader(packFile))
+                pack.ExtractFile(hash, stream);
 
             return true;
         }

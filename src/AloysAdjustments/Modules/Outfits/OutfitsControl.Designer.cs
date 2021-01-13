@@ -35,14 +35,15 @@ namespace AloysAdjustments.Modules.Outfits
         /// </summary>
         private void InitializeComponent()
         {
+            PresentationControls.CheckBoxProperties checkBoxProperties1 = new PresentationControls.CheckBoxProperties();
             this.splitContainer = new System.Windows.Forms.SplitContainer();
             this.label1 = new System.Windows.Forms.Label();
             this.lbOutfits = new AloysAdjustments.Utility.ListBoxNF();
             this.lblModels = new System.Windows.Forms.Label();
             this.clbModels = new System.Windows.Forms.CheckedListBox();
-            this.cbShowAll = new System.Windows.Forms.CheckBox();
-            this.btnMode = new System.Windows.Forms.Button();
             this.cbAllOutfits = new System.Windows.Forms.CheckBox();
+            this.ccbModelFilter = new PresentationControls.CheckBoxComboBox();
+            this.label2 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).BeginInit();
             this.splitContainer.Panel1.SuspendLayout();
             this.splitContainer.Panel2.SuspendLayout();
@@ -54,7 +55,7 @@ namespace AloysAdjustments.Modules.Outfits
             this.splitContainer.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.splitContainer.Location = new System.Drawing.Point(0, 15);
+            this.splitContainer.Location = new System.Drawing.Point(0, 23);
             this.splitContainer.Name = "splitContainer";
             // 
             // splitContainer.Panel1
@@ -66,8 +67,8 @@ namespace AloysAdjustments.Modules.Outfits
             // 
             this.splitContainer.Panel2.Controls.Add(this.lblModels);
             this.splitContainer.Panel2.Controls.Add(this.clbModels);
-            this.splitContainer.Size = new System.Drawing.Size(646, 557);
-            this.splitContainer.SplitterDistance = 262;
+            this.splitContainer.Size = new System.Drawing.Size(646, 549);
+            this.splitContainer.SplitterDistance = 261;
             this.splitContainer.TabIndex = 3;
             this.splitContainer.Text = "splitContainer1";
             // 
@@ -94,7 +95,7 @@ namespace AloysAdjustments.Modules.Outfits
             this.lbOutfits.Location = new System.Drawing.Point(0, 18);
             this.lbOutfits.Name = "lbOutfits";
             this.lbOutfits.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
-            this.lbOutfits.Size = new System.Drawing.Size(259, 539);
+            this.lbOutfits.Size = new System.Drawing.Size(258, 531);
             this.lbOutfits.TabIndex = 1;
             this.lbOutfits.SelectedValueChanged += new System.EventHandler(this.lbOutfits_SelectedValueChanged);
             this.lbOutfits.KeyDown += new System.Windows.Forms.KeyEventHandler(this.lbOutfits_KeyDown);
@@ -120,37 +121,14 @@ namespace AloysAdjustments.Modules.Outfits
             this.clbModels.IntegralHeight = false;
             this.clbModels.Location = new System.Drawing.Point(0, 18);
             this.clbModels.Name = "clbModels";
-            this.clbModels.Size = new System.Drawing.Size(380, 539);
+            this.clbModels.Size = new System.Drawing.Size(378, 531);
             this.clbModels.TabIndex = 0;
             this.clbModels.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.clbModels_ItemCheck);
-            // 
-            // cbShowAll
-            // 
-            this.cbShowAll.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.cbShowAll.AutoSize = true;
-            this.cbShowAll.Location = new System.Drawing.Point(396, 14);
-            this.cbShowAll.Name = "cbShowAll";
-            this.cbShowAll.Size = new System.Drawing.Size(72, 19);
-            this.cbShowAll.TabIndex = 4;
-            this.cbShowAll.Text = "Show All";
-            this.cbShowAll.UseVisualStyleBackColor = true;
-            this.cbShowAll.CheckedChanged += new System.EventHandler(this.cbShowAll_CheckedChanged);
-            // 
-            // btnMode
-            // 
-            this.btnMode.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnMode.Location = new System.Drawing.Point(474, 2);
-            this.btnMode.Name = "btnMode";
-            this.btnMode.Size = new System.Drawing.Size(172, 27);
-            this.btnMode.TabIndex = 5;
-            this.btnMode.Text = "Character Mode";
-            this.btnMode.UseVisualStyleBackColor = true;
-            this.btnMode.Click += new System.EventHandler(this.btnMode_Click);
             // 
             // cbAllOutfits
             // 
             this.cbAllOutfits.AutoSize = true;
-            this.cbAllOutfits.Location = new System.Drawing.Point(170, 14);
+            this.cbAllOutfits.Location = new System.Drawing.Point(170, 22);
             this.cbAllOutfits.Name = "cbAllOutfits";
             this.cbAllOutfits.Size = new System.Drawing.Size(89, 19);
             this.cbAllOutfits.TabIndex = 6;
@@ -158,13 +136,36 @@ namespace AloysAdjustments.Modules.Outfits
             this.cbAllOutfits.UseVisualStyleBackColor = true;
             this.cbAllOutfits.CheckedChanged += new System.EventHandler(this.cbAllOutfits_CheckedChanged);
             // 
+            // ccbModelFilter
+            // 
+            checkBoxProperties1.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.ccbModelFilter.CheckBoxProperties = checkBoxProperties1;
+            this.ccbModelFilter.DisplayMemberSingleItem = "";
+            this.ccbModelFilter.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.ccbModelFilter.FormattingEnabled = true;
+            this.ccbModelFilter.Location = new System.Drawing.Point(472, 2);
+            this.ccbModelFilter.Name = "ccbModelFilter";
+            this.ccbModelFilter.Size = new System.Drawing.Size(172, 23);
+            this.ccbModelFilter.TabIndex = 7;
+            this.ccbModelFilter.CheckBoxCheckedChanged += new System.EventHandler(this.ccbModelFilter_CheckBoxCheckedChanged);
+            this.ccbModelFilter.DropDownClosed += new System.EventHandler(this.ccbModelFilter_DropDownClosedCommand);
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(428, 5);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(36, 15);
+            this.label2.TabIndex = 8;
+            this.label2.Text = "Filter:";
+            // 
             // OutfitsControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.label2);
+            this.Controls.Add(this.ccbModelFilter);
             this.Controls.Add(this.cbAllOutfits);
-            this.Controls.Add(this.btnMode);
-            this.Controls.Add(this.cbShowAll);
             this.Controls.Add(this.splitContainer);
             this.Name = "OutfitsControl";
             this.Size = new System.Drawing.Size(646, 572);
@@ -186,8 +187,8 @@ namespace AloysAdjustments.Modules.Outfits
         private Utility.ListBoxNF lbOutfits;
         private System.Windows.Forms.Label lblModels;
         private System.Windows.Forms.CheckedListBox clbModels;
-        private System.Windows.Forms.CheckBox cbShowAll;
-        private System.Windows.Forms.Button btnMode;
         private System.Windows.Forms.CheckBox cbAllOutfits;
+        private PresentationControls.CheckBoxComboBox ccbModelFilter;
+        private System.Windows.Forms.Label label2;
     }
 }

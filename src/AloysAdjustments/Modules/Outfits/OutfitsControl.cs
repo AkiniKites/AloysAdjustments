@@ -3,16 +3,31 @@ using AloysAdjustments.Data;
 using AloysAdjustments.Logic;
 using AloysAdjustments.Utility;
 using Decima;
+using EnumsNET;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using AloysAdjustments.UI;
+using PresentationControls;
 
 namespace AloysAdjustments.Modules.Outfits
 {
+    [Flags]
+    public enum OutfitModelFilter
+    {
+        [Description("Armors")]
+        Armor = 1,
+        [Description("Unique Characters")]
+        Characters = 2,
+        [Description("All Characters")]
+        AllCharacters = 4
+    }
+
     public partial class OutfitsControl : ModuleBase
     {
         private bool _updatingLists;
@@ -26,7 +41,9 @@ namespace AloysAdjustments.Modules.Outfits
         private ReadOnlyCollection<Model> Models { get; set; }
 
         private Outfit AllOutfitStub { get; }
-        
+
+        private ListWrapper<OutfitModelFilter> Filters { get; set; }
+
         public override string ModuleName => "Outfits";
 
         public OutfitsControl()
@@ -43,17 +60,23 @@ namespace AloysAdjustments.Modules.Outfits
             Outfits = new List<Outfit>().AsReadOnly();
 
             InitializeComponent();
-
-            cbAllOutfits.Checked = IoC.Settings.ApplyToAllOutfits;
-
-            UpdateMode();
+            
             SetupLists();
+            LoadSettings();
 
             _loading = false;
         }
         
         private void SetupLists()
         {
+            Filters = new ListWrapper<OutfitModelFilter>(
+                Enums.GetValues<OutfitModelFilter>(), x => x.AsString(EnumFormat.Description));
+            ccbModelFilter.DataSource = Filters;
+            ccbModelFilter.DisplayMemberSingleItem = "Name";
+            ccbModelFilter.DisplayMember = "NameConcatenated";
+            ccbModelFilter.ValueMember = "Selected";
+            ccbModelFilter.DropDownHeight = (int)(ccbModelFilter.CheckBoxItems.Sum(x => x.Height) * 1.3);
+
             clbModels.DisplayMember = "DisplayName";
 
             lbOutfits.DisplayMember = "DisplayName";
@@ -94,6 +117,15 @@ namespace AloysAdjustments.Modules.Outfits
             };
         }
 
+        private void LoadSettings()
+        {
+            cbAllOutfits.Checked = IoC.Settings.ApplyToAllOutfits;
+            var filters = (OutfitModelFilter)IoC.Settings.OutfitModelFilter;
+
+            foreach (var f in Filters.Where(x => filters.HasFlag(x.Item)))
+                f.Selected = true;
+        }
+
         public override async Task Initialize()
         {
             ResetSelected.Enabled = false;
@@ -108,10 +140,18 @@ namespace AloysAdjustments.Modules.Outfits
 
             PopulateOutfitsList();
 
-            if (IoC.Settings.SwapCharacterMode)
-                await LoadCharacterModelList();
-            else
-                await LoadOutfitModelList();
+            var filter = (OutfitModelFilter)IoC.Settings.OutfitModelFilter;
+            var noneFilter = filter == 0;
+
+            var models = new List<Model>();
+            if (noneFilter || filter.HasFlag(OutfitModelFilter.Armor))
+                models.AddRange(await LoadOutfitModelList());
+            if (noneFilter || filter.HasFlag(OutfitModelFilter.Characters))
+                models.AddRange(await LoadCharacterModelList(false));
+            if (filter.HasFlag(OutfitModelFilter.AllCharacters))
+                models.AddRange(await LoadCharacterModelList(true));
+
+            Models = models.AsReadOnly();
 
             UpdateModelDisplayNames(Outfits, Models);
 
@@ -122,23 +162,21 @@ namespace AloysAdjustments.Modules.Outfits
             UpdateAllOutfitsSelection();
         }
 
-        private async Task LoadCharacterModelList()
+        private async Task<IEnumerable<Model>> LoadCharacterModelList(bool all)
         {
             IoC.Notif.ShowStatus("Loading characters list...");
-            var models = await CharacterLogic.Search.GetCharacterModels(IoC.Settings.ShowAllCharacters);
-            Models = models.OrderBy(x => x.ToString())
-                .Cast<Model>().ToList().AsReadOnly();
+            var models = await CharacterLogic.Search.GetCharacterModels(all);
+            return models.OrderBy(x => x.ToString() + " - Character");
         }
 
-        private async Task LoadOutfitModelList()
+        private async Task<IEnumerable<Model>> LoadOutfitModelList()
         {
             IoC.Notif.ShowStatus("Loading models list...");
             var models = await OutfitLogic.GenerateModelList();
 
             //sort models to match outfits
             var outfitSorting = Outfits.Select((x, i) => (x, i)).ToSoftDictionary(x => x.x.ModelId, x => x.i);
-            Models = models.OrderBy(x => outfitSorting.TryGetValue(x.Id, out var sort) ? sort : int.MaxValue)
-                .ToList().AsReadOnly();
+            return models.OrderBy(x => outfitSorting.TryGetValue(x.Id, out var sort) ? sort : int.MaxValue);
         }
 
         public async Task UpdateOutfitDisplayNames(List<Outfit> outfits)
@@ -156,7 +194,7 @@ namespace AloysAdjustments.Modules.Outfits
             foreach (var m in models)
             {
                 if (names.TryGetValue(m.Id, out var outfitName))
-                    m.DisplayName = $"{outfitName} ({m})";
+                    m.DisplayName = $"Armor - {outfitName}";
                 else
                     m.DisplayName = m.ToString();
             }
@@ -165,8 +203,7 @@ namespace AloysAdjustments.Modules.Outfits
         public override async Task LoadPatch(string path)
         {
             IoC.Notif.ShowStatus("Loading outfits...");
-
-            var characterMode = await CharacterLogic.IsCharacterModeFile(path);
+            
             var patchOutfits = await OutfitLogic.GenerateOutfits(path, false);
             
             if (!patchOutfits.Any())
@@ -174,16 +211,9 @@ namespace AloysAdjustments.Modules.Outfits
 
             var loadedOutfits = patchOutfits.ToHashSet();
 
-            IoC.Settings.SwapCharacterMode = characterMode;
-            UpdateMode();
-
             await Initialize();
 
-            var variantMapping = new Dictionary<BaseGGUUID, BaseGGUUID>();
-            if (IoC.Settings.SwapCharacterMode)
-            {
-                variantMapping = await CharacterLogic.GetVariantMapping(path, OutfitLogic);
-            }
+            var variantMapping = await CharacterLogic.GetVariantMapping(path, OutfitLogic);
 
             foreach (var outfit in Outfits)
             {
@@ -203,7 +233,7 @@ namespace AloysAdjustments.Modules.Outfits
 
         public override async Task ApplyChanges(Patch patch)
         {
-            if (IoC.Settings.SwapCharacterMode)
+            if (true)
             {
                 await CharacterLogic.CreatePatch(patch, Outfits, 
                     Models.Cast<CharacterModel>(), OutfitLogic);
@@ -288,6 +318,7 @@ namespace AloysAdjustments.Modules.Outfits
             await Initialize();
             RefreshLists();
 
+            IoC.Notif.ShowStatus("");
             IoC.Notif.HideProgress();
         }
 
@@ -325,39 +356,6 @@ namespace AloysAdjustments.Modules.Outfits
         {
             lbOutfits.ClearSelected();
             lbOutfits.Invalidate();
-        }
-
-        private async void cbShowAll_CheckedChanged(object sender, EventArgs e)
-        {
-            if (_loading) return;
-            IoC.Settings.ShowAllCharacters = cbShowAll.Checked;
-
-            UpdateMode();
-
-            await Reload();
-            IoC.Notif.ShowStatus($"Showing: {(IoC.Settings.ShowAllCharacters ? "All" : "Unique")} characters");
-        }
-
-        private async void btnMode_Click(object sender, EventArgs e)
-        {
-            if (_loading) return;
-            IoC.Settings.SwapCharacterMode = !IoC.Settings.SwapCharacterMode;
-
-            UpdateMode();
-
-            await Reload();
-            IoC.Notif.ShowStatus($"Mode changed to: {btnMode.Text}");
-        }
-
-        private void UpdateMode()
-        {
-            var charMode = IoC.Settings.SwapCharacterMode;
-
-            btnMode.Text = charMode ? "Character Swaps" : "Armor Swaps";
-            lblModels.Text = charMode ? "Character Mapping" : "Model Mapping";
-
-            cbShowAll.Visible = charMode;
-            cbShowAll.Checked = IoC.Settings.ShowAllCharacters;
         }
 
         private List<Outfit> GetSelectedOutfits()
@@ -403,6 +401,30 @@ namespace AloysAdjustments.Modules.Outfits
                 SelectionMode.None : SelectionMode.MultiExtended;
 
             lbOutfits_SelectedValueChanged(lbOutfits, EventArgs.Empty);
+        }
+
+        private bool _disableFilterEvents = false;
+        private void ccbModelFilter_CheckBoxCheckedChanged(object sender, EventArgs e)
+        {
+            if (_disableFilterEvents || _loading)
+                return;
+            _disableFilterEvents = true;
+            
+            var checkedItem = (ObjectWrapper<OutfitModelFilter>)((CheckBoxComboBoxItem)sender).ComboBoxItem;
+            if (checkedItem.Item == OutfitModelFilter.Characters)
+                Filters.FindObjectWithItem(OutfitModelFilter.AllCharacters).Selected = false;
+            if (checkedItem.Item == OutfitModelFilter.AllCharacters)
+                Filters.FindObjectWithItem(OutfitModelFilter.Characters).Selected = false;
+
+            _disableFilterEvents = false;
+        }
+
+        private async void ccbModelFilter_DropDownClosedCommand(object sender, EventArgs e) 
+            => await Relay.To(sender, e, ccbModelFilter_DropDownClosed);
+        private async Task ccbModelFilter_DropDownClosed(object sender, EventArgs e)
+        {
+            IoC.Settings.OutfitModelFilter = Filters.Where(x => x.Selected).Sum(x => (int)x.Item);
+            await Reload();
         }
     }
 }

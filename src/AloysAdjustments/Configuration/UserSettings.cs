@@ -12,9 +12,8 @@ namespace AloysAdjustments.Configuration
     {
         public string GamePath { get; set; }
         public string LastPackOpen { get; set; }
-        public bool SwapCharacterMode { get; set; } = true;
-        public bool ShowAllCharacters { get; set; }
         public bool ApplyToAllOutfits { get; set; }
+        public int OutfitModelFilter { get; set; }
 
         public event PropertyChangedEventHandler PropertyChanged;
     }
