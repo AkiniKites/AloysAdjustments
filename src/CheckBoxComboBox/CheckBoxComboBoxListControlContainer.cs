@@ -17,8 +17,6 @@ namespace PresentationControls
     [ToolboxItem(false)]
     public class CheckBoxComboBoxListControlContainer : UserControl
     {
-        #region CONSTRUCTOR
-
         public CheckBoxComboBoxListControlContainer()
             : base()
         {
@@ -30,9 +28,6 @@ namespace PresentationControls
             MinimumSize = new Size(1, 1);
             MaximumSize = new Size(500, 500);
         }
-        #endregion
-
-        #region RESIZE OVERRIDE REQUIRED BY THE POPUP CONTROL
 
         /// <summary>
         /// Prescribed by the Popup class to ensure Resize operations work correctly.
@@ -46,6 +41,5 @@ namespace PresentationControls
             }
             base.WndProc(ref m);
         }
-        #endregion
     }
 }

@@ -14,8 +14,6 @@ namespace PresentationControls
     {
         public CheckBoxProperties() { }
 
-        #region PRIVATE PROPERTIES
-
         private Appearance _Appearance = Appearance.Normal;
         private bool _AutoSize = false;
         private bool _AutoCheck = true;
@@ -31,10 +29,6 @@ namespace PresentationControls
         private RightToLeft _RightToLeft = RightToLeft.No;
         private ContentAlignment _TextAlign = ContentAlignment.MiddleLeft;
         private bool _ThreeState = false;
-
-        #endregion
-
-        #region PUBLIC PROPERTIES
 
         [DefaultValue(Appearance.Normal)]
         public Appearance Appearance
@@ -127,10 +121,6 @@ namespace PresentationControls
             set { _ThreeState = value; OnPropertyChanged(); }
         }
 
-        #endregion
-
-        #region EVENTS AND EVENT CALLERS
-
         /// <summary>
         /// Called when any property changes.
         /// </summary>
@@ -138,11 +128,7 @@ namespace PresentationControls
 
         protected void OnPropertyChanged()
         {
-            EventHandler handler = PropertyChanged;
-            if (handler != null)
-                handler(this, EventArgs.Empty);
+            PropertyChanged?.Invoke(this, EventArgs.Empty);
         }
-
-        #endregion
     }
 }

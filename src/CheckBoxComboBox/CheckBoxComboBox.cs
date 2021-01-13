@@ -5,7 +5,6 @@ using System.Drawing;
 using System.Data;
 using System.Text;
 using System.Windows.Forms;
-using System.Reflection;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Diagnostics;
@@ -29,36 +28,30 @@ namespace PresentationControls
     /// </summary>
     public partial class CheckBoxComboBox : PopupComboBox
     {
-        #region CONSTRUCTOR
-
         public CheckBoxComboBox()
             : base()
         {
             InitializeComponent();
             _CheckBoxProperties = new CheckBoxProperties();
-            _CheckBoxProperties.PropertyChanged += new EventHandler(_CheckBoxProperties_PropertyChanged);
+            _CheckBoxProperties.PropertyChanged += _CheckBoxProperties_PropertyChanged;
             // Dumps the ListControl in a(nother) Container to ensure the ScrollBar on the ListControl does not
             // Paint over the Size grip. Setting the Padding or Margin on the Popup or host control does
             // not work as I expected. I don't think it can work that way.
             CheckBoxComboBoxListControlContainer ContainerControl = new CheckBoxComboBoxListControlContainer();
             _CheckBoxComboBoxListControl = new CheckBoxComboBoxListControl(this);
-            _CheckBoxComboBoxListControl.Items.CheckBoxCheckedChanged += new EventHandler(Items_CheckBoxCheckedChanged);
+            _CheckBoxComboBoxListControl.Items.CheckBoxCheckedChanged += Items_CheckBoxCheckedChanged;
             ContainerControl.Controls.Add(_CheckBoxComboBoxListControl);
             // This padding spaces neatly on the left-hand side and allows space for the size grip at the bottom.
-            ContainerControl.Padding = new Padding(4, 4, 0, 14);
+            ContainerControl.Padding = new Padding(4, 4, 0, 4);
             // The ListControl FILLS the ListContainer.
             _CheckBoxComboBoxListControl.Dock = DockStyle.Fill;
             // The DropDownControl used by the base class. Will be wrapped in a popup by the base class.
             DropDownControl = ContainerControl;
             // Must be set after the DropDownControl is set, since the popup is recreated.
             // NOTE: I made the dropDown protected so that it can be accessible here. It was private.
-            dropDown.Resizable = true;
+            dropDown.Resizable = false;
             dropDown.onCloseEvent += OnDropDownClosed;
         }
-
-        #endregion
-
-        #region PRIVATE FIELDS
 
         /// <summary>
         /// The checkbox list control. The public CheckBoxItems property provides a direct reference to its Items.
@@ -74,38 +67,27 @@ namespace PresentationControls
         internal bool _MustAddHiddenItem = false;
         private bool _ClosingDropDown = false;
 
-        #endregion
-
-        #region PRIVATE OPERATIONS
-
         /// <summary>
         /// Builds a CSV string of the items selected.
         /// </summary>
         internal string GetCSVText(bool skipFirstItem)
         {
-            string ListText = String.Empty;
-            int StartIndex =
+            string text = String.Empty;
+            int startIndex =
                 DropDownStyle == ComboBoxStyle.DropDownList 
                 && DataSource == null
-                && skipFirstItem
-                    ? 1
-                    : 0;
-            for (int Index = StartIndex; Index <= _CheckBoxComboBoxListControl.Items.Count - 1; Index++)
+                && skipFirstItem ? 1 : 0;
+            for (int i = startIndex; i <= _CheckBoxComboBoxListControl.Items.Count - 1; i++)
             {
-                CheckBoxComboBoxItem Item = _CheckBoxComboBoxListControl.Items[Index];
-                if (Item.Checked)
-                    ListText += string.IsNullOrEmpty(ListText) ? Item.Text : $", {Item.Text}";
+                var item = _CheckBoxComboBoxListControl.Items[i];
+                if (item.Checked)
+                    text += string.IsNullOrEmpty(text) ? item.Text : $", {item.Text}";
             }
-            return ListText;
+            return text;
         }
-
-        #endregion
-
-        #region PUBLIC PROPERTIES
 
         protected virtual void OnDropDownClosed(object sender, EventArgs e)
         {
-            Debug.WriteLine("Close");
             _ClosingDropDown = true;
             base.OnDropDownClosed(e);
         }
@@ -189,10 +171,6 @@ namespace PresentationControls
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
         public new ObjectCollection Items => base.Items;
 
-        #endregion
-
-        #region EVENTS & EVENT HANDLERS
-
         public event EventHandler CheckBoxCheckedChanged;
 
         private void Items_CheckBoxCheckedChanged(object sender, EventArgs e)
@@ -200,30 +178,24 @@ namespace PresentationControls
             OnCheckBoxCheckedChanged(sender, e);
         }
 
-        #endregion
-
-        #region EVENT CALLERS and OVERRIDES e.g. OnResize()
-
         protected void OnCheckBoxCheckedChanged(object sender, EventArgs e)
         {
-            string ListText = GetCSVText(true);
+            var listText = GetCSVText(true);
             // The DropDownList style seems to require that the text
             // part of the "textbox" should match a single item.
             if (DropDownStyle != ComboBoxStyle.DropDownList)
-                Text = ListText;
+                Text = listText;
             // This refreshes the Text of the first item (which is not visible)
             else if (DataSource == null)
             {
-                Items[0] = ListText;
+                Items[0] = listText;
                 // Keep the hidden item and first checkbox item in 
                 // sync in order to ensure the Synchronise process
                 // can match the items.
-                CheckBoxItems[0].ComboBoxItem = ListText;
+                CheckBoxItems[0].ComboBoxItem = listText;
             }
-
-            EventHandler handler = CheckBoxCheckedChanged;
-            if (handler != null)
-                handler(sender, e);
+            
+            CheckBoxCheckedChanged?.Invoke(sender, e);
         }
 
         /// <summary>
@@ -238,7 +210,9 @@ namespace PresentationControls
             if (DropDownStyle == ComboBoxStyle.DropDownList
                 && DataSource == null
                 && !DesignMode)
+            {
                 _MustAddHiddenItem = true;
+            }
         }
 
         protected override void OnDataSourceChanged(EventArgs e)
@@ -258,17 +232,13 @@ namespace PresentationControls
             base.OnResize(e);
         }
 
-        #endregion
-
-        #region PUBLIC OPERATIONS
-
         /// <summary>
         /// A function to clear/reset the list.
         /// (Ubiklou : http://www.codeproject.com/KB/combobox/extending_combobox.aspx?msg=2526813#xx2526813xx)
         /// </summary>
         public void Clear()
         {
-            this.Items.Clear();
+            Items.Clear();
             if (DropDownStyle == ComboBoxStyle.DropDownList && DataSource == null)
                 _MustAddHiddenItem = true;                
         }        /// <summary>
@@ -280,10 +250,6 @@ namespace PresentationControls
                 if (Item.Checked)
                     Item.Checked = false;
         }
-
-        #endregion
-
-        #region CHECKBOX PROPERTIES (DEFAULTS)
 
         private CheckBoxProperties _CheckBoxProperties;
 
@@ -304,8 +270,6 @@ namespace PresentationControls
                 Item.ApplyProperties(CheckBoxProperties);
         }
 
-        #endregion
-
         protected override void WndProc(ref Message m)
         {
             // 323 : Item Added
@@ -319,618 +283,5 @@ namespace PresentationControls
             
             base.WndProc(ref m);
         }
-    }
-
-    /// <summary>
-    /// A container control for the ListControl to ensure the ScrollBar on the ListControl does not
-    /// Paint over the Size grip. Setting the Padding or Margin on the Popup or host control does
-    /// not work as I expected.
-    /// </summary>
-    [ToolboxItem(false)]
-    public class CheckBoxComboBoxListControlContainer : UserControl
-    {
-        #region CONSTRUCTOR
-
-        public CheckBoxComboBoxListControlContainer()
-            : base()
-        {
-            BackColor = SystemColors.Window;
-            BorderStyle = BorderStyle.FixedSingle;
-            AutoScaleMode = AutoScaleMode.Inherit;
-            ResizeRedraw = true;
-            // If you don't set this, then resize operations cause an error in the base class.
-            MinimumSize = new Size(1, 1);
-            MaximumSize = new Size(500, 500);
-        }
-        #endregion
-
-        #region RESIZE OVERRIDE REQUIRED BY THE POPUP CONTROL
-
-        /// <summary>
-        /// Prescribed by the Popup class to ensure Resize operations work correctly.
-        /// </summary>
-        /// <param name="m"></param>
-        protected override void WndProc(ref Message m)
-        {
-            if ((Parent as Popup).ProcessResizing(ref m))
-            {
-                return;
-            }
-            base.WndProc(ref m);
-        }
-        #endregion
-    }
-
-    /// <summary>
-    /// This ListControl that pops up to the User. It contains the CheckBoxComboBoxItems. 
-    /// The items are docked DockStyle.Top in this control.
-    /// </summary>
-    [ToolboxItem(false)]
-    public class CheckBoxComboBoxListControl : ScrollableControl
-    {
-        #region CONSTRUCTOR
-
-        public CheckBoxComboBoxListControl(CheckBoxComboBox owner)
-            : base()
-        {
-            DoubleBuffered = true;
-            _CheckBoxComboBox = owner;
-            Items = new CheckBoxComboBoxItemList(_CheckBoxComboBox);
-            BackColor = SystemColors.Window;
-            // AutoScaleMode = AutoScaleMode.Inherit;
-            AutoScroll = true;
-            ResizeRedraw = true;
-            // if you don't set this, a Resize operation causes an error in the base class.
-            MinimumSize = new Size(1, 1);
-            MaximumSize = new Size(500, 500);
-        }
-
-        #endregion
-
-        #region PRIVATE PROPERTIES
-
-        /// <summary>
-        /// Simply a reference to the CheckBoxComboBox.
-        /// </summary>
-        private CheckBoxComboBox _CheckBoxComboBox;
-
-        #endregion
-
-        /// <summary>
-        /// A Typed list of ComboBoxCheckBoxItems.
-        /// </summary>
-        public CheckBoxComboBoxItemList Items { get; }
-
-        #region RESIZE OVERRIDE REQUIRED BY THE POPUP CONTROL
-
-        /// <summary>
-        /// Prescribed by the Popup control to enable Resize operations.
-        /// </summary>
-        /// <param name="m"></param>
-        protected override void WndProc(ref Message m)
-        {
-            if ((Parent.Parent as Popup).ProcessResizing(ref m))
-            {
-                return;
-            }
-            base.WndProc(ref m);
-        }
-
-        #endregion
-
-        #region PROTECTED MEMBERS
-
-        protected override void OnVisibleChanged(EventArgs e)
-        {
-            // Synchronises the CheckBox list with the items in the ComboBox.
-            SynchroniseControlsWithComboBoxItems();
-            base.OnVisibleChanged(e);
-        }
-        /// <summary>
-        /// Maintains the controls displayed in the list by keeping them in sync with the actual 
-        /// items in the combobox. (e.g. removing and adding as well as ordering)
-        /// </summary>
-        public void SynchroniseControlsWithComboBoxItems()
-        {
-            SuspendLayout();
-            if (_CheckBoxComboBox._MustAddHiddenItem)
-            {
-                _CheckBoxComboBox.Items.Insert(
-                    0, _CheckBoxComboBox.GetCSVText(false)); // INVISIBLE ITEM
-                _CheckBoxComboBox.SelectedIndex = 0;
-                _CheckBoxComboBox._MustAddHiddenItem = false;
-            }
-            Controls.Clear();
-            #region Disposes all items that are no longer in the combo box list
-
-            for (int Index = Items.Count - 1; Index >= 0; Index--)
-            {
-                CheckBoxComboBoxItem Item = Items[Index];
-                if (!_CheckBoxComboBox.Items.Contains(Item.ComboBoxItem))
-                {
-                    Items.Remove(Item);
-                    Item.Dispose();
-                }
-            }
-
-            #endregion
-            #region Recreate the list in the same order of the combo box items
-
-            bool HasHiddenItem = 
-                _CheckBoxComboBox.DropDownStyle == ComboBoxStyle.DropDownList
-                && _CheckBoxComboBox.DataSource == null
-                && !DesignMode;
-
-            CheckBoxComboBoxItemList NewList = new CheckBoxComboBoxItemList(_CheckBoxComboBox);
-            for(int Index0 = 0; Index0 <= _CheckBoxComboBox.Items.Count - 1; Index0 ++)
-            {
-                object Object = _CheckBoxComboBox.Items[Index0];
-                CheckBoxComboBoxItem Item = null;
-                // The hidden item could match any other item when only
-                // one other item was selected.
-                if (Index0 == 0 && HasHiddenItem && Items.Count > 0)
-                    Item = Items[0];
-                else
-                {
-                    int StartIndex = HasHiddenItem
-                        ? 1 // Skip the hidden item, it could match 
-                        : 0;
-                    for (int Index1 = StartIndex; Index1 <= Items.Count - 1; Index1++)
-                    {
-                        if (Items[Index1].ComboBoxItem == Object)
-                        {
-                            Item = Items[Index1];
-                            break;
-                        }
-                    }
-                }
-                if (Item == null)
-                {
-                    Item = new CheckBoxComboBoxItem(_CheckBoxComboBox, Object);
-                    Item.ApplyProperties(_CheckBoxComboBox.CheckBoxProperties);
-                }
-                NewList.Add(Item);
-                Item.Dock = DockStyle.Top;
-            }
-            Items.Clear();
-            Items.AddRange(NewList);
-
-            #endregion
-            #region Add the items to the controls in reversed order to maintain correct docking order
-
-            if (NewList.Count > 0)
-            {
-                // This reverse helps to maintain correct docking order.
-                NewList.Reverse();
-                // If you get an error here that "Cannot convert to the desired 
-                // type, it probably means the controls are not binding correctly.
-                // The Checked property is binded to the ValueMember property. 
-                // It must be a bool for example.
-                Controls.AddRange(NewList.ToArray());
-            }
-
-            #endregion
-
-            // Keep the first item invisible
-            if (_CheckBoxComboBox.DropDownStyle == ComboBoxStyle.DropDownList
-                && _CheckBoxComboBox.DataSource == null
-                && !DesignMode)
-                _CheckBoxComboBox.CheckBoxItems[0].Visible = false; 
-            
-            ResumeLayout();
-        }
-
-        #endregion
-    }
-
-    /// <summary>
-    /// The CheckBox items displayed in the Popup of the ComboBox.
-    /// </summary>
-    [ToolboxItem(false)]
-    public class CheckBoxComboBoxItem : CheckBox
-    {
-        #region CONSTRUCTOR
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="owner">A reference to the CheckBoxComboBox.</param>
-        /// <param name="comboBoxItem">A reference to the item in the ComboBox.Items that this object is extending.</param>
-        public CheckBoxComboBoxItem(CheckBoxComboBox owner, object comboBoxItem)
-            : base()
-        {
-            Height = (int)(FontHeight * 1.2);
-            DoubleBuffered = true;
-            _CheckBoxComboBox = owner;
-            _ComboBoxItem = comboBoxItem;
-            if (_CheckBoxComboBox.DataSource != null)
-                AddBindings();
-            else
-                Text = comboBoxItem.ToString();
-        }
-        #endregion
-
-        #region PRIVATE PROPERTIES
-
-        /// <summary>
-        /// A reference to the CheckBoxComboBox.
-        /// </summary>
-        private CheckBoxComboBox _CheckBoxComboBox;
-        /// <summary>
-        /// A reference to the Item in ComboBox.Items that this object is extending.
-        /// </summary>
-        private object _ComboBoxItem;
-
-        #endregion
-
-        #region PUBLIC PROPERTIES
-
-        /// <summary>
-        /// A reference to the Item in ComboBox.Items that this object is extending.
-        /// </summary>
-        public object ComboBoxItem
-        {
-            get => _ComboBoxItem;
-            internal set => _ComboBoxItem = value;
-        }
-
-        #endregion
-
-        #region BINDING HELPER
-
-        /// <summary>
-        /// When using Data Binding operations via the DataSource property of the ComboBox. This
-        /// adds the required Bindings for the CheckBoxes.
-        /// </summary>
-        public void AddBindings()
-        {
-            // Note, the text uses "DisplayMemberSingleItem", not "DisplayMember" (unless its not assigned)
-            DataBindings.Add(
-                "Text",
-                _ComboBoxItem,
-                _CheckBoxComboBox.DisplayMemberSingleItem
-                );
-            // The ValueMember must be a bool type property usable by the CheckBox.Checked.
-            DataBindings.Add(
-                "Checked",
-                _ComboBoxItem,
-                _CheckBoxComboBox.ValueMember,
-                false,
-                // This helps to maintain proper selection state in the Binded object,
-                // even when the controls are added and removed.
-                DataSourceUpdateMode.OnPropertyChanged,
-                false, null, null);
-            // Helps to maintain the Checked status of this
-            // checkbox before the control is visible
-            if (_ComboBoxItem is INotifyPropertyChanged)
-                ((INotifyPropertyChanged)_ComboBoxItem).PropertyChanged += 
-                    new PropertyChangedEventHandler(
-                        CheckBoxComboBoxItem_PropertyChanged);
-        }
-
-        #endregion
-
-        #region PROTECTED MEMBERS
-
-        protected override void OnCheckedChanged(EventArgs e)
-        {
-            // Found that when this event is raised, the bool value of the binded item is not yet updated.
-            if (_CheckBoxComboBox.DataSource != null)
-            {
-                PropertyInfo PI = ComboBoxItem.GetType().GetProperty(_CheckBoxComboBox.ValueMember);
-                PI.SetValue(ComboBoxItem, Checked, null);
-            }
-            base.OnCheckedChanged(e);
-            // Forces a refresh of the Text displayed in the main TextBox of the ComboBox,
-            // since that Text will most probably represent a concatenation of selected values.
-            // Also see DisplayMemberSingleItem on the CheckBoxComboBox for more information.
-            if (_CheckBoxComboBox.DataSource != null)
-            {
-                string OldDisplayMember = _CheckBoxComboBox.DisplayMember;
-                _CheckBoxComboBox.DisplayMember = null;
-                _CheckBoxComboBox.DisplayMember = OldDisplayMember;
-            }
-        }
-
-        #endregion
-
-        #region HELPER MEMBERS
-
-        internal void ApplyProperties(CheckBoxProperties properties)
-        {
-            this.Appearance = properties.Appearance;
-            this.AutoCheck = properties.AutoCheck;
-            this.AutoEllipsis = properties.AutoEllipsis;
-            this.AutoSize = properties.AutoSize;
-            this.CheckAlign = properties.CheckAlign;
-            this.FlatAppearance.BorderColor = properties.FlatAppearanceBorderColor;
-            this.FlatAppearance.BorderSize = properties.FlatAppearanceBorderSize;
-            this.FlatAppearance.CheckedBackColor = properties.FlatAppearanceCheckedBackColor;
-            this.FlatAppearance.MouseDownBackColor = properties.FlatAppearanceMouseDownBackColor;
-            this.FlatAppearance.MouseOverBackColor = properties.FlatAppearanceMouseOverBackColor;
-            this.FlatStyle = properties.FlatStyle;
-            this.ForeColor = properties.ForeColor;
-            this.RightToLeft = properties.RightToLeft;
-            this.TextAlign = properties.TextAlign;
-            this.ThreeState = properties.ThreeState;
-        }
-
-        #endregion
-
-        #region EVENT HANDLERS - ComboBoxItem (DataSource)
-
-        /// <summary>
-        /// Added this handler because the control doesn't seem 
-        /// to initialize correctly until shown for the first
-        /// time, which also means the summary text value
-        /// of the combo is out of sync initially.
-        /// </summary>
-        private void CheckBoxComboBoxItem_PropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            if (e.PropertyName == _CheckBoxComboBox.ValueMember)
-                Checked = 
-                    (bool)_ComboBoxItem
-                        .GetType()
-                        .GetProperty(_CheckBoxComboBox.ValueMember)
-                        .GetValue(_ComboBoxItem, null);
-        }
-
-        #endregion
-    }
-
-    /// <summary>
-    /// A Typed List of the CheckBox items.
-    /// Simply a wrapper for the CheckBoxComboBox.Items. A list of CheckBoxComboBoxItem objects.
-    /// This List is automatically synchronised with the Items of the ComboBox and extended to
-    /// handle the additional boolean value. That said, do not Add or Remove using this List, 
-    /// it will be lost or regenerated from the ComboBox.Items.
-    /// </summary>
-    [ToolboxItem(false)]
-    public class CheckBoxComboBoxItemList : List<CheckBoxComboBoxItem>
-    {
-        #region CONSTRUCTORS
-
-        public CheckBoxComboBoxItemList(CheckBoxComboBox checkBoxComboBox)
-        {
-            _CheckBoxComboBox = checkBoxComboBox;
-        }
-
-        #endregion
-
-        #region PRIVATE FIELDS
-
-        private CheckBoxComboBox _CheckBoxComboBox;
-
-        #endregion
-
-        #region EVENTS, This could be moved to the list control if needed
-
-        public event EventHandler CheckBoxCheckedChanged;
-
-        protected void OnCheckBoxCheckedChanged(object sender, EventArgs e)
-        {
-            EventHandler handler = CheckBoxCheckedChanged;
-            if (handler != null)
-                handler(sender, e);
-        }
-        private void item_CheckedChanged(object sender, EventArgs e)
-        {
-            OnCheckBoxCheckedChanged(sender, e);
-        }
-
-        #endregion
-
-        #region LIST MEMBERS & OBSOLETE INDICATORS
-
-        [Obsolete("Do not add items to this list directly. Use the ComboBox items instead.", false)]
-        public new void Add(CheckBoxComboBoxItem item)
-        {
-            item.CheckedChanged += new EventHandler(item_CheckedChanged);
-            base.Add(item);
-        }
-
-        public new void AddRange(IEnumerable<CheckBoxComboBoxItem> collection)
-        {
-            foreach (CheckBoxComboBoxItem Item in collection)
-                Item.CheckedChanged += new EventHandler(item_CheckedChanged);
-            base.AddRange(collection);
-        }
-
-        public new void Clear()
-        {
-            foreach (CheckBoxComboBoxItem Item in this)
-                Item.CheckedChanged -= item_CheckedChanged;
-            base.Clear();
-        }
-
-        [Obsolete("Do not remove items from this list directly. Use the ComboBox items instead.", false)]
-        public new bool Remove(CheckBoxComboBoxItem item)
-        {
-            item.CheckedChanged -= item_CheckedChanged;
-            return base.Remove(item);
-        }
-
-        #endregion
-
-        #region DEFAULT PROPERTIES
-
-        /// <summary>
-        /// Returns the item with the specified displayName or Text.
-        /// </summary>
-        public CheckBoxComboBoxItem this[string displayName]
-        {
-            get
-            {
-                int StartIndex =
-                    // An invisible item exists in this scenario to help 
-                    // with the Text displayed in the TextBox of the Combo
-                    _CheckBoxComboBox.DropDownStyle == ComboBoxStyle.DropDownList 
-                    && _CheckBoxComboBox.DataSource == null
-                        ? 1 // Ubiklou : 2008-04-28 : Ignore first item. (http://www.codeproject.com/KB/combobox/extending_combobox.aspx?fid=476622&df=90&mpp=25&noise=3&sort=Position&view=Quick&select=2526813&fr=1#xx2526813xx)
-                        : 0;
-                for(int Index = StartIndex; Index <= Count - 1; Index ++)
-                {
-                    CheckBoxComboBoxItem Item = this[Index];
-
-                    string Text;
-                    // The binding might not be active yet
-                    if (string.IsNullOrEmpty(Item.Text)
-                        // Ubiklou : 2008-04-28 : No databinding
-                        && Item.DataBindings != null 
-                        && Item.DataBindings["Text"] != null
-                        )
-                    {
-                        PropertyInfo PropertyInfo
-                            = Item.ComboBoxItem.GetType().GetProperty(
-                                Item.DataBindings["Text"].BindingMemberInfo.BindingMember);
-                        Text = (string)PropertyInfo.GetValue(Item.ComboBoxItem, null);
-                    }
-                    else
-                        Text = Item.Text;
-                    if (Text.CompareTo(displayName) == 0)
-                        return Item;
-                }
-                throw new ArgumentOutOfRangeException($"\"{displayName}\" does not exist in this combo box.");
-            }
-        }
-        
-        #endregion
-    }
-
-    [TypeConverter(typeof(ExpandableObjectConverter))]
-    public class CheckBoxProperties
-    {
-        public CheckBoxProperties() { }
-
-        #region PRIVATE PROPERTIES
-
-        private Appearance _Appearance = Appearance.Normal;
-        private bool _AutoSize = false;
-        private bool _AutoCheck = true;
-        private bool _AutoEllipsis = false;
-        private ContentAlignment _CheckAlign = ContentAlignment.MiddleLeft;
-        private Color _FlatAppearanceBorderColor = Color.Empty;
-        private int _FlatAppearanceBorderSize = 1;
-        private Color _FlatAppearanceCheckedBackColor = Color.Empty;
-        private Color _FlatAppearanceMouseDownBackColor = Color.Empty;
-        private Color _FlatAppearanceMouseOverBackColor = Color.Empty;
-        private FlatStyle _FlatStyle = FlatStyle.Standard;
-        private Color _ForeColor = SystemColors.ControlText;
-        private RightToLeft _RightToLeft = RightToLeft.No;
-        private ContentAlignment _TextAlign = ContentAlignment.MiddleLeft;
-        private bool _ThreeState = false;
-
-        #endregion
-
-        #region PUBLIC PROPERTIES
-
-        [DefaultValue(Appearance.Normal)]
-        public Appearance Appearance
-        {
-            get => _Appearance;
-            set { _Appearance = value; OnPropertyChanged(); }
-        }
-        [DefaultValue(true)]
-        public bool AutoCheck
-        {
-            get => _AutoCheck;
-            set { _AutoCheck = value; OnPropertyChanged(); }
-        }
-        [DefaultValue(false)]
-        public bool AutoEllipsis
-        {
-            get => _AutoEllipsis;
-            set { _AutoEllipsis = value; OnPropertyChanged(); }
-        }
-        [DefaultValue(false)]
-        public bool AutoSize
-        {
-            get => _AutoSize;
-            set { _AutoSize = true; OnPropertyChanged(); }
-        }
-        [DefaultValue(ContentAlignment.MiddleLeft)]
-        public ContentAlignment CheckAlign
-        {
-            get => _CheckAlign;
-            set { _CheckAlign = value; OnPropertyChanged(); }
-        }
-        [DefaultValue(typeof(Color), "")]
-        public Color FlatAppearanceBorderColor
-        {
-            get => _FlatAppearanceBorderColor;
-            set { _FlatAppearanceBorderColor = value; OnPropertyChanged(); }
-        }
-        [DefaultValue(1)]
-        public int FlatAppearanceBorderSize
-        {
-            get => _FlatAppearanceBorderSize;
-            set { _FlatAppearanceBorderSize = value; OnPropertyChanged(); }
-        }
-        [DefaultValue(typeof(Color), "")]
-        public Color FlatAppearanceCheckedBackColor
-        {
-            get => _FlatAppearanceCheckedBackColor;
-            set { _FlatAppearanceCheckedBackColor = value; OnPropertyChanged(); }
-        }
-        [DefaultValue(typeof(Color), "")]
-        public Color FlatAppearanceMouseDownBackColor
-        {
-            get => _FlatAppearanceMouseDownBackColor;
-            set { _FlatAppearanceMouseDownBackColor = value; OnPropertyChanged(); }
-        }
-        [DefaultValue(typeof(Color), "")]
-        public Color FlatAppearanceMouseOverBackColor
-        {
-            get => _FlatAppearanceMouseOverBackColor;
-            set { _FlatAppearanceMouseOverBackColor = value; OnPropertyChanged(); }
-        }
-        [DefaultValue(FlatStyle.Standard)]
-        public FlatStyle FlatStyle
-        {
-            get => _FlatStyle;
-            set { _FlatStyle = value; OnPropertyChanged(); }
-        }
-        [DefaultValue(typeof(SystemColors), "ControlText")]
-        public Color ForeColor
-        {
-            get => _ForeColor;
-            set { _ForeColor = value; OnPropertyChanged(); }
-        }
-        [DefaultValue(RightToLeft.No)]
-        public RightToLeft RightToLeft
-        {
-            get => _RightToLeft;
-            set { _RightToLeft = value; OnPropertyChanged(); }
-        }
-        [DefaultValue(ContentAlignment.MiddleLeft)]
-        public ContentAlignment TextAlign
-        {
-            get => _TextAlign;
-            set { _TextAlign = value; OnPropertyChanged(); }
-        }
-        [DefaultValue(false)]
-        public bool ThreeState
-        {
-            get => _ThreeState;
-            set { _ThreeState = value; OnPropertyChanged(); }
-        }
-
-        #endregion
-
-        #region EVENTS AND EVENT CALLERS
-
-        /// <summary>
-        /// Called when any property changes.
-        /// </summary>
-        public event EventHandler PropertyChanged;
-
-        protected void OnPropertyChanged()
-        {
-            EventHandler handler = PropertyChanged;
-            if (handler != null)
-                handler(this, EventArgs.Empty);
-        }
-
-        #endregion
     }
 }

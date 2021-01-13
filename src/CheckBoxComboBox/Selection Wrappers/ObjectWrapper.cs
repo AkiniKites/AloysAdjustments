@@ -23,8 +23,6 @@ namespace PresentationControls
         }
 
 
-        #region PRIVATE PROPERTIES
-
         /// <summary>
         /// Is this item selected.
         /// </summary>
@@ -34,10 +32,6 @@ namespace PresentationControls
         /// The containing list for these selections.
         /// </summary>
         private ListWrapper<T> _Container;
-
-        #endregion
-
-        #region PUBLIC PROPERTIES
 
         /// <summary>
         /// An indicator of how many items with the specified status is available for the current filter level.
@@ -90,10 +84,6 @@ namespace PresentationControls
             }
         }
 
-        #endregion
-
-        #region INotifyPropertyChanged
-
         public event PropertyChangedEventHandler PropertyChanged;
 
         protected virtual void OnPropertyChanged(string propertyName)
@@ -102,7 +92,5 @@ namespace PresentationControls
             if (handler != null)
                 handler(this, new PropertyChangedEventArgs(propertyName));
         }
-
-        #endregion
     }
 }

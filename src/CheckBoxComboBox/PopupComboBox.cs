@@ -17,7 +17,7 @@ namespace PresentationControls
     /// CodeProject.com "Simple pop-up control" "http://www.codeproject.com/cs/miscctrl/simplepopup.asp".
     /// Represents a Windows combo box control with a custom popup control attached.
     /// </summary>
-    [ToolboxBitmap(typeof(System.Windows.Forms.ComboBox)), ToolboxItem(true), ToolboxItemFilter("System.Windows.Forms"), Description("Displays an editable text box with a drop-down list of permitted values.")]
+    [ToolboxBitmap(typeof(ComboBox)), ToolboxItem(true), ToolboxItemFilter("System.Windows.Forms"), Description("Displays an editable text box with a drop-down list of permitted values.")]
     public partial class PopupComboBox : ComboBox
     {
         /// <summary>
@@ -39,10 +39,6 @@ namespace PresentationControls
         protected Popup dropDown;
 
         private Control dropDownControl;
-        /// <summary>
-        /// Gets or sets the drop down control.
-        /// </summary>
-        /// <value>The drop down control.</value>
         public Control DropDownControl
         {
             get => dropDownControl;
@@ -54,46 +50,20 @@ namespace PresentationControls
                 dropDown = new Popup(value);
             }
         }
-
-        /// <summary>
-        /// Shows the drop down.
-        /// </summary>
+        
         public void ShowDropDown()
         {
-            if (dropDown != null)
-            {
-                dropDown.Show(this);
-            }
+            dropDown?.Show(this);
         }
         
-        /// <summary>
-        /// Hides the drop down.
-        /// </summary>
         public void HideDropDown()
         {
-            if (dropDown != null)
-            {
-                dropDown.Hide();
-            }
+            dropDown?.Hide();
         }
-
-        protected override void OnGotFocus(EventArgs e)
-        {
-            base.OnGotFocus(e);
-            Debug.WriteLine("focus");
-        }
-
-        /// <summary>
-        /// Processes Windows messages.
-        /// </summary>
-        /// <param name="m">The Windows <see cref="T:System.Windows.Forms.Message" /> to process.</param>
+        
         [SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.UnmanagedCode)]
         protected override void WndProc(ref Message m)
         {
-            Debug.WriteLine($"m {m.Msg} - {dropDown.Visible}");
-
-            if (m.Msg == 7 && dropDown.Visible) 
-                return;
             if (m.Msg == (NativeMethods.WM_REFLECT + NativeMethods.WM_COMMAND))
             {
                 if (NativeMethods.HIWORD(m.WParam) == NativeMethods.CBN_DROPDOWN)
@@ -102,42 +72,21 @@ namespace PresentationControls
                     // on the combobox.
                     var ts = DateTime.Now.Subtract(dropDown.LastClosedTimeStamp);
                     if (ts.TotalMilliseconds > 100)
-                    {
                         ShowDropDown();
-                        this.Capture = true;
-                    }
-                    else
-                    {
-                        this.Capture = false;
-                        Task.Run(() =>
-                        {
-                            Thread.Sleep(100);
-                            BeginInvoke(new Action(() =>
-                            {
-                                Debug.WriteLine("f " + Focused);
-                                Debug.WriteLine("c " + Capture);
-                            }));
-                        });
-                    }
+                    Capture = true;
                     return;
                 }
             }
             base.WndProc(ref m);
         }
-
-        #region " Unused Properties "
-
-        /// <summary>This property is not relevant for this class.</summary>
-        /// <returns>This property is not relevant for this class.</returns>
+        
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden), EditorBrowsable(EditorBrowsableState.Never)]
         public new int DropDownWidth
         {
             get => base.DropDownWidth;
             set => base.DropDownWidth = value;
         }
-
-        /// <summary>This property is not relevant for this class.</summary>
-        /// <returns>This property is not relevant for this class.</returns>
+        
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden), EditorBrowsable(EditorBrowsableState.Never)]
         public new int DropDownHeight
         {
@@ -148,30 +97,29 @@ namespace PresentationControls
                 base.DropDownHeight = value;
             }
         }
-
-        /// <summary>This property is not relevant for this class.</summary>
-        /// <returns>This property is not relevant for this class.</returns>
+        
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden), EditorBrowsable(EditorBrowsableState.Never)]
+        public bool DropDownResizeable
+        {
+            get => dropDown.Resizable;
+            set => dropDown.Resizable = value;
+        }
+        
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden), EditorBrowsable(EditorBrowsableState.Never)]
         public new bool IntegralHeight
         {
             get => base.IntegralHeight;
             set => base.IntegralHeight = value;
         }
-
-        /// <summary>This property is not relevant for this class.</summary>
-        /// <returns>This property is not relevant for this class.</returns>
+        
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden), EditorBrowsable(EditorBrowsableState.Never)]
         public new ObjectCollection Items => base.Items;
-
-        /// <summary>This property is not relevant for this class.</summary>
-        /// <returns>This property is not relevant for this class.</returns>
+        
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden), EditorBrowsable(EditorBrowsableState.Never)]
         public new int ItemHeight
         {
             get => base.ItemHeight;
             set => base.ItemHeight = value;
         }
-
-        #endregion
     }
 }

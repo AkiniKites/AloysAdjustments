@@ -19,51 +19,35 @@ namespace PresentationControls
     [ToolboxItem(false)]
     public class CheckBoxComboBoxItemList : List<CheckBoxComboBoxItem>
     {
-        #region CONSTRUCTORS
-
         public CheckBoxComboBoxItemList(CheckBoxComboBox checkBoxComboBox)
         {
-            _CheckBoxComboBox = checkBoxComboBox;
+            _checkBoxComboBox = checkBoxComboBox;
         }
 
-        #endregion
-
-        #region PRIVATE FIELDS
-
-        private CheckBoxComboBox _CheckBoxComboBox;
-
-        #endregion
-
-        #region EVENTS, This could be moved to the list control if needed
+        private readonly CheckBoxComboBox _checkBoxComboBox;
 
         public event EventHandler CheckBoxCheckedChanged;
 
         protected void OnCheckBoxCheckedChanged(object sender, EventArgs e)
         {
-            EventHandler handler = CheckBoxCheckedChanged;
-            if (handler != null)
-                handler(sender, e);
+            CheckBoxCheckedChanged?.Invoke(sender, e);
         }
         private void item_CheckedChanged(object sender, EventArgs e)
         {
             OnCheckBoxCheckedChanged(sender, e);
         }
 
-        #endregion
-
-        #region LIST MEMBERS & OBSOLETE INDICATORS
-
         [Obsolete("Do not add items to this list directly. Use the ComboBox items instead.", false)]
         public new void Add(CheckBoxComboBoxItem item)
         {
-            item.CheckedChanged += new EventHandler(item_CheckedChanged);
+            item.CheckedChanged += item_CheckedChanged;
             base.Add(item);
         }
 
         public new void AddRange(IEnumerable<CheckBoxComboBoxItem> collection)
         {
             foreach (CheckBoxComboBoxItem Item in collection)
-                Item.CheckedChanged += new EventHandler(item_CheckedChanged);
+                Item.CheckedChanged += item_CheckedChanged;
             base.AddRange(collection);
         }
 
@@ -81,10 +65,6 @@ namespace PresentationControls
             return base.Remove(item);
         }
 
-        #endregion
-
-        #region DEFAULT PROPERTIES
-
         /// <summary>
         /// Returns the item with the specified displayName or Text.
         /// </summary>
@@ -92,39 +72,37 @@ namespace PresentationControls
         {
             get
             {
-                int StartIndex =
+                int startIndex =
                     // An invisible item exists in this scenario to help 
                     // with the Text displayed in the TextBox of the Combo
-                    _CheckBoxComboBox.DropDownStyle == ComboBoxStyle.DropDownList 
-                    && _CheckBoxComboBox.DataSource == null
+                    _checkBoxComboBox.DropDownStyle == ComboBoxStyle.DropDownList 
+                    && _checkBoxComboBox.DataSource == null
                         ? 1 // Ubiklou : 2008-04-28 : Ignore first item. (http://www.codeproject.com/KB/combobox/extending_combobox.aspx?fid=476622&df=90&mpp=25&noise=3&sort=Position&view=Quick&select=2526813&fr=1#xx2526813xx)
                         : 0;
-                for(int Index = StartIndex; Index <= Count - 1; Index ++)
+                for(int i = startIndex; i <= Count - 1; i ++)
                 {
-                    CheckBoxComboBoxItem Item = this[Index];
+                    var item = this[i];
 
                     string Text;
                     // The binding might not be active yet
-                    if (string.IsNullOrEmpty(Item.Text)
+                    if (string.IsNullOrEmpty(item.Text)
                         // Ubiklou : 2008-04-28 : No databinding
-                        && Item.DataBindings != null 
-                        && Item.DataBindings["Text"] != null
+                        && item.DataBindings != null 
+                        && item.DataBindings["Text"] != null
                     )
                     {
                         PropertyInfo PropertyInfo
-                            = Item.ComboBoxItem.GetType().GetProperty(
-                                Item.DataBindings["Text"].BindingMemberInfo.BindingMember);
-                        Text = (string)PropertyInfo.GetValue(Item.ComboBoxItem, null);
+                            = item.ComboBoxItem.GetType().GetProperty(
+                                item.DataBindings["Text"].BindingMemberInfo.BindingMember);
+                        Text = (string)PropertyInfo.GetValue(item.ComboBoxItem, null);
                     }
                     else
-                        Text = Item.Text;
+                        Text = item.Text;
                     if (Text.CompareTo(displayName) == 0)
-                        return Item;
+                        return item;
                 }
                 throw new ArgumentOutOfRangeException($"\"{displayName}\" does not exist in this combo box.");
             }
         }
-        
-        #endregion
     }
 }

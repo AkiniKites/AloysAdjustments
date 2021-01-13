@@ -16,8 +16,6 @@ namespace PresentationControls
     [ToolboxItem(false)]
     public class CheckBoxComboBoxListControl : ScrollableControl
     {
-        #region CONSTRUCTOR
-
         public CheckBoxComboBoxListControl(CheckBoxComboBox owner)
             : base()
         {
@@ -33,23 +31,15 @@ namespace PresentationControls
             MaximumSize = new Size(500, 500);
         }
 
-        #endregion
-
-        #region PRIVATE PROPERTIES
-
         /// <summary>
         /// Simply a reference to the CheckBoxComboBox.
         /// </summary>
         private CheckBoxComboBox _CheckBoxComboBox;
 
-        #endregion
-
         /// <summary>
         /// A Typed list of ComboBoxCheckBoxItems.
         /// </summary>
         public CheckBoxComboBoxItemList Items { get; }
-
-        #region RESIZE OVERRIDE REQUIRED BY THE POPUP CONTROL
 
         /// <summary>
         /// Prescribed by the Popup control to enable Resize operations.
@@ -57,16 +47,12 @@ namespace PresentationControls
         /// <param name="m"></param>
         protected override void WndProc(ref Message m)
         {
-            if ((Parent.Parent as Popup).ProcessResizing(ref m))
+            if (((Popup)Parent.Parent).ProcessResizing(ref m))
             {
                 return;
             }
             base.WndProc(ref m);
         }
-
-        #endregion
-
-        #region PROTECTED MEMBERS
 
         protected override void OnVisibleChanged(EventArgs e)
         {
@@ -89,75 +75,66 @@ namespace PresentationControls
                 _CheckBoxComboBox._MustAddHiddenItem = false;
             }
             Controls.Clear();
-            #region Disposes all items that are no longer in the combo box list
 
-            for (int Index = Items.Count - 1; Index >= 0; Index--)
+            for (int i = Items.Count - 1; i >= 0; i--)
             {
-                CheckBoxComboBoxItem Item = Items[Index];
-                if (!_CheckBoxComboBox.Items.Contains(Item.ComboBoxItem))
+                var item = Items[i];
+                if (!_CheckBoxComboBox.Items.Contains(item.ComboBoxItem))
                 {
-                    Items.Remove(Item);
-                    Item.Dispose();
+                    Items.Remove(item);
+                    item.Dispose();
                 }
             }
 
-            #endregion
-            #region Recreate the list in the same order of the combo box items
-
-            bool HasHiddenItem = 
+            bool hadHiddenItem = 
                 _CheckBoxComboBox.DropDownStyle == ComboBoxStyle.DropDownList
                 && _CheckBoxComboBox.DataSource == null
                 && !DesignMode;
 
-            CheckBoxComboBoxItemList NewList = new CheckBoxComboBoxItemList(_CheckBoxComboBox);
-            for(int Index0 = 0; Index0 <= _CheckBoxComboBox.Items.Count - 1; Index0 ++)
+            var newList = new CheckBoxComboBoxItemList(_CheckBoxComboBox);
+            for(int i = 0; i <= _CheckBoxComboBox.Items.Count - 1; i ++)
             {
-                object Object = _CheckBoxComboBox.Items[Index0];
-                CheckBoxComboBoxItem Item = null;
+                object Object = _CheckBoxComboBox.Items[i];
+                CheckBoxComboBoxItem item = null;
                 // The hidden item could match any other item when only
                 // one other item was selected.
-                if (Index0 == 0 && HasHiddenItem && Items.Count > 0)
-                    Item = Items[0];
+                if (i == 0 && hadHiddenItem && Items.Count > 0)
+                    item = Items[0];
                 else
                 {
-                    int StartIndex = HasHiddenItem
+                    int startIndex = hadHiddenItem
                         ? 1 // Skip the hidden item, it could match 
                         : 0;
-                    for (int Index1 = StartIndex; Index1 <= Items.Count - 1; Index1++)
+                    for (int j = startIndex; j <= Items.Count - 1; j++)
                     {
-                        if (Items[Index1].ComboBoxItem == Object)
+                        if (Items[j].ComboBoxItem == Object)
                         {
-                            Item = Items[Index1];
+                            item = Items[j];
                             break;
                         }
                     }
                 }
-                if (Item == null)
+                if (item == null)
                 {
-                    Item = new CheckBoxComboBoxItem(_CheckBoxComboBox, Object);
-                    Item.ApplyProperties(_CheckBoxComboBox.CheckBoxProperties);
+                    item = new CheckBoxComboBoxItem(_CheckBoxComboBox, Object);
+                    item.ApplyProperties(_CheckBoxComboBox.CheckBoxProperties);
                 }
-                NewList.Add(Item);
-                Item.Dock = DockStyle.Top;
+                newList.Add(item);
+                item.Dock = DockStyle.Top;
             }
             Items.Clear();
-            Items.AddRange(NewList);
+            Items.AddRange(newList);
 
-            #endregion
-            #region Add the items to the controls in reversed order to maintain correct docking order
-
-            if (NewList.Count > 0)
+            if (newList.Count > 0)
             {
                 // This reverse helps to maintain correct docking order.
-                NewList.Reverse();
+                newList.Reverse();
                 // If you get an error here that "Cannot convert to the desired 
                 // type, it probably means the controls are not binding correctly.
                 // The Checked property is binded to the ValueMember property. 
                 // It must be a bool for example.
-                Controls.AddRange(NewList.ToArray());
+                Controls.AddRange(newList.ToArray());
             }
-
-            #endregion
 
             // Keep the first item invisible
             if (_CheckBoxComboBox.DropDownStyle == ComboBoxStyle.DropDownList
@@ -167,7 +144,5 @@ namespace PresentationControls
             
             ResumeLayout();
         }
-
-        #endregion
     }
 }

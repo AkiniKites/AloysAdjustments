@@ -26,28 +26,17 @@ namespace PresentationControls
     [CLSCompliant(true), ToolboxItem(false)]
     public partial class Popup : ToolStripDropDown
     {
-        #region " Fields & Properties "
-
         /// <summary>
         /// Gets the content of the pop-up.
         /// </summary>
         public Control Content { get; private set; }
 
-        private bool fade;
         /// <summary>
         /// Gets a value indicating whether the <see cref="Popup"/> uses the fade effect.
         /// </summary>
         /// <value><c>true</c> if pop-up uses the fade effect; otherwise, <c>false</c>.</value>
         /// <remarks>To use the fade effect, the FocusOnOpen property also has to be set to <c>true</c>.</remarks>
-        public bool UseFadeEffect
-        {
-            get => fade;
-            set
-            {
-                if (fade == value) return;
-                fade = value;
-            }
-        }
+        public bool UseFadeEffect { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether to focus the content after the pop-up has been opened.
@@ -65,19 +54,20 @@ namespace PresentationControls
         private Popup ownerPopup;
         private Popup childPopup;
 
+        private bool _allowResizable;
         private bool _resizable;
-        private bool resizable;
+
         /// <summary>
         /// Gets or sets a value indicating whether this <see cref="Popup" /> is resizable.
         /// </summary>
         /// <value><c>true</c> if resizable; otherwise, <c>false</c>.</value>
         public bool Resizable
         {
-            get => resizable && _resizable;
-            set => resizable = value;
+            get => _resizable && _allowResizable;
+            set => _resizable = value;
         }
 
-        private ToolStripControlHost host;
+        private readonly ToolStripControlHost _host;
 
         /// <summary>
         /// Gets or sets the size that is the lower limit that <see cref="M:System.Windows.Forms.Control.GetPreferredSize(System.Drawing.Size)" /> can specify.
@@ -106,10 +96,6 @@ namespace PresentationControls
             }
         }
 
-        #endregion
-
-        #region " Constructors "
-
         /// <summary>
         /// Initializes a new instance of the <see cref="Popup"/> class.
         /// </summary>
@@ -121,31 +107,30 @@ namespace PresentationControls
         public Popup(Control content)
         {
             if (content == null)
-            {
-                throw new ArgumentNullException("content");
-            }
-            this.Content = content;
-            this.fade = SystemInformation.IsMenuAnimationEnabled && SystemInformation.IsMenuFadeEnabled;
-            this._resizable = true;
+                throw new ArgumentNullException(nameof(content));
+
+            Content = content;
+            UseFadeEffect = SystemInformation.IsMenuAnimationEnabled && SystemInformation.IsMenuFadeEnabled;
+            _allowResizable = true;
             InitializeComponent();
             AutoSize = false;
             DoubleBuffered = true;
             ResizeRedraw = true;
-            host = new ToolStripControlHost(content);
-            Padding = Margin = host.Padding = host.Margin = Padding.Empty;
+            _host = new ToolStripControlHost(content);
+            Padding = Margin = _host.Padding = _host.Margin = Padding.Empty;
             MinimumSize = content.MinimumSize;
             content.MinimumSize = content.Size;
             MaximumSize = content.MaximumSize;
             content.MaximumSize = content.Size;
             Size = content.Size;
             content.Location = Point.Empty;
-            Items.Add(host);
-            content.Disposed += delegate(object sender, EventArgs e)
+            Items.Add(_host);
+            content.Disposed += delegate
             {
                 content = null;
                 Dispose(true);
             };
-            content.RegionChanged += delegate(object sender, EventArgs e)
+            content.RegionChanged += delegate
             {
                 UpdateRegion();
             };
@@ -154,12 +139,7 @@ namespace PresentationControls
                 PaintSizeGrip(e);
             };
             UpdateRegion();
-            MouseMove += (s, e) => Debug.WriteLine(Guid.NewGuid().ToString());
         }
-
-        #endregion
-
-        #region " Methods "
 
         /// <summary>
         /// Processes a dialog box key.
@@ -179,14 +159,14 @@ namespace PresentationControls
         /// </summary>
         protected void UpdateRegion()
         {
-            if (this.Region != null)
+            if (Region != null)
             {
-                this.Region.Dispose();
-                this.Region = null;
+                Region.Dispose();
+                Region = null;
             }
             if (Content.Region != null)
             {
-                this.Region = Content.Region.Clone();
+                Region = Content.Region.Clone();
             }
         }
 
@@ -202,7 +182,7 @@ namespace PresentationControls
         {
             if (control == null)
             {
-                throw new ArgumentNullException("control");
+                throw new ArgumentNullException(nameof(control));
             }
             SetOwnerItem(control);
             Show(control, control.ClientRectangle);
@@ -221,7 +201,7 @@ namespace PresentationControls
         {
             if (control == null)
             {
-                throw new ArgumentNullException("control");
+                throw new ArgumentNullException(nameof(control));
             }
             SetOwnerItem(control);
             resizableTop = resizableRight = false;
@@ -240,10 +220,7 @@ namespace PresentationControls
             location = control.PointToClient(location);
             Show(control, location, ToolStripDropDownDirection.BelowRight);
         }
-
-        private const int frames = 1;
-        private const int totalduration = 0; // ML : 2007-11-05 : was 100 but caused a flicker.
-        private const int frameduration = totalduration / frames;
+        
         /// <summary>
         /// Adjusts the size of the owner <see cref="T:System.Windows.Forms.ToolStrip" /> to accommodate the <see cref="T:System.Windows.Forms.ToolStripDropDown" /> if the owner <see cref="T:System.Windows.Forms.ToolStrip" /> is currently displayed, or clears and resets active <see cref="T:System.Windows.Forms.ToolStripDropDown" /> child controls of the <see cref="T:System.Windows.Forms.ToolStrip" /> if the <see cref="T:System.Windows.Forms.ToolStrip" /> is not currently displayed.
         /// </summary>
@@ -251,17 +228,10 @@ namespace PresentationControls
         protected override void SetVisibleCore(bool visible)
         {
             double opacity = Opacity;
-            if (visible && fade && FocusOnOpen) Opacity = 0;
+            if (visible && UseFadeEffect && FocusOnOpen) Opacity = 0;
             base.SetVisibleCore(visible);
-            if (!visible || !fade || !FocusOnOpen) return;
-            for (int i = 1; i <= frames; i++)
-            {
-                if (i > 1)
-                {
-                    System.Threading.Thread.Sleep(frameduration);
-                }
-                Opacity = opacity * (double)i / (double)frames;
-            }
+            if (!visible || !UseFadeEffect || !FocusOnOpen) return;
+
             Opacity = opacity;
         }
 
@@ -274,9 +244,8 @@ namespace PresentationControls
             {
                 return;
             }
-            if (control is Popup)
+            if (control is Popup popupControl)
             {
-                Popup popupControl = control as Popup;
                 ownerPopup = popupControl;
                 ownerPopup.childPopup = this;
                 OwnerItem = popupControl.Items[0];
@@ -324,7 +293,7 @@ namespace PresentationControls
         {
             if (ownerPopup != null)
             {
-                ownerPopup._resizable = false;
+                ownerPopup._allowResizable = false;
             }
             if (FocusOnOpen)
             {
@@ -337,7 +306,7 @@ namespace PresentationControls
         {
             if (ownerPopup != null)
             {
-                ownerPopup._resizable = true;
+                ownerPopup._allowResizable = true;
             }
             OnCloseEvent(null); // Have Parent CheckComboBox fire the DropDownClosed event
             base.OnClosed(e);
@@ -351,10 +320,6 @@ namespace PresentationControls
                 LastClosedTimeStamp = DateTime.Now;
             base.OnVisibleChanged(e);
         }
-
-        #endregion
-
-        #region " Resizing Support "
 
         /// <summary>
         /// Processes Windows messages.
@@ -385,21 +350,15 @@ namespace PresentationControls
         private bool InternalProcessResizing(ref Message m, bool contentControl)
         {
             if (m.Msg == NativeMethods.WM_NCACTIVATE && m.WParam != IntPtr.Zero && childPopup != null && childPopup.Visible)
-            {
                 childPopup.Hide();
-            }
             if (!Resizable)
-            {
                 return false;
-            }
+
             if (m.Msg == NativeMethods.WM_NCHITTEST)
-            {
                 return OnNcHitTest(ref m, contentControl);
-            }
-            else if (m.Msg == NativeMethods.WM_GETMINMAXINFO)
-            {
+            if (m.Msg == NativeMethods.WM_GETMINMAXINFO)
                 return OnGetMinMaxInfo(ref m);
-            }
+
             return false;
         }
 
@@ -407,8 +366,8 @@ namespace PresentationControls
         private bool OnGetMinMaxInfo(ref Message m)
         {
             NativeMethods.MINMAXINFO minmax = (NativeMethods.MINMAXINFO)Marshal.PtrToStructure(m.LParam, typeof(NativeMethods.MINMAXINFO));
-            minmax.maxTrackSize = this.MaximumSize;
-            minmax.minTrackSize = this.MinimumSize;
+            minmax.maxTrackSize = MaximumSize;
+            minmax.minTrackSize = MinimumSize;
             Marshal.StructureToPtr(minmax, m.LParam, false);
             return true;
         }
@@ -478,26 +437,20 @@ namespace PresentationControls
         /// <param name="e">The <see cref="System.Windows.Forms.PaintEventArgs" /> instance containing the event data.</param>
         public void PaintSizeGrip(PaintEventArgs e)
         {
-            if (e == null || e.Graphics == null || !resizable)
-            {
+            if (e?.Graphics == null || !_resizable)
                 return;
-            }
+
             Size clientSize = Content.ClientSize;
             if (Application.RenderWithVisualStyles)
             {
-                if (this.sizeGripRenderer == null)
-                {
-                    this.sizeGripRenderer = new VS.VisualStyleRenderer(VS.VisualStyleElement.Status.Gripper.Normal);
-                }
-                this.sizeGripRenderer.DrawBackground(e.Graphics, new Rectangle(clientSize.Width - 0x10, clientSize.Height - 0x10, 0x10, 0x10));
+                sizeGripRenderer ??= new VS.VisualStyleRenderer(VS.VisualStyleElement.Status.Gripper.Normal);
+                sizeGripRenderer.DrawBackground(e.Graphics, new Rectangle(clientSize.Width - 0x10, clientSize.Height - 0x10, 0x10, 0x10));
             }
             else
             {
                 ControlPaint.DrawSizeGrip(e.Graphics, Content.BackColor, clientSize.Width - 0x10, clientSize.Height - 0x10, 0x10, 0x10);
             }
         }
-
-        #endregion
 
         public event EventHandler onCloseEvent;
 

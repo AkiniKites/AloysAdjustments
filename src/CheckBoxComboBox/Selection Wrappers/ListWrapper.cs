@@ -16,8 +16,6 @@ namespace PresentationControls
     /// </summary>
     public class ListWrapper<T> : List<ObjectWrapper<T>>
     {
-        #region CONSTRUCTOR
-
         /// <summary>
         /// No property on the object is specified for display purposes, so simple ToString() operation 
         /// will be performed. And no Counts will be displayed
@@ -53,18 +51,10 @@ namespace PresentationControls
             DisplayNameGetter = displayNameGetter;
         }
 
-        #endregion
-
-        #region PRIVATE PROPERTIES
-
         /// <summary>
         /// The original List of values wrapped. A "Selected" and possibly "Count" functionality is added.
         /// </summary>
         private readonly IEnumerable<T> _Source;
-
-        #endregion
-
-        #region PUBLIC PROPERTIES
 
         /// <summary>
         /// When specified, indicates that ToString() should not be performed on the items. 
@@ -81,10 +71,6 @@ namespace PresentationControls
         /// Indicates whether the Item display value (Name) should include a count.
         /// </summary>
         public bool ShowCounts { get; set; }
-
-        #endregion
-
-        #region HELPER MEMBERS
 
         /// <summary>
         /// Reset all counts to zero.
@@ -116,10 +102,6 @@ namespace PresentationControls
                 Add(CreateSelectionWrapper(item));
         }
 
-        #endregion
-
-        #region EVENT HANDLERS
-
         private void ListSelectionWrapper_ListChanged(object sender, ListChangedEventArgs e)
         {
             switch (e.ListChangedType)
@@ -135,7 +117,5 @@ namespace PresentationControls
                     break;
             }
         }
-
-        #endregion
     }
 }
