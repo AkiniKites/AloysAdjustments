@@ -28,14 +28,10 @@ namespace PresentationControls
     {
         #region " Fields & Properties "
 
-        private Control content;
         /// <summary>
         /// Gets the content of the pop-up.
         /// </summary>
-        public Control Content
-        {
-            get { return content; }
-        }
+        public Control Content { get; private set; }
 
         private bool fade;
         /// <summary>
@@ -45,7 +41,7 @@ namespace PresentationControls
         /// <remarks>To use the fade effect, the FocusOnOpen property also has to be set to <c>true</c>.</remarks>
         public bool UseFadeEffect
         {
-            get { return fade; }
+            get => fade;
             set
             {
                 if (fade == value) return;
@@ -53,28 +49,18 @@ namespace PresentationControls
             }
         }
 
-        private bool focusOnOpen = true;
         /// <summary>
         /// Gets or sets a value indicating whether to focus the content after the pop-up has been opened.
         /// </summary>
         /// <value><c>true</c> if the content should be focused after the pop-up has been opened; otherwise, <c>false</c>.</value>
         /// <remarks>If the FocusOnOpen property is set to <c>false</c>, then pop-up cannot use the fade effect.</remarks>
-        public bool FocusOnOpen
-        {
-            get { return focusOnOpen; }
-            set { focusOnOpen = value; }
-        }
+        public bool FocusOnOpen { get; set; } = true;
 
-        private bool acceptAlt = true;
         /// <summary>
         /// Gets or sets a value indicating whether presing the alt key should close the pop-up.
         /// </summary>
         /// <value><c>true</c> if presing the alt key does not close the pop-up; otherwise, <c>false</c>.</value>
-        public bool AcceptAlt
-        {
-            get { return acceptAlt; }
-            set { acceptAlt = value; }
-        }
+        public bool AcceptAlt { get; set; } = true;
 
         private Popup ownerPopup;
         private Popup childPopup;
@@ -87,33 +73,23 @@ namespace PresentationControls
         /// <value><c>true</c> if resizable; otherwise, <c>false</c>.</value>
         public bool Resizable
         {
-            get { return resizable && _resizable; }
-            set { resizable = value; }
+            get => resizable && _resizable;
+            set => resizable = value;
         }
 
         private ToolStripControlHost host;
 
-        private Size minSize;
         /// <summary>
         /// Gets or sets the size that is the lower limit that <see cref="M:System.Windows.Forms.Control.GetPreferredSize(System.Drawing.Size)" /> can specify.
         /// </summary>
         /// <returns>An ordered pair of type <see cref="T:System.Drawing.Size" /> representing the width and height of a rectangle.</returns>
-        public new Size MinimumSize
-        {
-            get { return minSize; }
-            set { minSize = value; }
-        }
+        public new Size MinimumSize { get; set; }
 
-        private Size maxSize;
         /// <summary>
         /// Gets or sets the size that is the upper limit that <see cref="M:System.Windows.Forms.Control.GetPreferredSize(System.Drawing.Size)" /> can specify.
         /// </summary>
         /// <returns>An ordered pair of type <see cref="T:System.Drawing.Size" /> representing the width and height of a rectangle.</returns>
-        public new Size MaximumSize
-        {
-            get { return maxSize; }
-            set { maxSize = value; }
-        }
+        public new Size MaximumSize { get; set; }
 
         /// <summary>
         /// Gets parameters of a new window.
@@ -148,7 +124,7 @@ namespace PresentationControls
             {
                 throw new ArgumentNullException("content");
             }
-            this.content = content;
+            this.Content = content;
             this.fade = SystemInformation.IsMenuAnimationEnabled && SystemInformation.IsMenuFadeEnabled;
             this._resizable = true;
             InitializeComponent();
@@ -194,7 +170,7 @@ namespace PresentationControls
         /// </returns>
         protected override bool ProcessDialogKey(Keys keyData)
         {
-            if (acceptAlt && ((keyData & Keys.Alt) == Keys.Alt)) return false;
+            if (AcceptAlt && ((keyData & Keys.Alt) == Keys.Alt)) return false;
             return base.ProcessDialogKey(keyData);
         }
 
@@ -208,9 +184,9 @@ namespace PresentationControls
                 this.Region.Dispose();
                 this.Region = null;
             }
-            if (content.Region != null)
+            if (Content.Region != null)
             {
-                this.Region = content.Region.Clone();
+                this.Region = Content.Region.Clone();
             }
         }
 
@@ -263,7 +239,6 @@ namespace PresentationControls
             }
             location = control.PointToClient(location);
             Show(control, location, ToolStripDropDownDirection.BelowRight);
-            control.Capture = true;
         }
 
         private const int frames = 1;
@@ -276,9 +251,9 @@ namespace PresentationControls
         protected override void SetVisibleCore(bool visible)
         {
             double opacity = Opacity;
-            if (visible && fade && focusOnOpen) Opacity = 0;
+            if (visible && fade && FocusOnOpen) Opacity = 0;
             base.SetVisibleCore(visible);
-            if (!visible || !fade || !focusOnOpen) return;
+            if (!visible || !fade || !FocusOnOpen) return;
             for (int i = 1; i <= frames; i++)
             {
                 if (i > 1)
@@ -319,10 +294,10 @@ namespace PresentationControls
         /// <param name="e">An <see cref="T:System.EventArgs" /> that contains the event data.</param>
         protected override void OnSizeChanged(EventArgs e)
         {
-            content.MinimumSize = Size;
-            content.MaximumSize = Size;
-            content.Size = Size;
-            content.Location = Point.Empty;
+            Content.MinimumSize = Size;
+            Content.MaximumSize = Size;
+            Content.Size = Size;
+            Content.Location = Point.Empty;
             base.OnSizeChanged(e);
         }
 
@@ -332,7 +307,7 @@ namespace PresentationControls
         /// <param name="e">A <see cref="T:System.ComponentModel.CancelEventArgs" /> that contains the event data.</param>
         protected override void OnOpening(CancelEventArgs e)
         {
-            if (content.IsDisposed || content.Disposing)
+            if (Content.IsDisposed || Content.Disposing)
             {
                 e.Cancel = true;
                 return;
@@ -351,9 +326,9 @@ namespace PresentationControls
             {
                 ownerPopup._resizable = false;
             }
-            if (focusOnOpen)
+            if (FocusOnOpen)
             {
-                content.Focus();
+                Content.Focus();
             }
             base.OnOpened(e);
         }
@@ -364,6 +339,7 @@ namespace PresentationControls
             {
                 ownerPopup._resizable = true;
             }
+            OnCloseEvent(null); // Have Parent CheckComboBox fire the DropDownClosed event
             base.OnClosed(e);
         }
 
@@ -443,7 +419,7 @@ namespace PresentationControls
             int y = NativeMethods.HIWORD(m.LParam);
             Point clientLocation = PointToClient(new Point(x, y));
 
-            GripBounds gripBouns = new GripBounds(contentControl ? content.ClientRectangle : ClientRectangle);
+            GripBounds gripBouns = new GripBounds(contentControl ? Content.ClientRectangle : ClientRectangle);
             IntPtr transparent = new IntPtr(NativeMethods.HTTRANSPARENT);
 
             if (resizableTop)
@@ -506,7 +482,7 @@ namespace PresentationControls
             {
                 return;
             }
-            Size clientSize = content.ClientSize;
+            Size clientSize = Content.ClientSize;
             if (Application.RenderWithVisualStyles)
             {
                 if (this.sizeGripRenderer == null)
@@ -517,10 +493,19 @@ namespace PresentationControls
             }
             else
             {
-                ControlPaint.DrawSizeGrip(e.Graphics, content.BackColor, clientSize.Width - 0x10, clientSize.Height - 0x10, 0x10, 0x10);
+                ControlPaint.DrawSizeGrip(e.Graphics, Content.BackColor, clientSize.Width - 0x10, clientSize.Height - 0x10, 0x10, 0x10);
             }
         }
 
         #endregion
+
+        public event EventHandler onCloseEvent;
+
+        protected virtual void OnCloseEvent(EventArgs e)
+        {
+            var handler = onCloseEvent;
+            if (handler != null)
+                handler(this, e);
+        }
     }
 }

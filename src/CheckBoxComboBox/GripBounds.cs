@@ -13,16 +13,12 @@ namespace PresentationControls
 
         public GripBounds(Rectangle clientRectangle)
         {
-            this.clientRectangle = clientRectangle;
+            this.ClientRectangle = clientRectangle;
         }
 
-        private Rectangle clientRectangle;
-        public Rectangle ClientRectangle
-        {
-            get { return clientRectangle; }
-            //set { clientRectangle = value; }
-        }
+        public Rectangle ClientRectangle { get; }
 
+        //set { clientRectangle = value; }
         public Rectangle Bottom
         {
             get

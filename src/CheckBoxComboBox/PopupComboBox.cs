@@ -8,6 +8,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
 using System.Security.Permissions;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace PresentationControls
@@ -44,10 +45,7 @@ namespace PresentationControls
         /// <value>The drop down control.</value>
         public Control DropDownControl
         {
-            get
-            {
-                return dropDownControl;
-            }
+            get => dropDownControl;
             set
             {
                 if (dropDownControl == value)
@@ -79,6 +77,12 @@ namespace PresentationControls
             }
         }
 
+        protected override void OnGotFocus(EventArgs e)
+        {
+            base.OnGotFocus(e);
+            Debug.WriteLine("focus");
+        }
+
         /// <summary>
         /// Processes Windows messages.
         /// </summary>
@@ -86,15 +90,35 @@ namespace PresentationControls
         [SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.UnmanagedCode)]
         protected override void WndProc(ref Message m)
         {
+            Debug.WriteLine($"m {m.Msg} - {dropDown.Visible}");
+
+            if (m.Msg == 7 && dropDown.Visible) 
+                return;
             if (m.Msg == (NativeMethods.WM_REFLECT + NativeMethods.WM_COMMAND))
             {
                 if (NativeMethods.HIWORD(m.WParam) == NativeMethods.CBN_DROPDOWN)
                 {
                     // Blocks a redisplay when the user closes the control by clicking 
                     // on the combobox.
-                    TimeSpan TimeSpan = DateTime.Now.Subtract(dropDown.LastClosedTimeStamp);
-                    if (TimeSpan.TotalMilliseconds > 100)
+                    var ts = DateTime.Now.Subtract(dropDown.LastClosedTimeStamp);
+                    if (ts.TotalMilliseconds > 100)
+                    {
                         ShowDropDown();
+                        this.Capture = true;
+                    }
+                    else
+                    {
+                        this.Capture = false;
+                        Task.Run(() =>
+                        {
+                            Thread.Sleep(100);
+                            BeginInvoke(new Action(() =>
+                            {
+                                Debug.WriteLine("f " + Focused);
+                                Debug.WriteLine("c " + Capture);
+                            }));
+                        });
+                    }
                     return;
                 }
             }
@@ -108,8 +132,8 @@ namespace PresentationControls
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden), EditorBrowsable(EditorBrowsableState.Never)]
         public new int DropDownWidth
         {
-            get { return base.DropDownWidth; }
-            set { base.DropDownWidth = value; }
+            get => base.DropDownWidth;
+            set => base.DropDownWidth = value;
         }
 
         /// <summary>This property is not relevant for this class.</summary>
@@ -117,7 +141,7 @@ namespace PresentationControls
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden), EditorBrowsable(EditorBrowsableState.Never)]
         public new int DropDownHeight
         {
-            get { return base.DropDownHeight; }
+            get => base.DropDownHeight;
             set
             {
                 dropDown.Height = value;
@@ -130,25 +154,22 @@ namespace PresentationControls
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden), EditorBrowsable(EditorBrowsableState.Never)]
         public new bool IntegralHeight
         {
-            get { return base.IntegralHeight; }
-            set { base.IntegralHeight = value; }
+            get => base.IntegralHeight;
+            set => base.IntegralHeight = value;
         }
 
         /// <summary>This property is not relevant for this class.</summary>
         /// <returns>This property is not relevant for this class.</returns>
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden), EditorBrowsable(EditorBrowsableState.Never)]
-        public new ObjectCollection Items
-        {
-            get { return base.Items; }
-        }
+        public new ObjectCollection Items => base.Items;
 
         /// <summary>This property is not relevant for this class.</summary>
         /// <returns>This property is not relevant for this class.</returns>
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden), EditorBrowsable(EditorBrowsableState.Never)]
         public new int ItemHeight
         {
-            get { return base.ItemHeight; }
-            set { base.ItemHeight = value; }
+            get => base.ItemHeight;
+            set => base.ItemHeight = value;
         }
 
         #endregion

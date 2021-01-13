@@ -8,6 +8,7 @@ using System.Windows.Forms;
 using System.Reflection;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.Diagnostics;
 
 namespace PresentationControls
 {
@@ -52,6 +53,7 @@ namespace PresentationControls
             // Must be set after the DropDownControl is set, since the popup is recreated.
             // NOTE: I made the dropDown protected so that it can be accessible here. It was private.
             dropDown.Resizable = true;
+            dropDown.onCloseEvent += OnDropDownClosed;
         }
 
         #endregion
@@ -70,6 +72,7 @@ namespace PresentationControls
         /// </summary>
         private string _DisplayMemberSingleItem = null;
         internal bool _MustAddHiddenItem = false;
+        private bool _ClosingDropDown = false;
 
         #endregion
 
@@ -91,7 +94,7 @@ namespace PresentationControls
             {
                 CheckBoxComboBoxItem Item = _CheckBoxComboBoxListControl.Items[Index];
                 if (Item.Checked)
-                    ListText += string.IsNullOrEmpty(ListText) ? Item.Text : String.Format(", {0}", Item.Text);
+                    ListText += string.IsNullOrEmpty(ListText) ? Item.Text : $", {Item.Text}";
             }
             return ListText;
         }
@@ -99,6 +102,22 @@ namespace PresentationControls
         #endregion
 
         #region PUBLIC PROPERTIES
+
+        protected virtual void OnDropDownClosed(object sender, EventArgs e)
+        {
+            Debug.WriteLine("Close");
+            _ClosingDropDown = true;
+            base.OnDropDownClosed(e);
+        }
+
+        protected override void OnDropDownClosed(EventArgs e)
+        {
+            if (!_ClosingDropDown)
+                return;
+            _ClosingDropDown = false;
+
+            base.OnDropDownClosed(e);
+        }
 
         /// <summary>
         /// A direct reference to the Items of CheckBoxComboBoxListControl.
@@ -124,7 +143,7 @@ namespace PresentationControls
         /// </summary>
         public new object DataSource
         {
-            get { return base.DataSource; }
+            get => base.DataSource;
             set
             {
                 base.DataSource = value;
@@ -138,7 +157,7 @@ namespace PresentationControls
         /// </summary>
         public new string ValueMember
         {
-            get { return base.ValueMember; }
+            get => base.ValueMember;
             set
             {
                 base.ValueMember = value;
@@ -156,7 +175,7 @@ namespace PresentationControls
         public string DisplayMemberSingleItem
         {
             get { if (string.IsNullOrEmpty(_DisplayMemberSingleItem)) return DisplayMember; else return _DisplayMemberSingleItem; }
-            set { _DisplayMemberSingleItem = value; }
+            set => _DisplayMemberSingleItem = value;
         }
         /// <summary>
         /// Made this property Browsable again, since the Base Popup hides it. This class uses it again.
@@ -168,10 +187,7 @@ namespace PresentationControls
         /// </returns>
         [Browsable(true)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
-        public new ObjectCollection Items
-        {
-            get { return base.Items; }
-        }
+        public new ObjectCollection Items => base.Items;
 
         #endregion
 
@@ -225,6 +241,14 @@ namespace PresentationControls
                 _MustAddHiddenItem = true;
         }
 
+        protected override void OnDataSourceChanged(EventArgs e)
+        {
+            base.OnDataSourceChanged(e);
+
+            _MustAddHiddenItem = DropDownStyle == ComboBoxStyle.DropDownList
+                && DataSource == null && !DesignMode;
+        }
+
         protected override void OnResize(EventArgs e)
         {
             // When the ComboBox is resized, the width of the dropdown 
@@ -270,7 +294,7 @@ namespace PresentationControls
         [Browsable(true)]
         public CheckBoxProperties CheckBoxProperties
         {
-            get { return _CheckBoxProperties; }
+            get => _CheckBoxProperties;
             set { _CheckBoxProperties = value; _CheckBoxProperties_PropertyChanged(this, EventArgs.Empty); }
         }
 
@@ -351,7 +375,7 @@ namespace PresentationControls
         {
             DoubleBuffered = true;
             _CheckBoxComboBox = owner;
-            _Items = new CheckBoxComboBoxItemList(_CheckBoxComboBox);
+            Items = new CheckBoxComboBoxItemList(_CheckBoxComboBox);
             BackColor = SystemColors.Window;
             // AutoScaleMode = AutoScaleMode.Inherit;
             AutoScroll = true;
@@ -369,14 +393,13 @@ namespace PresentationControls
         /// Simply a reference to the CheckBoxComboBox.
         /// </summary>
         private CheckBoxComboBox _CheckBoxComboBox;
-        /// <summary>
-        /// A Typed list of ComboBoxCheckBoxItems.
-        /// </summary>
-        private CheckBoxComboBoxItemList _Items;
 
         #endregion
 
-        public CheckBoxComboBoxItemList Items { get { return _Items; } }
+        /// <summary>
+        /// A Typed list of ComboBoxCheckBoxItems.
+        /// </summary>
+        public CheckBoxComboBoxItemList Items { get; }
 
         #region RESIZE OVERRIDE REQUIRED BY THE POPUP CONTROL
 
@@ -420,12 +443,12 @@ namespace PresentationControls
             Controls.Clear();
             #region Disposes all items that are no longer in the combo box list
 
-            for (int Index = _Items.Count - 1; Index >= 0; Index--)
+            for (int Index = Items.Count - 1; Index >= 0; Index--)
             {
-                CheckBoxComboBoxItem Item = _Items[Index];
+                CheckBoxComboBoxItem Item = Items[Index];
                 if (!_CheckBoxComboBox.Items.Contains(Item.ComboBoxItem))
                 {
-                    _Items.Remove(Item);
+                    Items.Remove(Item);
                     Item.Dispose();
                 }
             }
@@ -445,18 +468,18 @@ namespace PresentationControls
                 CheckBoxComboBoxItem Item = null;
                 // The hidden item could match any other item when only
                 // one other item was selected.
-                if (Index0 == 0 && HasHiddenItem && _Items.Count > 0)
-                    Item = _Items[0];
+                if (Index0 == 0 && HasHiddenItem && Items.Count > 0)
+                    Item = Items[0];
                 else
                 {
                     int StartIndex = HasHiddenItem
                         ? 1 // Skip the hidden item, it could match 
                         : 0;
-                    for (int Index1 = StartIndex; Index1 <= _Items.Count - 1; Index1++)
+                    for (int Index1 = StartIndex; Index1 <= Items.Count - 1; Index1++)
                     {
-                        if (_Items[Index1].ComboBoxItem == Object)
+                        if (Items[Index1].ComboBoxItem == Object)
                         {
-                            Item = _Items[Index1];
+                            Item = Items[Index1];
                             break;
                         }
                     }
@@ -469,8 +492,8 @@ namespace PresentationControls
                 NewList.Add(Item);
                 Item.Dock = DockStyle.Top;
             }
-            _Items.Clear();
-            _Items.AddRange(NewList);
+            Items.Clear();
+            Items.AddRange(NewList);
 
             #endregion
             #region Add the items to the controls in reversed order to maintain correct docking order
@@ -516,7 +539,7 @@ namespace PresentationControls
         public CheckBoxComboBoxItem(CheckBoxComboBox owner, object comboBoxItem)
             : base()
         {
-            Height -= 6;
+            Height = (int)(FontHeight * 1.2);
             DoubleBuffered = true;
             _CheckBoxComboBox = owner;
             _ComboBoxItem = comboBoxItem;
@@ -547,8 +570,8 @@ namespace PresentationControls
         /// </summary>
         public object ComboBoxItem
         {
-            get { return _ComboBoxItem; }
-            internal set { _ComboBoxItem = value; }
+            get => _ComboBoxItem;
+            internal set => _ComboBoxItem = value;
         }
 
         #endregion
@@ -767,7 +790,7 @@ namespace PresentationControls
                     if (Text.CompareTo(displayName) == 0)
                         return Item;
                 }
-                throw new ArgumentOutOfRangeException(String.Format("\"{0}\" does not exist in this combo box.", displayName));
+                throw new ArgumentOutOfRangeException($"\"{displayName}\" does not exist in this combo box.");
             }
         }
         
@@ -804,91 +827,91 @@ namespace PresentationControls
         [DefaultValue(Appearance.Normal)]
         public Appearance Appearance
         {
-            get { return _Appearance; }
+            get => _Appearance;
             set { _Appearance = value; OnPropertyChanged(); }
         }
         [DefaultValue(true)]
         public bool AutoCheck
         {
-            get { return _AutoCheck; }
+            get => _AutoCheck;
             set { _AutoCheck = value; OnPropertyChanged(); }
         }
         [DefaultValue(false)]
         public bool AutoEllipsis
         {
-            get { return _AutoEllipsis; }
+            get => _AutoEllipsis;
             set { _AutoEllipsis = value; OnPropertyChanged(); }
         }
         [DefaultValue(false)]
         public bool AutoSize
         {
-            get { return _AutoSize; }
+            get => _AutoSize;
             set { _AutoSize = true; OnPropertyChanged(); }
         }
         [DefaultValue(ContentAlignment.MiddleLeft)]
         public ContentAlignment CheckAlign
         {
-            get { return _CheckAlign; }
+            get => _CheckAlign;
             set { _CheckAlign = value; OnPropertyChanged(); }
         }
         [DefaultValue(typeof(Color), "")]
         public Color FlatAppearanceBorderColor
         {
-            get { return _FlatAppearanceBorderColor; }
+            get => _FlatAppearanceBorderColor;
             set { _FlatAppearanceBorderColor = value; OnPropertyChanged(); }
         }
         [DefaultValue(1)]
         public int FlatAppearanceBorderSize
         {
-            get { return _FlatAppearanceBorderSize; }
+            get => _FlatAppearanceBorderSize;
             set { _FlatAppearanceBorderSize = value; OnPropertyChanged(); }
         }
         [DefaultValue(typeof(Color), "")]
         public Color FlatAppearanceCheckedBackColor
         {
-            get { return _FlatAppearanceCheckedBackColor; }
+            get => _FlatAppearanceCheckedBackColor;
             set { _FlatAppearanceCheckedBackColor = value; OnPropertyChanged(); }
         }
         [DefaultValue(typeof(Color), "")]
         public Color FlatAppearanceMouseDownBackColor
         {
-            get { return _FlatAppearanceMouseDownBackColor; }
+            get => _FlatAppearanceMouseDownBackColor;
             set { _FlatAppearanceMouseDownBackColor = value; OnPropertyChanged(); }
         }
         [DefaultValue(typeof(Color), "")]
         public Color FlatAppearanceMouseOverBackColor
         {
-            get { return _FlatAppearanceMouseOverBackColor; }
+            get => _FlatAppearanceMouseOverBackColor;
             set { _FlatAppearanceMouseOverBackColor = value; OnPropertyChanged(); }
         }
         [DefaultValue(FlatStyle.Standard)]
         public FlatStyle FlatStyle
         {
-            get { return _FlatStyle; }
+            get => _FlatStyle;
             set { _FlatStyle = value; OnPropertyChanged(); }
         }
         [DefaultValue(typeof(SystemColors), "ControlText")]
         public Color ForeColor
         {
-            get { return _ForeColor; }
+            get => _ForeColor;
             set { _ForeColor = value; OnPropertyChanged(); }
         }
         [DefaultValue(RightToLeft.No)]
         public RightToLeft RightToLeft
         {
-            get { return _RightToLeft; }
+            get => _RightToLeft;
             set { _RightToLeft = value; OnPropertyChanged(); }
         }
         [DefaultValue(ContentAlignment.MiddleLeft)]
         public ContentAlignment TextAlign
         {
-            get { return _TextAlign; }
+            get => _TextAlign;
             set { _TextAlign = value; OnPropertyChanged(); }
         }
         [DefaultValue(false)]
         public bool ThreeState
         {
-            get { return _ThreeState; }
+            get => _ThreeState;
             set { _ThreeState = value; OnPropertyChanged(); }
         }
 

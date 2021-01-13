@@ -19,10 +19,10 @@
                 {
                     components.Dispose();
                 }
-                if (content != null)
+                if (Content != null)
                 {
-                    System.Windows.Forms.Control _content = content;
-                    content = null;
+                    System.Windows.Forms.Control _content = Content;
+                    Content = null;
                     _content.Dispose();
                 }
             }
