@@ -308,7 +308,7 @@ namespace PresentationControls
             {
                 ownerPopup._allowResizable = true;
             }
-            OnCloseEvent(null); // Have Parent CheckComboBox fire the DropDownClosed event
+            OnClose(null); // Have Parent CheckComboBox fire the DropDownClosed event
             base.OnClosed(e);
         }
 
@@ -318,6 +318,7 @@ namespace PresentationControls
         {
             if (Visible == false)
                 LastClosedTimeStamp = DateTime.Now;
+
             base.OnVisibleChanged(e);
         }
 
@@ -452,13 +453,11 @@ namespace PresentationControls
             }
         }
 
-        public event EventHandler onCloseEvent;
+        public event EventHandler OnCloseEvent;
 
-        protected virtual void OnCloseEvent(EventArgs e)
+        protected virtual void OnClose(EventArgs e)
         {
-            var handler = onCloseEvent;
-            if (handler != null)
-                handler(this, e);
+            OnCloseEvent?.Invoke(this, e);
         }
     }
 }

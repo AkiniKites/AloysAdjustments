@@ -71,7 +71,7 @@ namespace PresentationControls
                     // Blocks a redisplay when the user closes the control by clicking 
                     // on the combobox.
                     var ts = DateTime.Now.Subtract(dropDown.LastClosedTimeStamp);
-                    if (ts.TotalMilliseconds > 100)
+                    if (!dropDown.Visible && ts.TotalMilliseconds > 100)
                         ShowDropDown();
                     Capture = true;
                     return;

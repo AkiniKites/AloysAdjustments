@@ -50,7 +50,7 @@ namespace PresentationControls
             // Must be set after the DropDownControl is set, since the popup is recreated.
             // NOTE: I made the dropDown protected so that it can be accessible here. It was private.
             dropDown.Resizable = false;
-            dropDown.onCloseEvent += OnDropDownClosed;
+            dropDown.OnCloseEvent += OnDropDownClosed;
         }
 
         /// <summary>
@@ -65,7 +65,6 @@ namespace PresentationControls
         /// </summary>
         private string _DisplayMemberSingleItem = null;
         internal bool _MustAddHiddenItem = false;
-        private bool _ClosingDropDown = false;
 
         /// <summary>
         /// Builds a CSV string of the items selected.
@@ -88,17 +87,12 @@ namespace PresentationControls
 
         protected virtual void OnDropDownClosed(object sender, EventArgs e)
         {
-            _ClosingDropDown = true;
             base.OnDropDownClosed(e);
         }
 
         protected override void OnDropDownClosed(EventArgs e)
         {
-            if (!_ClosingDropDown)
-                return;
-            _ClosingDropDown = false;
-
-            base.OnDropDownClosed(e);
+            //do nothing
         }
 
         /// <summary>
