@@ -38,7 +38,7 @@ namespace AloysAdjustments.Modules.Outfits
 
             foreach (var core in cores)
             {
-                foreach (var item in GetOutfits(core, variantFiles))
+                await foreach(var item in GetOutfits(core, variantFiles))
                 {
                     item.SourceFile = core.Source;
                     outfits.Add(item);
@@ -48,7 +48,7 @@ namespace AloysAdjustments.Modules.Outfits
             return outfits;
         }
 
-        private IEnumerable<Outfit> GetOutfits(HzdCore core, Dictionary<BaseGGUUID, string> variantFiles)
+        private async IAsyncEnumerable<Outfit> GetOutfits(HzdCore core, Dictionary<BaseGGUUID, string> variantFiles)
         {
             var items = core.GetTypes<InventoryEntityResource>();
             var itemComponents = core.GetTypesById<InventoryItemComponentResource>();
@@ -67,8 +67,9 @@ namespace AloysAdjustments.Modules.Outfits
                 {
                     if (itemComponents.TryGetValue(component.GUID, out var invItem))
                     {
-                        outfit.LocalNameId = invItem.LocalizedItemName.GUID;
-                        outfit.LocalNameFile = invItem.LocalizedItemName.ExternalFile?.ToString();
+                        outfit.LocalName = await IoC.Localization.GetString(
+                            invItem.LocalizedItemName.ExternalFile?.ToString(),
+                            invItem.LocalizedItemName.GUID);
                     }
 
                     if (componentResources.TryGetValue(component.GUID, out var compRes))

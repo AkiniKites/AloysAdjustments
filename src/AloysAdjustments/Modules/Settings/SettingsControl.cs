@@ -233,11 +233,11 @@ namespace AloysAdjustments.Modules.Settings
             
             lblUpdateStatus.ForeColor = SystemColors.ControlText;
             lblUpdateStatus.Text = $"Downloading update...";
-            IoC.Notif.ShowProgress(0, 100);
+            IoC.Notif.ShowProgress(0);
 
             try
             {
-                await Updater.PrepareUpdate(x => IoC.Notif.ShowProgress((int)(x * 100), 100));
+                await Updater.PrepareUpdate(x => IoC.Notif.ShowProgress(x));
 
                 lblUpdateStatus.Text = "Download complete, restart to update";
                 btnUpdates.Text = "Restart";

@@ -31,8 +31,10 @@ namespace AloysAdjustments.Modules.Outfits
         }
         
         public async Task<Dictionary<BaseGGUUID, BaseGGUUID>> CreatePatch(
-            Patch patch, ReadOnlyCollection<Outfit> outfits, IEnumerable<CharacterModel> characters)
+            Patch patch, ReadOnlyCollection<Outfit> outfits)
         {
+            var characters = await Search.GetCharacterModels(true);
+
             var models = outfits.Where(x => x.Modified).Select(x => x.ModelId).ToHashSet();
             var newCharacters = characters.Where(x => models.Contains(x.Id)).ToList();
 

@@ -51,7 +51,7 @@ namespace AloysAdjustments.Modules.Outfits
             _loading = true;
 
             AllOutfitStub = new Outfit();
-            AllOutfitStub.SetDisplayName("All Outfits");
+            AllOutfitStub.LocalName = "All Outfits";
 
             IoC.Bind(Configs.LoadModuleConfig<OutfitConfig>(ModuleName));
 
@@ -130,23 +130,20 @@ namespace AloysAdjustments.Modules.Outfits
         {
             ResetSelected.Enabled = false;
             IoC.Notif.ShowUnknownProgress();
-
-            //start loading all characters in background
-            CharacterLogic.Search.GetCharacterModels(true).Forget();
-
+            
             IoC.Notif.ShowStatus("Loading outfit list...");
             DefaultOutfits = (await OutfitLogic.GenerateOutfits()).ToHashSet();
-            
-            var outfits = DefaultOutfits.Select(x => x.Clone()).ToList();
-            await UpdateOutfitDisplayNames(outfits);
-            await UpdateOutfitDisplayNames(DefaultOutfits);
-            Outfits = outfits.OrderBy(x => x.DisplayName).ToList().AsReadOnly();
+            Outfits = DefaultOutfits.Select(x => x.Clone()).OrderBy(x => x.DisplayName)
+                .ToList().AsReadOnly();
 
             PopulateOutfitsList();
 
             await UpdateModelList();
             
             UpdateAllOutfitsSelection();
+
+            //start loading characters in background
+            CharacterLogic.Search.GetCharacterModels(true).Forget();
         }
 
         private async Task<IEnumerable<Model>> LoadCharacterModelList(bool all)
@@ -164,14 +161,6 @@ namespace AloysAdjustments.Modules.Outfits
             //sort models to match outfits
             var outfitSorting = Outfits.Select((x, i) => (x, i)).ToSoftDictionary(x => x.x.ModelId, x => x.i);
             return models.OrderBy(x => outfitSorting.TryGetValue(x.Id, out var sort) ? sort : int.MaxValue);
-        }
-
-        public async Task UpdateOutfitDisplayNames(IEnumerable<Outfit> outfits)
-        {
-            foreach (var o in outfits)
-            {
-                o.SetDisplayName(await IoC.Localization.GetString(o.LocalNameFile, o.LocalNameId));
-            }
         }
 
         private async Task UpdateModelList()
@@ -245,9 +234,7 @@ namespace AloysAdjustments.Modules.Outfits
 
         public override async Task ApplyChanges(Patch patch)
         {
-            //TODO: fix non-loaded characters
-            var variantMapping = await CharacterLogic.CreatePatch(patch, Outfits, 
-                Models.Where(x => x is CharacterModel).Cast<CharacterModel>());
+            var variantMapping = await CharacterLogic.CreatePatch(patch, Outfits);
             await OutfitLogic.CreatePatch(patch, Outfits, variantMapping);
         }
         

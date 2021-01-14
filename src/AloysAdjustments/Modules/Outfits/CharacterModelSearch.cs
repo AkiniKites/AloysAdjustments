@@ -33,7 +33,7 @@ namespace AloysAdjustments.Modules.Outfits
             _cache = new GameCache<(bool All, List<CharacterModel> Models)>("characters");
         }
 
-        public async Task<List<CharacterModel>> GetCharacterModels(bool all = false)
+        public async Task<List<CharacterModel>> GetCharacterModels(bool all)
         {
             var models = await Async.Run(() =>
             {
@@ -58,9 +58,7 @@ namespace AloysAdjustments.Modules.Outfits
             }
 
             var files = Prefetch.Load().Files.Keys;
-
-            int progress = 0;
-            int lastProgress = 0;
+            
             var modelBag = new ConcurrentBag<CharacterModel>();
 
             var tasks = new ParallelTasks<string>(
@@ -71,14 +69,6 @@ namespace AloysAdjustments.Modules.Outfits
                         foreach (var model in GetCharacterModels(file))
                             modelBag.Add(model);
                     }
-
-                    //rough progress estimate
-                    var newProgress = Interlocked.Increment(ref progress) * 50 / files.Count;
-                    if (newProgress > lastProgress)
-                    {
-                        lastProgress = newProgress;
-                        IoC.Notif.ShowProgress(newProgress, 50);
-                    }
                 });
 
             tasks.Start();
@@ -86,8 +76,6 @@ namespace AloysAdjustments.Modules.Outfits
             tasks.WaitForComplete();
 
             GC.Collect();
-
-            IoC.Notif.ShowUnknownProgress();
 
             var modelList = modelBag.ToList();
             _cache.Save((all, modelList));

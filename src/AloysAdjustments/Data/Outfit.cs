@@ -18,16 +18,9 @@ namespace AloysAdjustments.Data
         public BaseGGUUID RefId { get; set; }
         public string SourceFile {get; set;}
 
-        public BaseGGUUID LocalNameId { get; set; }
-        public string LocalNameFile { get; set; }
-
-        private string _displayName;
-        public string DisplayName => _displayName == null ? null : _displayName + (Modified ? " *" : "");
-
-        public void SetDisplayName(string name)
-        {
-            _displayName = name;
-        }
+        public string LocalName { get; set; }
+        
+        public string DisplayName => LocalName == null ? null : LocalName + (Modified ? " *" : "");
 
         public Outfit Clone()
         {
@@ -38,8 +31,7 @@ namespace AloysAdjustments.Data
                 Name = Name,
                 RefId = BaseGGUUID.FromOther(RefId),
                 SourceFile = SourceFile,
-                LocalNameId = BaseGGUUID.FromOther(LocalNameId),
-                LocalNameFile = LocalNameFile
+                LocalName = LocalName
             };
         }
 
