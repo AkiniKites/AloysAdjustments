@@ -40,8 +40,11 @@ namespace AloysAdjustments
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
 
             IoC.Bind(new Notifications(SetStatus, SetProgress));
+            LoadConfigs();
 
             InitializeComponent();
+
+            WindowMemory.ActivateWindow(this, "Main");
             
             RTTI.SetGameMode(GameType.HZD);
         }
@@ -88,7 +91,6 @@ namespace AloysAdjustments
         private async Task Main_Load(object sender, EventArgs e)
         {
             IoC.Notif.ShowStatus("Loading config...");
-            await LoadConfigs();
 
             IoC.Bind(new Archiver(new[] { IoC.Config.PatchFile }));
             IoC.Bind(new Localization(ELanguage.English));
@@ -248,11 +250,11 @@ namespace AloysAdjustments
             }
         }
 
-        public async Task LoadConfigs()
+        public void LoadConfigs()
         {
-            var json = await File.ReadAllTextAsync(ConfigPath);
-            IoC.Bind(await Async.Run(() => JsonConvert.DeserializeObject<Config>(json)));
-            IoC.Bind(await SettingsManager.Load());
+            var json = File.ReadAllText(ConfigPath);
+            IoC.Bind(JsonConvert.DeserializeObject<Config>(json));
+            IoC.Bind(SettingsManager.Load());
         }
 
         private void tcMain_SelectedIndexChanged(object sender, EventArgs e)

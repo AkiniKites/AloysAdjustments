@@ -14,6 +14,7 @@ using AloysAdjustments.Logic;
 using AloysAdjustments.Utility;
 using Decima;
 using Decima.HZD;
+using Model = AloysAdjustments.Data.Model;
 
 namespace AloysAdjustments.Modules.Outfits
 {
@@ -29,14 +30,14 @@ namespace AloysAdjustments.Modules.Outfits
             Search = new CharacterModelSearch();
         }
         
-        public async Task CreatePatch(Patch patch, ReadOnlyCollection<Outfit> outfits,
-            IEnumerable<CharacterModel> characters, OutfitsLogic outfitsLogic)
+        public async Task<Dictionary<BaseGGUUID, BaseGGUUID>> CreatePatch(
+            Patch patch, ReadOnlyCollection<Outfit> outfits, List<Model> models)
         {
-            var models = outfits.Where(x => x.Modified).Select(x => x.ModelId).ToHashSet();
-            var newCharacters = characters.Where(x => models.Contains(x.Id)).ToList();
+            var activeModels = outfits.Where(x => x.Modified).Select(x => x.ModelId).ToHashSet();
+            var newCharacters = models.Where(x => x is CharacterModel && activeModels.Contains(x.Id)).Cast<CharacterModel>().ToList();
 
             if (!newCharacters.Any())
-                return;
+                return new Dictionary<BaseGGUUID, BaseGGUUID>();
 
             //remove aloy components from player file
             var toRemove = await FindAloyComponents();
@@ -47,11 +48,13 @@ namespace AloysAdjustments.Modules.Outfits
 
             //update outfit mappings
             await AddCharacterReferences(patch, newCharacters, variantMapping);
-            await outfitsLogic.CreatePatch(patch, outfits, variantMapping);
 
             //attach removed components to non-character outfit changes
-            var nonCharOutfits = outfits.Where(x => !x.Modified || !newCharacters.Any(c => c.Id.Equals(x.ModelId)));
-            await AttachAloyComponents(patch, nonCharOutfits, toRemove);
+            var unchanged = outfits.Where(x => !x.Modified).Select(x => x.ModelFile).ToList();
+            var newOutfits = models.Where(x => !(x is CharacterModel) && activeModels.Contains(x.Id)).Select(x => x.Source);
+            await AttachAloyComponents(patch, unchanged.Concat(newOutfits), toRemove);
+
+            return variantMapping;
         }
 
         private async Task AddCharacterReferences(Patch patch, IEnumerable<CharacterModel> characters,
@@ -116,26 +119,6 @@ namespace AloysAdjustments.Modules.Outfits
             await core.Save();
         }
 
-        public async Task<bool> IsCharacterModeFile(string path)
-        {
-            //check if aloy has hair, if so the file was made for character edits
-            var core = await IoC.Archiver.LoadFileAsync(path, 
-                IoC.Get<OutfitConfig>().PlayerCharacterFile, false);
-
-            if (core == null)
-                return false;
-            
-            var hairModel = core.GetTypes<HairModelComponentResource>().FirstOrDefault();
-            var adult = core.GetTypes<SoldierResource>().FirstOrDefault(x => x.Name == IoC.Get<OutfitConfig>().AloyCharacterName);
-
-            if (hairModel == null || adult == null)
-                return false;
-
-            var hasHair = adult.EntityComponentResources.All(x => x.GUID.Equals(hairModel.ObjectUUID));
-
-            return !hasHair;
-        }
-
         private async Task<Dictionary<BaseGGUUID, BaseGGUUID>> FixRagdolls(
             Patch patch, IEnumerable<CharacterModel> characters)
         {
@@ -180,11 +163,11 @@ namespace AloysAdjustments.Modules.Outfits
             return newVariant;
         }
 
-        private async Task AttachAloyComponents(Patch patch, IEnumerable<Outfit> outfits, List<(string File, BaseGGUUID Id)> removed)
+        private async Task AttachAloyComponents(Patch patch, IEnumerable<string> outfitFiles, List<(string File, BaseGGUUID Id)> removed)
         {
-            foreach (var outfit in outfits)
+            foreach (var file in outfitFiles.Distinct())
             {
-                var core = await patch.AddFile(outfit.ModelFile);
+                var core = await patch.AddFile(file);
 
                 var resources = core.GetTypes<HumanoidBodyVariant>().First().EntityComponentResources;
                 foreach (var item in removed)

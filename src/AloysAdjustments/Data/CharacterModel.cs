@@ -7,6 +7,9 @@ namespace AloysAdjustments.Data
 {
     public class CharacterModel : Model
     {
-
+        public override string ToString()
+        {
+            return "Character - " + Name;
+        }
     }
 }

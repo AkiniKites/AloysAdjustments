@@ -26,9 +26,9 @@ namespace AloysAdjustments.Logic
         {
             _statusSetter(text, true);
         }
-        public void ShowProgress(int val, int max)
+        public void ShowProgress(double value)
         {
-            _progressSetter(val, max, false, true);
+            _progressSetter((int)Math.Round(value * 100), 100, false, true);
         }
         public void ShowUnknownProgress()
         {
