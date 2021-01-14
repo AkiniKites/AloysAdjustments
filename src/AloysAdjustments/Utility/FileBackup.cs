@@ -24,37 +24,38 @@ namespace AloysAdjustments.Utility
             });
         }
 
-        public static async Task<bool> RunWithBackup(string path, Func<bool> action)
+        public static async Task<bool> RunWithBackupAsync(string path, Func<bool> action)
         {
-            return await Async.Run(() =>
+            return await Async.Run(() => RunWithBackup(path, action));
+        }
+        public static bool RunWithBackup(string path, Func<bool> action)
+        {
+            var success = false;
+
+            try
             {
-                var success = false;
+                if (File.Exists(path) && action())
+                    success = true;
+            }
+            catch (Exception ex)
+            {
+                Errors.WriteError(ex);
+            }
 
-                try
-                {
-                    if (File.Exists(path) && action())
-                        success = true;
-                }
-                catch (Exception ex)
-                {
-                    Errors.WriteError(ex);
-                }
+            var backupFiles = GetMatchingFiles(path).ToList();
 
-                var backupFiles = GetMatchingFiles(path).ToList();
+            if (!success && backupFiles.Any())
+            {
+                File.Move(backupFiles.First(), path, true);
+                success = action();
+            }
 
-                if (!success && backupFiles.Any())
-                {
-                    File.Move(backupFiles.First(), path, true);
-                    success = action();
-                }
+            foreach (var file in backupFiles)
+            {
+                if (File.Exists(file)) File.Delete(file);
+            }
 
-                foreach (var file in backupFiles)
-                {
-                    if (File.Exists(file)) File.Delete(file);
-                }
-                
-                return success;
-            });
+            return success;
         }
 
         private static IEnumerable<string> GetMatchingFiles(string path)
