@@ -234,7 +234,10 @@ namespace AloysAdjustments.Modules.Outfits
 
         public override async Task ApplyChanges(Patch patch)
         {
-            var variantMapping = await CharacterLogic.CreatePatch(patch, Outfits);
+            var models = await OutfitLogic.GenerateModelList();
+            models.AddRange(await CharacterLogic.Search.GetCharacterModels(true));
+
+            var variantMapping = await CharacterLogic.CreatePatch(patch, Outfits, models);
             await OutfitLogic.CreatePatch(patch, Outfits, variantMapping);
         }
         
