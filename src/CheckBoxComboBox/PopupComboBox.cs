@@ -17,7 +17,8 @@ namespace PresentationControls
     /// CodeProject.com "Simple pop-up control" "http://www.codeproject.com/cs/miscctrl/simplepopup.asp".
     /// Represents a Windows combo box control with a custom popup control attached.
     /// </summary>
-    [ToolboxBitmap(typeof(ComboBox)), ToolboxItem(true), ToolboxItemFilter("System.Windows.Forms"), Description("Displays an editable text box with a drop-down list of permitted values.")]
+    [ToolboxBitmap(typeof(ComboBox)), ToolboxItem(true), ToolboxItemFilter("System.Windows.Forms"), 
+     Description("Displays an editable text box with a drop-down list of permitted values.")]
     public partial class PopupComboBox : ComboBox
     {
         /// <summary>
@@ -71,7 +72,7 @@ namespace PresentationControls
                     // Blocks a redisplay when the user closes the control by clicking 
                     // on the combobox.
                     var ts = DateTime.Now.Subtract(dropDown.LastClosedTimeStamp);
-                    if (!dropDown.Visible && ts.TotalMilliseconds > 100)
+                    if (!dropDown.Visible && ts.TotalMilliseconds > 30)
                         ShowDropDown();
                     Capture = true;
                     return;
