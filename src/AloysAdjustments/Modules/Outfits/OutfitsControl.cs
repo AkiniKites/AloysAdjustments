@@ -414,8 +414,16 @@ namespace AloysAdjustments.Modules.Outfits
             => await Relay.To(sender, e, ccbModelFilter_DropDownClosed);
         private async Task ccbModelFilter_DropDownClosed(object sender, EventArgs e)
         {
-            IoC.Settings.OutfitModelFilter = Filters.Where(x => x.Selected).Sum(x => (int)x.Item);
-            
+            var filter = (OutfitModelFilter)Filters.Where(x => x.Selected).Sum(x => (int)x.Item);
+            if (filter == 0)
+            {
+                filter = OutfitModelFilter.Characters | OutfitModelFilter.Armor;
+                foreach (var f in Filters.Where(x => filter.HasFlag(x.Item)))
+                    f.Selected = true;
+            }
+
+            IoC.Settings.OutfitModelFilter = (int)filter;
+
             await UpdateModelList();
 
             IoC.Notif.ShowStatus("");
