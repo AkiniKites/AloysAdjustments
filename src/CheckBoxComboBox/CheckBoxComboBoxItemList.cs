@@ -48,9 +48,8 @@ namespace PresentationControls
 
         internal void AddRange(IEnumerable<CheckBoxComboBoxItem> collection)
         {
-            foreach (CheckBoxComboBoxItem Item in collection)
-                Item.CheckedChanged += item_CheckedChanged;
-            _listImpl.AddRange(collection);
+            foreach (var item in collection)
+                Add(item);
         }
 
         internal void Clear()

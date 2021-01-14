@@ -49,7 +49,7 @@ namespace AloysAdjustments
             // btnLoadPatch
             // 
             this.btnLoadPatch.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnLoadPatch.Location = new System.Drawing.Point(672, 12);
+            this.btnLoadPatch.Location = new System.Drawing.Point(756, 12);
             this.btnLoadPatch.Name = "btnLoadPatch";
             this.btnLoadPatch.Size = new System.Drawing.Size(100, 28);
             this.btnLoadPatch.TabIndex = 0;
@@ -64,9 +64,9 @@ namespace AloysAdjustments
             this.tssStatus,
             this.tpbStatus});
             this.ssMain.LayoutStyle = System.Windows.Forms.ToolStripLayoutStyle.HorizontalStackWithOverflow;
-            this.ssMain.Location = new System.Drawing.Point(0, 615);
+            this.ssMain.Location = new System.Drawing.Point(0, 828);
             this.ssMain.Name = "ssMain";
-            this.ssMain.Size = new System.Drawing.Size(784, 22);
+            this.ssMain.Size = new System.Drawing.Size(868, 22);
             this.ssMain.TabIndex = 3;
             // 
             // tssStatus
@@ -85,7 +85,7 @@ namespace AloysAdjustments
             // btnPatch
             // 
             this.btnPatch.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnPatch.Location = new System.Drawing.Point(672, 570);
+            this.btnPatch.Location = new System.Drawing.Point(756, 783);
             this.btnPatch.Name = "btnPatch";
             this.btnPatch.Size = new System.Drawing.Size(100, 42);
             this.btnPatch.TabIndex = 4;
@@ -96,7 +96,7 @@ namespace AloysAdjustments
             // btnReset
             // 
             this.btnReset.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnReset.Location = new System.Drawing.Point(672, 114);
+            this.btnReset.Location = new System.Drawing.Point(756, 114);
             this.btnReset.Name = "btnReset";
             this.btnReset.Size = new System.Drawing.Size(100, 28);
             this.btnReset.TabIndex = 6;
@@ -108,7 +108,7 @@ namespace AloysAdjustments
             // 
             this.btnResetSelected.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.btnResetSelected.Enabled = false;
-            this.btnResetSelected.Location = new System.Drawing.Point(672, 80);
+            this.btnResetSelected.Location = new System.Drawing.Point(756, 80);
             this.btnResetSelected.Name = "btnResetSelected";
             this.btnResetSelected.Size = new System.Drawing.Size(100, 28);
             this.btnResetSelected.TabIndex = 12;
@@ -124,7 +124,7 @@ namespace AloysAdjustments
             this.tcMain.Location = new System.Drawing.Point(12, 12);
             this.tcMain.Name = "tcMain";
             this.tcMain.SelectedIndex = 0;
-            this.tcMain.Size = new System.Drawing.Size(654, 600);
+            this.tcMain.Size = new System.Drawing.Size(738, 813);
             this.tcMain.TabIndex = 13;
             this.tcMain.SelectedIndexChanged += new System.EventHandler(this.tcMain_SelectedIndexChanged);
             // 
@@ -132,7 +132,7 @@ namespace AloysAdjustments
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(784, 637);
+            this.ClientSize = new System.Drawing.Size(868, 850);
             this.Controls.Add(this.btnResetSelected);
             this.Controls.Add(this.btnReset);
             this.Controls.Add(this.btnPatch);

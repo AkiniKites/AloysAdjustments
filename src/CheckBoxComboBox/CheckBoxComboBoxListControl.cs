@@ -128,12 +128,11 @@ namespace PresentationControls
             if (newList.Count > 0)
             {
                 // This reverse helps to maintain correct docking order.
-                newList.Reverse();
                 // If you get an error here that "Cannot convert to the desired 
                 // type, it probably means the controls are not binding correctly.
                 // The Checked property is binded to the ValueMember property. 
                 // It must be a bool for example.
-                Controls.AddRange(newList.ToArray());
+                Controls.AddRange(newList.Reverse().ToArray());
             }
 
             // Keep the first item invisible
