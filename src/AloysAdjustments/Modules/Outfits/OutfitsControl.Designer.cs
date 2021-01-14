@@ -35,7 +35,7 @@ namespace AloysAdjustments.Modules.Outfits
         /// </summary>
         private void InitializeComponent()
         {
-            PresentationControls.CheckBoxProperties checkBoxProperties1 = new PresentationControls.CheckBoxProperties();
+            PresentationControls.CheckBoxProperties checkBoxProperties2 = new PresentationControls.CheckBoxProperties();
             this.splitContainer = new System.Windows.Forms.SplitContainer();
             this.label1 = new System.Windows.Forms.Label();
             this.lbOutfits = new AloysAdjustments.Utility.ListBoxNF();
@@ -55,19 +55,20 @@ namespace AloysAdjustments.Modules.Outfits
             this.splitContainer.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.splitContainer.Location = new System.Drawing.Point(0, 23);
+            this.splitContainer.Location = new System.Drawing.Point(0, 21);
             this.splitContainer.Name = "splitContainer";
             // 
             // splitContainer.Panel1
             // 
             this.splitContainer.Panel1.Controls.Add(this.label1);
             this.splitContainer.Panel1.Controls.Add(this.lbOutfits);
+            this.splitContainer.Panel1.Controls.Add(this.cbAllOutfits);
             // 
             // splitContainer.Panel2
             // 
             this.splitContainer.Panel2.Controls.Add(this.lblModels);
             this.splitContainer.Panel2.Controls.Add(this.clbModels);
-            this.splitContainer.Size = new System.Drawing.Size(646, 549);
+            this.splitContainer.Size = new System.Drawing.Size(646, 551);
             this.splitContainer.SplitterDistance = 261;
             this.splitContainer.TabIndex = 3;
             this.splitContainer.Text = "splitContainer1";
@@ -75,9 +76,8 @@ namespace AloysAdjustments.Modules.Outfits
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Dock = System.Windows.Forms.DockStyle.Top;
             this.label1.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.label1.Location = new System.Drawing.Point(0, 0);
+            this.label1.Location = new System.Drawing.Point(0, 2);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(46, 15);
             this.label1.TabIndex = 4;
@@ -92,7 +92,7 @@ namespace AloysAdjustments.Modules.Outfits
             this.lbOutfits.FormattingEnabled = true;
             this.lbOutfits.IntegralHeight = false;
             this.lbOutfits.ItemHeight = 15;
-            this.lbOutfits.Location = new System.Drawing.Point(0, 18);
+            this.lbOutfits.Location = new System.Drawing.Point(0, 20);
             this.lbOutfits.Name = "lbOutfits";
             this.lbOutfits.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
             this.lbOutfits.Size = new System.Drawing.Size(258, 531);
@@ -103,9 +103,8 @@ namespace AloysAdjustments.Modules.Outfits
             // lblModels
             // 
             this.lblModels.AutoSize = true;
-            this.lblModels.Dock = System.Windows.Forms.DockStyle.Top;
             this.lblModels.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.lblModels.Location = new System.Drawing.Point(0, 0);
+            this.lblModels.Location = new System.Drawing.Point(0, 2);
             this.lblModels.Name = "lblModels";
             this.lblModels.Size = new System.Drawing.Size(93, 15);
             this.lblModels.TabIndex = 5;
@@ -119,7 +118,7 @@ namespace AloysAdjustments.Modules.Outfits
             this.clbModels.CheckOnClick = true;
             this.clbModels.FormattingEnabled = true;
             this.clbModels.IntegralHeight = false;
-            this.clbModels.Location = new System.Drawing.Point(0, 18);
+            this.clbModels.Location = new System.Drawing.Point(0, 20);
             this.clbModels.Name = "clbModels";
             this.clbModels.Size = new System.Drawing.Size(378, 531);
             this.clbModels.TabIndex = 0;
@@ -127,8 +126,9 @@ namespace AloysAdjustments.Modules.Outfits
             // 
             // cbAllOutfits
             // 
+            this.cbAllOutfits.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.cbAllOutfits.AutoSize = true;
-            this.cbAllOutfits.Location = new System.Drawing.Point(170, 22);
+            this.cbAllOutfits.Location = new System.Drawing.Point(171, 0);
             this.cbAllOutfits.Name = "cbAllOutfits";
             this.cbAllOutfits.Size = new System.Drawing.Size(89, 19);
             this.cbAllOutfits.TabIndex = 6;
@@ -138,8 +138,9 @@ namespace AloysAdjustments.Modules.Outfits
             // 
             // ccbModelFilter
             // 
-            checkBoxProperties1.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.ccbModelFilter.CheckBoxProperties = checkBoxProperties1;
+            this.ccbModelFilter.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            checkBoxProperties2.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.ccbModelFilter.CheckBoxProperties = checkBoxProperties2;
             this.ccbModelFilter.DisplayMemberSingleItem = "";
             this.ccbModelFilter.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.ccbModelFilter.FormattingEnabled = true;
@@ -152,6 +153,7 @@ namespace AloysAdjustments.Modules.Outfits
             // 
             // label2
             // 
+            this.label2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label2.AutoSize = true;
             this.label2.Location = new System.Drawing.Point(428, 5);
             this.label2.Name = "label2";
@@ -165,7 +167,6 @@ namespace AloysAdjustments.Modules.Outfits
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Controls.Add(this.label2);
             this.Controls.Add(this.ccbModelFilter);
-            this.Controls.Add(this.cbAllOutfits);
             this.Controls.Add(this.splitContainer);
             this.Name = "OutfitsControl";
             this.Size = new System.Drawing.Size(646, 572);

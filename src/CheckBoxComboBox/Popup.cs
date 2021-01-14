@@ -10,7 +10,6 @@ using System.Security.Permissions;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
-using Shared.SendInputEvents;
 using VS = System.Windows.Forms.VisualStyles;
 
 /*

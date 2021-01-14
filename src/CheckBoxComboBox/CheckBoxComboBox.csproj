@@ -6,10 +6,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="E:\Projects\Eevee\Shared\Shared\Shared.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Compile Update="CheckBoxComboBox.cs">
       <SubType>Component</SubType>
     </Compile>
