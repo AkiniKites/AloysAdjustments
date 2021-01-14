@@ -48,14 +48,14 @@ namespace AloysAdjustments.Plugins
                         action(obj);
                     }
                 }
-                catch (Exception ex)
+                catch
                 {
                     //TODO: implement
                 }
 
                 alc.Unload();
             }
-            catch (Exception ex)
+            catch
             {
                 //TODO: implement
             }

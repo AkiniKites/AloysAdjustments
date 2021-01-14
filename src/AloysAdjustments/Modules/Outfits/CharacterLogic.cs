@@ -14,6 +14,7 @@ using AloysAdjustments.Logic;
 using AloysAdjustments.Utility;
 using Decima;
 using Decima.HZD;
+using Model = AloysAdjustments.Data.Model;
 
 namespace AloysAdjustments.Modules.Outfits
 {
@@ -29,14 +30,14 @@ namespace AloysAdjustments.Modules.Outfits
             Search = new CharacterModelSearch();
         }
         
-        public async Task CreatePatch(Patch patch, ReadOnlyCollection<Outfit> outfits,
-            IEnumerable<CharacterModel> characters, OutfitsLogic outfitsLogic)
+        public async Task<Dictionary<BaseGGUUID, BaseGGUUID>> CreatePatch(
+            Patch patch, ReadOnlyCollection<Outfit> outfits, IEnumerable<CharacterModel> characters)
         {
             var models = outfits.Where(x => x.Modified).Select(x => x.ModelId).ToHashSet();
             var newCharacters = characters.Where(x => models.Contains(x.Id)).ToList();
 
             if (!newCharacters.Any())
-                return;
+                return new Dictionary<BaseGGUUID, BaseGGUUID>();
 
             //remove aloy components from player file
             var toRemove = await FindAloyComponents();
@@ -47,11 +48,12 @@ namespace AloysAdjustments.Modules.Outfits
 
             //update outfit mappings
             await AddCharacterReferences(patch, newCharacters, variantMapping);
-            await outfitsLogic.CreatePatch(patch, outfits, variantMapping);
 
             //attach removed components to non-character outfit changes
             var nonCharOutfits = outfits.Where(x => !x.Modified || !newCharacters.Any(c => c.Id.Equals(x.ModelId)));
             await AttachAloyComponents(patch, nonCharOutfits, toRemove);
+
+            return variantMapping;
         }
 
         private async Task AddCharacterReferences(Patch patch, IEnumerable<CharacterModel> characters,

@@ -136,11 +136,7 @@ namespace AloysAdjustments.Modules.Outfits
 
             return resource.Variants;
         }
-
-        public async Task CreatePatch(Patch patch, ReadOnlyCollection<Outfit> outfits)
-        {
-            await CreatePatch(patch, outfits, new Dictionary<BaseGGUUID, BaseGGUUID>());
-        }
+        
         public async Task CreatePatch(Patch patch, ReadOnlyCollection<Outfit> outfits,
             Dictionary<BaseGGUUID, BaseGGUUID> variantMapping)
         {

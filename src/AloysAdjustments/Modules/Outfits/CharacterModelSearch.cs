@@ -22,6 +22,7 @@ namespace AloysAdjustments.Modules.Outfits
         private readonly string[] Ignored;
 
         private readonly GameCache<(bool All, List<CharacterModel> Models)> _cache;
+        private readonly object _lock = new object();
 
         public CharacterModelSearch()
         {
@@ -36,55 +37,62 @@ namespace AloysAdjustments.Modules.Outfits
         {
             var models = await Async.Run(() =>
             {
-                if (_cache.TryLoadCache(out var cached))
+                lock (_lock)
                 {
-                    if (cached.All || !all)
-                    {
-                        var validCached = cached.Models.Where(x => IsValid(x.Source, all)).ToList();
-                        if (validCached.Any())
-                            return validCached;
-                    }
+                    return LoadCharacterModels(all);
                 }
-
-                var files = Prefetch.Load().Files.Keys;
-                
-                int progress = 0;
-                int lastProgress = 0;
-                var modelBag = new ConcurrentBag<CharacterModel>();
-
-                var tasks = new ParallelTasks<string>(
-                    Environment.ProcessorCount, file =>
-                    {
-                        if (IsValid(file, all))
-                        {
-                            foreach (var model in GetCharacterModels(file))
-                                modelBag.Add(model);
-                        }
-
-                        //rough progress estimate
-                        var newProgress = Interlocked.Increment(ref progress) * 50 / files.Count;
-                        if (newProgress > lastProgress)
-                        {
-                            lastProgress = newProgress;
-                            IoC.Notif.ShowProgress(newProgress, 50);
-                        }
-                    });
-
-                tasks.Start();
-                tasks.AddItems(files);
-                tasks.WaitForComplete();
-
-                GC.Collect();
-
-                IoC.Notif.ShowUnknownProgress();
-
-                var modelList = modelBag.ToList();
-                _cache.Save((all, modelList));
-
-                return modelList;
             });
 
             return models;
+        }
+        private List<CharacterModel> LoadCharacterModels(bool all)
+        {
+            if (_cache.TryLoadCache(out var cached))
+            {
+                if (cached.All || !all)
+                {
+                    var validCached = cached.Models.Where(x => IsValid(x.Source, all)).ToList();
+                    if (validCached.Any())
+                        return validCached;
+                }
+            }
+
+            var files = Prefetch.Load().Files.Keys;
+
+            int progress = 0;
+            int lastProgress = 0;
+            var modelBag = new ConcurrentBag<CharacterModel>();
+
+            var tasks = new ParallelTasks<string>(
+                Environment.ProcessorCount, file =>
+                {
+                    if (IsValid(file, all))
+                    {
+                        foreach (var model in GetCharacterModels(file))
+                            modelBag.Add(model);
+                    }
+
+                    //rough progress estimate
+                    var newProgress = Interlocked.Increment(ref progress) * 50 / files.Count;
+                    if (newProgress > lastProgress)
+                    {
+                        lastProgress = newProgress;
+                        IoC.Notif.ShowProgress(newProgress, 50);
+                    }
+                });
+
+            tasks.Start();
+            tasks.AddItems(files);
+            tasks.WaitForComplete();
+
+            GC.Collect();
+
+            IoC.Notif.ShowUnknownProgress();
+
+            var modelList = modelBag.ToList();
+            _cache.Save((all, modelList));
+
+            return modelList;
         }
 
         private bool IsValid(string file, bool all)

@@ -131,15 +131,51 @@ namespace AloysAdjustments.Modules.Outfits
             ResetSelected.Enabled = false;
             IoC.Notif.ShowUnknownProgress();
 
+            //start loading all characters in background
+            CharacterLogic.Search.GetCharacterModels(true).Forget();
+
             IoC.Notif.ShowStatus("Loading outfit list...");
             DefaultOutfits = (await OutfitLogic.GenerateOutfits()).ToHashSet();
             
             var outfits = DefaultOutfits.Select(x => x.Clone()).ToList();
             await UpdateOutfitDisplayNames(outfits);
+            await UpdateOutfitDisplayNames(DefaultOutfits);
             Outfits = outfits.OrderBy(x => x.DisplayName).ToList().AsReadOnly();
 
             PopulateOutfitsList();
 
+            await UpdateModelList();
+            
+            UpdateAllOutfitsSelection();
+        }
+
+        private async Task<IEnumerable<Model>> LoadCharacterModelList(bool all)
+        {
+            IoC.Notif.ShowStatus("Loading characters list...");
+            var models = await CharacterLogic.Search.GetCharacterModels(all);
+            return models.OrderBy(x => x.ToString().Contains("DLC") ? 1 : 0).ThenBy(x => x.ToString());
+        }
+
+        private async Task<IEnumerable<Model>> LoadOutfitModelList()
+        {
+            IoC.Notif.ShowStatus("Loading models list...");
+            var models = await OutfitLogic.GenerateModelList();
+
+            //sort models to match outfits
+            var outfitSorting = Outfits.Select((x, i) => (x, i)).ToSoftDictionary(x => x.x.ModelId, x => x.i);
+            return models.OrderBy(x => outfitSorting.TryGetValue(x.Id, out var sort) ? sort : int.MaxValue);
+        }
+
+        public async Task UpdateOutfitDisplayNames(IEnumerable<Outfit> outfits)
+        {
+            foreach (var o in outfits)
+            {
+                o.SetDisplayName(await IoC.Localization.GetString(o.LocalNameFile, o.LocalNameId));
+            }
+        }
+
+        private async Task UpdateModelList()
+        {
             var filter = (OutfitModelFilter)IoC.Settings.OutfitModelFilter;
             var noneFilter = filter == 0;
 
@@ -153,41 +189,14 @@ namespace AloysAdjustments.Modules.Outfits
 
             Models = models.AsReadOnly();
 
-            UpdateModelDisplayNames(Outfits, Models);
+            UpdateModelDisplayNames(DefaultOutfits, Models);
 
             clbModels.Items.Clear();
             foreach (var item in Models)
                 clbModels.Items.Add(item);
-            
-            UpdateAllOutfitsSelection();
         }
 
-        private async Task<IEnumerable<Model>> LoadCharacterModelList(bool all)
-        {
-            IoC.Notif.ShowStatus("Loading characters list...");
-            var models = await CharacterLogic.Search.GetCharacterModels(all);
-            return models.OrderBy(x => x.ToString() + " - Character");
-        }
-
-        private async Task<IEnumerable<Model>> LoadOutfitModelList()
-        {
-            IoC.Notif.ShowStatus("Loading models list...");
-            var models = await OutfitLogic.GenerateModelList();
-
-            //sort models to match outfits
-            var outfitSorting = Outfits.Select((x, i) => (x, i)).ToSoftDictionary(x => x.x.ModelId, x => x.i);
-            return models.OrderBy(x => outfitSorting.TryGetValue(x.Id, out var sort) ? sort : int.MaxValue);
-        }
-
-        public async Task UpdateOutfitDisplayNames(List<Outfit> outfits)
-        {
-            foreach (var o in outfits)
-            {
-                o.SetDisplayName(await IoC.Localization.GetString(o.LocalNameFile, o.LocalNameId));
-            }
-        }
-
-        public void UpdateModelDisplayNames(IList<Outfit> outfits, IList<Model> models)
+        public void UpdateModelDisplayNames(IEnumerable<Outfit> outfits, IList<Model> models)
         {
             var names = outfits.ToSoftDictionary(x => x.ModelId, x => x.DisplayName);
 
@@ -205,16 +214,20 @@ namespace AloysAdjustments.Modules.Outfits
             IoC.Notif.ShowStatus("Loading outfits...");
             
             var patchOutfits = await OutfitLogic.GenerateOutfits(path, false);
-            
             if (!patchOutfits.Any())
                 return;
 
-            var loadedOutfits = patchOutfits.ToHashSet();
-
             await Initialize();
 
+            var loadedOutfits = patchOutfits.ToHashSet();
             var variantMapping = await CharacterLogic.GetVariantMapping(path, OutfitLogic);
+            LoadOutfits(loadedOutfits, variantMapping);
 
+            RefreshOutfitList();
+        }
+
+        private void LoadOutfits(HashSet<Outfit> loadedOutfits, Dictionary<BaseGGUUID, BaseGGUUID> variantMapping)
+        {
             foreach (var outfit in Outfits)
             {
                 if (loadedOutfits.TryGetValue(outfit, out var loadedOutfit))
@@ -228,20 +241,14 @@ namespace AloysAdjustments.Modules.Outfits
             }
 
             UpdateAllOutfitStub();
-            RefreshLists();
         }
 
         public override async Task ApplyChanges(Patch patch)
         {
-            if (true)
-            {
-                await CharacterLogic.CreatePatch(patch, Outfits, 
-                    Models.Cast<CharacterModel>(), OutfitLogic);
-            }
-            else
-            {
-                await OutfitLogic.CreatePatch(patch, Outfits);
-            }
+            //TODO: fix non-loaded characters
+            var variantMapping = await CharacterLogic.CreatePatch(patch, Outfits, 
+                Models.Where(x => x is CharacterModel).Cast<CharacterModel>());
+            await OutfitLogic.CreatePatch(patch, Outfits, variantMapping);
         }
         
         private void lbOutfits_SelectedValueChanged(object sender, EventArgs e)
@@ -313,21 +320,15 @@ namespace AloysAdjustments.Modules.Outfits
             }
         }
 
-        private async Task Reload()
-        {
-            await Initialize();
-            RefreshLists();
-
-            IoC.Notif.ShowStatus("");
-            IoC.Notif.HideProgress();
-        }
-
         protected override async Task Reset_Click()
         {
             using var _ = new ControlLock(Reset);
-
-            await Reload();
+            
+            await Initialize();
+            RefreshOutfitList();
+            
             IoC.Notif.ShowStatus("Reset complete");
+            IoC.Notif.HideProgress();
         }
 
         protected override Task ResetSelected_Click()
@@ -352,7 +353,7 @@ namespace AloysAdjustments.Modules.Outfits
             return Task.CompletedTask;
         }
 
-        private void RefreshLists()
+        private void RefreshOutfitList()
         {
             lbOutfits.ClearSelected();
             lbOutfits.Invalidate();
@@ -424,7 +425,11 @@ namespace AloysAdjustments.Modules.Outfits
         private async Task ccbModelFilter_DropDownClosed(object sender, EventArgs e)
         {
             IoC.Settings.OutfitModelFilter = Filters.Where(x => x.Selected).Sum(x => (int)x.Item);
-            await Reload();
+            
+            await UpdateModelList();
+
+            IoC.Notif.ShowStatus("");
+            IoC.Notif.HideProgress();
         }
     }
 }

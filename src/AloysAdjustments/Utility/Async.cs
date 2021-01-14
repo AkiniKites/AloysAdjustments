@@ -31,5 +31,19 @@ namespace AloysAdjustments.Utility
                 throw new AsyncException(ex);
             }
         }
+
+        public static async void Forget(this Task action)
+        {
+            try
+            {
+                await action;
+            }
+            catch (Exception ex)
+            {
+                throw new AsyncException(ex);
+            }
+        }
+
+
     }
 }
