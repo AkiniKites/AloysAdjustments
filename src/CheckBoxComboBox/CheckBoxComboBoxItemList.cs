@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -17,14 +18,16 @@ namespace PresentationControls
     /// it will be lost or regenerated from the ComboBox.Items.
     /// </summary>
     [ToolboxItem(false)]
-    public class CheckBoxComboBoxItemList : List<CheckBoxComboBoxItem>
+    public class CheckBoxComboBoxItemList : IReadOnlyList<CheckBoxComboBoxItem>
     {
         public CheckBoxComboBoxItemList(CheckBoxComboBox checkBoxComboBox)
         {
             _checkBoxComboBox = checkBoxComboBox;
+            _listImpl = new List<CheckBoxComboBoxItem>();
         }
 
         private readonly CheckBoxComboBox _checkBoxComboBox;
+        private readonly List<CheckBoxComboBoxItem> _listImpl;
 
         public event EventHandler CheckBoxCheckedChanged;
 
@@ -36,33 +39,31 @@ namespace PresentationControls
         {
             OnCheckBoxCheckedChanged(sender, e);
         }
-
-        [Obsolete("Do not add items to this list directly. Use the ComboBox items instead.", false)]
-        public new void Add(CheckBoxComboBoxItem item)
+        
+        internal void Add(CheckBoxComboBoxItem item)
         {
             item.CheckedChanged += item_CheckedChanged;
-            base.Add(item);
+            _listImpl.Add(item);
         }
 
-        public new void AddRange(IEnumerable<CheckBoxComboBoxItem> collection)
+        internal void AddRange(IEnumerable<CheckBoxComboBoxItem> collection)
         {
             foreach (CheckBoxComboBoxItem Item in collection)
                 Item.CheckedChanged += item_CheckedChanged;
-            base.AddRange(collection);
+            _listImpl.AddRange(collection);
         }
 
-        public new void Clear()
+        internal void Clear()
         {
             foreach (CheckBoxComboBoxItem Item in this)
                 Item.CheckedChanged -= item_CheckedChanged;
-            base.Clear();
+            _listImpl.Clear();
         }
-
-        [Obsolete("Do not remove items from this list directly. Use the ComboBox items instead.", false)]
-        public new bool Remove(CheckBoxComboBoxItem item)
+        
+        internal bool Remove(CheckBoxComboBoxItem item)
         {
             item.CheckedChanged -= item_CheckedChanged;
-            return base.Remove(item);
+            return _listImpl.Remove(item);
         }
 
         /// <summary>
@@ -81,9 +82,9 @@ namespace PresentationControls
                         : 0;
                 for(int i = startIndex; i <= Count - 1; i ++)
                 {
-                    var item = this[i];
+                    var item = _listImpl[i];
 
-                    string Text;
+                    string text;
                     // The binding might not be active yet
                     if (string.IsNullOrEmpty(item.Text)
                         // Ubiklou : 2008-04-28 : No databinding
@@ -91,18 +92,31 @@ namespace PresentationControls
                         && item.DataBindings["Text"] != null
                     )
                     {
-                        PropertyInfo PropertyInfo
-                            = item.ComboBoxItem.GetType().GetProperty(
-                                item.DataBindings["Text"].BindingMemberInfo.BindingMember);
-                        Text = (string)PropertyInfo.GetValue(item.ComboBoxItem, null);
+                        var pi = item.ComboBoxItem.GetType().GetProperty(
+                            item.DataBindings["Text"].BindingMemberInfo.BindingMember);
+                        text = (string)pi.GetValue(item.ComboBoxItem, null);
                     }
                     else
-                        Text = item.Text;
-                    if (Text.CompareTo(displayName) == 0)
+                        text = item.Text;
+                    if (text.CompareTo(displayName) == 0)
                         return item;
                 }
                 throw new ArgumentOutOfRangeException($"\"{displayName}\" does not exist in this combo box.");
             }
         }
+
+        public IEnumerator<CheckBoxComboBoxItem> GetEnumerator()
+        {
+            return _listImpl.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return ((IEnumerable)_listImpl).GetEnumerator();
+        }
+
+        public int Count => _listImpl.Count;
+
+        public CheckBoxComboBoxItem this[int index] => _listImpl[index];
     }
 }
