@@ -122,6 +122,10 @@ namespace AloysAdjustments.Modules.Outfits
         private async Task<Dictionary<BaseGGUUID, BaseGGUUID>> FixRagdolls(
             Patch patch, IEnumerable<CharacterModel> characters)
         {
+            var cCore = await IoC.Archiver.LoadFileAsync(Configs.GamePackDir,
+                $"entities/characters/humanoids/player/costumes/playercostume_carjasoldier_light.core");
+            var fact = cCore.GetTypes<FactValue>().Last();
+
             var ragdollFile = IoC.Get<OutfitConfig>().RagdollComponentsFile;
             var variantMapping = new Dictionary<BaseGGUUID, BaseGGUUID>();
 
@@ -142,7 +146,13 @@ namespace AloysAdjustments.Modules.Outfits
 
                         //remove npc ragdoll repositioning
                         newVariant.EntityComponentResources.RemoveAll(x => x.ExternalFile?.Value == ragdollFile);
+                        newVariant.Facts.Add(new Ref<FactValue>()
+                        {
+                            GUID = fact.ObjectUUID,
+                            Type =BaseRef.Types.LocalCoreUUID 
+                        });
 
+                        core.Binary.AddObject(fact);
                         core.Binary.AddObject(newVariant);
                     }
                 }
