@@ -32,18 +32,13 @@ namespace AloysAdjustments.Modules.Outfits
 
             _cache = new GameCache<(bool All, List<CharacterModel> Models)>("characters");
         }
-
-        public async Task<List<CharacterModel>> GetCharacterModels(bool all)
+        
+        public List<CharacterModel> GetCharacterModels(bool all)
         {
-            var models = await Async.Run(() =>
+            lock (_lock)
             {
-                lock (_lock)
-                {
-                    return LoadCharacterModels(all);
-                }
-            });
-
-            return models;
+                return LoadCharacterModels(all);
+            }
         }
         private List<CharacterModel> LoadCharacterModels(bool all)
         {

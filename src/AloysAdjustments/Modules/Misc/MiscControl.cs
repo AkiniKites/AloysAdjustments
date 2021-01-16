@@ -59,14 +59,14 @@ namespace AloysAdjustments.Modules.Misc
             RefreshControls();
         }
 
-        public override async Task ApplyChanges(Patch patch)
+        public override void ApplyChanges(Patch patch)
         {
             var changedValues = Adjustments.Clone();
 
             if (Adjustments.SkipIntroLogos == DefaultAdjustments.SkipIntroLogos)
                 changedValues.SkipIntroLogos = null;
 
-            await MiscLogic.CreatePatch(patch, Adjustments);
+            MiscLogic.CreatePatch(patch, Adjustments);
         }
 
 

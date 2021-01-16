@@ -27,7 +27,7 @@ namespace AloysAdjustments.Modules
         }
 
         public abstract Task LoadPatch(string path);
-        public abstract Task ApplyChanges(Patch patch);
+        public abstract void ApplyChanges(Patch patch);
         public abstract Task Initialize();
         public virtual bool ValidateChanges() => true;
         

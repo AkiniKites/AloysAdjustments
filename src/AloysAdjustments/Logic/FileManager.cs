@@ -12,13 +12,10 @@ namespace AloysAdjustments.Logic
 {
     public class FileManager
     {
-        public static async Task Cleanup(string path)
+        public static void Cleanup(string path)
         {
-            await Async.Run(() =>
-            {
-                if (Directory.Exists(path))
-                    Directory.Delete(path, true);
-            });
+            if (Directory.Exists(path))
+                Directory.Delete(path, true);
         }
     }
 }

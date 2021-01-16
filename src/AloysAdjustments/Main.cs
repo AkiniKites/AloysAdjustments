@@ -140,10 +140,13 @@ namespace AloysAdjustments
 
             IoC.Notif.ShowUnknownProgress();
 
-            IoC.Notif.ShowStatus("Removing old version...");
-            await Compatibility.CleanupOldVersions();
-            //remove failed patches
-            await FileBackup.CleanupBackups(Configs.PatchPath);
+            await Async.Run(() =>
+            {
+                IoC.Notif.ShowStatus("Removing old version...");
+                //remove failed / old patches
+                Compatibility.CleanupOldVersions();
+                FileBackup.CleanupBackups(Configs.PatchPath);
+            });
 
             foreach (var module in Modules)
                 await module.Initialize();
@@ -175,46 +178,51 @@ namespace AloysAdjustments
 
             var sw = new Stopwatch(); sw.Start();
 
+            await Async.Run(CreatePatch);
+
+            Settings.UpdatePatchStatus();
+
+            IoC.Notif.HideProgress();
+            IoC.Notif.ShowStatus($"Patch installed ({sw.Elapsed.TotalMilliseconds:n0} ms)");
+        }
+
+        private void CreatePatch()
+        {
             //remove failed patches
-            await FileBackup.CleanupBackups(Configs.PatchPath);
+            FileBackup.CleanupBackups(Configs.PatchPath);
 
             using (var oldPatch = new FileBackup(Configs.PatchPath))
             {
                 var patcher = new Patcher();
 
-                var patch = await patcher.StartPatch();
+                var patch = patcher.StartPatch();
                 foreach (var module in Modules)
                 {
                     IoC.Notif.ShowStatus($"Generating patch ({module.ModuleName})...");
-                    await module.ApplyChanges(patch);
+                    module.ApplyChanges(patch);
                 }
 
                 IoC.Notif.ShowStatus("Generating plugin patches...");
-                await patcher.ApplyCustomPatches(patch);
+                patcher.ApplyCustomPatches(patch);
 
                 IoC.Notif.ShowStatus("Generating patch (rebuild prefetch)...");
-                
-                var p = await Prefetch.LoadAsync();
-                await p.Rebuild(patch);
-                await p.Save(Path.Combine(patch.WorkingDir, p.Core.Source));
+
+                var p = Prefetch.Load();
+                p.Rebuild(patch);
+                p.Save(Path.Combine(patch.WorkingDir, p.Core.Source));
 
                 IoC.Notif.ShowStatus("Generating patch (packing)...");
-                await patcher.PackPatch(patch);
+                patcher.PackPatch(patch);
 
                 IoC.Notif.ShowStatus("Copying patch...");
-                await patcher.InstallPatch(patch);
+                patcher.InstallPatch(patch);
 
                 oldPatch.Delete();
 
 #if !DEBUG
                 await FileManager.Cleanup(IoC.Config.TempPath);
 #endif
-
-                Settings.UpdatePatchStatus();
             }
-
-            IoC.Notif.HideProgress();
-            IoC.Notif.ShowStatus($"Patch installed ({sw.Elapsed.TotalMilliseconds:n0} ms)");
         }
 
         private async void btnLoadPatch_ClickCommand(object sender, EventArgs e) => await Relay.To(sender, e, btnLoadPatch_Click);

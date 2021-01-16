@@ -54,18 +54,19 @@ namespace AloysAdjustments.Logic
 
         private HzdCore() { }
 
-        public async Task Save(string filePath = null)
+        public async Task SaveAsync(string filePath = null)
         {
-            await Async.Run(() =>
-            {
-                var savePath = filePath ?? FilePath;
-                if (savePath == null)
-                    throw new HzdException("Cannot save pack file, save path null");
+            await Async.Run(() => Save(filePath));
+        }
+        public void Save(string filePath = null)
+        {
+            var savePath = filePath ?? FilePath;
+            if (savePath == null)
+                throw new HzdException("Cannot save pack file, save path null");
 
-                savePath = EnsureExt(savePath);
+            savePath = EnsureExt(savePath);
 
-                Binary.ToFile(savePath);
-            });
+            Binary.ToFile(savePath);
         }
 
         public Dictionary<BaseGGUUID, T> GetTypesById<T>(string typeName = null) where T : RTTIRefObject

@@ -98,16 +98,16 @@ namespace AloysAdjustments.Modules.Outfits
             }
         }
 
-        public async Task<List<Model>> GenerateModelList()
+        public List<Model> GenerateModelList()
         {
-            return await GenerateModelList(Configs.GamePackDir);
+            return GenerateModelList(Configs.GamePackDir);
         }
-        public async Task<List<Model>> GenerateModelList(string path)
+        public List<Model> GenerateModelList(string path)
         {
             var models = new List<Model>();
 
             //player models
-            var playerComponents = await IoC.Archiver.LoadFileAsync(
+            var playerComponents = IoC.Archiver.LoadFile(
                 path, IoC.Get<OutfitConfig>().PlayerComponentsFile);
             var playerModels = GetPlayerModels(playerComponents);
 
@@ -138,7 +138,7 @@ namespace AloysAdjustments.Modules.Outfits
             return resource.Variants;
         }
         
-        public async Task CreatePatch(Patch patch, ReadOnlyCollection<Outfit> outfits,
+        public void CreatePatch(Patch patch, ReadOnlyCollection<Outfit> outfits,
             Dictionary<BaseGGUUID, BaseGGUUID> variantMapping)
         {
             var modifiedOutfits = outfits.Where(x => x.Modified).ToDictionary(x => x.RefId, x => x);
@@ -147,7 +147,7 @@ namespace AloysAdjustments.Modules.Outfits
             foreach (var map in maps)
             {
                 //extract original outfit files to temp
-                var core = await patch.AddFile(map);
+                var core = patch.AddFile(map);
                 
                 //update references from based on new maps
                 foreach (var reference in core.GetTypes<NodeGraphHumanoidBodyVariantUUIDRefVariableOverride>())
@@ -160,7 +160,7 @@ namespace AloysAdjustments.Modules.Outfits
                     }
                 }
 
-                await core.Save();
+                core.Save();
             }
         }
     }

@@ -18,7 +18,7 @@ namespace AloysAdjustments.Logic
             WorkingDir = workingDir;
         }
 
-        public async Task<HzdCore> AddFile(string file)
+        public HzdCore AddFile(string file)
         {
             var filePath = HzdCore.EnsureExt(file);
 
@@ -28,7 +28,7 @@ namespace AloysAdjustments.Logic
             {
                 Paths.CheckDirectory(Path.GetDirectoryName(output));
 
-                await IoC.Archiver.ExtractFile(Configs.GamePackDir, filePath, output);
+                IoC.Archiver.ExtractFile(Configs.GamePackDir, filePath, output);
             }
 
             return HzdCore.Load(output, file);

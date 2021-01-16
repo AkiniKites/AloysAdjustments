@@ -143,20 +143,20 @@ namespace AloysAdjustments.Modules.Outfits
             UpdateAllOutfitsSelection();
 
             //start loading characters in background
-            CharacterLogic.Search.GetCharacterModels(true).Forget();
+            Async.Run(() => CharacterLogic.Search.GetCharacterModels(true)).Forget();
         }
 
-        private async Task<IEnumerable<Model>> LoadCharacterModelList(bool all)
+        private IEnumerable<Model> LoadCharacterModelList(bool all)
         {
             IoC.Notif.ShowStatus("Loading characters list...");
-            var models = await CharacterLogic.Search.GetCharacterModels(all);
+            var models = CharacterLogic.Search.GetCharacterModels(all);
             return models.OrderBy(x => x.ToString().Contains("DLC") ? 1 : 0).ThenBy(x => x.ToString());
         }
 
-        private async Task<IEnumerable<Model>> LoadOutfitModelList()
+        private IEnumerable<Model> LoadOutfitModelList()
         {
             IoC.Notif.ShowStatus("Loading models list...");
-            var models = await OutfitLogic.GenerateModelList();
+            var models = OutfitLogic.GenerateModelList();
 
             //sort models to match outfits
             var outfitSorting = Outfits.Select((x, i) => (x, i)).ToSoftDictionary(x => x.x.ModelId, x => x.i);
@@ -168,15 +168,18 @@ namespace AloysAdjustments.Modules.Outfits
             var filter = (OutfitModelFilter)IoC.Settings.OutfitModelFilter;
             var noneFilter = filter == 0;
 
-            var models = new List<Model>();
-            if (noneFilter || filter.HasFlag(OutfitModelFilter.Armor))
-                models.AddRange(await LoadOutfitModelList());
-            if (noneFilter || filter.HasFlag(OutfitModelFilter.Characters))
-                models.AddRange(await LoadCharacterModelList(false));
-            if (filter.HasFlag(OutfitModelFilter.AllCharacters))
-                models.AddRange(await LoadCharacterModelList(true));
+            await Async.Run(() =>
+            {
+                var models = new List<Model>();
+                if (noneFilter || filter.HasFlag(OutfitModelFilter.Armor))
+                    models.AddRange(LoadOutfitModelList());
+                if (noneFilter || filter.HasFlag(OutfitModelFilter.Characters))
+                    models.AddRange(LoadCharacterModelList(false));
+                if (filter.HasFlag(OutfitModelFilter.AllCharacters))
+                    models.AddRange(LoadCharacterModelList(true));
 
-            Models = models.AsReadOnly();
+                Models = models.AsReadOnly();
+            });
 
             UpdateModelDisplayNames(DefaultOutfits, Models);
 
@@ -209,7 +212,7 @@ namespace AloysAdjustments.Modules.Outfits
             await Initialize();
 
             var loadedOutfits = patchOutfits.ToHashSet();
-            var variantMapping = await CharacterLogic.GetVariantMapping(path, OutfitLogic);
+            var variantMapping = await Async.Run(() => CharacterLogic.GetVariantMapping(path, OutfitLogic));
             LoadOutfits(loadedOutfits, variantMapping);
 
             RefreshOutfitList();
@@ -232,13 +235,13 @@ namespace AloysAdjustments.Modules.Outfits
             UpdateAllOutfitStub();
         }
 
-        public override async Task ApplyChanges(Patch patch)
+        public override void ApplyChanges(Patch patch)
         {
-            var models = await OutfitLogic.GenerateModelList();
-            models.AddRange(await CharacterLogic.Search.GetCharacterModels(true));
+            var models = OutfitLogic.GenerateModelList();
+            models.AddRange(CharacterLogic.Search.GetCharacterModels(true));
 
-            var variantMapping = await CharacterLogic.CreatePatch(patch, Outfits, models);
-            await OutfitLogic.CreatePatch(patch, Outfits, variantMapping);
+            var variantMapping = CharacterLogic.CreatePatch(patch, Outfits, models);
+            OutfitLogic.CreatePatch(patch, Outfits, variantMapping);
         }
         
         private void lbOutfits_SelectedValueChanged(object sender, EventArgs e)
