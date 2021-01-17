@@ -4,19 +4,22 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading;
 using System.Threading.Tasks;
 using AloysAdjustments.Configuration;
 using AloysAdjustments.Data;
 using AloysAdjustments.Logic;
 using AloysAdjustments.Utility;
+using Decima;
 using Decima.HZD;
 using HZDCoreEditor.Util;
 
 namespace AloysAdjustments.Modules.Outfits
 {
-    public class CharacterModelSearch
+    public class CharacterGenerator
     {
+        public const string VariantNameFormat = "-AA-";
+        private readonly Regex VariantNameMatcher = new Regex($"^(?<name>.+?){VariantNameFormat}(?<id>.+)$");
+        
         private readonly Regex HumanoidMatcher;
         private readonly Regex UniqueHumanoidMatcher;
         private readonly string[] Ignored;
@@ -24,7 +27,7 @@ namespace AloysAdjustments.Modules.Outfits
         private readonly GameCache<(bool All, List<CharacterModel> Models)> _cache;
         private readonly object _lock = new object();
 
-        public CharacterModelSearch()
+        public CharacterGenerator()
         {
             HumanoidMatcher = new Regex(IoC.Get<OutfitConfig>().HumanoidMatcher);
             UniqueHumanoidMatcher = new Regex(IoC.Get<OutfitConfig>().UniqueHumanoidMatcher);
@@ -32,7 +35,7 @@ namespace AloysAdjustments.Modules.Outfits
 
             _cache = new GameCache<(bool All, List<CharacterModel> Models)>("characters");
         }
-        
+
         public List<CharacterModel> GetCharacterModels(bool all)
         {
             lock (_lock)
@@ -53,7 +56,7 @@ namespace AloysAdjustments.Modules.Outfits
             }
 
             var files = Prefetch.Load().Files.Keys;
-            
+
             var modelBag = new ConcurrentBag<CharacterModel>();
 
             var tasks = new ParallelTasks<string>(
@@ -111,6 +114,29 @@ namespace AloysAdjustments.Modules.Outfits
             }
 
             return models;
+        }
+
+        public Dictionary<BaseGGUUID, BaseGGUUID> GetVariantMapping(string path, OutfitsGenerator outfitsLogic)
+        {
+            var variantMapping = new Dictionary<BaseGGUUID, BaseGGUUID>();
+
+            var models = outfitsLogic.GenerateModelList(path);
+            foreach (var model in models)
+            {
+                var core = IoC.Archiver.LoadFile(path, model.Source, false);
+                if (core == null) continue;
+
+                if (!core.GetTypesById<HumanoidBodyVariant>().TryGetValue(model.Id, out var variant))
+                    continue;
+
+                var name = VariantNameMatcher.Match(variant.Name);
+                if (name.Success)
+                {
+                    variantMapping.Add(model.Id, name.Groups["id"].Value);
+                }
+            }
+
+            return variantMapping;
         }
     }
 }

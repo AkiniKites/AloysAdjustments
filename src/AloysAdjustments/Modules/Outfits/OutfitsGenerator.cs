@@ -14,7 +14,7 @@ using Model = AloysAdjustments.Data.Model;
 
 namespace AloysAdjustments.Modules.Outfits
 {
-    public class OutfitsLogic
+    public class OutfitsGenerator
     {
         public async Task<List<Outfit>> GenerateOutfits()
         {
@@ -136,32 +136,6 @@ namespace AloysAdjustments.Modules.Outfits
                 throw new HzdException("Unable to find PlayerBodyVariants");
 
             return resource.Variants;
-        }
-        
-        public void CreatePatch(Patch patch, ReadOnlyCollection<Outfit> outfits,
-            Dictionary<BaseGGUUID, BaseGGUUID> variantMapping)
-        {
-            var modifiedOutfits = outfits.Where(x => x.Modified).ToDictionary(x => x.RefId, x => x);
-            var maps = modifiedOutfits.Values.Select(x => x.SourceFile).Distinct();
-
-            foreach (var map in maps)
-            {
-                //extract original outfit files to temp
-                var core = patch.AddFile(map);
-                
-                //update references from based on new maps
-                foreach (var reference in core.GetTypes<NodeGraphHumanoidBodyVariantUUIDRefVariableOverride>())
-                {
-                    if (modifiedOutfits.TryGetValue(reference.ObjectUUID, out var changed))
-                    {
-                        if (!variantMapping.TryGetValue(changed.ModelId, out var variantId))
-                            variantId = changed.ModelId;
-                        reference.Object.GUID.AssignFromOther(variantId);
-                    }
-                }
-
-                core.Save();
-            }
         }
     }
 }

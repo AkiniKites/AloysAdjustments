@@ -33,8 +33,9 @@ namespace AloysAdjustments.Modules.Outfits
         private bool _updatingLists;
         private bool _loading;
 
-        private OutfitsLogic OutfitLogic { get; }
-        private CharacterLogic CharacterLogic { get; }
+        private OutfitsGenerator OutfitGen { get; }
+        private CharacterGenerator CharacterGen { get; }
+        private OutfitPatcher Patcher { get; }
 
         private HashSet<Outfit> DefaultOutfits { get; set; }
         private ReadOnlyCollection<Outfit> Outfits { get; set; }
@@ -55,8 +56,9 @@ namespace AloysAdjustments.Modules.Outfits
 
             IoC.Bind(Configs.LoadModuleConfig<OutfitConfig>(ModuleName));
 
-            OutfitLogic = new OutfitsLogic();
-            CharacterLogic = new CharacterLogic();
+            OutfitGen = new OutfitsGenerator();
+            CharacterGen = new CharacterGenerator();
+            Patcher = new OutfitPatcher();
             Outfits = new List<Outfit>().AsReadOnly();
 
             InitializeComponent();
@@ -132,7 +134,7 @@ namespace AloysAdjustments.Modules.Outfits
             IoC.Notif.ShowUnknownProgress();
             
             IoC.Notif.ShowStatus("Loading outfit list...");
-            DefaultOutfits = (await OutfitLogic.GenerateOutfits()).ToHashSet();
+            DefaultOutfits = (await OutfitGen.GenerateOutfits()).ToHashSet();
             Outfits = DefaultOutfits.Select(x => x.Clone()).OrderBy(x => x.DisplayName)
                 .ToList().AsReadOnly();
 
@@ -143,20 +145,20 @@ namespace AloysAdjustments.Modules.Outfits
             UpdateAllOutfitsSelection();
 
             //start loading characters in background
-            Async.Run(() => CharacterLogic.Search.GetCharacterModels(true)).Forget();
+            Async.Run(() => CharacterGen.GetCharacterModels(true)).Forget();
         }
 
         private IEnumerable<Model> LoadCharacterModelList(bool all)
         {
             IoC.Notif.ShowStatus("Loading characters list...");
-            var models = CharacterLogic.Search.GetCharacterModels(all);
+            var models = CharacterGen.GetCharacterModels(all);
             return models.OrderBy(x => x.ToString().Contains("DLC") ? 1 : 0).ThenBy(x => x.ToString());
         }
 
         private IEnumerable<Model> LoadOutfitModelList()
         {
             IoC.Notif.ShowStatus("Loading models list...");
-            var models = OutfitLogic.GenerateModelList();
+            var models = OutfitGen.GenerateModelList();
 
             //sort models to match outfits
             var outfitSorting = Outfits.Select((x, i) => (x, i)).ToSoftDictionary(x => x.x.ModelId, x => x.i);
@@ -205,14 +207,14 @@ namespace AloysAdjustments.Modules.Outfits
         {
             IoC.Notif.ShowStatus("Loading outfits...");
             
-            var patchOutfits = await OutfitLogic.GenerateOutfits(path, false);
+            var patchOutfits = await OutfitGen.GenerateOutfits(path, false);
             if (!patchOutfits.Any())
                 return;
 
             await Initialize();
 
             var loadedOutfits = patchOutfits.ToHashSet();
-            var variantMapping = await Async.Run(() => CharacterLogic.GetVariantMapping(path, OutfitLogic));
+            var variantMapping = await Async.Run(() => CharacterGen.GetVariantMapping(path, OutfitGen));
             LoadOutfits(loadedOutfits, variantMapping);
 
             RefreshOutfitList();
@@ -237,11 +239,10 @@ namespace AloysAdjustments.Modules.Outfits
 
         public override void ApplyChanges(Patch patch)
         {
-            var models = OutfitLogic.GenerateModelList();
-            models.AddRange(CharacterLogic.Search.GetCharacterModels(true));
+            var models = OutfitGen.GenerateModelList();
+            models.AddRange(CharacterGen.GetCharacterModels(true));
 
-            var variantMapping = CharacterLogic.CreatePatch(patch, Outfits, models);
-            OutfitLogic.CreatePatch(patch, Outfits, variantMapping);
+            Patcher.CreatePatch(patch, Outfits, models);
         }
         
         private void lbOutfits_SelectedValueChanged(object sender, EventArgs e)
