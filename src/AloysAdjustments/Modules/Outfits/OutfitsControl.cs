@@ -242,7 +242,7 @@ namespace AloysAdjustments.Modules.Outfits
             var models = OutfitGen.GenerateModelList();
             models.AddRange(CharacterGen.GetCharacterModels(true));
 
-            Patcher.CreatePatch(patch, Outfits, models);
+            Patcher.CreatePatch(patch, DefaultOutfits.ToList(), Outfits, models);
         }
         
         private void lbOutfits_SelectedValueChanged(object sender, EventArgs e)

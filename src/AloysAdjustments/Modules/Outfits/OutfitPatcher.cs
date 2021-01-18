@@ -20,11 +20,11 @@ namespace AloysAdjustments.Modules.Outfits
 {
     public class OutfitPatcher
     {
-        public void CreatePatch(Patch patch, ReadOnlyCollection<Outfit> outfits, List<Model> models)
+        public void CreatePatch(Patch patch, IList<Outfit> defaultOutfits, IList<Outfit> outfits, List<Model> models)
         {
             var modelSet = models.ToDictionary(x => x.Id, x => x);
             var outfitMap = outfits.Where(x => x.Modified).Select(x => (Outfit: x, Model: modelSet[x.ModelId])).ToList();
-
+            var defaultOutfitMap = defaultOutfits.Select(x => (Outfit: x, Model: modelSet[x.ModelId])).ToList();
             var variantMapping = outfitMap.ToDictionary(x => x.Outfit.RefId, x => x.Model.Id);
 
             var activeModels = outfits.Where(x => x.Modified).Select(x => x.ModelId).ToHashSet();
@@ -35,7 +35,7 @@ namespace AloysAdjustments.Modules.Outfits
                 FixRagdolls(patch, newCharacters, variantMapping);
             }
 
-            FixDisguises(patch, outfitMap, variantMapping);
+            AddOutfitFacts(patch, defaultOutfitMap, outfitMap, variantMapping);
 
             if (newCharacters.Any())
             {
@@ -78,7 +78,7 @@ namespace AloysAdjustments.Modules.Outfits
         }
 
 
-        private void UpdateComponents(Patch patch, ReadOnlyCollection<Outfit> outfits, List<Model> models)
+        private void UpdateComponents(Patch patch, IList<Outfit> outfits, List<Model> models)
         {
             var activeModels = outfits.Where(x => x.Modified).Select(x => x.ModelId).ToHashSet();
 
@@ -161,7 +161,9 @@ namespace AloysAdjustments.Modules.Outfits
             }
         }
 
-        private void FixDisguises(Patch patch, IEnumerable<(Outfit Outfit, Model Model)> outfitMaps, 
+        private void AddOutfitFacts(Patch patch, 
+            IList<(Outfit Outfit, Model Model)> defaultOutfitMap,
+            IList<(Outfit Outfit, Model Model)> outfitMaps, 
             Dictionary<BaseGGUUID, BaseGGUUID> variantMapping)
         {
             foreach (var group in outfitMaps.GroupBy(x => x.Model.Source))
@@ -172,11 +174,12 @@ namespace AloysAdjustments.Modules.Outfits
                 foreach (var outfitMap in group)
                 {
                     var variant = variants[variantMapping[outfitMap.Outfit.RefId]];
-                    
+                    var defaultModel = defaultOutfitMap.First(x => outfitMap.Outfit.RefId == x.Outfit.RefId).Model;
+
                     //copy the variant
                     var newVariant = CopyVariant(variant);
 
-                    if (AddDisguiseFact(outfitMap, core, newVariant))
+                    if (AddOutfitFact(outfitMap, defaultModel, core, newVariant))
                     {
                         variantMapping[outfitMap.Outfit.RefId] = newVariant.ObjectUUID;
                         core.Binary.AddObject(newVariant);
@@ -205,28 +208,23 @@ namespace AloysAdjustments.Modules.Outfits
             var ragdollFile = IoC.Get<OutfitConfig>().RagdollComponentsFile;
 
             //remove npc ragdoll repositioning
-            var removed =  variant.EntityComponentResources.RemoveAll(x => x.ExternalFile?.Value == ragdollFile);
+            var removed =  variant.EntityComponentResources.RemoveAll(x => x.ExternalFile == ragdollFile);
             return removed > 0;
         }
 
-        private bool AddDisguiseFact((Outfit Outfit, Model Model) outfitMap, 
+        private bool AddOutfitFact((Outfit Outfit, Model Model) outfitMap, Model defaultModel,
             HzdCore core, HumanoidBodyVariant variant)
         {
-            //not mapped to disguise outfit
-            var disguiseNames = IoC.Get<OutfitConfig>().DisguiseNames;
-            if (!disguiseNames.Contains(outfitMap.Outfit.Name))
-                return false;
-
-            //already has disguise fact
-            var factValues = IoC.Get<OutfitConfig>().DisguiseFactValues;
-            var fact = core.GetTypes<FactValue>().FirstOrDefault(x => factValues.Contains(x.FactValueBase.Value.Value));
+            var factFile = "entities/characters/humanoids/player/costumes/facts";
+            var factCore = IoC.Archiver.LoadGameFile(defaultModel.Source);
+            var factEnum = factCore.GetTypes<FactValue>().FirstOrDefault(x => x.FactValueBase.Fact.ExternalFile == factFile);
+            
+            //already has outfit fact
+            var fact = core.GetTypes<FactValue>().FirstOrDefault(x => 
+                x.FactValueBase.Value.Value == factEnum.FactValueBase.Value.Value);
             if (fact != null && variant.Facts.Any(x => x.GUID == fact.ObjectUUID))
                 return false;
-
-            var factFile = IoC.Get<OutfitConfig>().DisguiseFactFile;
-            var factCore = IoC.Archiver.LoadGameFile(factFile);
-            var factEnum = factCore.GetType<EnumFact>();
-
+            
             if (fact == null)
             {
                 fact = new FactValue()
@@ -234,11 +232,11 @@ namespace AloysAdjustments.Modules.Outfits
                     ObjectUUID = Guid.NewGuid(),
                     FactValueBase = new FactValueBase()
                     {
-                        Value = factValues.First(),
+                        Value = factEnum.FactValueBase.Value.Value,
                         Fact = new Ref<Fact>()
                         {
                             GUID = factEnum.ObjectUUID,
-                            ExternalFile = factFile,
+                            ExternalFile = factEnum.FactValueBase.Fact.ExternalFile,
                             Type = BaseRef.Types.ExternalCoreUUID
                         }
                     }
@@ -279,7 +277,7 @@ namespace AloysAdjustments.Modules.Outfits
             }
         }
 
-        public void CreatePatch(Patch patch, ReadOnlyCollection<Outfit> outfits,
+        private void CreatePatch(Patch patch, IList<Outfit> outfits,
             Dictionary<BaseGGUUID, BaseGGUUID> variantMapping)
         {
             var maps = outfits.Where(x => x.Modified).Select(x => x.SourceFile).Distinct();
