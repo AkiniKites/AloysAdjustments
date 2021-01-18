@@ -33,12 +33,13 @@ namespace AloysAdjustments.Modules.Outfits
             var models = pcCore != null ? GetPlayerModels(pcCore) : new List<StreamingRef<HumanoidBodyVariant>>();
             var variantFiles = models.ToSoftDictionary(x => x.GUID, x => x.ExternalFile?.ToString());
 
-            var cores = await Task.WhenAll(IoC.Get<OutfitConfig>().OutfitFiles.Select(
+            var files = IoC.Get<OutfitConfig>().OutfitFiles;
+            var cores = await Task.WhenAll(files.Select(
                 async f => await IoC.Archiver.LoadFileAsync(path, f, checkMissing)));
 
-            foreach (var core in cores)
+            foreach (var core in cores.Where(x => x != null))
             {
-                await foreach(var item in GetOutfits(core, variantFiles))
+                await foreach (var item in GetOutfits(core, variantFiles))
                 {
                     item.SourceFile = core.Source;
                     outfits.Add(item);
