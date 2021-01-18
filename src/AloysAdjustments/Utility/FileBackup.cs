@@ -15,13 +15,10 @@ namespace AloysAdjustments.Utility
         private readonly string _path;
         private readonly string _tempPath;
 
-        public static async Task CleanupBackups(string path)
+        public static void CleanupBackups(string path)
         {
-            await Async.Run(() =>
-            {
-                foreach (var file in GetMatchingFiles(path))
-                    File.Delete(file);
-            });
+            foreach (var file in GetMatchingFiles(path))
+                File.Delete(file);
         }
 
         public static async Task<bool> RunWithBackupAsync(string path, Func<bool> action)

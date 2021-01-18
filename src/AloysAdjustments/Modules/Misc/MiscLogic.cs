@@ -28,10 +28,10 @@ namespace AloysAdjustments.Modules.Misc
             return adj;
         }
 
-        public async Task CreatePatch(Patch patch, MiscAdjustments adjustments)
+        public void CreatePatch(Patch patch, MiscAdjustments adjustments)
         {
             if (adjustments.SkipIntroLogos == true)
-                await RemoveIntroLogo(patch);
+                RemoveIntroLogo(patch);
         }
 
         
@@ -43,15 +43,15 @@ namespace AloysAdjustments.Modules.Misc
             return GetIntroMenu(core).PropertyAnimations.Any();
         }
 
-        private async Task RemoveIntroLogo(Patch patch)
+        private void RemoveIntroLogo(Patch patch)
         {
-            var core = await patch.AddFile(IoC.Get<MiscConfig>().IntroFile);
+            var core = patch.AddFile(IoC.Get<MiscConfig>().IntroFile);
 
             var menu = GetIntroMenu(core);
             menu.PropertyAnimations.Clear();
             menu.Blendtime = 0;
 
-            await core.Save();
+            core.Save();
         }
 
         private MenuAnimationResource GetIntroMenu(HzdCore core)

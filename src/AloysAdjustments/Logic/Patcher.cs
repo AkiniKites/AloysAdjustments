@@ -23,34 +23,31 @@ namespace AloysAdjustments.Logic
             Plugins = new PluginManager();
         }
 
-        public async Task<Patch> StartPatch()
+        public Patch StartPatch()
         {
-            await FileManager.Cleanup(IoC.Config.TempPath);
+            FileManager.Cleanup(IoC.Config.TempPath);
 
             return new Patch(Path.Combine(IoC.Config.TempPath, PatchTempDir));
         }
 
-        public async Task ApplyCustomPatches(Patch patch)
+        public void ApplyCustomPatches(Patch patch)
         {
-            await Async.Run(() =>
+            Plugins.ExecuteAll<IPatchPlugin>(".", p =>
             {
-                Plugins.ExecuteAll<IPatchPlugin>(".", p =>
-                {
-                    p.ApplyChanges(patch);
-                });
+                p.ApplyChanges(patch);
             });
         }
 
-        public async Task PackPatch(Patch patch)
+        public void PackPatch(Patch patch)
         {
             var output = Path.Combine(IoC.Config.TempPath, IoC.Config.PatchFile);
 
-            await IoC.Archiver.PackFiles(patch.WorkingDir, output);
+            IoC.Archiver.PackFiles(patch.WorkingDir, output);
 
             patch.PackedFile = output;
         }
 
-        public async Task InstallPatch(Patch patch)
+        public void InstallPatch(Patch patch)
         {
             if (!File.Exists(patch.PackedFile))
                 throw new HzdException($"Patch file not found at: {patch.PackedFile}");
@@ -58,8 +55,8 @@ namespace AloysAdjustments.Logic
                 throw new HzdException($"Pack directory not found at: {Configs.GamePackDir}");
 
             var dest = Path.Combine(Configs.GamePackDir, Path.GetFileName(patch.PackedFile));
-
-            await Async.Run(() => File.Copy(patch.PackedFile, dest, true));
+            
+            File.Copy(patch.PackedFile, dest, true);
         }
     }
 }

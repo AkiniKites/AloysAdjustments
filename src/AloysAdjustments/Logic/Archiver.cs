@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using AloysAdjustments.Configuration;
 using AloysAdjustments.Utility;
 using Decima;
 
@@ -42,22 +43,23 @@ namespace AloysAdjustments.Logic
             _packCache.Clear();
         }
 
-        public async Task ExtractFile(string dir, string file, string output)
+        public void ExtractFile(string dir, string file, string output)
         {
             ValidatePackager();
+            
+            using var fs = File.OpenWrite(output);
 
-            await Async.Run(() =>
-            {
-                using var fs = File.OpenWrite(output);
-
-                if (!TryExtractFile(dir, fs, file))
-                    throw new HzdException($"Unable to extract file, file not found: {file}");
-            });
+            if (!TryExtractFile(dir, fs, file))
+                throw new HzdException($"Unable to extract file, file not found: {file}");
         }
         
         public async Task<HzdCore> LoadFileAsync(string dir, string file, bool throwError = true)
         {
             return await Async.Run(() => LoadFile(dir, file, throwError));
+        }
+        public HzdCore LoadGameFile(string file)
+        {
+            return LoadFile(Configs.GamePackDir, file, true);
         }
         public HzdCore LoadFile(string dir, string file, bool throwError = true)
         {
@@ -152,7 +154,7 @@ namespace AloysAdjustments.Logic
             return files;
         }
 
-        public async Task PackFiles(string dir, string output)
+        public void PackFiles(string dir, string output)
         {
             ValidatePackager();
 
@@ -161,15 +163,12 @@ namespace AloysAdjustments.Logic
 
             dir = Path.GetFullPath(dir);
             output = Path.GetFullPath(output);
+            
+            var files = Directory.GetFiles(dir, "*", SearchOption.AllDirectories);
+            var fileNames = files.Select(x => x.Substring(dir.Length + 1).Replace("\\", "/")).ToArray();
 
-            await Async.Run(() =>
-            {
-                var files = Directory.GetFiles(dir, "*", SearchOption.AllDirectories);
-                var fileNames = files.Select(x => x.Substring(dir.Length + 1).Replace("\\", "/")).ToArray();
-
-                using var pack = new PackfileWriterFast(output, false, true);
-                pack.BuildFromFileList(dir, fileNames);
-            });
+            using var pack = new PackfileWriterFast(output, false, true);
+            pack.BuildFromFileList(dir, fileNames);
         }
         
         public async Task GetLibrary()

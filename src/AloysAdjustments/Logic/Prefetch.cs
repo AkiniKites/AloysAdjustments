@@ -25,8 +25,8 @@ namespace AloysAdjustments.Logic
         {
             var prefetch = new Prefetch();
 
-            prefetch.Core = IoC.Archiver.LoadFile(Configs.GamePackDir, IoC.Config.PrefetchFile);
-            prefetch.Data = prefetch.Core.GetTypes<PrefetchList>().First();
+            prefetch.Core = IoC.Archiver.LoadGameFile(IoC.Config.PrefetchFile);
+            prefetch.Data = prefetch.Core.GetType<PrefetchList>();
 
             prefetch.Files = new Dictionary<string, int>();
             for (int i = 0; i < prefetch.Data.Files.Count; i++)
@@ -37,39 +37,37 @@ namespace AloysAdjustments.Logic
 
         private Prefetch() { }
         
-        public async Task Save(string path)
+        public void Save(string path)
         {
             Paths.CheckDirectory(Path.GetDirectoryName(path));
-            await Core.Save(path);
+            Core.Save(path);
         }
 
-        public async Task<bool> Rebuild(Patch patch)
+        public bool Rebuild(Patch patch)
         {
-            return await Async.Run(() => {
-                var changed = false;
-                var dirLen = Path.GetFullPath(patch.WorkingDir).Length + 1;
-                var links = GetLinks();
+            var changed = false;
+            var dirLen = Path.GetFullPath(patch.WorkingDir).Length + 1;
+            var links = GetLinks();
+            
+            foreach (var f in new DirectoryInfo(patch.WorkingDir).GetFiles("*", SearchOption.AllDirectories))
+            {
+                var name = f.FullName.Substring(dirLen).Replace(".core", "").Replace("\\", "/");
                 
-                foreach (var f in new DirectoryInfo(patch.WorkingDir).GetFiles("*", SearchOption.AllDirectories))
+                if (Files.TryGetValue(name, out int idx))
                 {
-                    var name = f.FullName.Substring(dirLen).Replace(".core", "").Replace("\\", "/");
-                    
-                    if (Files.TryGetValue(name, out int idx))
+                    if (Data.Sizes[idx] != (int)f.Length)
                     {
-                        if (Data.Sizes[idx] != (int)f.Length)
-                        {
-                            changed = true;
-                            Data.Sizes[idx] = (int)f.Length;
-                        }
-
-                        UpdateLinks(links, f.FullName, name);
+                        changed = true;
+                        Data.Sizes[idx] = (int)f.Length;
                     }
+
+                    UpdateLinks(links, f.FullName, name);
                 }
+            }
 
-                RebuildLinks(links);
+            RebuildLinks(links);
 
-                return changed;
-            });
+            return changed;
         }
 
         private int[][] GetLinks()

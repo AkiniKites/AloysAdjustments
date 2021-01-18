@@ -32,7 +32,7 @@ namespace AloysAdjustments.Modules.Settings
         }
 
         public override Task LoadPatch(string path) => throw new NotImplementedException();
-        public override Task ApplyChanges(Patch patch) => throw new NotImplementedException();
+        public override void ApplyChanges(Patch patch) => throw new NotImplementedException();
 
         public override Task Initialize()
         {
@@ -101,7 +101,7 @@ namespace AloysAdjustments.Modules.Settings
         private async void btnClearCache_ClickCommand(object sender, EventArgs e) => await Relay.To(sender, e, btnClearCache_Click);
         private async Task btnClearCache_Click(object sender, EventArgs e)
         {
-            await FileManager.Cleanup(IoC.Config.CachePath);
+            await Async.Run(() => FileManager.Cleanup(IoC.Config.CachePath));
             UpdateCacheStatus();
         }
 

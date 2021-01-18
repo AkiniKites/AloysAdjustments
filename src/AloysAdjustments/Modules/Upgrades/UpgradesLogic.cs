@@ -66,10 +66,10 @@ namespace AloysAdjustments.Modules.Upgrades
             return upgrades;
         }
 
-        public async Task CreatePatch(Patch patch, List<Upgrade> upgrades)
+        public void CreatePatch(Patch patch, List<Upgrade> upgrades)
         {
             //extract original outfit files to temp
-            var core = await patch.AddFile(IoC.Get<UpgradeConfig>().UpgradeFile);
+            var core = patch.AddFile(IoC.Get<UpgradeConfig>().UpgradeFile);
 
             var upgradeChanges = upgrades.ToDictionary(x => x.Id, x => x);
             
@@ -87,7 +87,7 @@ namespace AloysAdjustments.Modules.Upgrades
                 else if (invMod.ToolsCapacityIncrease > 0) invMod.ToolsCapacityIncrease = upgrade.Value;
             }
 
-            await core.Save();
+            core.Save();
         }
     }
 }

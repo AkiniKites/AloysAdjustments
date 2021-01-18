@@ -16,7 +16,7 @@ namespace AloysAdjustments.Modules
         ControlRelay ResetSelected { get; }
 
         Task LoadPatch(string path);
-        Task ApplyChanges(Patch patch);
+        void ApplyChanges(Patch patch);
 
         Task Initialize();
         bool ValidateChanges();
