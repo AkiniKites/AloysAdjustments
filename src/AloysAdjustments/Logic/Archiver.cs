@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using AloysAdjustments.Configuration;
 using AloysAdjustments.Utility;
 using Decima;
 
@@ -55,6 +56,10 @@ namespace AloysAdjustments.Logic
         public async Task<HzdCore> LoadFileAsync(string dir, string file, bool throwError = true)
         {
             return await Async.Run(() => LoadFile(dir, file, throwError));
+        }
+        public HzdCore LoadGameFile(string file)
+        {
+            return LoadFile(Configs.GamePackDir, file, true);
         }
         public HzdCore LoadFile(string dir, string file, bool throwError = true)
         {

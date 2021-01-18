@@ -2,8 +2,8 @@
   "ModuleConfigs": {
     "Outfits": {
       "AloyCharacterName": "AloyPlayerCharacter",
-      "PlayerComponentsFile": "entities/characters/humanoids/player/player_components.core",
-      "PlayerCharacterFile": "entities/characters/humanoids/player/playercharacter.core",
+      "PlayerComponentsFile": "entities/characters/humanoids/player/player_components",
+      "PlayerCharacterFile": "entities/characters/humanoids/player/playercharacter",
       "RagdollComponentsFile": "entities/characters/components/humanoidragdollcomponents",
       "OutfitFiles": [
         "entities/armor/newgameplus/ng_outfits.core",
@@ -16,20 +16,31 @@
         "playercostume",
         "playercharacter",
         "debug"
+      ],
+      "DisguiseFactFile": "entities/characters/humanoids/player/costumes/facts",
+      "DisguiseFactValues": [
+        "CarjaSoldier_Light",
+        "CarjaSoldier_Medium",
+        "CarjaSoldier_Heavy"
+      ],
+      "DisguiseNames": [
+        "Outfit_CarjaSoldier_01",
+        "Outfit_CarjaSoldier_02",
+        "Outfit_CarjaSoldier_03"
       ]
     },
     "Upgrades": {
-      "UpgradeFile": "entities/characters/craftingrecipes.core",
+      "UpgradeFile": "entities/characters/craftingrecipes",
       "IgnoredUpgrades": [
         "{82882593-A2FA-F541-A3FA-3FE2A2C69165}"
       ]
     },
     "Misc": {
-      "IntroFile": "interface/menu/pages/intro.core",
+      "IntroFile": "interface/menu/pages/intro",
       "IntroMenuName": "GGLogoAnimation"
     }
   },
-  "PrefetchFile": "prefetch/fullgame.prefetch.core",
+  "PrefetchFile": "prefetch/fullgame.prefetch",
   "ArchiverLib": "oo2core_3_win64.dll",
   "TempPath": "temp",
   "CachePath": "caches",

@@ -23,20 +23,24 @@ namespace AloysAdjustments.Modules.Outfits
         public void CreatePatch(Patch patch, ReadOnlyCollection<Outfit> outfits, List<Model> models)
         {
             var modelSet = models.ToDictionary(x => x.Id, x => x);
-            var map = outfits.Where(x => x.Modified).Select(x => (Outfit: x, Model: modelSet[x.ModelId]));
+            var outfitMap = outfits.Where(x => x.Modified).Select(x => (Outfit: x, Model: modelSet[x.ModelId])).ToList();
+
+            var variantMapping = outfitMap.ToDictionary(x => x.Outfit.RefId, x => x.Model.Id);
 
             var activeModels = outfits.Where(x => x.Modified).Select(x => x.ModelId).ToHashSet();
             var newCharacters = models.Where(x => x is CharacterModel && activeModels.Contains(x.Id)).Cast<CharacterModel>().ToList();
 
-            var variantMapping = new Dictionary<BaseGGUUID, BaseGGUUID>();
+            if (newCharacters.Any())
+            {
+                FixRagdolls(patch, newCharacters, variantMapping);
+            }
+
+            FixDisguises(patch, outfitMap, variantMapping);
 
             if (newCharacters.Any())
             {
-                //fix character variants
-                variantMapping = FixRagdolls(patch, newCharacters);
-
                 //update outfit mappings
-                AddCharacterReferences(patch, newCharacters, variantMapping);
+                AddCharacterReferences(patch, outfitMap, variantMapping);
 
                 UpdateComponents(patch, outfits, models);
             }
@@ -44,22 +48,28 @@ namespace AloysAdjustments.Modules.Outfits
             CreatePatch(patch, outfits, variantMapping);
         }
 
-        private void AddCharacterReferences(Patch patch, IEnumerable<CharacterModel> characters,
+        private void AddCharacterReferences(Patch patch, IEnumerable<(Outfit Outfit, Model Model)> outfitMaps,
             Dictionary<BaseGGUUID, BaseGGUUID> variantMapping)
         {
             var pcCore = patch.AddFile(IoC.Get<OutfitConfig>().PlayerComponentsFile);
             var variants = OutfitsGenerator.GetPlayerModels(pcCore);
 
-            foreach (var character in characters)
+            var addedRefs = new System.Collections.Generic.HashSet<BaseGGUUID>();
+
+            foreach (var character in outfitMaps.Where(x=>x.Model is CharacterModel))
             {
-                var sRef = new StreamingRef<HumanoidBodyVariant>();
-                sRef.ExternalFile = new BaseString(character.Source);
-                sRef.Type = BaseRef.Types.StreamingRef;
+                if (!variantMapping.TryGetValue(character.Outfit.RefId, out var varId))
+                    varId = character.Model.Id;
 
-                if (!variantMapping.TryGetValue(character.Id, out var varId))
-                    varId = character.Id;
+                if (!addedRefs.Add(varId))
+                    continue;
 
-                sRef.GUID = BaseGGUUID.FromOther(varId);
+                var sRef = new StreamingRef<HumanoidBodyVariant>
+                {
+                    ExternalFile = new BaseString(character.Model.Source),
+                    Type = BaseRef.Types.StreamingRef,
+                    GUID = BaseGGUUID.FromOther(varId)
+                };
 
                 variants.Add(sRef);
             }
@@ -86,18 +96,17 @@ namespace AloysAdjustments.Modules.Outfits
         {
             var components = new  List<(string, BaseGGUUID)>();
 
-            var charCore = IoC.Archiver.LoadFile(Configs.GamePackDir, 
-                IoC.Get<OutfitConfig>().PlayerCharacterFile);
+            var charCore = IoC.Archiver.LoadGameFile(IoC.Get<OutfitConfig>().PlayerCharacterFile);
 
-            var hairModel = charCore.GetTypes<HairModelComponentResource>().FirstOrDefault();
+            var hairModel = charCore.GetType<HairModelComponentResource>();
             if (hairModel == null)
                 throw new HzdException($"Failed to remove Aloy's hair, unable to find HairModelComponentResource");
 
             components.Add((charCore.Source, hairModel.ObjectUUID));
             
-            var compCore = IoC.Archiver.LoadFile(Configs.GamePackDir, IoC.Get<OutfitConfig>().PlayerComponentsFile);
+            var compCore = IoC.Archiver.LoadGameFile(IoC.Get<OutfitConfig>().PlayerComponentsFile);
 
-            var facePaint = compCore.GetTypes<FacialPaintComponentResource>().FirstOrDefault();
+            var facePaint = compCore.GetType<FacialPaintComponentResource>();
             if (facePaint == null)
                 throw new HzdException($"Failed to remove Aloy's facepaint overrides, unable to find FacialPaintComponentResource");
 
@@ -121,16 +130,9 @@ namespace AloysAdjustments.Modules.Outfits
             core.Save();
         }
 
-        private Dictionary<BaseGGUUID, BaseGGUUID> FixRagdolls(
-            Patch patch, IEnumerable<CharacterModel> characters)
+        private void FixRagdolls(Patch patch, IEnumerable<CharacterModel> characters, 
+            Dictionary<BaseGGUUID, BaseGGUUID> variantMapping)
         {
-            var cCore = IoC.Archiver.LoadFile(Configs.GamePackDir,
-                $"entities/characters/humanoids/player/costumes/playercostume_carjasoldier_light.core");
-            var fact = cCore.GetTypes<FactValue>().Last();
-
-            var ragdollFile = IoC.Get<OutfitConfig>().RagdollComponentsFile;
-            var variantMapping = new Dictionary<BaseGGUUID, BaseGGUUID>();
-
             foreach (var group in characters.GroupBy(x => x.Source))
             {
                 var core = patch.AddFile(group.Key);
@@ -143,52 +145,115 @@ namespace AloysAdjustments.Modules.Outfits
                     //copy the variant
                     var newVariant = CopyVariant(variant);
 
-                    if (FixRagdolls(newVariant))
+                    if (RemoveRagdollAI(newVariant))
                     {
-                        variantMapping.Add(variant.ObjectUUID, newVariant.ObjectUUID);
-                        core.Binary.AddObject(newVariant);
-                    }
-
-                    if (variant.EntityComponentResources.Any(x => x.ExternalFile?.Value == ragdollFile))
-                    {
-                        variantMapping.Add(variant.ObjectUUID, newVariant.ObjectUUID);
-
-                        //remove npc ragdoll repositioning
-                        newVariant.EntityComponentResources.RemoveAll(x => x.ExternalFile?.Value == ragdollFile);
-                        newVariant.Facts.Add(new Ref<FactValue>()
+                        //update all variants that use this model
+                        foreach (var kv in variantMapping.Where(x => x.Value == variant.ObjectUUID).ToList())
                         {
-                            GUID = fact.ObjectUUID,
-                            Type =BaseRef.Types.LocalCoreUUID 
-                        });
+                            variantMapping[kv.Key] = newVariant.ObjectUUID;
+                        }
 
-                        core.Binary.AddObject(fact);
                         core.Binary.AddObject(newVariant);
                     }
                 }
 
                 core.Save();
             }
+        }
 
-            return variantMapping;
+        private void FixDisguises(Patch patch, IEnumerable<(Outfit Outfit, Model Model)> outfitMaps, 
+            Dictionary<BaseGGUUID, BaseGGUUID> variantMapping)
+        {
+            foreach (var group in outfitMaps.GroupBy(x => x.Model.Source))
+            {
+                var core = patch.AddFile(group.Key);
+
+                var variants = core.GetTypesById<HumanoidBodyVariant>();
+                foreach (var outfitMap in group)
+                {
+                    var variant = variants[variantMapping[outfitMap.Outfit.RefId]];
+                    
+                    //copy the variant
+                    var newVariant = CopyVariant(variant);
+
+                    if (AddDisguiseFact(outfitMap, core, newVariant))
+                    {
+                        variantMapping[outfitMap.Outfit.RefId] = newVariant.ObjectUUID;
+                        core.Binary.AddObject(newVariant);
+                    }
+                }
+
+                core.Save();
+            }
         }
 
         private HumanoidBodyVariant CopyVariant(HumanoidBodyVariant variant)
         {
             var newVariant = HzdCloner.Clone(variant);
 
-            newVariant.ObjectUUID = $"{Guid.NewGuid():B}";
-            newVariant.Name = $"{variant.Name}{CharacterGenerator.VariantNameFormat}{variant.ObjectUUID}";
+            newVariant.ObjectUUID = Guid.NewGuid();
+
+            //rename if not a copy
+            if (!CharacterGenerator.VariantNameMatcher.IsMatch(variant.Name))
+                newVariant.Name = $"{variant.Name}{CharacterGenerator.VariantNameFormat}{variant.ObjectUUID}";
 
             return newVariant;
         }
 
-        private bool FixRagdolls(HumanoidBodyVariant variant)
+        private bool RemoveRagdollAI(HumanoidBodyVariant variant)
         {
             var ragdollFile = IoC.Get<OutfitConfig>().RagdollComponentsFile;
 
             //remove npc ragdoll repositioning
             var removed =  variant.EntityComponentResources.RemoveAll(x => x.ExternalFile?.Value == ragdollFile);
             return removed > 0;
+        }
+
+        private bool AddDisguiseFact((Outfit Outfit, Model Model) outfitMap, 
+            HzdCore core, HumanoidBodyVariant variant)
+        {
+            //not mapped to disguise outfit
+            var disguiseNames = IoC.Get<OutfitConfig>().DisguiseNames;
+            if (!disguiseNames.Contains(outfitMap.Outfit.Name))
+                return false;
+
+            //already has disguise fact
+            var factValues = IoC.Get<OutfitConfig>().DisguiseFactValues;
+            var fact = core.GetTypes<FactValue>().FirstOrDefault(x => factValues.Contains(x.FactValueBase.Value.Value));
+            if (fact != null && variant.Facts.Any(x => x.GUID == fact.ObjectUUID))
+                return false;
+
+            var factFile = IoC.Get<OutfitConfig>().DisguiseFactFile;
+            var factCore = IoC.Archiver.LoadGameFile(factFile);
+            var factEnum = factCore.GetType<EnumFact>();
+
+            if (fact == null)
+            {
+                fact = new FactValue()
+                {
+                    ObjectUUID = Guid.NewGuid(),
+                    FactValueBase = new FactValueBase()
+                    {
+                        Value = factValues.First(),
+                        Fact = new Ref<Fact>()
+                        {
+                            GUID = factEnum.ObjectUUID,
+                            ExternalFile = factFile,
+                            Type = BaseRef.Types.ExternalCoreUUID
+                        }
+                    }
+                };
+
+                core.Binary.AddObject(fact);
+            }
+
+            variant.Facts.Add(new Ref<FactValue>()
+            {
+                GUID = fact.ObjectUUID,
+                Type = BaseRef.Types.LocalCoreUUID
+            });
+
+            return true;
         }
 
         private void AttachAloyComponents(Patch patch, IEnumerable<string> outfitFiles, List<(string File, BaseGGUUID Id)> removed)
@@ -217,8 +282,7 @@ namespace AloysAdjustments.Modules.Outfits
         public void CreatePatch(Patch patch, ReadOnlyCollection<Outfit> outfits,
             Dictionary<BaseGGUUID, BaseGGUUID> variantMapping)
         {
-            var modifiedOutfits = outfits.Where(x => x.Modified).ToDictionary(x => x.RefId, x => x);
-            var maps = modifiedOutfits.Values.Select(x => x.SourceFile).Distinct();
+            var maps = outfits.Where(x => x.Modified).Select(x => x.SourceFile).Distinct();
 
             foreach (var map in maps)
             {
@@ -228,12 +292,8 @@ namespace AloysAdjustments.Modules.Outfits
                 //update references from based on new maps
                 foreach (var reference in core.GetTypes<NodeGraphHumanoidBodyVariantUUIDRefVariableOverride>())
                 {
-                    if (modifiedOutfits.TryGetValue(reference.ObjectUUID, out var changed))
-                    {
-                        if (!variantMapping.TryGetValue(changed.ModelId, out var variantId))
-                            variantId = changed.ModelId;
+                    if (variantMapping.TryGetValue(reference.ObjectUUID, out var variantId))
                         reference.Object.GUID.AssignFromOther(variantId);
-                    }
                 }
 
                 core.Save();

@@ -83,6 +83,10 @@ namespace AloysAdjustments.Logic
             return Binary.Where(x => x.GetType().Name == typeName)
                 .Cast<T>().ToList();
         }
+        public T GetType<T>(string typeName = null)
+        {
+            return GetTypes<T>().FirstOrDefault();
+        }
 
         private static string NormalizeSource(string path)
         {

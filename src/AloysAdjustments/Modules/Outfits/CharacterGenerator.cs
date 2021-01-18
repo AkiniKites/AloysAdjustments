@@ -18,7 +18,7 @@ namespace AloysAdjustments.Modules.Outfits
     public class CharacterGenerator
     {
         public const string VariantNameFormat = "-AA-";
-        private readonly Regex VariantNameMatcher = new Regex($"^(?<name>.+?){VariantNameFormat}(?<id>.+)$");
+        public static readonly Regex VariantNameMatcher = new Regex($"^(?<name>.+?){VariantNameFormat}(?<id>.+)$");
         
         private readonly Regex HumanoidMatcher;
         private readonly Regex UniqueHumanoidMatcher;
@@ -97,7 +97,7 @@ namespace AloysAdjustments.Modules.Outfits
 
         private List<CharacterModel> GetCharacterModels(string file)
         {
-            var pack = IoC.Archiver.LoadFile(Configs.GamePackDir, file);
+            var pack = IoC.Archiver.LoadGameFile(file);
             var variants = pack.GetTypes<HumanoidBodyVariant>();
             if (!variants.Any())
                 return new List<CharacterModel>();
@@ -124,7 +124,8 @@ namespace AloysAdjustments.Modules.Outfits
             foreach (var model in models)
             {
                 var core = IoC.Archiver.LoadFile(path, model.Source, false);
-                if (core == null) continue;
+                if (core == null) 
+                    continue;
 
                 if (!core.GetTypesById<HumanoidBodyVariant>().TryGetValue(model.Id, out var variant))
                     continue;

@@ -15,5 +15,9 @@ namespace AloysAdjustments.Modules.Outfits
         public string HumanoidMatcher { get; set; }
         public string UniqueHumanoidMatcher { get; set; }
         public string[] IgnoredCharacters { get; set; }
+
+        public string DisguiseFactFile { get; set; }
+        public string[] DisguiseFactValues { get; set; }
+        public string[] DisguiseNames { get; set; }
     }
 }

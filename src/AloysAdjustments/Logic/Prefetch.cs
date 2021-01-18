@@ -25,8 +25,8 @@ namespace AloysAdjustments.Logic
         {
             var prefetch = new Prefetch();
 
-            prefetch.Core = IoC.Archiver.LoadFile(Configs.GamePackDir, IoC.Config.PrefetchFile);
-            prefetch.Data = prefetch.Core.GetTypes<PrefetchList>().First();
+            prefetch.Core = IoC.Archiver.LoadGameFile(IoC.Config.PrefetchFile);
+            prefetch.Data = prefetch.Core.GetType<PrefetchList>();
 
             prefetch.Files = new Dictionary<string, int>();
             for (int i = 0; i < prefetch.Data.Files.Count; i++)
