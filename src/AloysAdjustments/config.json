@@ -17,17 +17,7 @@
         "playercharacter",
         "debug"
       ],
-      "DisguiseFactFile": "entities/characters/humanoids/player/costumes/facts",
-      "DisguiseFactValues": [
-        "CarjaSoldier_Light",
-        "CarjaSoldier_Medium",
-        "CarjaSoldier_Heavy"
-      ],
-      "DisguiseNames": [
-        "Outfit_CarjaSoldier_01",
-        "Outfit_CarjaSoldier_02",
-        "Outfit_CarjaSoldier_03"
-      ]
+      "OutfitFactFile": "entities/characters/humanoids/player/costumes/facts"
     },
     "Upgrades": {
       "UpgradeFile": "entities/characters/craftingrecipes",

@@ -37,31 +37,31 @@ namespace AloysAdjustments.Modules.Outfits
 
             AddOutfitFacts(patch, defaultOutfitMap, outfitMap, variantMapping);
 
+            //Add the new variant references to player components
+            AddVariantReferences(patch, outfitMap, variantMapping);
+
             if (newCharacters.Any())
             {
-                //update outfit mappings
-                AddCharacterReferences(patch, outfitMap, variantMapping);
-
                 UpdateComponents(patch, outfits, models);
             }
 
             CreatePatch(patch, outfits, variantMapping);
         }
 
-        private void AddCharacterReferences(Patch patch, IEnumerable<(Outfit Outfit, Model Model)> outfitMaps,
+        private void AddVariantReferences(Patch patch, IEnumerable<(Outfit Outfit, Model Model)> outfitMaps,
             Dictionary<BaseGGUUID, BaseGGUUID> variantMapping)
         {
             var pcCore = patch.AddFile(IoC.Get<OutfitConfig>().PlayerComponentsFile);
             var variants = OutfitsGenerator.GetPlayerModels(pcCore);
 
-            var addedRefs = new System.Collections.Generic.HashSet<BaseGGUUID>();
+            var refs = variants.Select(x=>x.GUID).ToHashSet();
 
-            foreach (var character in outfitMaps.Where(x=>x.Model is CharacterModel))
+            foreach (var character in outfitMaps)
             {
                 if (!variantMapping.TryGetValue(character.Outfit.RefId, out var varId))
                     varId = character.Model.Id;
 
-                if (!addedRefs.Add(varId))
+                if (!refs.Add(varId))
                     continue;
 
                 var sRef = new StreamingRef<HumanoidBodyVariant>
@@ -179,7 +179,8 @@ namespace AloysAdjustments.Modules.Outfits
                     //copy the variant
                     var newVariant = CopyVariant(variant);
 
-                    if (AddOutfitFact(outfitMap, defaultModel, core, newVariant))
+                    //every model needs an outfit fact otherwise the game will just use the last one equipped
+                    if (AddOutfitFact(defaultModel, core, newVariant))
                     {
                         variantMapping[outfitMap.Outfit.RefId] = newVariant.ObjectUUID;
                         core.Binary.AddObject(newVariant);
@@ -212,12 +213,11 @@ namespace AloysAdjustments.Modules.Outfits
             return removed > 0;
         }
 
-        private bool AddOutfitFact((Outfit Outfit, Model Model) outfitMap, Model defaultModel,
-            HzdCore core, HumanoidBodyVariant variant)
+        private bool AddOutfitFact(Model defaultModel, HzdCore core, HumanoidBodyVariant variant)
         {
-            var factFile = "entities/characters/humanoids/player/costumes/facts";
-            var factCore = IoC.Archiver.LoadGameFile(defaultModel.Source);
-            var factEnum = factCore.GetTypes<FactValue>().FirstOrDefault(x => x.FactValueBase.Fact.ExternalFile == factFile);
+            var factFile = IoC.Get<OutfitConfig>().OutfitFactFile;
+            var modelCore = IoC.Archiver.LoadGameFile(defaultModel.Source);
+            var factEnum = modelCore.GetTypes<FactValue>().FirstOrDefault(x => x.FactValueBase.Fact.ExternalFile == factFile);
             
             //already has outfit fact
             var fact = core.GetTypes<FactValue>().FirstOrDefault(x => 
@@ -235,8 +235,8 @@ namespace AloysAdjustments.Modules.Outfits
                         Value = factEnum.FactValueBase.Value.Value,
                         Fact = new Ref<Fact>()
                         {
-                            GUID = factEnum.ObjectUUID,
-                            ExternalFile = factEnum.FactValueBase.Fact.ExternalFile,
+                            GUID = factEnum.FactValueBase.Fact.GUID,
+                            ExternalFile = factFile,
                             Type = BaseRef.Types.ExternalCoreUUID
                         }
                     }
@@ -254,23 +254,27 @@ namespace AloysAdjustments.Modules.Outfits
             return true;
         }
 
-        private void AttachAloyComponents(Patch patch, IEnumerable<string> outfitFiles, List<(string File, BaseGGUUID Id)> removed)
+        private void AttachAloyComponents(Patch patch, IEnumerable<string> outfitFiles, 
+            List<(string File, BaseGGUUID Id)> removed)
         {
             foreach (var file in outfitFiles.Distinct())
             {
                 var core = patch.AddFile(file);
 
-                var resources = core.GetTypes<HumanoidBodyVariant>().First().EntityComponentResources;
-                foreach (var item in removed)
+                var variants = core.GetTypes<HumanoidBodyVariant>();
+                foreach (var variant in variants)
                 {
-                    var comp = new Ref<EntityComponentResource>()
+                    foreach (var item in removed)
                     {
-                        GUID = item.Id,
-                        ExternalFile = new BaseString(item.File),
-                        Type = BaseRef.Types.ExternalCoreUUID
-                    };
+                        var comp = new Ref<EntityComponentResource>()
+                        {
+                            GUID = item.Id,
+                            ExternalFile = new BaseString(item.File),
+                            Type = BaseRef.Types.ExternalCoreUUID
+                        };
 
-                    resources.Add(comp);
+                        variant.EntityComponentResources.Add(comp);
+                    }
                 }
 
                 core.Save();
