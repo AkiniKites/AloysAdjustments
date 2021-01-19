@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -17,14 +18,16 @@ namespace AloysAdjustments.Logic
         private const string PatchPrefix = "Patch";
         private const string PackExt = ".bin";
 
-        private readonly ConcurrentDictionary<PackList, Dictionary<ulong, string>> _packCache;
+        private readonly ConcurrentDictionary<PackList, Dictionary<ulong, string>> _packFileLocator;
+        private readonly ConcurrentDictionary<string, PackfileReader> _packCache;
 
         public HashSet<string> IgnoreList { get; }
 
         public Archiver(IEnumerable<string> ignoreList)
         {
             IgnoreList = ignoreList.ToHashSet(StringComparer.OrdinalIgnoreCase);
-            _packCache = new ConcurrentDictionary<PackList, Dictionary<ulong, string>>();
+            _packFileLocator = new ConcurrentDictionary<PackList, Dictionary<ulong, string>>();
+            _packCache = new ConcurrentDictionary<string, PackfileReader>(StringComparer.OrdinalIgnoreCase);
         }
 
         public bool CheckArchiverLib()
@@ -40,6 +43,7 @@ namespace AloysAdjustments.Logic
 
         public void ClearCache()
         {
+            _packFileLocator.Clear();
             _packCache.Clear();
         }
 
@@ -76,7 +80,7 @@ namespace AloysAdjustments.Logic
             ms.Position = 0;
             return HzdCore.FromStream(ms, file);
         }
-
+        
         private bool TryExtractFile(string path, Stream stream, string file)
         {
             PackList packs;
@@ -102,8 +106,8 @@ namespace AloysAdjustments.Logic
             if (!fileMap.TryGetValue(hash, out var packFile))
                 return false;
 
-            using (var pack = new PackfileReader(packFile))
-                pack.ExtractFile(hash, stream);
+            var pack = LoadPack(packFile, isDir);
+            pack.ExtractFile(hash, stream);
 
             return true;
         }
@@ -134,14 +138,14 @@ namespace AloysAdjustments.Logic
 
         private Dictionary<ulong, string> BuildFileMap(PackList packFiles, bool useCache)
         {
-            if (useCache && _packCache.TryGetValue(packFiles, out var files))
+            if (useCache && _packFileLocator.TryGetValue(packFiles, out var files))
                 return files;
 
             files = new Dictionary<ulong, string>();
 
             foreach (var packFile in packFiles.Packs)
             {
-                using var pack = new PackfileReader(packFile);
+                var pack = LoadPack(packFile, true);
                 for (int i = 0; i < pack.FileEntries.Count; i++)
                 {
                     var hash = pack.FileEntries[i].PathHash;
@@ -150,7 +154,7 @@ namespace AloysAdjustments.Logic
             }
 
             if (useCache)
-                _packCache.TryAdd(packFiles, files);
+                _packFileLocator.TryAdd(packFiles, files);
             return files;
         }
 
@@ -161,7 +165,7 @@ namespace AloysAdjustments.Logic
             if (!Directory.Exists(dir))
                 throw new HzdException($"Unable to create pack, directory not found: {dir}");
 
-            using var pack = new PackfileWriterFast(output, false, true);
+            var pack = new PackfileWriterFast(output, false, true);
             pack.BuildFromFileList(dir, files);
         }
         
@@ -172,6 +176,21 @@ namespace AloysAdjustments.Logic
                 throw new HzdException($"Unable to find archiver support library in: {IoC.Settings.GamePath}");
             
             await Async.Run(() => File.Copy(libPath, IoC.Config.ArchiverLib, true));
+        }
+
+        private PackfileReader LoadPack(string path, bool useCache)
+        {
+            if (!useCache)
+                return new PackfileReader(path);
+
+            path = Path.GetFullPath(path);
+            if (!_packCache.TryGetValue(path, out var pack))
+            {
+                pack = new PackfileReader(path);
+                _packCache.TryAdd(path, pack);
+            }
+            
+            return pack;
         }
     }
 }
