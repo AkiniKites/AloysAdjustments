@@ -16,16 +16,12 @@ namespace AloysAdjustments.Logic
         public HzdCore Core { get; private set; }
         public Dictionary<string, int> Files { get; private set; }
         public PrefetchList Data { get; private set; }
-
-        public static async Task<Prefetch> LoadAsync()
-        {
-            return await Async.Run(Load);
-        }
-        public static Prefetch Load()
+        
+        public static Prefetch Load(Patch patch = null)
         {
             var prefetch = new Prefetch();
 
-            prefetch.Core = IoC.Archiver.LoadGameFile(IoC.Config.PrefetchFile);
+            prefetch.Core = patch?.AddFile(IoC.Config.PrefetchFile) ?? IoC.Archiver.LoadGameFile(IoC.Config.PrefetchFile);
             prefetch.Data = prefetch.Core.GetType<PrefetchList>();
 
             prefetch.Files = new Dictionary<string, int>();
@@ -37,31 +33,30 @@ namespace AloysAdjustments.Logic
 
         private Prefetch() { }
         
-        public void Save(string path)
+        public void Save()
         {
-            Paths.CheckDirectory(Path.GetDirectoryName(path));
-            Core.Save(path);
+            Core.Save();
         }
 
         public bool Rebuild(Patch patch)
         {
             var changed = false;
-            var dirLen = Path.GetFullPath(patch.WorkingDir).Length + 1;
             var links = GetLinks();
             
-            foreach (var f in new DirectoryInfo(patch.WorkingDir).GetFiles("*", SearchOption.AllDirectories))
+            foreach (var file in patch.Files)
             {
-                var name = f.FullName.Substring(dirLen).Replace(".core", "").Replace("\\", "/");
-                
-                if (Files.TryGetValue(name, out int idx))
+                if (Files.TryGetValue(file, out int idx))
                 {
-                    if (Data.Sizes[idx] != (int)f.Length)
+                    var filePath = Path.Combine(patch.WorkingDir, HzdCore.EnsureExt(file));
+                    var length = (int)new FileInfo(filePath).Length;
+
+                    if (Data.Sizes[idx] != length)
                     {
                         changed = true;
-                        Data.Sizes[idx] = (int)f.Length;
+                        Data.Sizes[idx] = length;
                     }
 
-                    UpdateLinks(links, f.FullName, name);
+                    UpdateLinks(links, filePath, file);
                 }
             }
 
@@ -92,7 +87,7 @@ namespace AloysAdjustments.Logic
 
         private void UpdateLinks(int[][] fileLinks, string filepath, string name)
         {
-            var fileCore = HzdCore.Load(filepath, name);
+            var fileCore = HzdCore.FromFile(filepath, name);
 
             // Regenerate links for this specific file (don't forget to remove duplicates (Distinct()!!!))
             var newLinks = fileCore.Binary.GetAllReferences()

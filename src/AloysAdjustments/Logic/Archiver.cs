@@ -74,7 +74,7 @@ namespace AloysAdjustments.Logic
             }
 
             ms.Position = 0;
-            return HzdCore.Load(ms, file);
+            return HzdCore.FromStream(ms, file);
         }
 
         private bool TryExtractFile(string path, Stream stream, string file)
@@ -154,21 +154,15 @@ namespace AloysAdjustments.Logic
             return files;
         }
 
-        public void PackFiles(string dir, string output)
+        public void PackFiles(string dir, string[] files, string output)
         {
             ValidatePackager();
 
             if (!Directory.Exists(dir))
                 throw new HzdException($"Unable to create pack, directory not found: {dir}");
 
-            dir = Path.GetFullPath(dir);
-            output = Path.GetFullPath(output);
-            
-            var files = Directory.GetFiles(dir, "*", SearchOption.AllDirectories);
-            var fileNames = files.Select(x => x.Substring(dir.Length + 1).Replace("\\", "/")).ToArray();
-
             using var pack = new PackfileWriterFast(output, false, true);
-            pack.BuildFromFileList(dir, fileNames);
+            pack.BuildFromFileList(dir, files);
         }
         
         public async Task GetLibrary()

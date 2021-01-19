@@ -207,9 +207,9 @@ namespace AloysAdjustments
 
                 IoC.Notif.ShowStatus("Generating patch (rebuild prefetch)...");
 
-                var p = Prefetch.Load();
-                p.Rebuild(patch);
-                p.Save(Path.Combine(patch.WorkingDir, p.Core.Source));
+                var p = Prefetch.Load(patch);
+                if (p.Rebuild(patch))
+                    p.Save();
 
                 IoC.Notif.ShowStatus("Generating patch (packing)...");
                 patcher.PackPatch(patch);

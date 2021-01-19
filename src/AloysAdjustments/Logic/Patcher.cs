@@ -42,7 +42,7 @@ namespace AloysAdjustments.Logic
         {
             var output = Path.Combine(IoC.Config.TempPath, IoC.Config.PatchFile);
 
-            IoC.Archiver.PackFiles(patch.WorkingDir, output);
+            IoC.Archiver.PackFiles(patch.WorkingDir, patch.Files.Select(HzdCore.EnsureExt).ToArray(), output);
 
             patch.PackedFile = output;
         }

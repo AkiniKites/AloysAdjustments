@@ -72,11 +72,10 @@ namespace AloysAdjustments.Modules.Outfits
                 };
 
                 variants.Add(sRef);
+
+                pcCore.Save();
             }
-
-            pcCore.Save();
         }
-
 
         private void UpdateComponents(Patch patch, IList<Outfit> outfits, List<Model> models)
         {
@@ -154,10 +153,9 @@ namespace AloysAdjustments.Modules.Outfits
                         }
 
                         core.Binary.AddObject(newVariant);
+                        core.Save();
                     }
                 }
-
-                core.Save();
             }
         }
 
@@ -184,10 +182,9 @@ namespace AloysAdjustments.Modules.Outfits
                     {
                         variantMapping[outfitMap.Outfit.RefId] = newVariant.ObjectUUID;
                         core.Binary.AddObject(newVariant);
+                        core.Save();
                     }
                 }
-
-                core.Save();
             }
         }
 
@@ -274,10 +271,9 @@ namespace AloysAdjustments.Modules.Outfits
                         };
 
                         variant.EntityComponentResources.Add(comp);
+                        core.Save();
                     }
                 }
-
-                core.Save();
             }
         }
 

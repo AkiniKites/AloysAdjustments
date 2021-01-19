@@ -1,37 +1,62 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
-using AloysAdjustments.Configuration;
+using System.Windows.Forms;
 using AloysAdjustments.Utility;
 
 namespace AloysAdjustments.Logic
 {
     public class Patch
     {
+        private class HzdCorePatch : HzdCore
+        {
+            public Patch Patch { get; set; }
+            public string FilePath { get; set; }
+
+            public HzdCorePatch(HzdCore core)
+            {
+                Source = core.Source;
+                Binary = core.Binary;
+            }
+
+            public override void Save()
+            {
+                Patch.Files.Add(Source);
+
+                Paths.CheckDirectory(Path.GetDirectoryName(FilePath));
+                Binary.ToFile(FilePath);
+            }
+        }
+
         public string WorkingDir { get; }
         public string PackedFile { get; set; }
+        public HashSet<string> Files { get; }
 
         public Patch(string workingDir)
         {
             WorkingDir = workingDir;
+            Files = new HashSet<string>();
         }
 
         public HzdCore AddFile(string file)
         {
-            var filePath = HzdCore.EnsureExt(file);
+            file = HzdCore.NormalizeSource(file);
+            var path = Path.Combine(WorkingDir, HzdCore.EnsureExt(file));
 
-            string output = Path.Combine(WorkingDir, filePath);
+            var core = Files.Contains(file) ? 
+                HzdCore.FromFile(path, file) : 
+                IoC.Archiver.LoadGameFile(file);
 
-            if (!File.Exists(output))
+            var patchCore = new HzdCorePatch(core)
             {
-                Paths.CheckDirectory(Path.GetDirectoryName(output));
+                Patch = this,
+                FilePath = path
+            };
 
-                IoC.Archiver.ExtractFile(Configs.GamePackDir, filePath, output);
-            }
-
-            return HzdCore.Load(output, file);
+            return patchCore;
         }
     }
 }

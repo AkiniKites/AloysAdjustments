@@ -14,27 +14,15 @@ namespace AloysAdjustments.Logic
     {
         public const string CoreExt = ".core";
 
-        public string Source { get; set; }
-        public string FilePath { get; private set; }
-        public CoreBinary Binary { get; private set; }
+        public string Source { get; protected set; }
+        public CoreBinary Binary { get; protected set; }
 
-        public static HzdCore Load(string file, string source)
+        public static HzdCore FromFile(string path, string source)
         {
-            try
-            {
-                return new HzdCore()
-                {
-                    FilePath = file,
-                    Source = NormalizeSource(source),
-                    Binary = CoreBinary.FromFile(file, true)
-                };
-            }
-            catch(Exception ex)
-            {
-                throw new HzdException($"Failed to load: {source ?? "null"}", ex);
-            }
+            using var fs = File.OpenRead(path);
+            return HzdCore.FromStream(fs, source);
         }
-        public static HzdCore Load(Stream stream, string source)
+        public static HzdCore FromStream(Stream stream, string source)
         {
             try
             {
@@ -52,43 +40,12 @@ namespace AloysAdjustments.Logic
             }
         }
 
-        private HzdCore() { }
-
-        public async Task SaveAsync(string filePath = null)
+        public virtual void Save()
         {
-            await Async.Run(() => Save(filePath));
-        }
-        public void Save(string filePath = null)
-        {
-            var savePath = filePath ?? FilePath;
-            if (savePath == null)
-                throw new HzdException("Cannot save pack file, save path null");
-
-            savePath = EnsureExt(savePath);
-
-            Binary.ToFile(savePath);
+            throw new NotSupportedException();
         }
 
-        public Dictionary<BaseGGUUID, T> GetTypesById<T>(string typeName = null) where T : RTTIRefObject
-        {
-            typeName ??= typeof(T).Name;
-
-            return Binary.Where(x => x.GetType().Name == typeName)
-                .ToDictionary(x => (BaseGGUUID)((T)x).ObjectUUID, x => (T)x);
-        }
-        public List<T> GetTypes<T>(string typeName = null)
-        {
-            typeName ??= typeof(T).Name;
-
-            return Binary.Where(x => x.GetType().Name == typeName)
-                .Cast<T>().ToList();
-        }
-        public T GetType<T>(string typeName = null)
-        {
-            return GetTypes<T>().FirstOrDefault();
-        }
-
-        private static string NormalizeSource(string path)
+        public static string NormalizeSource(string path)
         {
             if (Path.GetExtension(path) == CoreExt)
                 path = path.Substring(0, path.Length - CoreExt.Length);
