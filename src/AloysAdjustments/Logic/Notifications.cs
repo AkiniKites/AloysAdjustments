@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 
 namespace AloysAdjustments.Logic
@@ -7,17 +8,25 @@ namespace AloysAdjustments.Logic
     public class Notifications
     {
         private readonly Action<string, bool> _statusSetter;
+        private readonly Action<string> _appStatusSetter;
         private readonly Action<int, int, bool, bool> _progressSetter;
 
         public Action CacheUpdate { get; set; }
 
-        public Notifications(Action<string, bool> statusSetter, 
+        public Notifications(
+            Action<string, bool> statusSetter,
+            Action<string> appStatusSetter,
             Action<int, int, bool, bool> progressSetter)
         {
             _statusSetter = statusSetter;
+            _appStatusSetter = appStatusSetter;
             _progressSetter = progressSetter;
         }
-
+        
+        public void ShowAppStatus(string text)
+        {
+            _appStatusSetter(text);
+        }
         public void ShowStatus(string text)
         {
             _statusSetter(text, false);

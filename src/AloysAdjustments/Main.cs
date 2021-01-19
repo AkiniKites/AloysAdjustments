@@ -39,7 +39,7 @@ namespace AloysAdjustments
             Application.ThreadException += Application_ThreadException;
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
 
-            IoC.Bind(new Notifications(SetStatus, SetProgress));
+            IoC.Bind(new Notifications(SetStatus, SetAppStatus, SetProgress));
             LoadConfigs();
 
             InitializeComponent();
@@ -61,6 +61,14 @@ namespace AloysAdjustments
             Errors.WriteError(e.Exception);
         }
 
+        public void SetAppStatus(string text)
+        {
+            this.TryBeginInvoke(() =>
+            {
+                tssAppStatus.Text = text;
+            });
+        }
+
         public void SetStatus(string text, bool error)
         {
             this.TryBeginInvoke(() =>
@@ -74,6 +82,7 @@ namespace AloysAdjustments
         {
             this.TryBeginInvoke(() =>
             {
+                tssAppStatus.Visible = !visible;
                 tpbStatus.Visible = visible;
                 if (visible)
                 {
@@ -148,6 +157,7 @@ namespace AloysAdjustments
                 FileBackup.CleanupBackups(Configs.PatchPath);
             });
 
+            IoC.Notif.ShowStatus("Initializing modules...");
             foreach (var module in Modules)
                 await module.Initialize();
 

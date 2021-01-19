@@ -38,6 +38,8 @@ namespace AloysAdjustments
             this.btnLoadPatch = new System.Windows.Forms.Button();
             this.ssMain = new System.Windows.Forms.StatusStrip();
             this.tssStatus = new System.Windows.Forms.ToolStripStatusLabel();
+            this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
+            this.tssAppStatus = new System.Windows.Forms.ToolStripStatusLabel();
             this.tpbStatus = new System.Windows.Forms.ToolStripProgressBar();
             this.btnPatch = new System.Windows.Forms.Button();
             this.btnReset = new System.Windows.Forms.Button();
@@ -62,25 +64,40 @@ namespace AloysAdjustments
             this.ssMain.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.ssMain.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.tssStatus,
+            this.toolStripStatusLabel1,
+            this.tssAppStatus,
             this.tpbStatus});
-            this.ssMain.LayoutStyle = System.Windows.Forms.ToolStripLayoutStyle.HorizontalStackWithOverflow;
-            this.ssMain.Location = new System.Drawing.Point(0, 819);
+            this.ssMain.Location = new System.Drawing.Point(0, 739);
             this.ssMain.Name = "ssMain";
-            this.ssMain.Size = new System.Drawing.Size(824, 22);
+            this.ssMain.Size = new System.Drawing.Size(784, 22);
             this.ssMain.TabIndex = 3;
             // 
             // tssStatus
             // 
             this.tssStatus.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.tssStatus.Name = "tssStatus";
-            this.tssStatus.Size = new System.Drawing.Size(70, 17);
+            this.tssStatus.Size = new System.Drawing.Size(283, 17);
+            this.tssStatus.Spring = true;
             this.tssStatus.Text = "Status Text";
+            this.tssStatus.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // toolStripStatusLabel1
+            // 
+            this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
+            this.toolStripStatusLabel1.Size = new System.Drawing.Size(283, 17);
+            this.toolStripStatusLabel1.Spring = true;
+            // 
+            // tssAppStatus
+            // 
+            this.tssAppStatus.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.tssAppStatus.Name = "tssAppStatus";
+            this.tssAppStatus.Size = new System.Drawing.Size(0, 17);
             // 
             // tpbStatus
             // 
-            this.tpbStatus.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
             this.tpbStatus.Name = "tpbStatus";
             this.tpbStatus.Size = new System.Drawing.Size(200, 16);
+            this.tpbStatus.Visible = false;
             // 
             // btnPatch
             // 
@@ -159,6 +176,8 @@ namespace AloysAdjustments
         private System.Windows.Forms.Button btnResetSelected;
         private System.Windows.Forms.TabControl tcMain;
         private System.Windows.Forms.ToolStripProgressBar tpbStatus;
+        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
+        private System.Windows.Forms.ToolStripStatusLabel tssAppStatus;
     }
 }
 

@@ -197,11 +197,13 @@ namespace AloysAdjustments.Modules.Settings
                 {
                     lblUpdateStatus.Text = "New version available";
                     btnUpdates.Text = "Get Update";
+                    IoC.Notif.ShowAppStatus($"Update available v{updates.LastVersion}");
                 }
                 else
                 {
                     lblUpdateStatus.Text = "Running latest version";
                     btnUpdates.Text = "Check Update";
+                    IoC.Notif.ShowAppStatus("");
                 }
 
                 lblLatestVersion.Text = updates.LastVersion?.ToString() ?? "Unknown";

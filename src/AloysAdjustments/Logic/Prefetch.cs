@@ -40,7 +40,8 @@ namespace AloysAdjustments.Logic
 
         public bool Rebuild(Patch patch)
         {
-            var changed = false;
+            var sizeChanged = false;
+            var linksChanged = false;
             var links = GetLinks();
             
             foreach (var file in patch.Files)
@@ -52,17 +53,19 @@ namespace AloysAdjustments.Logic
 
                     if (Data.Sizes[idx] != length)
                     {
-                        changed = true;
+                        sizeChanged = true;
                         Data.Sizes[idx] = length;
                     }
 
-                    UpdateLinks(links, filePath, file);
+                    if (UpdateLinks(links, filePath, file))
+                        linksChanged = true;
                 }
             }
 
-            RebuildLinks(links);
+            if (linksChanged)
+                RebuildLinks(links);
 
-            return changed;
+            return sizeChanged || linksChanged;
         }
 
         private int[][] GetLinks()
@@ -85,7 +88,7 @@ namespace AloysAdjustments.Logic
             return fileLinks;
         }
 
-        private void UpdateLinks(int[][] fileLinks, string filepath, string name)
+        private bool UpdateLinks(int[][] fileLinks, string filepath, string name)
         {
             var fileCore = HzdCore.FromFile(filepath, name);
 
@@ -96,7 +99,14 @@ namespace AloysAdjustments.Logic
                 .Distinct()
                 .ToArray();
 
-            fileLinks[Files[name]] = newLinks;
+            var oldLinks = fileLinks[Files[name]].ToHashSet();
+            if (!oldLinks.SetEquals(newLinks))
+            {
+                fileLinks[Files[name]] = newLinks;
+                return true;
+            }
+
+            return false;
         }
 
         private void RebuildLinks(int[][] fileLinks)
