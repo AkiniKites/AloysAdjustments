@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using AloysAdjustments.Configuration;
 using AloysAdjustments.Logic;
+using AloysAdjustments.Logic.Patching;
 using AloysAdjustments.UI;
 using AloysAdjustments.Updates;
 using AloysAdjustments.Utility;
@@ -101,7 +102,7 @@ namespace AloysAdjustments.Modules.Settings
         private async void btnClearCache_ClickCommand(object sender, EventArgs e) => await Relay.To(sender, e, btnClearCache_Click);
         private async Task btnClearCache_Click(object sender, EventArgs e)
         {
-            await Async.Run(() => FileManager.Cleanup(IoC.Config.CachePath));
+            await Async.Run(() => Paths.Cleanup(IoC.Config.CachePath));
             UpdateCacheStatus();
         }
 
@@ -243,6 +244,7 @@ namespace AloysAdjustments.Modules.Settings
 
                 lblUpdateStatus.Text = "Download complete, restart to update";
                 btnUpdates.Text = "Restart";
+                IoC.Notif.ShowAppStatus($"Update ready");
             }
             catch(Exception ex)
             {

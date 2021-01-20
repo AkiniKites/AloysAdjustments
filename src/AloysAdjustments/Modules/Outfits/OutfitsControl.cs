@@ -12,6 +12,7 @@ using System.Drawing;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using AloysAdjustments.Logic.Patching;
 using AloysAdjustments.UI;
 using PresentationControls;
 

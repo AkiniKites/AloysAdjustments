@@ -4,12 +4,10 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using AloysAdjustments.Configuration;
-using AloysAdjustments.Utility;
 using Decima;
 using Decima.HZD;
 
-namespace AloysAdjustments.Logic
+namespace AloysAdjustments.Logic.Patching
 {
     public class Prefetch
     {

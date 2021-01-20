@@ -2,15 +2,13 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using AloysAdjustments.Configuration;
-using AloysAdjustments.Modules;
 using AloysAdjustments.Plugins;
 using AloysAdjustments.Utility;
 
-namespace AloysAdjustments.Logic
+namespace AloysAdjustments.Logic.Patching
 {
     public class Patcher
     {
@@ -25,7 +23,7 @@ namespace AloysAdjustments.Logic
 
         public Patch StartPatch()
         {
-            FileManager.Cleanup(IoC.Config.TempPath);
+            Paths.Cleanup(IoC.Config.TempPath);
 
             return new Patch(Path.Combine(IoC.Config.TempPath, PatchTempDir));
         }

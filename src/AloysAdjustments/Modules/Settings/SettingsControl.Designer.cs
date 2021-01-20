@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using AloysAdjustments.UI;
 
 namespace AloysAdjustments.Modules.Settings
 {
@@ -49,7 +50,7 @@ namespace AloysAdjustments.Modules.Settings
             this.label3 = new System.Windows.Forms.Label();
             this.lblGameDir = new System.Windows.Forms.Label();
             this.btnGameDir = new System.Windows.Forms.Button();
-            this.tbGameDir = new AloysAdjustments.Utility.TypeDelayTextBox();
+            this.tbGameDir = new TypeDelayTextBox();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
             this.lblUpdateStatus = new System.Windows.Forms.Label();
             this.lblLatestVersion = new System.Windows.Forms.Label();
@@ -338,7 +339,7 @@ namespace AloysAdjustments.Modules.Settings
         private System.Windows.Forms.Button btnArchiver;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label lblGameDir;
-        private Utility.TypeDelayTextBox tbGameDir;
+        private TypeDelayTextBox tbGameDir;
         private System.Windows.Forms.Button btnGameDir;
         private System.Windows.Forms.GroupBox groupBox4;
         private System.Windows.Forms.Label lblLatestVersion;

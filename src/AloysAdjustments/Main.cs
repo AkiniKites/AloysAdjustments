@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using AloysAdjustments.Configuration;
 using AloysAdjustments.Logic;
+using AloysAdjustments.Logic.Patching;
 using AloysAdjustments.Modules;
 using AloysAdjustments.Modules.Misc;
 using AloysAdjustments.Modules.Outfits;
@@ -230,7 +231,7 @@ namespace AloysAdjustments
                 oldPatch.Delete();
 
 #if !DEBUG
-                FileManager.Cleanup(IoC.Config.TempPath);
+                Paths.Cleanup(IoC.Config.TempPath);
 #endif
             }
         }

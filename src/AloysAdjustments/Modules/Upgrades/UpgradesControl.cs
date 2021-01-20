@@ -8,6 +8,7 @@ using System.Windows.Forms;
 using AloysAdjustments.Configuration;
 using AloysAdjustments.Data;
 using AloysAdjustments.Logic;
+using AloysAdjustments.Logic.Patching;
 using AloysAdjustments.Utility;
 using Decima;
 

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using AloysAdjustments.UI;
 
 namespace AloysAdjustments.Modules.Outfits
 {
@@ -38,7 +39,7 @@ namespace AloysAdjustments.Modules.Outfits
             PresentationControls.CheckBoxProperties checkBoxProperties2 = new PresentationControls.CheckBoxProperties();
             this.splitContainer = new System.Windows.Forms.SplitContainer();
             this.label1 = new System.Windows.Forms.Label();
-            this.lbOutfits = new AloysAdjustments.Utility.ListBoxNF();
+            this.lbOutfits = new ListBoxNF();
             this.lblModels = new System.Windows.Forms.Label();
             this.clbModels = new System.Windows.Forms.CheckedListBox();
             this.cbAllOutfits = new System.Windows.Forms.CheckBox();
@@ -185,7 +186,7 @@ namespace AloysAdjustments.Modules.Outfits
 
         private System.Windows.Forms.SplitContainer splitContainer;
         private System.Windows.Forms.Label label1;
-        private Utility.ListBoxNF lbOutfits;
+        private ListBoxNF lbOutfits;
         private System.Windows.Forms.Label lblModels;
         private System.Windows.Forms.CheckedListBox clbModels;
         private System.Windows.Forms.CheckBox cbAllOutfits;

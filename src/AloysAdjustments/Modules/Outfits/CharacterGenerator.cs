@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using AloysAdjustments.Configuration;
 using AloysAdjustments.Data;
 using AloysAdjustments.Logic;
+using AloysAdjustments.Logic.Patching;
 using AloysAdjustments.Utility;
 using Decima;
 using Decima.HZD;

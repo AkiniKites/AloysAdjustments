@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace AloysAdjustments.Utility
+namespace AloysAdjustments.UI
 {
     public partial class TypeDelayTextBox : TextBox
     {

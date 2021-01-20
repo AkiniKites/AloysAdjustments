@@ -16,5 +16,11 @@ namespace AloysAdjustments.Utility
             if (!Directory.Exists(dir))
                 Directory.CreateDirectory(dir);
         }
+        
+        public static void Cleanup(string path)
+        {
+            if (Directory.Exists(path))
+                Directory.Delete(path, true);
+        }
     }
 }
