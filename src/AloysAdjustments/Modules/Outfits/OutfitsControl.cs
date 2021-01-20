@@ -238,6 +238,7 @@ namespace AloysAdjustments.Modules.Outfits
             }
 
             UpdateAllOutfitStub();
+            UpdateAllOutfitsSelection();
         }
 
         public override void ApplyChanges(Patch patch)
