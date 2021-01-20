@@ -134,7 +134,8 @@ namespace AloysAdjustments.Modules.Outfits
             IoC.Notif.ShowUnknownProgress();
             
             IoC.Notif.ShowStatus("Loading outfit list...");
-            DefaultOutfits = (await OutfitGen.GenerateOutfits()).ToHashSet();
+            DefaultOutfits = (await OutfitGen.GenerateOutfits(
+                IoC.Archiver.LoadGameFileAsync)).ToHashSet();
             Outfits = DefaultOutfits.Select(x => x.Clone()).OrderBy(x => x.DisplayName)
                 .ToList().AsReadOnly();
 
@@ -158,7 +159,7 @@ namespace AloysAdjustments.Modules.Outfits
         private IEnumerable<Model> LoadOutfitModelList()
         {
             IoC.Notif.ShowStatus("Loading models list...");
-            var models = OutfitGen.GenerateModelList();
+            var models = OutfitGen.GenerateModelList(IoC.Archiver.LoadGameFile);
 
             //sort models to match outfits
             var outfitSorting = Outfits.Select((x, i) => (x, i)).ToSoftDictionary(x => x.x.ModelId, x => x.i);
@@ -207,14 +208,15 @@ namespace AloysAdjustments.Modules.Outfits
         {
             IoC.Notif.ShowStatus("Loading outfits...");
             
-            var patchOutfits = await OutfitGen.GenerateOutfits(path, false);
+            var patchOutfits = await OutfitGen.GenerateOutfits(f =>
+                IoC.Archiver.LoadFileAsync(path, f));
             if (!patchOutfits.Any())
                 return;
 
             await Initialize();
 
             var loadedOutfits = patchOutfits.ToHashSet();
-            var variantMapping = await Async.Run(() => CharacterGen.GetVariantMapping(path, OutfitGen));
+            var variantMapping = await CharacterGen.GetVariantMapping(path, OutfitGen);
             LoadOutfits(loadedOutfits, variantMapping);
 
             RefreshOutfitList();
@@ -239,7 +241,7 @@ namespace AloysAdjustments.Modules.Outfits
 
         public override void ApplyChanges(Patch patch)
         {
-            var models = OutfitGen.GenerateModelList();
+            var models = OutfitGen.GenerateModelList(IoC.Archiver.LoadGameFile);
             models.AddRange(CharacterGen.GetCharacterModels(true));
 
             Patcher.CreatePatch(patch, DefaultOutfits.ToList(), Outfits, models);

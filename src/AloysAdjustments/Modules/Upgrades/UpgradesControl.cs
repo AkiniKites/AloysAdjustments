@@ -84,7 +84,8 @@ namespace AloysAdjustments.Modules.Upgrades
 
             IoC.Notif.ShowStatus("Loading upgrades...");
             
-            var loadedUpgrades = await Logic.GenerateUpgradeListFromPath(path, false);
+            var loadedUpgrades = await Logic.GenerateUpgradeList(f =>
+                IoC.Archiver.LoadFileAsync(path, f));
 
             foreach (var upgrade in NewUpgrades)
             {
@@ -116,7 +117,8 @@ namespace AloysAdjustments.Modules.Upgrades
             ResetSelected.Enabled = false;
 
             IoC.Notif.ShowStatus("Loading upgrades list...");
-            DefaultUpgrades = await Logic.GenerateUpgradeList();
+            DefaultUpgrades = await Logic.GenerateUpgradeList(
+                IoC.Archiver.LoadGameFileAsync);
             NewUpgrades = DefaultUpgrades.Values
                 .Select(x=>x.Clone())
                 .OrderBy(x => x.DisplayName).ToList();

@@ -49,7 +49,7 @@ namespace AloysAdjustments.Logic
 
         private async Task<Dictionary<BaseGGUUID, string>> LoadFile(string path)
         {
-            var core = await IoC.Archiver.LoadFileAsync(Configs.GamePackDir, path);
+            var core = await IoC.Archiver.LoadGameFileAsync(path);
             var texts = new Dictionary<BaseGGUUID, string>();
 
             foreach (var obj in core.GetTypes<LocalizedTextResource>())

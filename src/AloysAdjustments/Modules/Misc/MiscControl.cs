@@ -40,7 +40,8 @@ namespace AloysAdjustments.Modules.Misc
             IoC.Notif.ShowUnknownProgress();
 
             IoC.Notif.ShowStatus("Loading misc data...");
-            DefaultAdjustments = await MiscLogic.GenerateMiscData();
+            DefaultAdjustments = await MiscLogic.GenerateMiscData(
+                IoC.Archiver.LoadGameFileAsync);
             Adjustments = DefaultAdjustments.Clone();
 
             RefreshControls();
@@ -51,8 +52,8 @@ namespace AloysAdjustments.Modules.Misc
             await Initialize();
 
             IoC.Notif.ShowStatus("Loading misc data...");
-            Adjustments = await MiscLogic.GenerateMiscData();
-            var newAdj = await MiscLogic.GenerateMiscDataFromPath(path, false);
+            var newAdj = await MiscLogic.GenerateMiscData(f =>
+                IoC.Archiver.LoadFileAsync(path, f));
 
             if (newAdj.SkipIntroLogos.HasValue) Adjustments.SkipIntroLogos = newAdj.SkipIntroLogos;
 

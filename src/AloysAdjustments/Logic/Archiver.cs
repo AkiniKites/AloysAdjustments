@@ -21,11 +21,8 @@ namespace AloysAdjustments.Logic
         private readonly ConcurrentDictionary<PackList, Dictionary<ulong, string>> _packFileLocator;
         private readonly ConcurrentDictionary<string, PackfileReader> _packCache;
 
-        public HashSet<string> IgnoreList { get; }
-
-        public Archiver(IEnumerable<string> ignoreList)
+        public Archiver()
         {
-            IgnoreList = ignoreList.ToHashSet(StringComparer.OrdinalIgnoreCase);
             _packFileLocator = new ConcurrentDictionary<PackList, Dictionary<ulong, string>>();
             _packCache = new ConcurrentDictionary<string, PackfileReader>(StringComparer.OrdinalIgnoreCase);
         }
@@ -34,11 +31,18 @@ namespace AloysAdjustments.Logic
         {
             return File.Exists(IoC.Config.ArchiverLib);
         }
-
         public void ValidatePackager()
         {
             if (!CheckArchiverLib())
                 throw new HzdException($"Packager support library not found: {IoC.Config.ArchiverLib}");
+        }
+        public async Task GetLibrary()
+        {
+            var libPath = Path.Combine(IoC.Settings.GamePath, IoC.Config.ArchiverLib);
+            if (!File.Exists(libPath))
+                throw new HzdException($"Unable to find archiver support library in: {IoC.Settings.GamePath}");
+
+            await Async.Run(() => File.Copy(libPath, IoC.Config.ArchiverLib, true));
         }
 
         public void ClearCache()
@@ -46,31 +50,13 @@ namespace AloysAdjustments.Logic
             _packFileLocator.Clear();
             _packCache.Clear();
         }
-
-        public void ExtractFile(string dir, string file, string output)
-        {
-            ValidatePackager();
-            
-            using var fs = File.OpenWrite(output);
-
-            if (!TryExtractFile(dir, fs, file))
-                throw new HzdException($"Unable to extract file, file not found: {file}");
-        }
         
-        public async Task<HzdCore> LoadFileAsync(string dir, string file, bool throwError = true)
-        {
-            return await Async.Run(() => LoadFile(dir, file, throwError));
-        }
-        public HzdCore LoadGameFile(string file)
-        {
-            return LoadFile(Configs.GamePackDir, file, true);
-        }
-        public HzdCore LoadFile(string dir, string file, bool throwError = true)
+        public HzdCore LoadFile(string path, string file, bool throwError = false)
         {
             ValidatePackager();
 
             using var ms = new MemoryStream();
-            if (!TryExtractFile(dir, ms, file))
+            if (!TryExtractFile(path, ms, file))
             {
                 if (throwError)
                     throw new HzdException($"Unable to extract file, file not found: {file}");
@@ -80,43 +66,54 @@ namespace AloysAdjustments.Logic
             ms.Position = 0;
             return HzdCore.FromStream(ms, file);
         }
-        
         private bool TryExtractFile(string path, Stream stream, string file)
         {
-            PackList packs;
-            bool isDir;
-
-            if (Directory.Exists(path))
-            {
-                packs = GetPackFiles(path, PackExt);
-                isDir = true;
-            }
-            else if (File.Exists(path))
-            {
-                packs = new PackList(new[] { path });
-                isDir = false;
-            }
-            else
+            if (!File.Exists(path))
                 throw new HzdException($"Unable to extract file, source path not found: {path}");
 
-            var fileMap = BuildFileMap(packs, isDir);
+            var pack = LoadPack(path, false);
+            var hash = Packfile.GetHashForPath(file);
+            if (pack.FileEntries.All(x => x.PathHash != hash))
+                return false;
 
-            file = HzdCore.EnsureExt(file);
+            pack.ExtractFile(hash, stream);
+            return true;
+        }
+        
+        public HzdCore LoadFileFromDir(string dir, HashSet<string> fileFilter, string file)
+        {
+            ValidatePackager();
+
+            using var ms = new MemoryStream();
+            if (!TryExtractFileFromDir(dir, fileFilter, ms, file))
+                throw new HzdException($"Unable to extract file, file not found: {file}");
+
+            ms.Position = 0;
+            return HzdCore.FromStream(ms, file);
+        }
+        private bool TryExtractFileFromDir(string dir, HashSet<string> fileFilter, Stream stream, string file)
+        {
+            if (!Directory.Exists(dir))
+                throw new HzdException($"Unable to extract file, directory not found: {dir}");
+
+            var packs = GetPackFiles(dir, fileFilter, PackExt);
+            var fileMap = BuildFileMap(packs, true);
+            
             var hash = Packfile.GetHashForPath(file);
             if (!fileMap.TryGetValue(hash, out var packFile))
                 return false;
 
-            var pack = LoadPack(packFile, isDir);
+            var pack = LoadPack(packFile, true);
             pack.ExtractFile(hash, stream);
 
             return true;
         }
 
-        private PackList GetPackFiles(string dir, string ext)
+        private PackList GetPackFiles(string dir, HashSet<string> fileFilter, string ext)
         {
             var files = Directory.GetFiles(dir, $"*{ext}", SearchOption.AllDirectories)
+                .Where(x=> fileFilter == null || fileFilter.Contains(Path.GetFileName(x)))
                 .OrderBy(x => x).ToList();
-            files.RemoveAll(x => IgnoreList.Contains(Path.GetFileName(x)));
 
             //move patch files to end, same as game load order
             int moved = 0;
@@ -135,7 +132,6 @@ namespace AloysAdjustments.Logic
 
             return new PackList(files);
         }
-
         private Dictionary<ulong, string> BuildFileMap(PackList packFiles, bool useCache)
         {
             if (useCache && _packFileLocator.TryGetValue(packFiles, out var files))
@@ -145,7 +141,7 @@ namespace AloysAdjustments.Logic
 
             foreach (var packFile in packFiles.Packs)
             {
-                var pack = LoadPack(packFile, true);
+                var pack = LoadPack(packFile, useCache);
                 for (int i = 0; i < pack.FileEntries.Count; i++)
                 {
                     var hash = pack.FileEntries[i].PathHash;
@@ -167,15 +163,6 @@ namespace AloysAdjustments.Logic
 
             var pack = new PackfileWriterFast(output, false, true);
             pack.BuildFromFileList(dir, files);
-        }
-        
-        public async Task GetLibrary()
-        {
-            var libPath = Path.Combine(IoC.Settings.GamePath, IoC.Config.ArchiverLib);
-            if (!File.Exists(libPath))
-                throw new HzdException($"Unable to find archiver support library in: {IoC.Settings.GamePath}");
-            
-            await Async.Run(() => File.Copy(libPath, IoC.Config.ArchiverLib, true));
         }
 
         private PackfileReader LoadPack(string path, bool useCache)

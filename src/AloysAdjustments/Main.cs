@@ -101,7 +101,7 @@ namespace AloysAdjustments
         {
             IoC.Notif.ShowStatus("Loading config...");
 
-            IoC.Bind(new Archiver(new[] { IoC.Config.PatchFile }));
+            IoC.Bind(new Archiver());
             IoC.Bind(new Localization(ELanguage.English));
 
             Settings = new SettingsControl();

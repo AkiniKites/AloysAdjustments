@@ -116,14 +116,15 @@ namespace AloysAdjustments.Modules.Outfits
             return models;
         }
 
-        public Dictionary<BaseGGUUID, BaseGGUUID> GetVariantMapping(string path, OutfitsGenerator outfitsLogic)
+        public async Task<Dictionary<BaseGGUUID, BaseGGUUID>> GetVariantMapping(string path, OutfitsGenerator outfitsLogic)
         {
             var variantMapping = new Dictionary<BaseGGUUID, BaseGGUUID>();
 
-            var models = outfitsLogic.GenerateModelList(path);
+            var models = outfitsLogic.GenerateModelList(f =>
+                IoC.Archiver.LoadFile(path, f));
             foreach (var model in models)
             {
-                var core = IoC.Archiver.LoadFile(path, model.Source, false);
+                var core = await IoC.Archiver.LoadFileAsync(path, model.Source);
                 if (core == null) 
                     continue;
 

@@ -13,17 +13,12 @@ namespace AloysAdjustments.Modules.Upgrades
 {
     public class UpgradesLogic
     {
-        public async Task<Dictionary<BaseGGUUID, Upgrade>> GenerateUpgradeList()
-        {
-            //extract game files
-            return await GenerateUpgradeListFromPath(Configs.GamePackDir, true);
-        }
-
-        public async Task<Dictionary<BaseGGUUID, Upgrade>> GenerateUpgradeListFromPath(string path, bool checkMissing)
+        public async Task<Dictionary<BaseGGUUID, Upgrade>> GenerateUpgradeList(
+            Func<string, Task<HzdCore>> coreGetter)
         {
             var ignored = IoC.Get<UpgradeConfig>().IgnoredUpgrades.ToHashSet();
 
-            var core = await IoC.Archiver.LoadFileAsync(path, IoC.Get<UpgradeConfig>().UpgradeFile, checkMissing);
+            var core = await coreGetter(IoC.Get<UpgradeConfig>().UpgradeFile);
 
             if (core == null)
                 return new Dictionary<BaseGGUUID, Upgrade>();

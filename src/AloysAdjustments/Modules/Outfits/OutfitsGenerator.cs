@@ -16,26 +16,17 @@ namespace AloysAdjustments.Modules.Outfits
 {
     public class OutfitsGenerator
     {
-        public async Task<List<Outfit>> GenerateOutfits()
-        {
-            //extract game files
-            var outfits = await GenerateOutfits(Configs.GamePackDir, true);
-            return outfits;
-        }
-
-        public async Task<List<Outfit>> GenerateOutfits(string path, bool checkMissing)
+        public async Task<List<Outfit>> GenerateOutfits(Func<string, Task<HzdCore>> coreGetter)
         {
             var outfits = new List<Outfit>();
 
-            var pcCore = await IoC.Archiver.LoadFileAsync(path, 
-                IoC.Get<OutfitConfig>().PlayerComponentsFile, checkMissing);
+            var pcCore = await coreGetter(IoC.Get<OutfitConfig>().PlayerComponentsFile);
 
             var models = pcCore != null ? GetPlayerModels(pcCore) : new List<StreamingRef<HumanoidBodyVariant>>();
             var variantFiles = models.ToSoftDictionary(x => x.GUID, x => x.ExternalFile?.ToString());
 
             var files = IoC.Get<OutfitConfig>().OutfitFiles;
-            var cores = await Task.WhenAll(files.Select(
-                async f => await IoC.Archiver.LoadFileAsync(path, f, checkMissing)));
+            var cores = await Task.WhenAll(files.Select(async f => await coreGetter(f)));
 
             foreach (var core in cores.Where(x => x != null))
             {
@@ -98,18 +89,13 @@ namespace AloysAdjustments.Modules.Outfits
                 yield return outfit;
             }
         }
-
-        public List<Model> GenerateModelList()
-        {
-            return GenerateModelList(Configs.GamePackDir);
-        }
-        public List<Model> GenerateModelList(string path)
+        
+        public List<Model> GenerateModelList(Func<string, HzdCore> coreGetter)
         {
             var models = new List<Model>();
 
             //player models
-            var playerComponents = IoC.Archiver.LoadFile(
-                path, IoC.Get<OutfitConfig>().PlayerComponentsFile);
+            var playerComponents = coreGetter(IoC.Get<OutfitConfig>().PlayerComponentsFile);
             var playerModels = GetPlayerModels(playerComponents);
 
             models.AddRange(playerModels.Select(x => new Model

@@ -14,16 +14,10 @@ namespace AloysAdjustments.Modules.Misc
 {
     public class MiscLogic
     {
-        public async Task<MiscAdjustments> GenerateMiscData()
-        {
-            //extract game files
-            return await GenerateMiscDataFromPath(Configs.GamePackDir, true);
-        }
-
-        public async Task<MiscAdjustments> GenerateMiscDataFromPath(string path, bool checkMissing)
+        public async Task<MiscAdjustments> GenerateMiscData(Func<string, Task<HzdCore>> coreGetter)
         {
             var adj = new MiscAdjustments();
-            adj.SkipIntroLogos = !(await GetIntroLogoState(path, checkMissing));
+            adj.SkipIntroLogos = !(await GetIntroLogoState(coreGetter));
 
             return adj;
         }
@@ -35,9 +29,10 @@ namespace AloysAdjustments.Modules.Misc
         }
 
         
-        private async Task<bool?> GetIntroLogoState(string path, bool checkMissing)
+        private async Task<bool?> GetIntroLogoState(
+            Func<string, Task<HzdCore>> coreGetter)
         {
-            var core = await IoC.Archiver.LoadFileAsync(path, IoC.Get<MiscConfig>().IntroFile, checkMissing);
+            var core = await coreGetter(IoC.Get<MiscConfig>().IntroFile);
             if (core == null) return null;
 
             return GetIntroMenu(core).PropertyAnimations.Any();

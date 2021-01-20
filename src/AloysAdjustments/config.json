@@ -37,6 +37,16 @@
   "PackDir": "Packed_DX12",
   "PatchFile": "Patch_AloysAdjustments.bin",
   "UpdatesRepo": "AkiniKites/AloysAdjustments",
+  "KnownGameFiles": [
+    "DLC1.bin",
+    "DLC1_English.bin",
+    "FGRWin32.bin",
+    "Initial.bin",
+    "Initial_English.bin",
+    "Remainder.bin",
+    "Remainder_English.bin",
+    "Patch.bin"
+  ],
   "OldVersionsToDelete": [
     "zMod_AloysAdjustments.bin"
   ]

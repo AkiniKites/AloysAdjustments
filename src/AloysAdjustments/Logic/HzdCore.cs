@@ -12,8 +12,6 @@ namespace AloysAdjustments.Logic
 {
     public class HzdCore
     {
-        public const string CoreExt = ".core";
-
         public string Source { get; protected set; }
         public CoreBinary Binary { get; protected set; }
 
@@ -47,16 +45,14 @@ namespace AloysAdjustments.Logic
 
         public static string NormalizeSource(string path)
         {
-            if (Path.GetExtension(path) == CoreExt)
-                path = path.Substring(0, path.Length - CoreExt.Length);
+            if (Path.GetExtension(path) == Packfile.CoreExt)
+                path = path.Substring(0, path.Length - Packfile.CoreExt.Length);
             return path.Replace("\\", "/");
         }
 
-        public static string EnsureExt(string path)
+        public static string EnsureExt(string file)
         {
-            if (!path.EndsWith(HzdCore.CoreExt, StringComparison.OrdinalIgnoreCase))
-                path += HzdCore.CoreExt;
-            return path;
+            return Packfile.EnsureExt(file);
         }
     }
 }
