@@ -28,7 +28,7 @@ namespace AloysAdjustments.Modules.Outfits
             UpdateModelVariants(patch, details, (core, outfit, variant) => 
                 AddArmorFact(outfit.DefaultModel, core, variant));
             UpdateModelVariants(patch, details, (core, outfit, variant) =>
-                AddArmorBuffs(outfit.DefaultModel, variant));
+                UpdateArmorBuffs(outfit.DefaultModel, outfit, variant));
 
             AddVariantReferences(patch, details);
 
@@ -273,33 +273,51 @@ namespace AloysAdjustments.Modules.Outfits
             return true;
         }
 
-        private bool AddArmorBuffs(Model defaultModel, HumanoidBodyVariant variant)
+        private bool UpdateArmorBuffs(Model defaultModel, OutfitDetail outfit, HumanoidBodyVariant variant)
+        {
+            var changed = false;
+
+            //strip away the default variant components for the armor we're swapping to
+            if (!outfit.IsCharacter)
+            {
+                var defaultBuffs = GetArmorBuffs(outfit.Model);
+                changed = variant.EntityComponentResources
+                    .RemoveAll(x => defaultBuffs.Any(b => b.GUID == x.GUID)) > 0;
+            }
+
+            //add the components from the new armor
+            foreach (var buff in GetArmorBuffs(defaultModel))
+            {
+                changed = true;
+                variant.EntityComponentResources.Add(buff);
+            }
+
+            return changed;
+        }
+
+        private IEnumerable<Ref<EntityComponentResource>> GetArmorBuffs(Model outfitModel)
         {
             //check if default model has any regen components
             var componentFiles = IoC.Get<OutfitConfig>().ArmorComponentFiles.ToHashSet();
             var ignoredTypes = IoC.Get<OutfitConfig>().IgnoredArmorComponents.ToHashSet();
 
-            var modelCore = IoC.Archiver.LoadGameFile(defaultModel.Source);
-            var defaultVariant = modelCore.GetTypes<HumanoidBodyVariant>().First(x => x.ObjectUUID == defaultModel.Id);
+            var modelCore = IoC.Archiver.LoadGameFile(outfitModel.Source);
+            var defaultVariant = modelCore.GetTypes<HumanoidBodyVariant>().First(x => x.ObjectUUID == outfitModel.Id);
 
-            var componentSets = defaultVariant.EntityComponentResources
+            var componentSetRefs = defaultVariant.EntityComponentResources
                 .Where(x => componentFiles.Contains(x.ExternalFile)).ToList();
-
-            bool added = false;
-            foreach (var set in componentSets)
+            
+            foreach (var setRef in componentSetRefs)
             {
-                var components = IoC.Archiver.LoadGameFile(set.ExternalFile).GetTypesById();
-                if (!(components[set.GUID] is EntityComponentSetResource setResource))
+                var components = IoC.Archiver.LoadGameFile(setRef.ExternalFile).GetTypesById();
+                if (!(components[setRef.GUID] is EntityComponentSetResource setResource))
                     continue;
                 //ignore the set with skeleton and scaling helpers
                 if (setResource.ComponentResources.All(x => ignoredTypes.Contains(components[x.GUID].GetType().Name)))
                     continue;
 
-                added = true;
-                variant.EntityComponentResources.Add(set);
+                yield return setRef;
             }
-
-            return added;
         }
 
         private void AttachAloyComponents(Patch patch, IEnumerable<string> outfitFiles, 
