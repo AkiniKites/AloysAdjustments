@@ -46,6 +46,8 @@ namespace AloysAdjustments.Modules.Outfits
                 UpdateComponents(patch, outfits, models);
             }
 
+            FixUndergarmentTransitions(patch, outfitMap, variantMapping);
+
             CreatePatch(patch, outfits, variantMapping);
         }
 
@@ -276,6 +278,40 @@ namespace AloysAdjustments.Modules.Outfits
                     }
                 }
             }
+        }
+
+        private void FixUndergarmentTransitions(Patch patch, 
+            List<(Outfit Outfit, Model Model)> outfitMaps,
+            Dictionary<BaseGGUUID, BaseGGUUID> variantMapping)
+        {
+
+            foreach (var group in outfitMaps.GroupBy(x => x.Model.Source))
+            {
+                var core = patch.AddFile(group.Key);
+
+                var variants = core.GetTypesById<HumanoidBodyVariant>();
+                foreach (var outfitMap in group)
+                {
+                    var variant = variants[variantMapping[outfitMap.Outfit.RefId]];
+
+                    variant.EntityComponentResources.Add(new Ref<EntityComponentResource>()
+                    {
+                        ExternalFile = "models/characters/humans/heads/female/hannah/animation/facialanimationcomponent",
+                        GUID = "{C46A3A2F-B28B-0D44-917C-5D244AD76A3B}",
+                        Type = BaseRef.Types.ExternalCoreUUID
+                    });
+                }
+
+                core.Save();
+            }
+
+                    return;
+            // mq04_bedding_down_seq: changing variant to any character will not crash the crash the game
+            // initial scene is with aloy (prerendered likely) next will be variant
+            var coreb = patch.AddFile($"levels/worlds/world/scenes/mainquest/mq4_mothersheart/sequences/mq04_bedding_down_seq.core");
+            var id = coreb.GetTypes<NodeConstantsResource>().FirstOrDefault().Parameters[1].DefaultObjectUUID;
+            id.GUID= outfitMaps[0].Model.Id;
+            coreb.Save();
         }
 
         private void CreatePatch(Patch patch, IList<Outfit> outfits,
