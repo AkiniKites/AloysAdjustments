@@ -182,7 +182,7 @@ namespace AloysAdjustments.Modules.Outfits
         {
             var newVariant = HzdCloner.Clone(variant);
 
-            newVariant.ObjectUUID = Guid.NewGuid();
+            newVariant.ObjectUUID = IoC.Uuid.New();
 
             //rename if not a copy
             if (!CharacterGenerator.VariantNameMatcher.IsMatch(variant.Name))
@@ -219,7 +219,7 @@ namespace AloysAdjustments.Modules.Outfits
             {
                 fact = new FactValue()
                 {
-                    ObjectUUID = Guid.NewGuid(),
+                    ObjectUUID = IoC.Uuid.New(),
                     FactValueBase = new FactValueBase()
                     {
                         Value = factEnum.FactValueBase.Value.Value,
