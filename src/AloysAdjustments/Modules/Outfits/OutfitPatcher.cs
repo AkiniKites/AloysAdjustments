@@ -1,20 +1,13 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using AloysAdjustments.Configuration;
-using AloysAdjustments.Data;
+﻿using AloysAdjustments.Data;
 using AloysAdjustments.Logic;
 using AloysAdjustments.Logic.Patching;
 using AloysAdjustments.Utility;
 using Decima;
 using Decima.HZD;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using Model = AloysAdjustments.Data.Model;
 
 namespace AloysAdjustments.Modules.Outfits
@@ -28,26 +21,12 @@ namespace AloysAdjustments.Modules.Outfits
 
             if (characters.Any())
             {
-                //only update each character model once
-                var chars = characters.GroupBy(x => x.Model.Id).Select(x => x.First());
-                UpdateModelVariants(patch, chars, (core, outfit, variant) =>
-                {
-                    if (RemoveRagdollAI(variant))
-                    {
-                        //update all variants that use this model
-                        foreach (var o in details.Where(x => x.VariantId == outfit.VariantId).ToList())
-                        {
-                            o.VariantId = variant.ObjectUUID;
-                        }
-
-                        return true;
-                    }
-                    return false;
-                });
+                UpdateModelVariants(patch, details, (core, outfit, variant) => 
+                    RemoveRagdollAI(variant));
             }
             
             UpdateModelVariants(patch, details, (core, outfit, variant) => 
-                AddOutfitFact(outfit.DefaultModel, core, variant));
+                AddArmorFact(outfit.DefaultModel, core, variant));
 
             AddVariantReferences(patch, details);
 
@@ -162,33 +141,72 @@ namespace AloysAdjustments.Modules.Outfits
             {
                 var core = patch.AddFile(group.Key);
 
+                var changes = new List<(BaseGGUUID SourceId, BaseGGUUID NewId, 
+                    HumanoidBodyVariant Data, Action collapse)>();
                 var variants = core.GetTypesById<HumanoidBodyVariant>();
+
                 foreach (var outfit in group)
                 {
                     var variant = variants[outfit.VariantId];
 
                     //copy the variant
-                    var newVariant = CopyVariant(variant);
+                    var newVariant = CopyVariant(variant, out var isOriginal);
 
                     if (updateVariant(core, outfit, newVariant))
                     {
+                        void collapseVariant()
+                        {
+                            if (isOriginal) return;
+
+                            core.Binary.RemoveObject(variant);
+
+                            newVariant.ObjectUUID = variant.ObjectUUID;
+                            outfit.VariantId = variant.ObjectUUID;
+                        }
+
+                        var change = changes.FirstOrDefault(x => HzdUtils.EqualsIgnoreId(x.Data, newVariant));
+                        if (change.NewId != null)
+                        {
+                            outfit.VariantId = change.NewId;
+                            continue;
+                        }
+                        
+                        changes.Add((variant.ObjectUUID, newVariant.ObjectUUID, newVariant, collapseVariant));
                         outfit.VariantId = newVariant.ObjectUUID;
                         core.Binary.AddObject(newVariant);
-                        core.Save();
                     }
+                }
+
+                //only 1 new variant copy, collapse changes into original
+                foreach (var change in changes.GroupBy(x=>x.SourceId)
+                    .Where(x=>x.Count() == 1).Select(x=>x.First()))
+                {
+                    change.collapse();
+                }
+
+                if (changes.Any())
+                {
+                    core.Save();
                 }
             }
         }
 
-        private HumanoidBodyVariant CopyVariant(HumanoidBodyVariant variant)
+        private HumanoidBodyVariant CopyVariant(HumanoidBodyVariant variant, out bool isOriginal)
         {
-            var newVariant = HzdCloner.Clone(variant);
+            var newVariant = HzdUtils.Clone(variant);
 
             newVariant.ObjectUUID = IoC.Uuid.New();
 
             //rename if not a copy
             if (!CharacterGenerator.VariantNameMatcher.IsMatch(variant.Name))
+            {
                 newVariant.Name = $"{variant.Name}{CharacterGenerator.VariantNameFormat}{variant.ObjectUUID}";
+                isOriginal = true;
+            }
+            else
+            {
+                isOriginal = false;
+            }
 
             return newVariant;
         }
@@ -202,7 +220,7 @@ namespace AloysAdjustments.Modules.Outfits
             return removed > 0;
         }
 
-        private bool AddOutfitFact(Model defaultModel, HzdCore core, HumanoidBodyVariant variant)
+        private bool AddArmorFact(Model defaultModel, HzdCore core, HumanoidBodyVariant variant)
         {
             //copy the fact from the default ourfit variant to the new variant
             //most are used for dialog, and carja disguise.
