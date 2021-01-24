@@ -17,26 +17,25 @@ namespace AloysAdjustments.Modules.Outfits
         public void CreatePatch(Patch patch, IList<Outfit> defaultOutfits, IList<Outfit> outfits, List<Model> models)
         {
             var details = BuildDetails(defaultOutfits, outfits, models).ToList();
-            var characters = details.Where(x => x.Modified && x.IsCharacter).ToList();
+            var hasCharacters = details.Any(x => x.Modified && x.IsCharacter);
 
-            if (characters.Any())
+            if (hasCharacters)
             {
-                UpdateModelVariants(patch, details, (core, outfit, variant) => 
-                    RemoveRagdollAI(variant));
+                //remove aloy components from player file
+                var components = FindAloyComponents();
+                RemoveAloyComponents(patch, components);
+
+                UpdateModelVariants(patch, details, (outfit, core, variant) =>
+                    RemoveRagdollAI(outfit, variant));
+                UpdateModelVariants(patch, details, (outfit, core, variant) =>
+                    AttachAloyComponents(outfit, variant, components));
             }
             
-            UpdateModelVariants(patch, details, (core, outfit, variant) => 
-                AddArmorFact(outfit.DefaultModel, core, variant));
-            UpdateModelVariants(patch, details, (core, outfit, variant) =>
-                UpdateArmorBuffs(outfit.DefaultModel, outfit, variant));
+            UpdateModelVariants(patch, details, UpdateArmorFact);
+            UpdateModelVariants(patch, details, (outfit, core, variant) =>
+                UpdateArmorBuffs(outfit, variant));
 
             AddVariantReferences(patch, details);
-
-            if (characters.Any())
-            {
-                UpdateComponents(patch, details);
-            }
-
             UpdateOutfitRefs(patch, details);
         }
 
@@ -85,18 +84,6 @@ namespace AloysAdjustments.Modules.Outfits
             }
         }
 
-        private void UpdateComponents(Patch patch, List<OutfitDetail> outfits)
-        {
-            //remove aloy components from player file
-            var components = FindAloyComponents();
-            RemoveAloyComponents(patch, components);
-
-            //re-attach removed components to unchanged outfits and armor swaps 
-            var reattachModels = outfits.Where(x => !x.Modified || !x.IsCharacter).Select(x => x.Model.Source);
-
-            AttachAloyComponents(patch, reattachModels, components);
-        }
-
         private List<(string File, BaseGGUUID Id)> FindAloyComponents()
         {
             //find components that conflict with character swaps
@@ -137,7 +124,7 @@ namespace AloysAdjustments.Modules.Outfits
         }
 
         private void UpdateModelVariants(Patch patch, IEnumerable<OutfitDetail> outfits, 
-            Func<HzdCore, OutfitDetail, HumanoidBodyVariant, bool> updateVariant)
+            Func<OutfitDetail, HzdCore, HumanoidBodyVariant, bool> updateVariant)
         {
             foreach (var group in outfits.Where(x => x.Modified).GroupBy(x => x.Model.Source))
             {
@@ -154,7 +141,7 @@ namespace AloysAdjustments.Modules.Outfits
                     //copy the variant
                     var newVariant = CopyVariant(variant, out var isOriginal);
 
-                    if (updateVariant(core, outfit, newVariant))
+                    if (updateVariant(outfit, core, newVariant))
                     {
                         void collapseVariant()
                         {
@@ -220,8 +207,11 @@ namespace AloysAdjustments.Modules.Outfits
             return newVariant;
         }
 
-        private bool RemoveRagdollAI(HumanoidBodyVariant variant)
+        private bool RemoveRagdollAI(OutfitDetail outfit, HumanoidBodyVariant variant)
         {
+            if (!outfit.IsCharacter)
+                return false;
+
             var ragdollFile = IoC.Get<OutfitConfig>().RagdollComponentsFile;
 
             //remove npc ragdoll repositioning
@@ -229,20 +219,34 @@ namespace AloysAdjustments.Modules.Outfits
             return removed > 0;
         }
 
-        private bool AddArmorFact(Model defaultModel, HzdCore core, HumanoidBodyVariant variant)
+        private bool UpdateArmorFact(OutfitDetail outfit, HzdCore core, HumanoidBodyVariant variant)
         {
-            //copy the fact from the default ourfit variant to the new variant
+            var changed = false;
+            var factValue = GetArmorFact(outfit.DefaultModel);
+
+            //strip away the default variant fact for the armor we're swapping to
+            if (!outfit.IsCharacter)
+            {
+                var defaultFact = GetArmorFact(outfit.Model);
+                if (defaultFact != null)
+                {
+                    if (defaultFact.FactValueBase.Value.Value == factValue.FactValueBase.Value.Value)
+                        return false;
+
+                    changed = variant.Facts.RemoveAll(x => x.GUID == defaultFact.ObjectUUID) > 0;
+                }
+            }
+
+            //copy the fact from the default outfit variant to the new variant
             //most are used for dialog, and carja disguise.
             //all character variants need an outfit fact otherwise the game will use the wrong one when checking
             var factFile = IoC.Get<OutfitConfig>().OutfitFactFile;
-            var modelCore = IoC.Archiver.LoadGameFile(defaultModel.Source);
-            var factEnum = modelCore.GetTypes<FactValue>().FirstOrDefault(x => x.FactValueBase.Fact.ExternalFile == factFile);
             
             //already has outfit fact
             var fact = core.GetTypes<FactValue>().FirstOrDefault(x => 
-                x.FactValueBase.Value.Value == factEnum.FactValueBase.Value.Value);
+                x.FactValueBase.Value.Value == factValue.FactValueBase.Value.Value);
             if (fact != null && variant.Facts.Any(x => x.GUID == fact.ObjectUUID))
-                return false;
+                return changed;
             
             if (fact == null)
             {
@@ -251,10 +255,10 @@ namespace AloysAdjustments.Modules.Outfits
                     ObjectUUID = IoC.Uuid.New(),
                     FactValueBase = new FactValueBase()
                     {
-                        Value = factEnum.FactValueBase.Value.Value,
+                        Value = factValue.FactValueBase.Value.Value,
                         Fact = new Ref<Fact>()
                         {
-                            GUID = factEnum.FactValueBase.Fact.GUID,
+                            GUID = factValue.FactValueBase.Fact.GUID,
                             ExternalFile = factFile,
                             Type = BaseRef.Types.ExternalCoreUUID
                         }
@@ -273,7 +277,21 @@ namespace AloysAdjustments.Modules.Outfits
             return true;
         }
 
-        private bool UpdateArmorBuffs(Model defaultModel, OutfitDetail outfit, HumanoidBodyVariant variant)
+        private FactValue GetArmorFact(Model outfitModel)
+        {
+            var factFile = IoC.Get<OutfitConfig>().OutfitFactFile;
+            var modelCore = IoC.Archiver.LoadGameFile(outfitModel.Source);
+            var factEnum = modelCore.GetTypes<FactValue>().FirstOrDefault(x => x.FactValueBase.Fact.ExternalFile == factFile);
+            if (factEnum == null)
+                return null;
+
+            var variant = modelCore.GetTypes<HumanoidBodyVariant>().First(x => x.ObjectUUID == outfitModel.Id);
+            if (variant.Facts.Any(x => x.GUID == factEnum.ObjectUUID))
+                return factEnum;
+            return null;
+        }
+
+        private bool UpdateArmorBuffs(OutfitDetail outfit, HumanoidBodyVariant variant)
         {
             var changed = false;
 
@@ -286,7 +304,7 @@ namespace AloysAdjustments.Modules.Outfits
             }
 
             //add the components from the new armor
-            foreach (var buff in GetArmorBuffs(defaultModel))
+            foreach (var buff in GetArmorBuffs(outfit.DefaultModel))
             {
                 changed = true;
                 variant.EntityComponentResources.Add(buff);
@@ -302,9 +320,9 @@ namespace AloysAdjustments.Modules.Outfits
             var ignoredTypes = IoC.Get<OutfitConfig>().IgnoredArmorComponents.ToHashSet();
 
             var modelCore = IoC.Archiver.LoadGameFile(outfitModel.Source);
-            var defaultVariant = modelCore.GetTypes<HumanoidBodyVariant>().First(x => x.ObjectUUID == outfitModel.Id);
+            var variant = modelCore.GetTypes<HumanoidBodyVariant>().First(x => x.ObjectUUID == outfitModel.Id);
 
-            var componentSetRefs = defaultVariant.EntityComponentResources
+            var componentSetRefs = variant.EntityComponentResources
                 .Where(x => componentFiles.Contains(x.ExternalFile)).ToList();
             
             foreach (var setRef in componentSetRefs)
@@ -320,30 +338,26 @@ namespace AloysAdjustments.Modules.Outfits
             }
         }
 
-        private void AttachAloyComponents(Patch patch, IEnumerable<string> outfitFiles, 
-            List<(string File, BaseGGUUID Id)> removed)
+        private bool AttachAloyComponents(OutfitDetail outfit, HumanoidBodyVariant variant, 
+            List<(string File, BaseGGUUID Id)> components)
         {
-            foreach (var file in outfitFiles.Distinct())
+            //re-attach removed components to unchanged outfits and armor swaps 
+            if (outfit.IsCharacter || outfit.Modified)
+                return false;
+
+            foreach (var item in components)
             {
-                var core = patch.AddFile(file);
-
-                var variants = core.GetTypes<HumanoidBodyVariant>();
-                foreach (var variant in variants)
+                var comp = new Ref<EntityComponentResource>()
                 {
-                    foreach (var item in removed)
-                    {
-                        var comp = new Ref<EntityComponentResource>()
-                        {
-                            GUID = item.Id,
-                            ExternalFile = new BaseString(item.File),
-                            Type = BaseRef.Types.ExternalCoreUUID
-                        };
+                    GUID = item.Id,
+                    ExternalFile = new BaseString(item.File),
+                    Type = BaseRef.Types.ExternalCoreUUID
+                };
 
-                        variant.EntityComponentResources.Add(comp);
-                        core.Save();
-                    }
-                }
+                variant.EntityComponentResources.Add(comp);
             }
+
+            return true;
         }
 
         private void UpdateOutfitRefs(Patch patch, List<OutfitDetail> outfits)
