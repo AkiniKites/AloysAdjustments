@@ -24,18 +24,18 @@ namespace AloysAdjustments.Modules.Outfits
         public void CreatePatch(Patch patch, IList<Outfit> defaultOutfits, IList<Outfit> outfits, List<Model> models)
         {
             var details = BuildDetails(defaultOutfits, outfits, models).ToList();
-            var hasCharacterMods = details.Any(x => x.Modified && x.IsCharacter);
+            var characters = details.Where(x => x.Modified && x.IsCharacter).ToList();
 
-            if (hasCharacterMods)
+            if (characters.Any())
             {
-                var updatedVariants = new System.Collections.Generic.HashSet<BaseGGUUID>();
-                UpdateModelVariants(patch, details, (core, outfit, variant) =>
+                //only update each character model once
+                var chars = characters.GroupBy(x => x.Model.Id).Select(x => x.First());
+                UpdateModelVariants(patch, chars, (core, outfit, variant) =>
                 {
-                    //only update each character model once
-                    if (outfit.IsCharacter && updatedVariants.Add(outfit.Model.Id) && RemoveRagdollAI(variant))
+                    if (RemoveRagdollAI(variant))
                     {
                         //update all variants that use this model
-                        foreach (var o in details.Where(x => x.VariantId == variant.ObjectUUID))
+                        foreach (var o in details.Where(x => x.VariantId == outfit.VariantId).ToList())
                         {
                             o.VariantId = variant.ObjectUUID;
                         }
@@ -45,14 +45,13 @@ namespace AloysAdjustments.Modules.Outfits
                     return false;
                 });
             }
-
-            Debug.WriteLine("----");
+            
             UpdateModelVariants(patch, details, (core, outfit, variant) => 
                 AddOutfitFact(outfit.DefaultModel, core, variant));
 
             AddVariantReferences(patch, details);
 
-            if (hasCharacterMods)
+            if (characters.Any())
             {
                 UpdateComponents(patch, details);
             }
@@ -156,7 +155,7 @@ namespace AloysAdjustments.Modules.Outfits
             core.Save();
         }
 
-        private void UpdateModelVariants(Patch patch, List<OutfitDetail> outfits, 
+        private void UpdateModelVariants(Patch patch, IEnumerable<OutfitDetail> outfits, 
             Func<HzdCore, OutfitDetail, HumanoidBodyVariant, bool> updateVariant)
         {
             foreach (var group in outfits.Where(x => x.Modified).GroupBy(x => x.Model.Source))
@@ -173,7 +172,6 @@ namespace AloysAdjustments.Modules.Outfits
 
                     if (updateVariant(core, outfit, newVariant))
                     {
-                        Debug.WriteLine("add-" + outfit.Outfit.Name + " :: " + outfit.Model.Name);
                         outfit.VariantId = newVariant.ObjectUUID;
                         core.Binary.AddObject(newVariant);
                         core.Save();
