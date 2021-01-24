@@ -17,5 +17,8 @@ namespace AloysAdjustments.Modules.Outfits
         public string[] IgnoredCharacters { get; set; }
 
         public string OutfitFactFile { get; set; }
+
+        public string[] ArmorComponentFiles { get; set; }
+        public string[] IgnoredArmorComponents { get; set; }
     }
 }

@@ -27,6 +27,8 @@ namespace AloysAdjustments.Modules.Outfits
             
             UpdateModelVariants(patch, details, (core, outfit, variant) => 
                 AddArmorFact(outfit.DefaultModel, core, variant));
+            UpdateModelVariants(patch, details, (core, outfit, variant) =>
+                AddArmorBuffs(outfit.DefaultModel, variant));
 
             AddVariantReferences(patch, details);
 
@@ -262,6 +264,35 @@ namespace AloysAdjustments.Modules.Outfits
             });
 
             return true;
+        }
+
+        private bool AddArmorBuffs(Model defaultModel, HumanoidBodyVariant variant)
+        {
+            //check if default model has any regen components
+            var componentFiles = IoC.Get<OutfitConfig>().ArmorComponentFiles.ToHashSet();
+            var ignoredTypes = IoC.Get<OutfitConfig>().IgnoredArmorComponents.ToHashSet();
+
+            var modelCore = IoC.Archiver.LoadGameFile(defaultModel.Source);
+            var defaultVariant = modelCore.GetTypes<HumanoidBodyVariant>().First(x => x.ObjectUUID == defaultModel.Id);
+
+            var componentSets = defaultVariant.EntityComponentResources
+                .Where(x => componentFiles.Contains(x.ExternalFile)).ToList();
+
+            bool added = false;
+            foreach (var set in componentSets)
+            {
+                var components = IoC.Archiver.LoadGameFile(set.ExternalFile).GetTypesById();
+                if (!(components[set.GUID] is EntityComponentSetResource setResource))
+                    continue;
+                //ignore the set with skeleton and scaling helpers
+                if (setResource.ComponentResources.All(x => ignoredTypes.Contains(components[x.GUID].GetType().Name)))
+                    continue;
+
+                added = true;
+                variant.EntityComponentResources.Add(set);
+            }
+
+            return added;
         }
 
         private void AttachAloyComponents(Patch patch, IEnumerable<string> outfitFiles, 
