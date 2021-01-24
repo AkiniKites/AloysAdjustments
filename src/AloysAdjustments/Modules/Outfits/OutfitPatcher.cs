@@ -28,9 +28,11 @@ namespace AloysAdjustments.Modules.Outfits
 
             if (hasCharacterMods)
             {
+                var updatedVariants = new System.Collections.Generic.HashSet<BaseGGUUID>();
                 UpdateModelVariants(patch, details, (core, outfit, variant) =>
                 {
-                    if (outfit.IsCharacter && RemoveRagdollAI(variant))
+                    //only update each character model once
+                    if (outfit.IsCharacter && updatedVariants.Add(outfit.Model.Id) && RemoveRagdollAI(variant))
                     {
                         //update all variants that use this model
                         foreach (var o in details.Where(x => x.VariantId == variant.ObjectUUID))
@@ -44,6 +46,7 @@ namespace AloysAdjustments.Modules.Outfits
                 });
             }
 
+            Debug.WriteLine("----");
             UpdateModelVariants(patch, details, (core, outfit, variant) => 
                 AddOutfitFact(outfit.DefaultModel, core, variant));
 
@@ -170,6 +173,7 @@ namespace AloysAdjustments.Modules.Outfits
 
                     if (updateVariant(core, outfit, newVariant))
                     {
+                        Debug.WriteLine("add-" + outfit.Outfit.Name + " :: " + outfit.Model.Name);
                         outfit.VariantId = newVariant.ObjectUUID;
                         core.Binary.AddObject(newVariant);
                         core.Save();
