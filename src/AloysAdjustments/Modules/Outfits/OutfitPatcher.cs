@@ -159,9 +159,8 @@ namespace AloysAdjustments.Modules.Outfits
                         void collapseVariant()
                         {
                             if (isOriginal) return;
-
+                            
                             core.Binary.RemoveObject(variant);
-
                             newVariant.ObjectUUID = variant.ObjectUUID;
                             outfit.VariantId = variant.ObjectUUID;
                         }
@@ -169,6 +168,13 @@ namespace AloysAdjustments.Modules.Outfits
                         var change = changes.FirstOrDefault(x => HzdUtils.EqualsIgnoreId(x.Data, newVariant));
                         if (change.NewId != null)
                         {
+                            changes.Add((change.SourceId, change.NewId, null, () =>
+                            {
+                                if (isOriginal) return;
+
+                                outfit.VariantId = variant.ObjectUUID;
+                            }));
+
                             outfit.VariantId = change.NewId;
                             continue;
                         }
@@ -180,10 +186,11 @@ namespace AloysAdjustments.Modules.Outfits
                 }
 
                 //only 1 new variant copy, collapse changes into original
-                foreach (var change in changes.GroupBy(x=>x.SourceId)
-                    .Where(x=>x.Count() == 1).Select(x=>x.First()))
+                foreach (var changeGroup in changes.GroupBy(x => x.SourceId)
+                    .Where(g => g.Count(x => x.Data != null) == 1))
                 {
-                    change.collapse();
+                    foreach (var change in changeGroup)
+                        change.collapse();
                 }
 
                 if (changes.Any())
