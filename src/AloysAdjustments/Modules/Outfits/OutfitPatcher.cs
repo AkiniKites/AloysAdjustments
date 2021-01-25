@@ -25,15 +25,15 @@ namespace AloysAdjustments.Modules.Outfits
                 var components = FindAloyComponents();
                 RemoveAloyComponents(patch, components);
 
-                UpdateModelVariants(patch, details, (outfit, core, variant) =>
-                    RemoveRagdollAI(outfit, variant));
-                UpdateModelVariants(patch, details, (outfit, core, variant) =>
-                    AttachAloyComponents(outfit, variant, components));
+                UpdateModelVariants(patch, details, true,
+                    (outfit, core, variant) => RemoveRagdollAI(outfit, variant));
+                UpdateModelVariants(patch, details, false,
+                    (outfit, core, variant) => AttachAloyComponents(outfit, variant, components));
             }
             
-            UpdateModelVariants(patch, details, UpdateArmorFact);
-            UpdateModelVariants(patch, details, (outfit, core, variant) =>
-                UpdateArmorBuffs(outfit, variant));
+            UpdateModelVariants(patch, details, true, UpdateArmorFact);
+            UpdateModelVariants(patch, details, true, 
+                (outfit, core, variant) => UpdateArmorBuffs(outfit, variant));
 
             AddVariantReferences(patch, details);
             UpdateOutfitRefs(patch, details);
@@ -123,10 +123,10 @@ namespace AloysAdjustments.Modules.Outfits
             core.Save();
         }
 
-        private void UpdateModelVariants(Patch patch, IEnumerable<OutfitDetail> outfits, 
+        private void UpdateModelVariants(Patch patch, IEnumerable<OutfitDetail> outfits, bool modifiedOnly, 
             Func<OutfitDetail, HzdCore, HumanoidBodyVariant, bool> updateVariant)
         {
-            foreach (var group in outfits.Where(x => x.Modified).GroupBy(x => x.Model.Source))
+            foreach (var group in outfits.Where(x => !modifiedOnly || x.Modified).GroupBy(x => x.Model.Source))
             {
                 var core = patch.AddFile(group.Key);
 
@@ -145,11 +145,15 @@ namespace AloysAdjustments.Modules.Outfits
                     {
                         void collapseVariant()
                         {
-                            if (isOriginal) return;
+                            //okay to collapse character variants into original
+                            if (isOriginal && outfit.IsCharacter) return;
                             
                             core.Binary.RemoveObject(variant);
                             newVariant.ObjectUUID = variant.ObjectUUID;
                             outfit.VariantId = variant.ObjectUUID;
+
+                            if (isOriginal)
+                                newVariant.Name.Value = variant.Name.Value;
                         }
 
                         var change = changes.FirstOrDefault(x => HzdUtils.EqualsIgnoreId(x.Data, newVariant));
@@ -157,7 +161,8 @@ namespace AloysAdjustments.Modules.Outfits
                         {
                             changes.Add((change.SourceId, change.NewId, null, () =>
                             {
-                                if (isOriginal) return;
+                                //okay to collapse character variants into original
+                                if (isOriginal && outfit.IsCharacter) return;
 
                                 outfit.VariantId = variant.ObjectUUID;
                             }));
@@ -342,7 +347,7 @@ namespace AloysAdjustments.Modules.Outfits
             List<(string File, BaseGGUUID Id)> components)
         {
             //re-attach removed components to unchanged outfits and armor swaps 
-            if (outfit.IsCharacter || outfit.Modified)
+            if (outfit.IsCharacter)
                 return false;
 
             foreach (var item in components)
