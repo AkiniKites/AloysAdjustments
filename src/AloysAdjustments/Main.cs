@@ -41,6 +41,7 @@ namespace AloysAdjustments
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
 
             IoC.Bind(new Notifications(SetStatus, SetAppStatus, SetProgress));
+            IoC.Bind(new Uuid());
             LoadConfigs();
 
             InitializeComponent();
@@ -53,12 +54,14 @@ namespace AloysAdjustments
         private void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
             SetStatus($"Error: {e.ExceptionObject}", true);
+            SetProgress(0, 0, false, false);
             Errors.WriteError(e.ExceptionObject);
         }
 
         private void Application_ThreadException(object sender, ThreadExceptionEventArgs e)
         {
             SetStatus($"Error: {e.Exception.Message}", true);
+            SetProgress(0, 0, false, false);
             Errors.WriteError(e.Exception);
         }
 

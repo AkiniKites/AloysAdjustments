@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using AloysAdjustments.Logic;
 
 namespace AloysAdjustments.Utility
 {
@@ -74,7 +75,7 @@ namespace AloysAdjustments.Utility
             {
                 if (File.Exists(path))
                 {
-                    _tempPath = path + Guid.NewGuid();
+                    _tempPath = path + IoC.Uuid.New();
                     File.Move(path, _tempPath);
                 }
             }

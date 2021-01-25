@@ -38,7 +38,6 @@ namespace AloysAdjustments
             this.btnLoadPatch = new System.Windows.Forms.Button();
             this.ssMain = new System.Windows.Forms.StatusStrip();
             this.tssStatus = new System.Windows.Forms.ToolStripStatusLabel();
-            this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
             this.tssAppStatus = new System.Windows.Forms.ToolStripStatusLabel();
             this.tpbStatus = new System.Windows.Forms.ToolStripProgressBar();
             this.btnPatch = new System.Windows.Forms.Button();
@@ -64,7 +63,6 @@ namespace AloysAdjustments
             this.ssMain.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.ssMain.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.tssStatus,
-            this.toolStripStatusLabel1,
             this.tssAppStatus,
             this.tpbStatus});
             this.ssMain.Location = new System.Drawing.Point(0, 739);
@@ -76,16 +74,10 @@ namespace AloysAdjustments
             // 
             this.tssStatus.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.tssStatus.Name = "tssStatus";
-            this.tssStatus.Size = new System.Drawing.Size(283, 17);
+            this.tssStatus.Size = new System.Drawing.Size(769, 17);
             this.tssStatus.Spring = true;
             this.tssStatus.Text = "Status Text";
             this.tssStatus.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
-            // toolStripStatusLabel1
-            // 
-            this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
-            this.toolStripStatusLabel1.Size = new System.Drawing.Size(283, 17);
-            this.toolStripStatusLabel1.Spring = true;
             // 
             // tssAppStatus
             // 
@@ -176,7 +168,6 @@ namespace AloysAdjustments
         private System.Windows.Forms.Button btnResetSelected;
         private System.Windows.Forms.TabControl tcMain;
         private System.Windows.Forms.ToolStripProgressBar tpbStatus;
-        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
         private System.Windows.Forms.ToolStripStatusLabel tssAppStatus;
     }
 }

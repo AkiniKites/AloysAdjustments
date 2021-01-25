@@ -12,24 +12,24 @@ namespace AloysAdjustments.Logic
 {
     public static class HzdCoreExtensions
     {
-        public static Dictionary<BaseGGUUID, T> GetTypesById<T>(
-            this HzdCore core, string typeName = null) where T : RTTIRefObject
-        {
-            typeName ??= typeof(T).Name;
+        public static Dictionary<BaseGGUUID, RTTIRefObject> GetTypesById(this HzdCore core)
+            => GetTypesById<RTTIRefObject>(core);
 
-            return core.Binary.Where(x => x.GetType().Name == typeName)
+        public static Dictionary<BaseGGUUID, T> GetTypesById<T>(
+            this HzdCore core) where T : RTTIRefObject
+        {
+            return core.Binary.Where(x => x is T)
                 .ToDictionary(x => (BaseGGUUID)((T)x).ObjectUUID, x => (T)x);
         }
-        public static List<T> GetTypes<T>(this HzdCore core, string typeName = null)
-        {
-            typeName ??= typeof(T).Name;
 
-            return core.Binary.Where(x => x.GetType().Name == typeName)
-                .Cast<T>().ToList();
-        }
-        public static T GetType<T>(this HzdCore core, string typeName = null)
+        public static List<T> GetTypes<T>(this HzdCore core)
         {
-            return GetTypes<T>(core, typeName).FirstOrDefault();
+            return core.Binary.Where(x => x is T).Cast<T>().ToList();
+        }
+
+        public static T GetType<T>(this HzdCore core)
+        {
+            return GetTypes<T>(core).FirstOrDefault();
         }
     }
 }
