@@ -17,7 +17,15 @@
         "playercharacter",
         "debug"
       ],
-      "OutfitFactFile": "entities/characters/humanoids/player/costumes/facts"
+      "OutfitFactFile": "entities/characters/humanoids/player/costumes/facts",
+      "ArmorComponentFiles": [
+        "entities/dlc1/characters/humanoids/player/player_costume_componentsdlc",
+        "entities/characters/humanoids/player/player_costume_components"
+      ],
+      "IgnoredArmorComponents": [
+        "SkeletonHelpersComponentResource",
+        "ScaleEntityFromAnimationComponentResource"
+      ]
     },
     "Upgrades": {
       "UpgradeFile": "entities/characters/craftingrecipes",

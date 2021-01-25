@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using AloysAdjustments.Configuration;
+using AloysAdjustments.Utility;
 using Ninject;
 using Ninject.Planning.Bindings.Resolvers;
 
@@ -29,6 +30,7 @@ namespace AloysAdjustments.Logic
         public static Archiver Archiver => Kernel.Get<Archiver>();
         public static Localization Localization => Kernel.Get<Localization>();
         public static Notifications Notif => Kernel.Get<Notifications>();
+        public static Uuid Uuid => Kernel.Get<Uuid>();
 
         public static void Bind<T>(T value)
         {

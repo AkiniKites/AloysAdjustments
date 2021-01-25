@@ -41,6 +41,7 @@ namespace AloysAdjustments
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
 
             IoC.Bind(new Notifications(SetStatus, SetAppStatus, SetProgress));
+            IoC.Bind(new Uuid());
             LoadConfigs();
 
             InitializeComponent();
