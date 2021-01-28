@@ -137,7 +137,12 @@ namespace AloysAdjustments.Modules.Outfits
             IoC.Notif.ShowStatus("Loading outfit list...");
             DefaultOutfits = (await OutfitGen.GenerateOutfits(
                 IoC.Archiver.LoadGameFileAsync)).ToHashSet();
-            Outfits = DefaultOutfits.Select(x => x.Clone()).OrderBy(x => x.DisplayName)
+
+            //some outfits, like undergarments, are never used in game by the player and only create problems if switched
+            var ignored = IoC.Get<OutfitConfig>().IgnoredOutfits.ToHashSet();
+            Outfits = DefaultOutfits
+                .Where(x => !ignored.Contains(x.Name))
+                .Select(x => x.Clone()).OrderBy(x => x.DisplayName)
                 .ToList().AsReadOnly();
 
             PopulateOutfitsList();

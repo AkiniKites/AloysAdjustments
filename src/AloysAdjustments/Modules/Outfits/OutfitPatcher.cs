@@ -19,10 +19,11 @@ namespace AloysAdjustments.Modules.Outfits
             var details = BuildDetails(defaultOutfits, outfits, models).ToList();
             var hasCharacters = details.Any(x => x.Modified && x.IsCharacter);
 
+            var components = FindAloyComponents();
+
             if (hasCharacters)
             {
                 //remove aloy components from player file
-                var components = FindAloyComponents();
                 RemoveAloyComponents(patch, components);
 
                 UpdateModelVariants(patch, details, true,
@@ -34,8 +35,8 @@ namespace AloysAdjustments.Modules.Outfits
             UpdateModelVariants(patch, details, true, UpdateArmorFact);
             UpdateModelVariants(patch, details, true, 
                 (outfit, core, variant) => UpdateArmorBuffs(outfit, variant));
-
-            FixUndergarmentTransitions(patch, details);
+            
+            FixUndergarmentTransitions(patch, details, components);
 
             AddVariantReferences(patch, details);
             UpdateOutfitRefs(patch, details);
@@ -44,15 +45,17 @@ namespace AloysAdjustments.Modules.Outfits
         public IEnumerable<OutfitDetail> BuildDetails(IList<Outfit> defaultOutfits, IList<Outfit> outfits, List<Model> models)
         {
             var modelSet = models.ToDictionary(x => x.Id, x => x);
-            var defaultSet = defaultOutfits.ToDictionary(x => x.RefId, x=>x.ModelId);
+            var outfitSet = outfits.ToDictionary(x => x.RefId, x => x);
 
-            foreach (var outfit in outfits)
+            foreach (var defaultOutfit in defaultOutfits)
             {
+                if (!outfitSet.TryGetValue(defaultOutfit.RefId, out var outfit))
+                    outfit = defaultOutfit;
                 var detail = new OutfitDetail()
                 {
                     Outfit = outfit,
                     Model = modelSet[outfit.ModelId],
-                    DefaultModel = modelSet[defaultSet[outfit.RefId]],
+                    DefaultModel = modelSet[defaultOutfit.ModelId],
                     VariantId = outfit.ModelId
                 };
 
@@ -147,7 +150,7 @@ namespace AloysAdjustments.Modules.Outfits
                     {
                         void collapseVariant()
                         {
-                            //okay to collapse character variants into original
+                            //okay to collapse armor variants into original
                             if (isOriginal && outfit.IsCharacter) return;
                             
                             core.Binary.RemoveObject(variant);
@@ -163,7 +166,7 @@ namespace AloysAdjustments.Modules.Outfits
                         {
                             changes.Add((change.SourceId, change.NewId, null, () =>
                             {
-                                //okay to collapse character variants into original
+                                //okay to collapse armor variants into original
                                 if (isOriginal && outfit.IsCharacter) return;
 
                                 outfit.VariantId = variant.ObjectUUID;
@@ -346,10 +349,10 @@ namespace AloysAdjustments.Modules.Outfits
         }
 
         private bool AttachAloyComponents(OutfitDetail outfit, HumanoidBodyVariant variant, 
-            List<(string File, BaseGGUUID Id)> components)
+            List<(string File, BaseGGUUID Id)> components, bool forceAdd = false)
         {
             //re-attach removed components to unchanged outfits and armor swaps 
-            if (outfit.IsCharacter)
+            if (!forceAdd && outfit.IsCharacter)
                 return false;
 
             foreach (var item in components)
@@ -367,30 +370,17 @@ namespace AloysAdjustments.Modules.Outfits
             return true;
         }
 
-        private void FixUndergarmentTransitions(Patch patch, List<OutfitDetail> outfits)
+        private void FixUndergarmentTransitions(Patch patch, List<OutfitDetail> outfits, List<(string File, BaseGGUUID Id)> components)
         {
             var core = patch.AddFile($"levels/worlds/world/scenes/mainquest/mq4_mothersheart/sequences/mq04_bedding_down_seq");
+            
+            //fix for mq04_bedding_down
+            var node = core.GetTypes<NodeConstantsResource>().First(x => x.ObjectUUID == "{D38895B1-706A-0C3D-B53F-63A74F1CFA86}");
+            node.Parameters[1].DefaultObjectUUID = new UUIDRef<RTTIRefObject>();
 
-            //var c = core.GetTypes<SequenceNetworkCondition>().First(x => x.ObjectUUID == "{C8B3AEBA-5086-3B48-9DF7-6BDD17C49AF7}");
-            //c.True.GUID = "{92F04D77-DEFD-6F48-8E05-A9EE6F178F6D}";
-            //c.True = c.False;
-
-            //core.GetTypes<SequenceNetworkResource>().First(x => x.ObjectUUID == "{EC3F8AB1-E795-2544-9D67-57B1A2CF44C3}")
-            //    .Nodes.RemoveAt(2);
-
-            var node = core.GetTypes<SequenceNetworkSequenceNode>().First(x => x.ObjectUUID == "{DEF2A3BF-CFDC-B445-B206-74FCF2F3A014}");
-            node.GraphProgramResource = new Ref<GraphProgramResource>();
-
-            //core.GetType<SequenceNetworkUseLocation>().Node.GUID = "{92F04D77-DEFD-6F48-8E05-A9EE6F178F6D}";
-
-            //core.GetTypes<SequenceNetworkResource>().First(x => x.ObjectUUID == "{EC3F8AB1-E795-2544-9D67-57B1A2CF44C3}")
-            //    .RootNode.GUID = "{92F04D77-DEFD-6F48-8E05-A9EE6F178F6D}";
-
-            //foreach (var item in core.GetTypes<FacialAnimationEventResource>())
-            //{
-            //    item.Enabled = false;
-            //}
-            //core.GetTypes<FacialAnimationEventResource>().First(x=>x.ObjectUUID == "{7ADF338F-9098-4039-AD24-996B84970D7E}").Enabled = false;
+            //fix for mq13_masterscene_scene
+            //this is fixed implicitly by ignoring Outfit_Undergarment as a valid outfit swap
+            //loading during the arena will still have missing hair
 
             core.Save();
         }
