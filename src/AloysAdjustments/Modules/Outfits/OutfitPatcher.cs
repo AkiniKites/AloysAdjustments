@@ -35,6 +35,8 @@ namespace AloysAdjustments.Modules.Outfits
             UpdateModelVariants(patch, details, true, 
                 (outfit, core, variant) => UpdateArmorBuffs(outfit, variant));
 
+            FixUndergarmentTransitions(patch, details);
+
             AddVariantReferences(patch, details);
             UpdateOutfitRefs(patch, details);
         }
@@ -365,38 +367,32 @@ namespace AloysAdjustments.Modules.Outfits
             return true;
         }
 
-        private void FixUndergarmentTransitions(Patch patch,
-            List<(Outfit Outfit, Model Model)> outfitMaps,
-            Dictionary<BaseGGUUID, BaseGGUUID> variantMapping)
+        private void FixUndergarmentTransitions(Patch patch, List<OutfitDetail> outfits)
         {
+            var core = patch.AddFile($"levels/worlds/world/scenes/mainquest/mq4_mothersheart/sequences/mq04_bedding_down_seq");
 
-            foreach (var group in outfitMaps.GroupBy(x => x.Model.Source))
-            {
-                var core = patch.AddFile(group.Key);
+            //var c = core.GetTypes<SequenceNetworkCondition>().First(x => x.ObjectUUID == "{C8B3AEBA-5086-3B48-9DF7-6BDD17C49AF7}");
+            //c.True.GUID = "{92F04D77-DEFD-6F48-8E05-A9EE6F178F6D}";
+            //c.True = c.False;
 
-                var variants = core.GetTypesById<HumanoidBodyVariant>();
-                foreach (var outfitMap in group)
-                {
-                    var variant = variants[variantMapping[outfitMap.Outfit.RefId]];
+            //core.GetTypes<SequenceNetworkResource>().First(x => x.ObjectUUID == "{EC3F8AB1-E795-2544-9D67-57B1A2CF44C3}")
+            //    .Nodes.RemoveAt(2);
 
-                    variant.EntityComponentResources.Add(new Ref<EntityComponentResource>()
-                    {
-                        ExternalFile = "models/characters/humans/heads/female/hannah/animation/facialanimationcomponent",
-                        GUID = "{C46A3A2F-B28B-0D44-917C-5D244AD76A3B}",
-                        Type = BaseRef.Types.ExternalCoreUUID
-                    });
-                }
+            var node = core.GetTypes<SequenceNetworkSequenceNode>().First(x => x.ObjectUUID == "{DEF2A3BF-CFDC-B445-B206-74FCF2F3A014}");
+            node.GraphProgramResource = new Ref<GraphProgramResource>();
 
-                core.Save();
-            }
+            //core.GetType<SequenceNetworkUseLocation>().Node.GUID = "{92F04D77-DEFD-6F48-8E05-A9EE6F178F6D}";
 
-            return;
-            // mq04_bedding_down_seq: changing variant to any character will not crash the crash the game
-            // initial scene is with aloy (prerendered likely) next will be variant
-            var coreb = patch.AddFile($"levels/worlds/world/scenes/mainquest/mq4_mothersheart/sequences/mq04_bedding_down_seq.core");
-            var id = coreb.GetTypes<NodeConstantsResource>().FirstOrDefault().Parameters[1].DefaultObjectUUID;
-            id.GUID = outfitMaps[0].Model.Id;
-            coreb.Save();
+            //core.GetTypes<SequenceNetworkResource>().First(x => x.ObjectUUID == "{EC3F8AB1-E795-2544-9D67-57B1A2CF44C3}")
+            //    .RootNode.GUID = "{92F04D77-DEFD-6F48-8E05-A9EE6F178F6D}";
+
+            //foreach (var item in core.GetTypes<FacialAnimationEventResource>())
+            //{
+            //    item.Enabled = false;
+            //}
+            //core.GetTypes<FacialAnimationEventResource>().First(x=>x.ObjectUUID == "{7ADF338F-9098-4039-AD24-996B84970D7E}").Enabled = false;
+
+            core.Save();
         }
 
         private void UpdateOutfitRefs(Patch patch, List<OutfitDetail> outfits)
