@@ -378,12 +378,19 @@ namespace AloysAdjustments.Modules.Outfits
             //cinematics/mainquests/mq160_cut_battlebegins/mq160cutbattlebegins
             var core2 = patch.AddFile("cinematics/mainquests/mq160_cut_battlebegins/mq160cutbattlebegins");
 
-            //var seqres = core2.GetTypes<SequenceResource>().First(x => x.ObjectUUID == "{A7B2C90E-AB95-924A-BF24-BD32F9D7E9D6}");
-            //seqres.Events.Clear();
-            //seqres.SortedEvents.Clear();
+            var seqCond = core2.GetTypes<SequenceNetworkCondition>().First(x => x.ObjectUUID == "{4F4F30D5-2EAF-D84C-8E73-6F1A10458440}");
+            seqCond.True.GUID = "{F382784B-9A7B-A04A-A1B7-3D3474401B9A}";
+
+            var seqres = core2.GetTypes<SequenceResource>().First(x => x.ObjectUUID == "{A7B2C90E-AB95-924A-BF24-BD32F9D7E9D6}");
+            //seqres.Events.RemoveAt(1);
+            //seqres.SortedEvents.RemoveAt(1);
 
             var seq = core2.GetType<SequenceNetworkResource>();
-            seq.RootNode.GUID = "{ED45FCFD-AE4F-B846-98DA-06562439F271}";
+            //seq.RootNode.GUID = "{ED45FCFD-AE4F-B846-98DA-06562439F271}"; //mq160CutBattleBegins_Sequence
+            //seq.RootNode.GUID = "{7FF56EB4-018D-3E4E-A261-74D320BA27E3}"; //HoldBlackScreen_Sequence
+
+            //var seqNode = core2.GetTypes<SequenceNetworkSequenceNode>().First(x => x.ObjectUUID == "{C870E066-51D6-364C-9737-5CB2017DF996}");
+            //seqNode.InterruptHandlers.Clear();
 
             core2.Save();
 
