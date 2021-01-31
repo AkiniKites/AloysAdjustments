@@ -372,17 +372,35 @@ namespace AloysAdjustments.Modules.Outfits
 
         private void FixUndergarmentTransitions(Patch patch, List<OutfitDetail> outfits, List<(string File, BaseGGUUID Id)> components)
         {
-            var core = patch.AddFile($"levels/worlds/world/scenes/mainquest/mq4_mothersheart/sequences/mq04_bedding_down_seq");
-            
-            //fix for mq04_bedding_down
-            var node = core.GetTypes<NodeConstantsResource>().First(x => x.ObjectUUID == "{D38895B1-706A-0C3D-B53F-63A74F1CFA86}");
-            node.Parameters[1].DefaultObjectUUID = new UUIDRef<RTTIRefObject>();
+            //entities/spawnsetups/characters/cinematics/mq15_5_restatolinsapartment/c_aloyundergarments
+            //doesn't crash during this scene but it does after on the mesa
 
-            //fix for mq13_masterscene_scene
-            //this is fixed implicitly by ignoring Outfit_Undergarment as a valid outfit swap
-            //loading during the arena will still have missing hair
+            //cinematics/mainquests/mq160_cut_battlebegins/mq160cutbattlebegins
+            var core2 = patch.AddFile("cinematics/mainquests/mq160_cut_battlebegins/mq160cutbattlebegins");
 
+            //var seqres = core2.GetTypes<SequenceResource>().First(x => x.ObjectUUID == "{A7B2C90E-AB95-924A-BF24-BD32F9D7E9D6}");
+            //seqres.Events.Clear();
+            //seqres.SortedEvents.Clear();
+
+            var seq = core2.GetType<SequenceNetworkResource>();
+            seq.RootNode.GUID = "{ED45FCFD-AE4F-B846-98DA-06562439F271}";
+
+            core2.Save();
+
+            //levels/worlds/world/scenes/mainquest/mq4_mothersheart/sequences/mq04_bedding_down_seq
+            var core = patch.AddFile(IoC.Get<OutfitConfig>().Mission4UndergarmentFixFile);
+            var undergarmentModelId = outfits.First(x => x.DefaultModel.Source == IoC.Get<OutfitConfig>().UndergarmentModelFile).DefaultModel.Id;
+            var param = core.GetTypes<NodeConstantsResource>().SelectMany(x=>x.Parameters).FirstOrDefault(x=>x.DefaultObjectUUID.GUID == undergarmentModelId);
+            if (param == null)
+                throw new HzdException($"Failed to fix mission 4, unable to find ProgramParameter");
+            param.DefaultObjectUUID = new UUIDRef<RTTIRefObject>();
             core.Save();
+
+            //cinematics/mainquests/mq050_cut_helisandrost/mq050cuthelisandrost
+            //levels/worlds/world/tiles/tile_x04_y-05/layers/gameplay/mq6_aftermath_scene_01_script
+            //levels/worlds/world/scenes/mq13/mq13_masterscene_scene_script
+            //these are fixed implicitly by ignoring Outfit_Undergarment as a valid outfit swap
+            //loading during the arena will still have missing hair
         }
 
         private void UpdateOutfitRefs(Patch patch, List<OutfitDetail> outfits)

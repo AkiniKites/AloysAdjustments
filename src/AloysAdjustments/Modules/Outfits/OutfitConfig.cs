@@ -21,5 +21,8 @@ namespace AloysAdjustments.Modules.Outfits
 
         public string[] ArmorComponentFiles { get; set; }
         public string[] IgnoredArmorComponents { get; set; }
+        
+        public string UndergarmentModelFile { get; set; }
+        public string Mission4UndergarmentFixFile { get; set; }
     }
 }
