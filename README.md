@@ -1,6 +1,6 @@
 # Aloy's Adjustments
 Change characters, swap outfits and more. Mods for Horizon Zero Dawn.  
-It creates patch files for Horizon Zero Dawn and doesn't edit exiting game files. Tested on game verion 1.09.
+It creates patch files for Horizon Zero Dawn and doesn't edit exiting game files.
 
 ## Setup
 - This app requires .Net Core 3.1. Windows will prompt to download if its missing
@@ -14,9 +14,9 @@ It creates patch files for Horizon Zero Dawn and doesn't edit exiting game files
 
 ### Modules
 #### Outfits (Swaping character and outfit models)
-Select the mode: either `Character Swaps` or `Armor Swaps`  
 Select the outfit(s) you want to modify from the right `Outfits` list.  
 Check-off the new model for the outfit(s) on the left `Model Mapping` or `Character Mapping` list.  
+Use the filter in the top right to see all character options
   
 ![](docs/outfits.png)
 
