@@ -10,6 +10,7 @@ using System.Windows.Forms;
 using AloysAdjustments.Configuration;
 using AloysAdjustments.Logic;
 using AloysAdjustments.Logic.Patching;
+using AloysAdjustments.Steam;
 using AloysAdjustments.UI;
 using AloysAdjustments.Updates;
 using AloysAdjustments.Utility;
@@ -18,6 +19,8 @@ namespace AloysAdjustments.Modules.Settings
 {
     public partial class SettingsControl : ModuleBase
     {
+        private const string SteamGameName = "Horizon Zero Dawn";
+
         public event EmptyEventHandler SettingsOkay;
 
         public override string PluginName => "Settings";
@@ -35,19 +38,35 @@ namespace AloysAdjustments.Modules.Settings
         public override Task LoadPatch(string path) => throw new NotImplementedException();
         public override void ApplyChanges(Patch patch) => throw new NotImplementedException();
 
-        public override Task Initialize()
+        public override async Task Initialize()
         {
             IoC.Notif.CacheUpdate = UpdateCacheStatus;
 
+            await InitializeFirstRun();
+
             UpdatePatchStatus();
             UpdateCacheStatus();
-            CheckUpdates().ConfigureAwait(false);
+            CheckUpdates().Forget();
 
             tbGameDir.EnableTypingEvent = false;
             tbGameDir.Text = IoC.Settings.GamePath;
             tbGameDir.EnableTypingEvent = true;
+        }
 
-            return Task.CompletedTask;
+        private async Task InitializeFirstRun()
+        {
+            if (Configs.GamePackDir != null)
+                return;
+
+            var gameDir = new GameSearch().FindSteamGameDir(SteamGameName);
+            if (gameDir == null)
+                return;
+
+            IoC.Settings.GamePath = gameDir;
+            if (!UpdateGameDirStatus())
+                IoC.Settings.GamePath = "";
+
+            await IoC.Archiver.GetLibrary();
         }
 
         public bool ValidateAll()

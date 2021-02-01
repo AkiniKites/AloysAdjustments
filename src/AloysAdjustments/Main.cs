@@ -14,6 +14,7 @@ using AloysAdjustments.Logic;
 using AloysAdjustments.Logic.Patching;
 using AloysAdjustments.Modules.Settings;
 using AloysAdjustments.Plugins;
+using AloysAdjustments.Steam;
 using AloysAdjustments.UI;
 using Decima;
 using Decima.HZD;
@@ -107,7 +108,7 @@ namespace AloysAdjustments
 
             IoC.Bind(new Archiver());
             IoC.Bind(new Localization(ELanguage.English));
-
+            
             Settings = new SettingsControl();
             Plugins = PluginManager.LoadAll<IInteractivePlugin>()
                 .OrderBy(x => x.PluginName.Contains("Misc") ? 1 : 0) //TODO: fix
