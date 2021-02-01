@@ -1,11 +1,10 @@
-﻿
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace AloysAdjustments.Modules.Upgrades
+namespace AloysAdjustments.Plugins.Upgrades
 {
     partial class UpgradesControl
     {

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace AloysAdjustments.Data
+namespace AloysAdjustments.Plugins.Outfits.Data
 {
     public class OutfitFile
     {

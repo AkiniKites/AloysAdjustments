@@ -9,7 +9,7 @@ using AloysAdjustments.UI;
 
 namespace AloysAdjustments.Plugins
 {
-    public interface IPatchPlugin
+    public interface IPlugin
     {
         void ApplyChanges(Patch patch);
     }

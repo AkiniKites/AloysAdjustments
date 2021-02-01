@@ -1,18 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using AloysAdjustments.Configuration;
-using AloysAdjustments.Data;
 using AloysAdjustments.Logic;
+using AloysAdjustments.Plugins.Outfits.Data;
 using AloysAdjustments.Utility;
 using Decima;
 using Decima.HZD;
-using Model = AloysAdjustments.Data.Model;
+using Model = AloysAdjustments.Plugins.Outfits.Data.Model;
 
-namespace AloysAdjustments.Modules.Outfits
+namespace AloysAdjustments.Plugins.Outfits
 {
     public class OutfitsGenerator
     {

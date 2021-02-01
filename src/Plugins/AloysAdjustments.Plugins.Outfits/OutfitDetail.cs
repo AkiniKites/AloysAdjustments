@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using AloysAdjustments.Data;
+using AloysAdjustments.Plugins.Outfits.Data;
 using Decima;
 
-namespace AloysAdjustments.Modules.Outfits
+namespace AloysAdjustments.Plugins.Outfits
 {
     public class OutfitDetail
     {

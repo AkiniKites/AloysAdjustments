@@ -6,9 +6,9 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using AloysAdjustments.Configuration;
-using AloysAdjustments.Data;
 using AloysAdjustments.Logic;
 using AloysAdjustments.Logic.Patching;
+using AloysAdjustments.Plugins.Misc.Data;
 using AloysAdjustments.Utility;
 
 namespace AloysAdjustments.Modules.Misc
@@ -21,13 +21,13 @@ namespace AloysAdjustments.Modules.Misc
         private MiscAdjustments DefaultAdjustments { get; set; }
         private MiscAdjustments Adjustments { get; set; }
         
-        public override string ModuleName => "Misc";
+        public override string PluginName => "Misc";
 
         public MiscControl()
         {
             _loading = true;
 
-            IoC.Bind(Configs.LoadModuleConfig<MiscConfig>(ModuleName));
+            IoC.Bind(Configs.LoadModuleConfig<MiscConfig>(PluginName));
 
             MiscLogic = new MiscLogic();
 

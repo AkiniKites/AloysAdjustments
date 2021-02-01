@@ -1,22 +1,24 @@
-﻿using AloysAdjustments.Configuration;
-using AloysAdjustments.Data;
-using AloysAdjustments.Logic;
-using AloysAdjustments.Utility;
-using Decima;
-using EnumsNET;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using AloysAdjustments.Configuration;
+using AloysAdjustments.Logic;
 using AloysAdjustments.Logic.Patching;
+using AloysAdjustments.Modules;
+using AloysAdjustments.Plugins.Outfits.Data;
 using AloysAdjustments.UI;
+using AloysAdjustments.Utility;
+using Decima;
+using EnumsNET;
 using PresentationControls;
 
-namespace AloysAdjustments.Modules.Outfits
+namespace AloysAdjustments.Plugins.Outfits
 {
     [Flags]
     public enum OutfitModelFilter
@@ -46,7 +48,7 @@ namespace AloysAdjustments.Modules.Outfits
 
         private ListWrapper<OutfitModelFilter> Filters { get; set; }
 
-        public override string ModuleName => "Outfits";
+        public override string PluginName => "Outfits";
 
         public OutfitsControl()
         {
@@ -55,7 +57,7 @@ namespace AloysAdjustments.Modules.Outfits
             AllOutfitStub = new Outfit();
             AllOutfitStub.LocalName = "All Outfits";
 
-            IoC.Bind(Configs.LoadModuleConfig<OutfitConfig>(ModuleName));
+            IoC.Bind(Configs.LoadModuleConfig<OutfitConfig>(PluginName));
 
             OutfitGen = new OutfitsGenerator();
             CharacterGen = new CharacterGenerator();

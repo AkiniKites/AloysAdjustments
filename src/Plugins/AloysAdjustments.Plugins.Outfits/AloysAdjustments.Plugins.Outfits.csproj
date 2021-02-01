@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\AloysAdjustments\AloysAdjustments.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="OutfitsControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+  </ItemGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="copy /y $(TargetPath) $(ProjectDir)..\..\AloysAdjustments\bin\Debug\netcoreapp3.1\plugins\$(TargetFileName)" />
+  </Target>
+
+</Project>

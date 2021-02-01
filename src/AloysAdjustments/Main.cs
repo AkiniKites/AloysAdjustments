@@ -12,11 +12,8 @@ using System.Windows.Forms;
 using AloysAdjustments.Configuration;
 using AloysAdjustments.Logic;
 using AloysAdjustments.Logic.Patching;
-using AloysAdjustments.Modules;
-using AloysAdjustments.Modules.Misc;
-using AloysAdjustments.Modules.Outfits;
 using AloysAdjustments.Modules.Settings;
-using AloysAdjustments.Modules.Upgrades;
+using AloysAdjustments.Plugins;
 using AloysAdjustments.UI;
 using Decima;
 using Decima.HZD;
@@ -32,9 +29,10 @@ namespace AloysAdjustments
         
         private bool _initialized = false;
 
-        private List<ModuleBase> Modules { get; set; }
+        private List<IInteractivePlugin> Plugins { get; set; }
         private SettingsControl Settings { get; set; }
-        
+        public PluginManager PluginManager { get; }
+
         public Main()
         {
             Application.ThreadException += Application_ThreadException;
@@ -43,6 +41,8 @@ namespace AloysAdjustments
             IoC.Bind(new Notifications(SetStatus, SetAppStatus, SetProgress));
             IoC.Bind(new Uuid());
             LoadConfigs();
+
+            PluginManager = new PluginManager();
 
             InitializeComponent();
 
@@ -109,22 +109,19 @@ namespace AloysAdjustments
             IoC.Bind(new Localization(ELanguage.English));
 
             Settings = new SettingsControl();
-            Modules = new List<ModuleBase>()
-            {
-                new OutfitsControl(),
-                new UpgradesControl(),
-                new MiscControl()
-            };
+            Plugins = PluginManager.LoadAll<IInteractivePlugin>()
+                .OrderBy(x => x.PluginName.Contains("Misc") ? 1 : 0) //TODO: fix
+                .ToList();
 
-            IoC.Notif.ShowStatus("Loading modules...");
-            foreach (var module in Modules.AsEnumerable().Concat(new[] { Settings }).Reverse())
+            IoC.Notif.ShowStatus("Loading Plugins...");
+            foreach (var module in Plugins.AsEnumerable().Concat(new[] { Settings }).Reverse())
             {
                 var tab = new TabPage();
 
                 tab.UseVisualStyleBackColor = true;
-                tab.Text = module.ModuleName;
-                tab.Controls.Add(module);
-                module.Dock = DockStyle.Fill;
+                tab.Text = module.PluginName;
+                tab.Controls.Add(module.PluginControl);
+                module.PluginControl.Dock = DockStyle.Fill;
 
                 tcMain.TabPages.Insert(0, tab);
             }
@@ -133,7 +130,7 @@ namespace AloysAdjustments
             Settings.SettingsOkay += Settings_SettingsOkayCommand;
 
             tcMain.SelectedIndex = 0;
-            if (!await InitializeModules())
+            if (!await InitializePlugins())
             {
                 tcMain.SelectedIndex = tcMain.TabPages.Count - 1;
             }
@@ -143,10 +140,10 @@ namespace AloysAdjustments
         private async Task Settings_SettingsOkay()
         {
             if (!_initialized)
-                await InitializeModules();
+                await InitializePlugins();
         }
 
-        private async Task<bool> InitializeModules()
+        private async Task<bool> InitializePlugins()
         {
             if (!Settings.ValidateAll())
                 return false;
@@ -161,8 +158,8 @@ namespace AloysAdjustments
                 FileBackup.CleanupBackups(Configs.PatchPath);
             });
 
-            IoC.Notif.ShowStatus("Initializing modules...");
-            foreach (var module in Modules)
+            IoC.Notif.ShowStatus("Initializing Plugins...");
+            foreach (var module in Plugins)
                 await module.Initialize();
 
             _initialized = true;
@@ -183,7 +180,7 @@ namespace AloysAdjustments
             IoC.Notif.ShowStatus("Generating patch...");
             IoC.Notif.ShowUnknownProgress();
 
-            if (Modules.Any() && !Modules.All(x => x.ValidateChanges()))
+            if (Plugins.Any() && !Plugins.All(x => x.ValidateChanges()))
             {
                 IoC.Notif.HideProgress();
                 IoC.Notif.ShowStatus("Patch install aborted");
@@ -210,14 +207,14 @@ namespace AloysAdjustments
                 var patcher = new Patcher();
 
                 var patch = patcher.StartPatch();
-                foreach (var module in Modules)
+                foreach (var module in Plugins)
                 {
-                    IoC.Notif.ShowStatus($"Generating patch ({module.ModuleName})...");
+                    IoC.Notif.ShowStatus($"Generating patch ({module.PluginName})...");
                     module.ApplyChanges(patch);
                 }
 
                 IoC.Notif.ShowStatus("Generating plugin patches...");
-                patcher.ApplyCustomPatches(patch);
+                patcher.ApplyCustomPatches(patch, PluginManager);
 
                 IoC.Notif.ShowStatus("Generating patch (rebuild prefetch)...");
 
@@ -260,7 +257,7 @@ namespace AloysAdjustments
         {
             IoC.Notif.ShowUnknownProgress();
 
-            foreach (var module in Modules)
+            foreach (var module in Plugins)
                 await module.LoadPatch(path);
             
             if (!initial)
@@ -281,16 +278,16 @@ namespace AloysAdjustments
 
         private void tcMain_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (tcMain.SelectedIndex >= 0 && tcMain.SelectedIndex < Modules.Count)
+            if (tcMain.SelectedIndex >= 0 && tcMain.SelectedIndex < Plugins.Count)
             {
                 btnReset.Enabled = true;
 
-                for (int i = 0; i < Modules.Count; i++)
+                for (int i = 0; i < Plugins.Count; i++)
                 {
                     if (i == tcMain.SelectedIndex)
-                        EnableModule(Modules[i]);
+                        EnableModule(Plugins[i]);
                     else
-                        DisableModule(Modules[i]);
+                        DisableModule(Plugins[i]);
                 }
             }
             else
@@ -300,7 +297,7 @@ namespace AloysAdjustments
             }
         }
 
-        private void EnableModule(IModule module)
+        private void EnableModule(IInteractivePlugin module)
         {
             module.Reset.PropertyValueChanged = (p, v) => Relay_PropertyValueChanged(btnReset, p, v);
             //module.Reset.FirePropertyChanges();
@@ -309,7 +306,7 @@ namespace AloysAdjustments
             module.ResetSelected.FirePropertyChanges();
         }
 
-        private void DisableModule(IModule module)
+        private void DisableModule(IInteractivePlugin module)
         {
             module.Reset.PropertyValueChanged = null;
             module.ResetSelected.PropertyValueChanged = null;
@@ -323,13 +320,13 @@ namespace AloysAdjustments
 
         private void btnResetSelected_Click(object sender, EventArgs e)
         {
-            if (tcMain.SelectedIndex >= 0 && tcMain.SelectedIndex < Modules.Count)
-                Modules[tcMain.SelectedIndex].ResetSelected.OnClick();
+            if (tcMain.SelectedIndex >= 0 && tcMain.SelectedIndex < Plugins.Count)
+                Plugins[tcMain.SelectedIndex].ResetSelected.OnClick();
         }
         private void btnReset_Click(object sender, EventArgs e)
         {
-            if (tcMain.SelectedIndex >= 0 && tcMain.SelectedIndex < Modules.Count)
-                Modules[tcMain.SelectedIndex].Reset.OnClick();
+            if (tcMain.SelectedIndex >= 0 && tcMain.SelectedIndex < Plugins.Count)
+                Plugins[tcMain.SelectedIndex].Reset.OnClick();
         }
 
         private void Main_FormClosing(object sender, FormClosingEventArgs e)

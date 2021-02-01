@@ -20,7 +20,7 @@ namespace AloysAdjustments.Modules.Settings
     {
         public event EmptyEventHandler SettingsOkay;
 
-        public override string ModuleName => "Settings";
+        public override string PluginName => "Settings";
 
         public Updater Updater { get; }
 

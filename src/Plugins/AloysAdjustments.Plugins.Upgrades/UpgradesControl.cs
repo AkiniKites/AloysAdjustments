@@ -6,13 +6,14 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using AloysAdjustments.Configuration;
-using AloysAdjustments.Data;
 using AloysAdjustments.Logic;
 using AloysAdjustments.Logic.Patching;
+using AloysAdjustments.Modules;
+using AloysAdjustments.Plugins.Upgrades.Data;
 using AloysAdjustments.Utility;
 using Decima;
 
-namespace AloysAdjustments.Modules.Upgrades
+namespace AloysAdjustments.Plugins.Upgrades
 {
     public partial class UpgradesControl : ModuleBase
     {
@@ -20,11 +21,11 @@ namespace AloysAdjustments.Modules.Upgrades
         private Dictionary<BaseGGUUID, Upgrade> DefaultUpgrades { get; set; }
         private List<Upgrade> NewUpgrades { get; set; }
 
-        public override string ModuleName => "Upgrades";
+        public override string PluginName => "Upgrades";
 
         public UpgradesControl()
         {
-            IoC.Bind(Configs.LoadModuleConfig<UpgradeConfig>(ModuleName));
+            IoC.Bind(Configs.LoadModuleConfig<UpgradeConfig>(PluginName));
 
             Logic = new UpgradesLogic();
 

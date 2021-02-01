@@ -5,16 +5,15 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using AloysAdjustments.Configuration;
-using AloysAdjustments.Data;
 using AloysAdjustments.Logic;
 using AloysAdjustments.Logic.Patching;
+using AloysAdjustments.Plugins.Outfits.Data;
 using AloysAdjustments.Utility;
 using Decima;
 using Decima.HZD;
 using HZDCoreEditor.Util;
 
-namespace AloysAdjustments.Modules.Outfits
+namespace AloysAdjustments.Plugins.Outfits
 {
     public class CharacterGenerator
     {

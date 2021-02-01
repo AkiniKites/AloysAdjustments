@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
-using Decima;
+using System.Threading.Tasks;
 
-namespace AloysAdjustments.Data
+namespace AloysAdjustments.Plugins.Outfits.Data
 {
     public class CharacterModel : Model
     {

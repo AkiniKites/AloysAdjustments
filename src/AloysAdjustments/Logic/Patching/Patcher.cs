@@ -13,13 +13,8 @@ namespace AloysAdjustments.Logic.Patching
     public class Patcher
     {
         private const string PatchTempDir = "patch";
-
-        public PluginManager Plugins {get; }
-
-        public Patcher()
-        {
-            Plugins = new PluginManager();
-        }
+        
+        public Patcher() { }
 
         public Patch StartPatch()
         {
@@ -28,9 +23,9 @@ namespace AloysAdjustments.Logic.Patching
             return new Patch(Path.Combine(IoC.Config.TempPath, PatchTempDir));
         }
 
-        public void ApplyCustomPatches(Patch patch)
+        public void ApplyCustomPatches(Patch patch, PluginManager plugins)
         {
-            Plugins.ExecuteAll<IPatchPlugin>(".", p =>
+            plugins.ExecuteAll<IPlugin>(p =>
             {
                 p.ApplyChanges(patch);
             });

@@ -3,14 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using AloysAdjustments.Configuration;
 using AloysAdjustments.Logic;
 using AloysAdjustments.Logic.Patching;
 using Decima;
 using Decima.HZD;
-using Upgrade = AloysAdjustments.Data.Upgrade;
+using Upgrade = AloysAdjustments.Plugins.Upgrades.Data.Upgrade;
 
-namespace AloysAdjustments.Modules.Upgrades
+namespace AloysAdjustments.Plugins.Upgrades
 {
     public class UpgradesLogic
     {
