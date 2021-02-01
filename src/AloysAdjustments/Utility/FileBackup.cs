@@ -60,10 +60,15 @@ namespace AloysAdjustments.Utility
         {
             var filename = Path.GetFileName(path);
             var matcher = new Regex($"^{Regex.Escape(filename)}{GuidPattern}$", RegexOptions.IgnoreCase);
-            foreach (var file in Directory.GetFiles(Path.GetDirectoryName(path)))
+            var dir = Path.GetDirectoryName(path);
+
+            if (Directory.Exists(dir))
             {
-                if (matcher.IsMatch(Path.GetFileName(file)))
-                    yield return file;
+                foreach (var file in Directory.GetFiles(dir))
+                {
+                    if (matcher.IsMatch(Path.GetFileName(file)))
+                        yield return file;
+                }
             }
         }
 
