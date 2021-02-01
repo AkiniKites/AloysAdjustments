@@ -10,6 +10,9 @@
         "entities/armor/outfits/outfits.core",
         "entities/dlc1/outfits/dlc1_outfits.core"
       ],
+      "IgnoredOutfits": [
+        "Outfit_Undergarment"
+      ],
       "HumanoidMatcher": "^entities/.*humanoids/.+",
       "UniqueHumanoidMatcher": "^entities/.*humanoids/.*(?:individual_characters|uniquecharacters).+",
       "IgnoredCharacters": [
@@ -25,7 +28,9 @@
       "IgnoredArmorComponents": [
         "SkeletonHelpersComponentResource",
         "ScaleEntityFromAnimationComponentResource"
-      ]
+      ],
+      "UndergarmentModelFile": "entities/characters/humanoids/player/costumes/playercostume_undergarment",
+      "Mission4UndergarmentFixFile": "levels/worlds/world/scenes/mainquest/mq4_mothersheart/sequences/mq04_bedding_down_seq"
     },
     "Upgrades": {
       "UpgradeFile": "entities/characters/craftingrecipes",

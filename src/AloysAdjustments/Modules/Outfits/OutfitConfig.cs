@@ -11,6 +11,7 @@ namespace AloysAdjustments.Modules.Outfits
         public string PlayerCharacterFile { get; set; }
         public string RagdollComponentsFile { get; set; }
         public string[] OutfitFiles { get; set; }
+        public string[] IgnoredOutfits { get; set; }
 
         public string HumanoidMatcher { get; set; }
         public string UniqueHumanoidMatcher { get; set; }
@@ -20,5 +21,8 @@ namespace AloysAdjustments.Modules.Outfits
 
         public string[] ArmorComponentFiles { get; set; }
         public string[] IgnoredArmorComponents { get; set; }
+        
+        public string UndergarmentModelFile { get; set; }
+        public string Mission4UndergarmentFixFile { get; set; }
     }
 }

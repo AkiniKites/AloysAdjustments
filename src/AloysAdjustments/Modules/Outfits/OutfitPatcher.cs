@@ -19,10 +19,11 @@ namespace AloysAdjustments.Modules.Outfits
             var details = BuildDetails(defaultOutfits, outfits, models).ToList();
             var hasCharacters = details.Any(x => x.Modified && x.IsCharacter);
 
+            var components = FindAloyComponents();
+
             if (hasCharacters)
             {
                 //remove aloy components from player file
-                var components = FindAloyComponents();
                 RemoveAloyComponents(patch, components);
 
                 UpdateModelVariants(patch, details, true,
@@ -35,6 +36,11 @@ namespace AloysAdjustments.Modules.Outfits
             UpdateModelVariants(patch, details, true, 
                 (outfit, core, variant) => UpdateArmorBuffs(outfit, variant));
 
+            if (hasCharacters)
+            {
+                FixUndergarmentTransitions(patch, details, components);
+            }
+
             AddVariantReferences(patch, details);
             UpdateOutfitRefs(patch, details);
         }
@@ -42,15 +48,17 @@ namespace AloysAdjustments.Modules.Outfits
         public IEnumerable<OutfitDetail> BuildDetails(IList<Outfit> defaultOutfits, IList<Outfit> outfits, List<Model> models)
         {
             var modelSet = models.ToDictionary(x => x.Id, x => x);
-            var defaultSet = defaultOutfits.ToDictionary(x => x.RefId, x=>x.ModelId);
+            var outfitSet = outfits.ToDictionary(x => x.RefId, x => x);
 
-            foreach (var outfit in outfits)
+            foreach (var defaultOutfit in defaultOutfits)
             {
+                if (!outfitSet.TryGetValue(defaultOutfit.RefId, out var outfit))
+                    outfit = defaultOutfit;
                 var detail = new OutfitDetail()
                 {
                     Outfit = outfit,
                     Model = modelSet[outfit.ModelId],
-                    DefaultModel = modelSet[defaultSet[outfit.RefId]],
+                    DefaultModel = modelSet[defaultOutfit.ModelId],
                     VariantId = outfit.ModelId
                 };
 
@@ -145,7 +153,7 @@ namespace AloysAdjustments.Modules.Outfits
                     {
                         void collapseVariant()
                         {
-                            //okay to collapse character variants into original
+                            //okay to collapse armor variants into original
                             if (isOriginal && outfit.IsCharacter) return;
                             
                             core.Binary.RemoveObject(variant);
@@ -161,7 +169,7 @@ namespace AloysAdjustments.Modules.Outfits
                         {
                             changes.Add((change.SourceId, change.NewId, null, () =>
                             {
-                                //okay to collapse character variants into original
+                                //okay to collapse armor variants into original
                                 if (isOriginal && outfit.IsCharacter) return;
 
                                 outfit.VariantId = variant.ObjectUUID;
@@ -344,10 +352,10 @@ namespace AloysAdjustments.Modules.Outfits
         }
 
         private bool AttachAloyComponents(OutfitDetail outfit, HumanoidBodyVariant variant, 
-            List<(string File, BaseGGUUID Id)> components)
+            List<(string File, BaseGGUUID Id)> components, bool forceAdd = false)
         {
             //re-attach removed components to unchanged outfits and armor swaps 
-            if (outfit.IsCharacter)
+            if (!forceAdd && outfit.IsCharacter)
                 return false;
 
             foreach (var item in components)
@@ -363,6 +371,27 @@ namespace AloysAdjustments.Modules.Outfits
             }
 
             return true;
+        }
+
+        private void FixUndergarmentTransitions(Patch patch, List<OutfitDetail> outfits, List<(string File, BaseGGUUID Id)> components)
+        {
+            //entities/spawnsetups/characters/cinematics/mq15_5_restatolinsapartment/c_aloyundergarments
+            //doesn't crash during this scene but it does after on the mesa
+            
+            //levels/worlds/world/scenes/mainquest/mq4_mothersheart/sequences/mq04_bedding_down_seq
+            var core = patch.AddFile(IoC.Get<OutfitConfig>().Mission4UndergarmentFixFile);
+            var undergarmentModelId = outfits.First(x => x.DefaultModel.Source == IoC.Get<OutfitConfig>().UndergarmentModelFile).DefaultModel.Id;
+            var param = core.GetTypes<NodeConstantsResource>().SelectMany(x=>x.Parameters).FirstOrDefault(x=>x.DefaultObjectUUID.GUID == undergarmentModelId);
+            if (param == null)
+                throw new HzdException($"Failed to fix mission 4, unable to find ProgramParameter");
+            param.DefaultObjectUUID = new UUIDRef<RTTIRefObject>();
+            core.Save();
+
+            //cinematics/mainquests/mq050_cut_helisandrost/mq050cuthelisandrost
+            //levels/worlds/world/tiles/tile_x04_y-05/layers/gameplay/mq6_aftermath_scene_01_script
+            //levels/worlds/world/scenes/mq13/mq13_masterscene_scene_script
+            //these are fixed implicitly by ignoring Outfit_Undergarment as a valid outfit swap
+            //loading during the arena will still have missing hair
         }
 
         private void UpdateOutfitRefs(Patch patch, List<OutfitDetail> outfits)
