@@ -66,7 +66,7 @@ namespace AloysAdjustments.Plugins.CustomFiles
                 var valid = false;
                 if (hasName)
                     KnownNames.TryGetValue(name, out valid);
-                files.Add(new CustomFile(hasName ? name : file.PathHash.ToString(), path)
+                files.Add(new CustomFile(hasName ? name : $"Unknown file - {file.PathHash}", path)
                 {
                     SourceType = SourceType.Pack,
                     Valid = valid

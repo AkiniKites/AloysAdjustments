@@ -35,13 +35,12 @@ namespace AloysAdjustments.Plugins.CustomFiles
         private void InitializeComponent()
         {
             this.btnAddFolder = new System.Windows.Forms.Button();
-            this.lbFiles = new AloysAdjustments.UI.ListBoxNF();
+            this.lvFiles = new BrightIdeasSoftware.FastObjectListView();
             this.btnAddFiles = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // btnAddFolder
             // 
-            this.btnAddFolder.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.btnAddFolder.Location = new System.Drawing.Point(2, 2);
             this.btnAddFolder.Name = "btnAddFolder";
             this.btnAddFolder.Size = new System.Drawing.Size(100, 25);
@@ -50,23 +49,22 @@ namespace AloysAdjustments.Plugins.CustomFiles
             this.btnAddFolder.UseVisualStyleBackColor = true;
             this.btnAddFolder.Click += new System.EventHandler(this.btnAddFolder_Click);
             // 
-            // lbFiles
+            // lvFiles
             // 
-            this.lbFiles.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            this.lvFiles.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.lbFiles.FormattingEnabled = true;
-            this.lbFiles.IntegralHeight = false;
-            this.lbFiles.ItemHeight = 16;
-            this.lbFiles.Location = new System.Drawing.Point(2, 33);
-            this.lbFiles.Name = "lbFiles";
-            this.lbFiles.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
-            this.lbFiles.Size = new System.Drawing.Size(643, 539);
-            this.lbFiles.TabIndex = 7;
+            this.lvFiles.FullRowSelect = true;
+            this.lvFiles.HideSelection = false;
+            this.lvFiles.Location = new System.Drawing.Point(2, 33);
+            this.lvFiles.Name = "lvFiles";
+            this.lvFiles.Size = new System.Drawing.Size(643, 539);
+            this.lvFiles.TabIndex = 7;
+            this.lvFiles.UseCompatibleStateImageBehavior = false;
+            this.lvFiles.View = System.Windows.Forms.View.Details;
             // 
             // btnAddFiles
             // 
-            this.btnAddFiles.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.btnAddFiles.Location = new System.Drawing.Point(108, 2);
             this.btnAddFiles.Name = "btnAddFiles";
             this.btnAddFiles.Size = new System.Drawing.Size(100, 25);
@@ -80,7 +78,7 @@ namespace AloysAdjustments.Plugins.CustomFiles
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Controls.Add(this.btnAddFiles);
-            this.Controls.Add(this.lbFiles);
+            this.Controls.Add(this.lvFiles);
             this.Controls.Add(this.btnAddFolder);
             this.Name = "CustomFilesControl";
             this.Size = new System.Drawing.Size(646, 572);
@@ -91,7 +89,7 @@ namespace AloysAdjustments.Plugins.CustomFiles
         #endregion
 
         private System.Windows.Forms.Button btnAddFolder;
-        private AloysAdjustments.UI.ListBoxNF lbFiles;
+        private BrightIdeasSoftware.FastObjectListView lvFiles;
         private System.Windows.Forms.Button btnAddFiles;
     }
 }

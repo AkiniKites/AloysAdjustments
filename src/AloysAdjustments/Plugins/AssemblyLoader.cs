@@ -17,24 +17,43 @@ namespace AloysAdjustments.Plugins
         {
             var loaded = new List<T>();
 
-            path = Path.GetFullPath(path);
-            var assembly = Assembly.LoadFile(path);
+            Assembly AssemblyResolve(object sender, ResolveEventArgs args)
+            {
+                var name = args.Name.Remove(args.Name.IndexOf(',')) + ".dll";
+
+                var supportPath = Path.Combine(Path.GetDirectoryName(path), name);
+                if (File.Exists(supportPath))
+                    return Assembly.LoadFile(supportPath);
+                return null;
+            }
+
+            AppDomain.CurrentDomain.AssemblyResolve += AssemblyResolve;
 
             try
             {
-                var types = assembly.GetTypes().Where(x => typeof(T).IsAssignableFrom(x) && !x.IsAbstract);
-                foreach (var type in types)
-                {
-                    var constructor = type.GetConstructor(Type.EmptyTypes);
+                path = Path.GetFullPath(path);
+                var assembly = Assembly.LoadFile(path);
 
-                    //TODO: log errors for invalid types
-                    if (constructor != null)
-                        loaded.Add((T)Activator.CreateInstance(type));
+                try
+                {
+                    var types = assembly.GetTypes().Where(x => typeof(T).IsAssignableFrom(x) && !x.IsAbstract);
+                    foreach (var type in types)
+                    {
+                        var constructor = type.GetConstructor(Type.EmptyTypes);
+
+                        //TODO: log errors for invalid types
+                        if (constructor != null)
+                            loaded.Add((T)Activator.CreateInstance(type));
+                    }
+                }
+                catch (Exception ex)
+                {
+                    //TODO: implement
                 }
             }
-            catch (Exception ex)
+            finally
             {
-                //TODO: implement
+                AppDomain.CurrentDomain.AssemblyResolve -= AssemblyResolve;
             }
 
             return loaded;

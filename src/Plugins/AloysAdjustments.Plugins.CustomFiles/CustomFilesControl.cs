@@ -10,6 +10,7 @@ using AloysAdjustments.Logic.Patching;
 using AloysAdjustments.Modules;
 using AloysAdjustments.UI;
 using AloysAdjustments.Utility;
+using BrightIdeasSoftware;
 
 namespace AloysAdjustments.Plugins.CustomFiles
 {
@@ -24,29 +25,31 @@ namespace AloysAdjustments.Plugins.CustomFiles
         public CustomFilesControl()
         {
             InitializeComponent();
-
-            lbFiles.DisplayMember = "Name";
-            lbFiles.DrawMode = DrawMode.OwnerDrawVariable;
-            lbFiles.ItemHeight = lbFiles.Font.Height + 2;
-            lbFiles.DrawItem += (s, e) =>
+            
+            lvFiles.Columns.Add(new OLVColumn()
             {
-                if (e.Index < 0)
-                    return;
-
-                var l = (ListBox)s;
-
-                e.DrawBackground();
-
-                var valid = Files[e.Index].Valid;
-
-                var foreColor = valid ? e.ForeColor : UIColors.ErrorColor;
-                using (var b = new SolidBrush(foreColor))
-                {
-                    var text = l.GetItemText(l.Items[e.Index]);
-                    e.Graphics.DrawString(text, e.Font, b, e.Bounds, StringFormat.GenericDefault);
-                }
-                e.DrawFocusRectangle();
-            };
+                Text = "File Name",
+                Width = 500,
+                AspectName = "Name"
+            });
+            lvFiles.Columns.Add(new OLVColumn()
+            {
+                Text = "Valid",
+                AspectName = "Valid",
+            });
+            lvFiles.Columns.Add(new OLVColumn()
+            {
+                Text = "Source",
+                Width = 500,
+                AspectName = "SourcePath"
+            });
+            lvFiles.Columns.Add(new OLVColumn()
+            {
+                Text = "",
+                FillsFreeSpace = true
+            });
+            lvFiles.PrimarySortColumn = (OLVColumn)lvFiles.Columns[0];
+            lvFiles.PrimarySortOrder = SortOrder.Ascending;
 
             Logic = new CustomFilesLogic();
         }
@@ -90,10 +93,10 @@ namespace AloysAdjustments.Plugins.CustomFiles
         private void AddFiles(IEnumerable<CustomFile> files)
         {
             Files.AddRange(files);
-            Files.Sort();
 
-            lbFiles.Items.Clear();
-            lbFiles.Items.AddRange(Files.ToArray());
+            lvFiles.BeginUpdate();
+            lvFiles.AddObjects(Files);
+            lvFiles.EndUpdate();
         }
     }
 }

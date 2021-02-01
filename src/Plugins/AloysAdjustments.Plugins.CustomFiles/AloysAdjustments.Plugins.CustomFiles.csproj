@@ -4,6 +4,17 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <PlatformTarget>x64</PlatformTarget>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="ObjectListView.Repack.Core3" Version="2.9.2" />
+  </ItemGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\..\AloysAdjustments\AloysAdjustments.csproj" />
   </ItemGroup>
@@ -15,7 +26,7 @@
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="copy /y $(TargetPath) $(ProjectDir)..\..\AloysAdjustments\bin\Debug\netcoreapp3.1\plugins\$(TargetFileName)" />
+    <Exec Command="copy /y $(TargetPath) $(ProjectDir)..\..\AloysAdjustments\bin\Debug\netcoreapp3.1\plugins\$(TargetFileName)&#xD;&#xA;copy /y $(TargetDir)ObjectListView2019Core3.dll $(ProjectDir)..\..\AloysAdjustments\bin\Debug\netcoreapp3.1\plugins\ObjectListView2019Core3.dll" />
   </Target>
 
 </Project>
