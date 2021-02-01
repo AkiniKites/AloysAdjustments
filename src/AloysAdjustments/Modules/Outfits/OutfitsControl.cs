@@ -123,9 +123,11 @@ namespace AloysAdjustments.Modules.Outfits
         private void LoadSettings()
         {
             cbAllOutfits.Checked = IoC.Settings.ApplyToAllOutfits;
-            var filters = (OutfitModelFilter)IoC.Settings.OutfitModelFilter;
+            var filter = (OutfitModelFilter)IoC.Settings.OutfitModelFilter;
+            if (filter == 0)
+                filter = OutfitModelFilter.Armor | OutfitModelFilter.Characters;
 
-            foreach (var f in Filters.Where(x => filters.HasFlag(x.Item)))
+            foreach (var f in Filters.Where(x => filter.HasFlag(x.Item)))
                 f.Selected = true;
         }
 
@@ -175,14 +177,15 @@ namespace AloysAdjustments.Modules.Outfits
         private async Task UpdateModelList()
         {
             var filter = (OutfitModelFilter)IoC.Settings.OutfitModelFilter;
-            var noneFilter = filter == 0;
+            if (filter == 0)
+                filter = OutfitModelFilter.Armor | OutfitModelFilter.Characters;
 
             await Async.Run(() =>
             {
                 var models = new List<Model>();
-                if (noneFilter || filter.HasFlag(OutfitModelFilter.Armor))
+                if (filter.HasFlag(OutfitModelFilter.Armor))
                     models.AddRange(LoadOutfitModelList());
-                if (noneFilter || filter.HasFlag(OutfitModelFilter.Characters))
+                if (filter.HasFlag(OutfitModelFilter.Characters))
                     models.AddRange(LoadCharacterModelList(false));
                 if (filter.HasFlag(OutfitModelFilter.AllCharacters))
                     models.AddRange(LoadCharacterModelList(true));
