@@ -4,6 +4,7 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <UseWindowsForms>true</UseWindowsForms>
+    <UseWPF>true</UseWPF>
     <AssemblyName>Aloy's Adjustments</AssemblyName>
     <Authors>Akini Kites</Authors>
 	<SatelliteResourceLanguages>en</SatelliteResourceLanguages>

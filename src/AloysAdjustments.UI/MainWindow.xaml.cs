@@ -21,7 +21,7 @@ using Decima.HZD;
 using Microsoft.Win32;
 using Newtonsoft.Json;
 using Control = System.Windows.Controls.Control;
-using ControlLock = AloysAdjustments.UI.Utility.ControlLock;
+using ControlLock = AloysAdjustments.WPF.UI.ControlLock;
 using Localization = AloysAdjustments.Logic.Localization;
 
 namespace AloysAdjustments.UI
@@ -52,7 +52,7 @@ namespace AloysAdjustments.UI
 
             InitializeComponent();
 
-            Utility.WindowMemory.ActivateWindow(this, "Main");
+            WPF.UI.WindowMemory.ActivateWindow(this, "Main");
 
             RTTI.SetGameMode(GameType.HZD);
         }
@@ -85,7 +85,7 @@ namespace AloysAdjustments.UI
             {
                 tssStatus.Text = text;
                 tssStatus.Foreground = error ? 
-                    new SolidColorBrush(Utility.UIColors.ErrorColor) : 
+                    new SolidColorBrush(WPF.UI.UIColors.ErrorColor) : 
                     SystemColors.WindowTextBrush;
             });
         }
@@ -284,7 +284,7 @@ namespace AloysAdjustments.UI
             IoC.Bind(SettingsManager.Load());
         }
 
-        private void tcMain_Selected(object sender, RoutedEventArgs e)
+        private void tcMain_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (tcMain.SelectedIndex >= 0 && tcMain.SelectedIndex < Plugins.Count)
             {

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System.Windows.Controls;
 using AloysAdjustments.UI;
 
-namespace AloysAdjustments.UI.Utility
+namespace AloysAdjustments.WPF.UI
 {
     public class ControlLock : IDisposable
     {

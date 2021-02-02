@@ -6,10 +6,7 @@
         xmlns:local="clr-namespace:AloysAdjustments.UI"
         mc:Ignorable="d"
         Title="MainWindow" Height="800" Width="800"
-        Loaded="Main_LoadCommand" Closing="">
-    <Window.DataContext>
-        <local:MainViewModel />
-    </Window.DataContext>
+        Loaded="Main_LoadCommand" Closing="Window_Closing">
 
     <DockPanel>
         <StatusBar DockPanel.Dock="Bottom">
@@ -40,8 +37,8 @@
                 <ColumnDefinition />
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <TabControl Name="tcMain" Grid.Column="0" Margin="10,10,5,5" 
-                        Selected="tcMain_Selected"/>
+            <TabControl x:Name="tcMain" Grid.Column="0" Margin="10,10,5,5" 
+                        SelectionChanged="tcMain_SelectionChanged"/>
             <DockPanel Grid.Column="1" LastChildFill="False">
                 <Button x:Name="btnLoadPatch" Content="Load" 
                         DockPanel.Dock="Top" Margin="0,10,10,0" Height="28" Width="100"
