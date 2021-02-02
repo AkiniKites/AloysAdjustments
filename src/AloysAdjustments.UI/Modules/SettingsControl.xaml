@@ -58,7 +58,7 @@
 
                 <TextBlock Grid.Row="0" Grid.Column="1" x:Name="lblCurrentVersion" 
                            HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,4,0,0"/>
-                <TextBlock Grid.Row="0" Grid.Column="1" x:Name="lblLatestVersion" 
+                <TextBlock Grid.Row="1" Grid.Column="1" x:Name="lblLatestVersion" 
                            HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,4,0,0"/>
 
                 <TextBlock Grid.Row="0" Grid.Column="2" Grid.RowSpan="2" x:Name="lblUpdateStatus" 

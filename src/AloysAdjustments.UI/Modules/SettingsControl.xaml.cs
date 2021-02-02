@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Forms;
 using System.Windows.Threading;
 using AloysAdjustments.Configuration;
@@ -83,7 +84,7 @@ namespace AloysAdjustments.WPF.Modules
             return settingsValid;
         }
 
-        private void tbGameDir_TextChanged(object sender, EventArgs e)
+        private void tbGameDir_TextChanged(object sender, TextChangedEventArgs e)
         {
             IoC.Settings.GamePath = tbGameDir.Text;
         }
