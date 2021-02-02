@@ -50,6 +50,11 @@ namespace AloysAdjustments.Plugins.CustomFiles
             });
             lvFiles.PrimarySortColumn = (OLVColumn)lvFiles.Columns[0];
             lvFiles.PrimarySortOrder = SortOrder.Ascending;
+            lvFiles.FormatRow += (s, e) =>
+            {
+                if (!((CustomFile)e.Model).Valid)
+                    e.Item.ForeColor = UIColors.ErrorColor;
+            };
 
             Logic = new CustomFilesLogic();
         }
