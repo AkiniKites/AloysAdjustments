@@ -13,15 +13,16 @@ using System.Windows.Threading;
 using AloysAdjustments.Configuration;
 using AloysAdjustments.Logic;
 using AloysAdjustments.Logic.Patching;
-using AloysAdjustments.Modules.Settings;
 using AloysAdjustments.Plugins;
 using AloysAdjustments.Utility;
+using AloysAdjustments.WPF.Modules;
 using Decima;
 using Decima.HZD;
 using Microsoft.Win32;
 using Newtonsoft.Json;
 using Control = System.Windows.Controls.Control;
 using ControlLock = AloysAdjustments.WPF.UI.ControlLock;
+using IInteractivePlugin = AloysAdjustments.WPF.Plugins.IInteractivePlugin;
 using Localization = AloysAdjustments.Logic.Localization;
 
 namespace AloysAdjustments.UI

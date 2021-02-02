@@ -19,8 +19,10 @@
                                VerticalAlignment="Center" Margin="3,0,0,0"
                                Width="{StaticResource LabelWidth}"/>
                     <Button x:Name="btnGameDir" DockPanel.Dock="Right" 
-                            Content=". . ." Width="70" Margin="6,0,3,0"/>
-                    <ui:TypeDelayTextBox x:Name="tbGameDir"/>
+                            Content=". . ." Width="70" Margin="6,0,3,0"
+                            Click="btnGameDir_Click"/>
+                    <ui:TypeDelayTextBox x:Name="tbGameDir" TextChanged="tbGameDir_TextChanged"
+                                         TypingFinished="tbGameDir_TypingFinished"/>
                 </DockPanel>
                 <DockPanel LastChildFill="False" Margin="0,6,0,0" Height="25">
                     <TextBlock DockPanel.Dock="Left" Text="Oodle DLL: "
@@ -29,7 +31,8 @@
                     <TextBlock x:Name="lblArchiverLib" Text="OK" VerticalAlignment="Center"
                                Foreground="ForestGreen"/>
                     <Button x:Name="btnArchiver" DockPanel.Dock="Right" 
-                            Content="Get Oodle DLL" Width="100" Margin="6,0,3,0"/>
+                            Content="Get Oodle DLL" Width="100" Margin="6,0,3,0" 
+                            Click="btnArchiver_ClickCommand"/>
                 </DockPanel>
             </StackPanel>
         </GroupBox>
@@ -63,7 +66,8 @@
                            TextWrapping="WrapWithOverflow"/>
 
                 <Button Grid.Row="0" Grid.Column="3" x:Name="btnUpdates"
-                        Content="Check Updates" Width="100" Margin="6,0,3,0"/>
+                        Content="Check Updates" Width="100" Margin="6,0,3,0"
+                        Click="btnUpdates_ClickCommand"/>
             </Grid>
         </GroupBox>
         <GroupBox DockPanel.Dock="Bottom" Header="Game Pack">
@@ -72,7 +76,8 @@
                            VerticalAlignment="Center" Margin="3,0,0,0"
                            Width="{StaticResource LabelWidth}"/>
                 <Button x:Name="btnDeletePack" DockPanel.Dock="Right" 
-                        Content="Delete Pack" Width="100" Margin="6,0,3,0"/>
+                        Content="Delete Pack" Width="100" Margin="6,0,3,0"
+                        Click="btnDeletePack_Click"/>
                 <TextBlock x:Name="lblPackStatus" Text="Pack not installed" VerticalAlignment="Center"/>
             </DockPanel>
         </GroupBox>
@@ -82,7 +87,8 @@
                            VerticalAlignment="Center" Margin="3,0,0,0"
                            Width="{StaticResource LabelWidth}"/>
                 <Button x:Name="btnClearCache" DockPanel.Dock="Right" 
-                        Content="Clear Cache" Width="100" Margin="6,0,3,0"/>
+                        Content="Clear Cache" Width="100" Margin="6,0,3,0"
+                        Click="btnClearCache_ClickCommand"/>
                 <TextBlock x:Name="lblCacheSize" Text="0 KB" VerticalAlignment="Center"/>
             </DockPanel>
         </GroupBox>
