@@ -21,7 +21,8 @@
                     <Button x:Name="btnGameDir" DockPanel.Dock="Right" 
                             Content=". . ." Width="70" Margin="6,0,3,0"
                             Click="btnGameDir_Click"/>
-                    <ui:TypeDelayTextBox x:Name="tbGameDir" TextChanged="tbGameDir_TextChanged"
+                    <ui:TypeDelayTextBox x:Name="tbGameDir" VerticalContentAlignment="Center"
+                                         TextChanged="tbGameDir_TextChanged"
                                          TypingFinished="tbGameDir_TypingFinished"/>
                 </DockPanel>
                 <DockPanel LastChildFill="False" Margin="0,6,0,0" Height="25">

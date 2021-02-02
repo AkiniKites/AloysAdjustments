@@ -1,26 +1,37 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Forms;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Documents;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
+using System.Windows.Shapes;
 using AloysAdjustments.Configuration;
 using AloysAdjustments.Logic;
 using AloysAdjustments.Logic.Patching;
+using AloysAdjustments.Modules.Misc;
 using AloysAdjustments.Plugins.Misc.Data;
-using AloysAdjustments.Utility;
+using AloysAdjustments.WPF.Plugins;
+using AloysAdjustments.WPF.UI;
 
-namespace AloysAdjustments.Modules.Misc
+namespace AloysAdjustments.Plugins.Misc
 {
-    public partial class MiscControl : ModuleBase
+    /// <summary>
+    /// Interaction logic for MiscControl.xaml
+    /// </summary>
+    public partial class MiscControl : InteractivePluginBase
     {
         private bool _loading;
 
         private MiscLogic MiscLogic { get; }
         private MiscAdjustments DefaultAdjustments { get; set; }
         private MiscAdjustments Adjustments { get; set; }
-        
+
         public override string PluginName => "Misc";
 
         public MiscControl()
@@ -86,12 +97,12 @@ namespace AloysAdjustments.Modules.Misc
             await Reload();
             IoC.Notif.ShowStatus("Reset complete");
         }
-        
-        private void cbIntroLogos_CheckedChanged(object sender, EventArgs e)
+
+        private void cbIntroLogos_Checked(object sender, RoutedEventArgs e)
         {
             if (_loading) return;
 
-            Adjustments.SkipIntroLogos = cbIntroLogos.Checked;
+            Adjustments.SkipIntroLogos = cbIntroLogos.IsChecked;
             RefreshControls();
         }
 
@@ -99,8 +110,8 @@ namespace AloysAdjustments.Modules.Misc
         {
             _loading = true;
 
-            cbIntroLogos.Checked = Adjustments.SkipIntroLogos == true;
-            cbIntroLogos.Text = DefaultAdjustments.SkipIntroLogos == Adjustments.SkipIntroLogos 
+            cbIntroLogos.IsChecked = Adjustments.SkipIntroLogos == true;
+            cbIntroLogos.Content = DefaultAdjustments.SkipIntroLogos == Adjustments.SkipIntroLogos
                 ? "Remove Intro Logos" : "Remove Intro Logos *";
 
             _loading = false;

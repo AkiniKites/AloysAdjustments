@@ -17,7 +17,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AloysAdjustments.Plugins.Ou
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AloysAdjustments.Plugins.Misc", "src\Plugins\AloysAdjustments.Plugins.Misc\AloysAdjustments.Plugins.Misc.csproj", "{5E7D356F-8970-4CCA-98B7-DDAFB21F1DEA}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AloysAdjustments", "src\AloysAdjustments.UI\AloysAdjustments.csproj", "{4FDB6698-4EB0-4340-9567-7578054B912B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AloysAdjustments", "src\AloysAdjustments\AloysAdjustments.csproj", "{4FDB6698-4EB0-4340-9567-7578054B912B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
