@@ -22,26 +22,6 @@ using EnumsNET;
 
 namespace AloysAdjustments.Plugins.Outfits
 {
-    public class OutfitModelFilter
-    {
-        public static OutfitModelFilter Armor = new OutfitModelFilter("Armors", 1);
-        public static OutfitModelFilter Characters = new OutfitModelFilter("Main Characters", 2);
-        public static OutfitModelFilter AllCharacters = new OutfitModelFilter("All Characters", 4);
-        public static OutfitModelFilter[] All = { Armor, Characters, AllCharacters };
-
-        private OutfitModelFilter(string name, int value)
-        {
-            Name = name;
-            Value = value;
-        }
-
-        public string Name { get; }
-        public int Value { get; }
-        public bool Checked { get; set; }
-
-        public bool IsFlag(int flags) => (flags & Value) == Value;
-    }
-
     public partial class OutfitsControl : InteractivePluginBase, INotifyPropertyChanged
     {
         private bool _updatingLists;
@@ -66,10 +46,7 @@ namespace AloysAdjustments.Plugins.Outfits
 
             AllOutfitStub = new List<Outfit>
             {
-                new Outfit()
-                {
-                    LocalName = "All Outfits"
-                }
+                new Outfit() {LocalName = "All Outfits" }
             }.AsReadOnly();
 
             IoC.Bind(Configs.LoadModuleConfig<OutfitConfig>(PluginName));
@@ -96,7 +73,7 @@ namespace AloysAdjustments.Plugins.Outfits
                 filter = OutfitModelFilter.Armor.Value | OutfitModelFilter.Characters.Value;
 
             foreach (var f in Filters.Where(x => x.IsFlag(filter)))
-                f.Checked = true;
+                ccbModelFilter.SelectedItems.Add(f);
         }
 
         public override async Task Initialize()
@@ -349,46 +326,41 @@ namespace AloysAdjustments.Plugins.Outfits
             lbOutfits_SelectionChanged(lbOutfits, null);
         }
 
-        //private bool _disableFilterEvents = false;
-        //private void ccbModelFilter_CheckBoxCheckedChanged(object sender, EventArgs e)
-        //{
-        //    if (_disableFilterEvents || _loading)
-        //        return;
-        //    _disableFilterEvents = true;
-
-        //    var checkedItem = (ObjectWrapper<OutfitModelFilter>)((CheckBoxComboBoxItem)sender).ComboBoxItem;
-        //    if (checkedItem.Item == OutfitModelFilter.Characters)
-        //        Filters.FindObjectWithItem(OutfitModelFilter.AllCharacters).Selected = false;
-        //    if (checkedItem.Item == OutfitModelFilter.AllCharacters)
-        //        Filters.FindObjectWithItem(OutfitModelFilter.Characters).Selected = false;
-
-        //    _disableFilterEvents = false;
-        //}
-
-        private void clbModels_Checked(object sender, RoutedEventArgs e)
+        private bool _disableFilterEvents = false;
+        private void ccbModelFilter_ItemSelectionChanged(object sender, Xceed.Wpf.Toolkit.Primitives.ItemSelectionChangedEventArgs e)
         {
+            if (_disableFilterEvents || _loading)
+                return;
+            _disableFilterEvents = true;
+            
+            var checkedItem = (OutfitModelFilter)e.Item;
+            if (checkedItem == OutfitModelFilter.Characters)
+                ccbModelFilter.SelectedItems.Remove(OutfitModelFilter.AllCharacters);
+            if (checkedItem == OutfitModelFilter.AllCharacters)
+                ccbModelFilter.SelectedItems.Remove(OutfitModelFilter.Characters);
 
+            _disableFilterEvents = false;
         }
 
-        //private async void ccbModelFilter_DropDownClosedCommand(object sender, EventArgs e)
-        //    => await Relay.To(sender, e, ccbModelFilter_DropDownClosed);
-        //private async Task ccbModelFilter_DropDownClosed(object sender, EventArgs e)
-        //{
-        //    var filter = (OutfitModelFilter)Filters.Where(x => x.Selected).Sum(x => (int)x.Item);
-        //    if (filter == 0)
-        //    {
-        //        filter = OutfitModelFilter.Characters | OutfitModelFilter.Armor;
-        //        foreach (var f in Filters.Where(x => filter.HasFlag(x.Item)))
-        //            f.Selected = true;
-        //    }
+        private async void ccbModelFilter_ClosedCommand(object sender, RoutedEventArgs e)
+            => await Relay.To(sender, e, ccbModelFilter_Closed);
+        private async Task ccbModelFilter_Closed(object sender, RoutedEventArgs e)
+        {
+            var filter = ccbModelFilter.SelectedItems.Cast<OutfitModelFilter>().Sum(x => x.Value);
+            if (filter == 0)
+            {
+                filter = OutfitModelFilter.Characters.Value | OutfitModelFilter.Armor.Value;
+                foreach (var f in Filters.Where(x => x.IsFlag(filter)))
+                    ccbModelFilter.SelectedItems.Add(f);
+            }
 
-        //    IoC.Settings.OutfitModelFilter = (int)filter;
+            IoC.Settings.OutfitModelFilter = filter;
 
-        //    await UpdateModelList();
+            await UpdateModelList();
 
-        //    IoC.Notif.ShowStatus("");
-        //    IoC.Notif.HideProgress();
-        //}
+            IoC.Notif.ShowStatus("");
+            IoC.Notif.HideProgress();
+        }
 
         public event PropertyChangedEventHandler PropertyChanged;
     }

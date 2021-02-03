@@ -13,9 +13,11 @@
     <DockPanel>
         <DockPanel DockPanel.Dock="Top" LastChildFill="False">
             <xctk:CheckComboBox x:Name="ccbModelFilter" DockPanel.Dock="Right" Margin="3" Width="172" 
-                                ItemsSource="{Binding Filters}" 
-                                DisplayMemberPath="Name" ValueMemberPath="Value"
-                                HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
+                                ItemsSource="{Binding Filters}" Delimiter=", "
+                                DisplayMemberPath="Name"
+                                HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch"
+                                ItemSelectionChanged="ccbModelFilter_ItemSelectionChanged"
+                                Closed="ccbModelFilter_ClosedCommand">
                 <xctk:CheckComboBox.ItemContainerStyle>
                     <Style TargetType="xctk:SelectorItem">
                         <Setter Property="Padding" Value="0 1"/>
@@ -71,8 +73,7 @@
                         <DataTemplate>
                             <DockPanel Margin="0 1">
                                 <CheckBox IsChecked="{Binding Checked}" Content="{Binding DisplayName}" 
-                                          Margin="-1" IsHitTestVisible="False" 
-                                          Checked="clbModels_Checked" Unchecked="clbModels_Checked"/>
+                                          Margin="-1" IsHitTestVisible="False"/>
                             </DockPanel>
                         </DataTemplate>
                     </ListBox.ItemTemplate>
