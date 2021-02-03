@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -7,13 +8,14 @@ using Decima;
 
 namespace AloysAdjustments.Plugins.Upgrades.Data
 {
-    public class Upgrade
+    public class Upgrade : INotifyPropertyChanged
     {
         public BaseGGUUID Id { get; set; }
         public string Name { get; set; }
+        public int DefaultValue { get; set; }
         public int Value { get; set; }
 
-        public bool Modified { get; set; }
+        public bool Modified => DefaultValue != Value;
 
         public BaseGGUUID LocalNameId { get; set; }
         public string LocalNameFile { get; set; }
@@ -53,5 +55,7 @@ namespace AloysAdjustments.Plugins.Upgrades.Data
         {
             return System.HashCode.Combine(Id);
         }
+
+        public event PropertyChangedEventHandler PropertyChanged;
     }
 }
