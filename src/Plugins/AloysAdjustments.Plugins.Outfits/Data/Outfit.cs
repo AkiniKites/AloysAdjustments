@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -7,7 +8,7 @@ using Decima;
 
 namespace AloysAdjustments.Plugins.Outfits.Data
 {
-    public class Outfit
+    public class Outfit : INotifyPropertyChanged
     {
         public BaseGGUUID ModelId { get; set; }
         public string ModelFile { get; set; }
@@ -50,5 +51,7 @@ namespace AloysAdjustments.Plugins.Outfits.Data
         {
             return System.HashCode.Combine(RefId);
         }
+
+        public event PropertyChangedEventHandler PropertyChanged;
     }
 }

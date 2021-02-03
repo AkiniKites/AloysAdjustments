@@ -6,8 +6,8 @@
         xmlns:local="clr-namespace:AloysAdjustments.UI"
         mc:Ignorable="d"
         Title="MainWindow" Height="800" Width="800"
-        Loaded="Main_LoadCommand" Closing="Window_Closing">
-
+        Loaded="Main_LoadCommand" Closing="Window_Closing"
+        Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}">
     <DockPanel>
         <StatusBar DockPanel.Dock="Bottom">
             <StatusBar.ItemsPanel>
@@ -22,10 +22,10 @@
                 </ItemsPanelTemplate>
             </StatusBar.ItemsPanel>
             <StatusBarItem Grid.Column="0">
-                <TextBlock x:Name="tssStatus" Text="Status" Margin="3,0,0,0"/>
+                <TextBlock x:Name="tssStatus" Text="Status" Margin="3,0,0,0" FontWeight="Bold"/>
             </StatusBarItem>
             <StatusBarItem Grid.Column="2" HorizontalAlignment="Right">
-                <TextBlock x:Name="tssAppStatus" Text="App Status" Margin="0,0,3,0"/>
+                <TextBlock x:Name="tssAppStatus" Text="App Status" Margin="0,0,3,0" FontWeight="Bold"/>
             </StatusBarItem>
             <StatusBarItem Grid.Column="2">
                 <ProgressBar x:Name="tpbStatus" Width="200" Height="16" Margin="0,0,3,0"/>
