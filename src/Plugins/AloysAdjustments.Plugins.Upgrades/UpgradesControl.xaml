@@ -22,16 +22,16 @@
         </StackPanel>
         <DataGrid x:Name="dgUpgrades" ItemsSource="{Binding Upgrades}" AutoGenerateColumns="False"
                   HorizontalGridLinesBrush="DarkGray" VerticalGridLinesBrush="DarkGray"
-                  RowHeaderWidth="0"
+                  RowHeaderWidth="0" CanUserAddRows="False"
                   SelectionChanged="dgUpgrades_SelectionChanged">
             <DataGrid.ColumnHeaderStyle>
                 <Style TargetType="DataGridColumnHeader">
-                    <Setter Property="Padding" Value="5 3 15 3"/>
+                    <Setter Property="Padding" Value="5 2 15 2"/>
                 </Style>
             </DataGrid.ColumnHeaderStyle>
             <DataGrid.CellStyle>
                 <Style TargetType="DataGridCell">
-                    <Setter Property="Padding" Value="10 3 20 3"/>
+                    <Setter Property="Padding" Value="5 2 15 2"/>
                     <Setter Property="Template">
                         <Setter.Value>
                             <ControlTemplate TargetType="{x:Type DataGridCell}">
