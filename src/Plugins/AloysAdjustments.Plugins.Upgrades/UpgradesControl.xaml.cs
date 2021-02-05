@@ -10,8 +10,7 @@ using AloysAdjustments.Configuration;
 using AloysAdjustments.Logic;
 using AloysAdjustments.Logic.Patching;
 using AloysAdjustments.Plugins.Upgrades.Data;
-using AloysAdjustments.WPF.Plugins;
-using AloysAdjustments.WPF.UI;
+using AloysAdjustments.UI;
 using Decima;
 
 namespace AloysAdjustments.Plugins.Upgrades

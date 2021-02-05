@@ -1,11 +1,11 @@
-﻿<plugins:InteractivePluginBase x:Class="AloysAdjustments.WPF.Modules.SettingsControl"
+﻿<plugins:InteractivePluginBase x:Class="AloysAdjustments.Modules.SettingsControl"
                          xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                          xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                          xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
                          xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
                          xmlns:system="clr-namespace:System;assembly=System.Runtime"
-                         xmlns:ui="clr-namespace:AloysAdjustments.WPF.UI"
-                         xmlns:plugins="clr-namespace:AloysAdjustments.WPF.Plugins"
+                         xmlns:plugins="clr-namespace:AloysAdjustments.Plugins"
+                         xmlns:ui="clr-namespace:AloysAdjustments.UI"
                          mc:Ignorable="d" 
                          d:DesignHeight="646" d:DesignWidth="572">
     <DockPanel LastChildFill="False">

@@ -9,7 +9,7 @@ using System.Windows.Forms;
 using AloysAdjustments.Configuration;
 using AloysAdjustments.Logic;
 
-namespace AloysAdjustments.WPF.UI
+namespace AloysAdjustments.UI
 {
     [Flags]
     public enum WindowMemoryType

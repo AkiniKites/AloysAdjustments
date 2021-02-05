@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -13,19 +12,20 @@ using System.Windows.Threading;
 using AloysAdjustments.Configuration;
 using AloysAdjustments.Logic;
 using AloysAdjustments.Logic.Patching;
+using AloysAdjustments.Modules;
 using AloysAdjustments.Plugins;
+using AloysAdjustments.UI;
 using AloysAdjustments.Utility;
-using AloysAdjustments.WPF.Modules;
 using Decima;
 using Decima.HZD;
 using Microsoft.Win32;
 using Newtonsoft.Json;
 using Control = System.Windows.Controls.Control;
-using ControlLock = AloysAdjustments.WPF.UI.ControlLock;
-using IInteractivePlugin = AloysAdjustments.WPF.Plugins.IInteractivePlugin;
+using ControlLock = AloysAdjustments.UI.ControlLock;
+using IInteractivePlugin = AloysAdjustments.Plugins.IInteractivePlugin;
 using Localization = AloysAdjustments.Logic.Localization;
 
-namespace AloysAdjustments.UI
+namespace AloysAdjustments
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
@@ -53,7 +53,7 @@ namespace AloysAdjustments.UI
 
             InitializeComponent();
 
-            WPF.UI.WindowMemory.ActivateWindow(this, "Main");
+            WindowMemory.ActivateWindow(this, "Main");
 
             RTTI.SetGameMode(GameType.HZD);
         }
@@ -86,7 +86,7 @@ namespace AloysAdjustments.UI
             {
                 tssStatus.Text = text;
                 tssStatus.Foreground = error ? 
-                    new SolidColorBrush(WPF.UI.UIColors.ErrorColor) : 
+                    new SolidColorBrush(UIColors.ErrorColor) : 
                     SystemColors.WindowTextBrush;
             });
         }

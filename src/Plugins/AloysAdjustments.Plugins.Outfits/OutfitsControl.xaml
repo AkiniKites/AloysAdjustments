@@ -1,12 +1,12 @@
-﻿<p:InteractivePluginBase x:Class="AloysAdjustments.Plugins.Outfits.OutfitsControl"
+﻿<plugins:InteractivePluginBase x:Class="AloysAdjustments.Plugins.Outfits.OutfitsControl"
                          xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                          xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                          xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
                          xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
                          xmlns:local="clr-namespace:AloysAdjustments.Plugins.Outfits"
-                         xmlns:p="clr-namespace:AloysAdjustments.WPF.Plugins;assembly=AloysAdjustments"
                          xmlns:themes="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.AeroLite"
                          xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+                         xmlns:plugins="clr-namespace:AloysAdjustments.Plugins;assembly=AloysAdjustments"
                          mc:Ignorable="d" 
                          d:DesignHeight="646" d:DesignWidth="572"
                          DataContext="{Binding RelativeSource={RelativeSource Self}}">
@@ -81,4 +81,4 @@
             </DockPanel>
         </Grid>
     </DockPanel>
-</p:InteractivePluginBase>
+</plugins:InteractivePluginBase>

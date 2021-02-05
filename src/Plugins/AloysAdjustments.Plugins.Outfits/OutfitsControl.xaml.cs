@@ -15,8 +15,6 @@ using AloysAdjustments.Logic.Patching;
 using AloysAdjustments.Plugins.Outfits.Data;
 using AloysAdjustments.UI;
 using AloysAdjustments.Utility;
-using AloysAdjustments.WPF.Plugins;
-using AloysAdjustments.WPF.UI;
 using Decima;
 using EnumsNET;
 

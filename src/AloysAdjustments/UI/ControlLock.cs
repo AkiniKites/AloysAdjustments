@@ -4,9 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Controls;
-using AloysAdjustments.UI;
 
-namespace AloysAdjustments.WPF.UI
+namespace AloysAdjustments.UI
 {
     public class ControlLock : IDisposable
     {

@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Controls;
 using AloysAdjustments.Logic.Patching;
 using AloysAdjustments.UI;
 
-namespace AloysAdjustments.WPF.Plugins
+namespace AloysAdjustments.Plugins
 {
     public abstract class InteractivePluginBase : UserControl, IInteractivePlugin
     {

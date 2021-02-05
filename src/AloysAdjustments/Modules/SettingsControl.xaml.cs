@@ -12,15 +12,14 @@ using System.Windows.Threading;
 using AloysAdjustments.Configuration;
 using AloysAdjustments.Logic;
 using AloysAdjustments.Logic.Patching;
-using AloysAdjustments.Plugins;
 using AloysAdjustments.Steam;
 using AloysAdjustments.UI;
 using AloysAdjustments.Updates;
 using AloysAdjustments.Utility;
 using MessageBox = System.Windows.MessageBox;
-using UIColors = AloysAdjustments.WPF.UI.UIColors;
+using UIColors = AloysAdjustments.UI.UIColors;
 
-namespace AloysAdjustments.WPF.Modules
+namespace AloysAdjustments.Modules
 {
     /// <summary>
     /// Interaction logic for SettingsControl.xaml
@@ -113,7 +112,7 @@ namespace AloysAdjustments.WPF.Modules
         private async void btnArchiver_ClickCommand(object sender, EventArgs e) => await Relay.To(sender, e, btnArchiver_Click);
         private async Task btnArchiver_Click(object sender, EventArgs e)
         {
-            using var _ = new WPF.UI.ControlLock(btnArchiver);
+            using var _ = new ControlLock(btnArchiver);
 
             if (!UpdateGameDirStatus())
                 return;

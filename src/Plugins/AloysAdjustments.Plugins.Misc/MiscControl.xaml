@@ -1,10 +1,10 @@
-﻿<p:InteractivePluginBase x:Class="AloysAdjustments.Plugins.Misc.MiscControl"
+﻿<plugins:InteractivePluginBase x:Class="AloysAdjustments.Plugins.Misc.MiscControl"
                          xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                          xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                          xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
                          xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
                          xmlns:local="clr-namespace:AloysAdjustments.Plugins.Misc"
-                         xmlns:p="clr-namespace:AloysAdjustments.WPF.Plugins;assembly=AloysAdjustments"
+                         xmlns:plugins="clr-namespace:AloysAdjustments.Plugins;assembly=AloysAdjustments"
                          mc:Ignorable="d" 
                          d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
@@ -12,4 +12,4 @@
                   HorizontalAlignment="Left" VerticalAlignment="Top" 
                   Checked="cbIntroLogos_Checked" Unchecked="cbIntroLogos_Checked"/>
     </Grid>
-</p:InteractivePluginBase>
+</plugins:InteractivePluginBase>

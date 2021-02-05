@@ -7,7 +7,7 @@ using System.Windows.Controls;
 using AloysAdjustments.Logic.Patching;
 using AloysAdjustments.UI;
 
-namespace AloysAdjustments.WPF.Plugins
+namespace AloysAdjustments.Plugins
 {
     public interface IInteractivePlugin
     {

@@ -110,7 +110,7 @@ namespace AloysAdjustments.Plugins.Outfits
                     Id = variant.ObjectUUID,
                     Name = variant.Name,
                     Source = pack.Source
-                }); ;
+                });
             }
 
             return models;
