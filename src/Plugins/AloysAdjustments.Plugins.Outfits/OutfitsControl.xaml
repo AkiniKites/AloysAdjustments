@@ -14,7 +14,8 @@
         <DockPanel DockPanel.Dock="Top" LastChildFill="False">
             <xctk:CheckComboBox x:Name="ccbModelFilter" DockPanel.Dock="Right" Margin="3" Width="172" 
                                 ItemsSource="{Binding Filters}" Delimiter=", "
-                                DisplayMemberPath="Name"
+                                DisplayMemberPath="Name" 
+                                Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"
                                 HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch"
                                 ItemSelectionChanged="ccbModelFilter_ItemSelectionChanged"
                                 Closed="ccbModelFilter_ClosedCommand">

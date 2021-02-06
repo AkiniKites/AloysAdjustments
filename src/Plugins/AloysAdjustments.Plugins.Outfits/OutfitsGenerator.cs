@@ -28,7 +28,7 @@ namespace AloysAdjustments.Plugins.Outfits
 
             foreach (var core in cores.Where(x => x != null))
             {
-                await foreach (var item in GetOutfits(core, variantFiles))
+                foreach (var item in (await GetOutfits(core, variantFiles)))
                 {
                     item.SourceFile = core.Source;
                     outfits.Add(item);
@@ -38,14 +38,16 @@ namespace AloysAdjustments.Plugins.Outfits
             return outfits;
         }
 
-        private async IAsyncEnumerable<Outfit> GetOutfits(HzdCore core, Dictionary<BaseGGUUID, string> variantFiles)
+        private async Task<List<Outfit>> GetOutfits(HzdCore core, Dictionary<BaseGGUUID, string> variantFiles)
         {
             var items = core.GetTypes<InventoryEntityResource>();
             var itemComponents = core.GetTypesById<InventoryItemComponentResource>();
             var componentResources = core.GetTypesById<NodeGraphComponentResource>();
             var overrides = core.GetTypesById<OverrideGraphProgramResource>();
             var mappings = core.GetTypesById<NodeGraphHumanoidBodyVariantUUIDRefVariableOverride>();
-            
+
+            var outfits = new List<Outfit>();
+
             foreach (var item in items)
             {
                 var outfit = new Outfit()
@@ -84,8 +86,10 @@ namespace AloysAdjustments.Plugins.Outfits
                     }
                 }
 
-                yield return outfit;
+                outfits.Add(outfit);
             }
+
+            return outfits;
         }
         
         public List<Model> GenerateModelList(Func<string, HzdCore> coreGetter)

@@ -53,7 +53,7 @@ namespace AloysAdjustments.Plugins.Upgrades.Data
 
         public override int GetHashCode()
         {
-            return System.HashCode.Combine(Id);
+            return Id?.GetHashCode() ?? 0;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
