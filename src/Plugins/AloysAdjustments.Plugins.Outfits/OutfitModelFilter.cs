@@ -33,7 +33,7 @@ namespace AloysAdjustments.Plugins.Outfits
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(Value);
+            return Value;
         }
 
         public static bool operator ==(OutfitModelFilter left, OutfitModelFilter right)

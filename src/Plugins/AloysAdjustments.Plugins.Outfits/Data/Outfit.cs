@@ -49,7 +49,7 @@ namespace AloysAdjustments.Plugins.Outfits.Data
 
         public override int GetHashCode()
         {
-            return System.HashCode.Combine(RefId);
+            return RefId?.GetHashCode() ?? 0;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

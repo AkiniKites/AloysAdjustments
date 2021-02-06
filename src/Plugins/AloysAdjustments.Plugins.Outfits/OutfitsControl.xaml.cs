@@ -16,7 +16,6 @@ using AloysAdjustments.Plugins.Outfits.Data;
 using AloysAdjustments.UI;
 using AloysAdjustments.Utility;
 using Decima;
-using EnumsNET;
 
 namespace AloysAdjustments.Plugins.Outfits
 {
