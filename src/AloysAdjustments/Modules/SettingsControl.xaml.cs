@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Forms;
+using System.Windows.Threading;
 using AloysAdjustments.Configuration;
 using AloysAdjustments.Logic;
 using AloysAdjustments.Logic.Patching;
@@ -14,10 +16,15 @@ using AloysAdjustments.Steam;
 using AloysAdjustments.UI;
 using AloysAdjustments.Updates;
 using AloysAdjustments.Utility;
+using MessageBox = System.Windows.MessageBox;
+using UIColors = AloysAdjustments.UI.UIColors;
 
-namespace AloysAdjustments.Modules.Settings
+namespace AloysAdjustments.Modules
 {
-    public partial class SettingsControl : ModuleBase
+    /// <summary>
+    /// Interaction logic for SettingsControl.xaml
+    /// </summary>
+    public partial class SettingsControl
     {
         private const string SteamGameName = "Horizon Zero Dawn";
 
@@ -75,8 +82,8 @@ namespace AloysAdjustments.Modules.Settings
             settingsValid = UpdateArchiverStatus() && settingsValid;
             return settingsValid;
         }
-        
-        private void tbGameDir_TextChanged(object sender, EventArgs e)
+
+        private void tbGameDir_TextChanged(object sender, TextChangedEventArgs e)
         {
             IoC.Settings.GamePath = tbGameDir.Text;
         }
@@ -128,7 +135,7 @@ namespace AloysAdjustments.Modules.Settings
         private void btnDeletePack_Click(object sender, EventArgs e)
         {
             if (MessageBox.Show($"Are you sure you want to delete {IoC.Config.PatchFile}?", $"Delete File",
-                MessageBoxButtons.YesNo, MessageBoxIcon.Warning) != DialogResult.Yes)
+                MessageBoxButton.YesNo, MessageBoxImage.Warning) != MessageBoxResult.Yes)
             {
                 return;
             }
@@ -143,7 +150,7 @@ namespace AloysAdjustments.Modules.Settings
         {
             var dir = Configs.GamePackDir;
             var valid = dir != null && Directory.Exists(dir);
-            lblGameDir.ForeColor = valid ? SystemColors.ControlText : UIColors.ErrorColor;
+            lblGameDir.Foreground = valid ? SystemColors.WindowTextBrush : UIColors.ErrorBrush;
 
             if (!valid)
                 IoC.Notif.ShowError("Missing Game Folder");
@@ -154,7 +161,7 @@ namespace AloysAdjustments.Modules.Settings
         {
             var validLib = IoC.Archiver.CheckArchiverLib();
             lblArchiverLib.Text = validLib ? "OK" : "Missing";
-            lblArchiverLib.ForeColor = validLib ? UIColors.OkColor : UIColors.ErrorColor;
+            lblArchiverLib.Foreground = validLib ? UIColors.OkBrush : UIColors.ErrorBrush;
 
             if (!validLib)
                 IoC.Notif.ShowError("Missing Oodle support library");
@@ -170,7 +177,7 @@ namespace AloysAdjustments.Modules.Settings
             else
                 lblPackStatus.Text = "Pack not installed";
 
-            btnDeletePack.Enabled = valid;
+            btnDeletePack.IsEnabled = valid;
 
             return valid;
         }
@@ -184,10 +191,10 @@ namespace AloysAdjustments.Modules.Settings
                 if (dir.Exists)
                     size = dir.GetFiles("*.json", SearchOption.AllDirectories).Sum(x => x.Length);
 
-                this.TryBeginInvoke(() =>
+                Dispatcher.BeginInvoke(() =>
                 {
                     lblCacheSize.Text = $"{(size / 1024):n0} KB";
-                    btnClearCache.Enabled = size > 0;
+                    btnClearCache.IsEnabled = size > 0;
                 });
             }).ConfigureAwait(false);
         }
@@ -202,7 +209,7 @@ namespace AloysAdjustments.Modules.Settings
         {
             try
             {
-                lblUpdateStatus.ForeColor = SystemColors.ControlText;
+                lblUpdateStatus.Foreground = SystemColors.WindowTextBrush;
                 lblUpdateStatus.Text = $"Checking for latest version...";
 
                 try
@@ -212,17 +219,17 @@ namespace AloysAdjustments.Modules.Settings
                 catch { }
 
                 var updates = await Updater.CheckForUpdates();
-                
+
                 if (updates.CanUpdate)
                 {
                     lblUpdateStatus.Text = "New version available";
-                    btnUpdates.Text = "Get Update";
+                    btnUpdates.Content = "Get Update";
                     IoC.Notif.ShowAppStatus($"Update available v{updates.LastVersion}");
                 }
                 else
                 {
                     lblUpdateStatus.Text = "Running latest version";
-                    btnUpdates.Text = "Check Update";
+                    btnUpdates.Content = "Check Update";
                     IoC.Notif.ShowAppStatus("");
                 }
 
@@ -230,7 +237,7 @@ namespace AloysAdjustments.Modules.Settings
             }
             catch (Exception ex)
             {
-                lblUpdateStatus.ForeColor = UIColors.ErrorColor;
+                lblUpdateStatus.Foreground = UIColors.ErrorBrush;
                 lblUpdateStatus.Text = $"Error: {ex.Message}";
                 lblLatestVersion.Text = "Unknown";
                 Errors.WriteError(ex);
@@ -252,8 +259,8 @@ namespace AloysAdjustments.Modules.Settings
                 await CheckUpdates();
                 return;
             }
-            
-            lblUpdateStatus.ForeColor = SystemColors.ControlText;
+
+            lblUpdateStatus.Foreground = SystemColors.WindowTextBrush;
             lblUpdateStatus.Text = $"Downloading update...";
             IoC.Notif.ShowProgress(0);
 
@@ -262,12 +269,12 @@ namespace AloysAdjustments.Modules.Settings
                 await Updater.PrepareUpdate(x => IoC.Notif.ShowProgress(x));
 
                 lblUpdateStatus.Text = "Download complete, restart to update";
-                btnUpdates.Text = "Restart";
+                btnUpdates.Content = "Restart";
                 IoC.Notif.ShowAppStatus($"Update ready");
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                lblUpdateStatus.ForeColor = UIColors.ErrorColor;
+                lblUpdateStatus.Foreground = UIColors.ErrorBrush;
                 lblUpdateStatus.Text = $"Error: {ex.Message}";
                 Errors.WriteError(ex);
             }

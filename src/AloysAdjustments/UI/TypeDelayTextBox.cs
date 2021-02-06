@@ -3,17 +3,21 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Forms;
+using System.Timers;
+using System.Windows.Controls;
 
 namespace AloysAdjustments.UI
 {
-    public partial class TypeDelayTextBox : TextBox
+    public class TypeDelayTextBox : TextBox
     {
+        private readonly Timer _timer = new Timer();
+
         public bool EnableTypingEvent { get; set; }
 
         public TypeDelayTextBox()
         {
-            InitializeComponent();
+            _timer.Interval = 500;
+            _timer.Elapsed += _timer_Elapsed;
 
             EnableTypingEvent = true;
             this.TextChanged += OnTextChanged;
@@ -29,7 +33,7 @@ namespace AloysAdjustments.UI
             }
         }
 
-        private void _timer_Tick(object sender, EventArgs e)
+        private void _timer_Elapsed(object sender, ElapsedEventArgs e)
         {
             _timer.Stop();
             OnTypingFinished();

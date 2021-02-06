@@ -10,7 +10,8 @@ namespace AloysAdjustments.Plugins.Outfits.Data
     {
         public override string ToString()
         {
-            return "Character - " + Name;
+            var name = Name.Replace("DLC1", "DLC ");
+            return "Character - " + name;
         }
     }
 }

@@ -1,0 +1,60 @@
+﻿<Window x:Class="AloysAdjustments.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:AloysAdjustments.UI"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="800" Width="800"
+        Loaded="Main_LoadCommand" Closing="Window_Closing"
+        Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"
+        ResizeMode="CanResizeWithGrip">
+    <DockPanel>
+        <StatusBar DockPanel.Dock="Bottom">
+            <StatusBar.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="20" />
+                        </Grid.ColumnDefinitions>
+                    </Grid>
+                </ItemsPanelTemplate>
+            </StatusBar.ItemsPanel>
+            <StatusBarItem Grid.Column="0">
+                <TextBlock x:Name="tssStatus" Text="Status" Margin="3,0,0,0" FontWeight="Bold"/>
+            </StatusBarItem>
+            <StatusBarItem Grid.Column="2" HorizontalAlignment="Right">
+                <TextBlock x:Name="tssAppStatus" Text="App Status" Margin="0,0,3,0" FontWeight="Bold"/>
+            </StatusBarItem>
+            <StatusBarItem Grid.Column="2">
+                <ProgressBar x:Name="tpbStatus" Width="200" Height="16" Margin="0,0,3,0"/>
+            </StatusBarItem>
+        </StatusBar>
+
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <TabControl x:Name="tcMain" Grid.Column="0" Margin="10,10,5,5" 
+                        SelectionChanged="tcMain_SelectionChanged"/>
+            <DockPanel Grid.Column="1" LastChildFill="False">
+                <Button x:Name="btnLoadPatch" Content="Load" 
+                        DockPanel.Dock="Top" Margin="0,10,10,0" Height="28" Width="100"
+                        Click="btnLoadPatch_ClickCommand"/>
+                <Button x:Name="btnResetSelected" Content="Reset Selected" 
+                        DockPanel.Dock="Top" Margin="0,38,10,0" Height="28" Width="100"
+                        Click="btnResetSelected_Click"/>
+                <Button x:Name="btnReset" Content="Reset All" 
+                        DockPanel.Dock="Top" Margin="0,5,10,0" Height="28" Width="100"
+                        Click="btnReset_Click"/>
+                <Button x:Name="btnPatch" Content="Install Pack" 
+                        DockPanel.Dock="Bottom" Margin="0,10,10,5" Height="42" Width="100"
+                        Click="btnPatch_ClickCommand"/>
+            </DockPanel>
+        </Grid>
+    </DockPanel>
+</Window>

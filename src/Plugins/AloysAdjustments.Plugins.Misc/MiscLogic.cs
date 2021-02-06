@@ -3,15 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using AloysAdjustments.Configuration;
 using AloysAdjustments.Logic;
 using AloysAdjustments.Logic.Patching;
 using AloysAdjustments.Plugins.Misc.Data;
 using AloysAdjustments.Utility;
-using Decima;
 using Decima.HZD;
 
-namespace AloysAdjustments.Modules.Misc
+namespace AloysAdjustments.Plugins.Misc
 {
     public class MiscLogic
     {

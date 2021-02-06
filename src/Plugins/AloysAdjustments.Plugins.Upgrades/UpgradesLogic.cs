@@ -51,6 +51,7 @@ namespace AloysAdjustments.Plugins.Upgrades
                     Id = invMod.ObjectUUID,
                     Name = invMod.Name,
                     Value = value,
+                    DefaultValue = value,
                     LocalNameId = charUpgrade.DisplayName.GUID,
                     LocalNameFile = charUpgrade.DisplayName.ExternalFile.ToString()
                 };

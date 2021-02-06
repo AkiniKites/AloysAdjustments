@@ -1,0 +1,97 @@
+﻿<plugins:InteractivePluginBase x:Class="AloysAdjustments.Modules.SettingsControl"
+                         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+                         xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+                         xmlns:system="clr-namespace:System;assembly=System.Runtime"
+                         xmlns:plugins="clr-namespace:AloysAdjustments.Plugins"
+                         xmlns:ui="clr-namespace:AloysAdjustments.UI"
+                         mc:Ignorable="d" 
+                         d:DesignHeight="646" d:DesignWidth="572">
+    <DockPanel LastChildFill="False">
+        <DockPanel.Resources>
+            <system:Double x:Key="LabelWidth">90</system:Double>
+        </DockPanel.Resources>
+        <GroupBox DockPanel.Dock="Top" Header="General">
+            <StackPanel>
+                <DockPanel Height="25">
+                    <TextBlock x:Name="lblGameDir" DockPanel.Dock="Left" Text="Game Folder:" 
+                               VerticalAlignment="Center" Margin="3,0,0,0"
+                               Width="{StaticResource LabelWidth}"/>
+                    <Button x:Name="btnGameDir" DockPanel.Dock="Right" 
+                            Content=". . ." Width="70" Margin="6,0,3,0"
+                            Click="btnGameDir_Click"/>
+                    <ui:TypeDelayTextBox x:Name="tbGameDir" VerticalContentAlignment="Center"
+                                         TextChanged="tbGameDir_TextChanged"
+                                         TypingFinished="tbGameDir_TypingFinished"/>
+                </DockPanel>
+                <DockPanel LastChildFill="False" Margin="0,6,0,0" Height="25">
+                    <TextBlock DockPanel.Dock="Left" Text="Oodle DLL: "
+                               VerticalAlignment="Center" Margin="3,0,0,0"
+                               Width="{StaticResource LabelWidth}"/>
+                    <TextBlock x:Name="lblArchiverLib" Text="OK" VerticalAlignment="Center"
+                               Foreground="ForestGreen"/>
+                    <Button x:Name="btnArchiver" DockPanel.Dock="Right" 
+                            Content="Get Oodle DLL" Width="100" Margin="6,0,3,0" 
+                            Click="btnArchiver_ClickCommand"/>
+                </DockPanel>
+            </StackPanel>
+        </GroupBox>
+        <GroupBox DockPanel.Dock="Top" Header="Updates">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="25"/>
+                    <RowDefinition Height="25"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="75"/>
+                    <ColumnDefinition />
+                    <ColumnDefinition  Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Grid.Row="0" Grid.Column="0" Text="Current:"
+                           HorizontalAlignment="Left" VerticalAlignment="Top" Margin="3,4,0,0"
+                           Width="{StaticResource LabelWidth}"/>
+                <TextBlock Grid.Row="1" Grid.Column="0" Text="Latest:"
+                           HorizontalAlignment="Left" VerticalAlignment="Top" Margin="3,4,0,0"
+                           Width="{StaticResource LabelWidth}"/>
+
+                <TextBlock Grid.Row="0" Grid.Column="1" x:Name="lblCurrentVersion" 
+                           HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,4,0,0"/>
+                <TextBlock Grid.Row="1" Grid.Column="1" x:Name="lblLatestVersion" 
+                           HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,4,0,0"/>
+
+                <TextBlock Grid.Row="0" Grid.Column="2" Grid.RowSpan="2" x:Name="lblUpdateStatus" 
+                           HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,4"
+                           TextWrapping="WrapWithOverflow"/>
+
+                <Button Grid.Row="0" Grid.Column="3" x:Name="btnUpdates"
+                        Content="Check Updates" Width="100" Margin="6,0,3,0"
+                        Click="btnUpdates_ClickCommand"/>
+            </Grid>
+        </GroupBox>
+        <GroupBox DockPanel.Dock="Bottom" Header="Game Pack">
+            <DockPanel Height="25">
+                <TextBlock DockPanel.Dock="Left" Text="Status:"
+                           VerticalAlignment="Center" Margin="3,0,0,0"
+                           Width="{StaticResource LabelWidth}"/>
+                <Button x:Name="btnDeletePack" DockPanel.Dock="Right" 
+                        Content="Delete Pack" Width="100" Margin="6,0,3,0"
+                        Click="btnDeletePack_Click"/>
+                <TextBlock x:Name="lblPackStatus" Text="Pack not installed" VerticalAlignment="Center"/>
+            </DockPanel>
+        </GroupBox>
+        <GroupBox DockPanel.Dock="Bottom" Header="Cache">
+            <DockPanel Height="25">
+                <TextBlock DockPanel.Dock="Left" Text="Current:"
+                           VerticalAlignment="Center" Margin="3,0,0,0"
+                           Width="{StaticResource LabelWidth}"/>
+                <Button x:Name="btnClearCache" DockPanel.Dock="Right" 
+                        Content="Clear Cache" Width="100" Margin="6,0,3,0"
+                        Click="btnClearCache_ClickCommand"/>
+                <TextBlock x:Name="lblCacheSize" Text="0 KB" VerticalAlignment="Center"/>
+            </DockPanel>
+        </GroupBox>
+    </DockPanel>
+</plugins:InteractivePluginBase>

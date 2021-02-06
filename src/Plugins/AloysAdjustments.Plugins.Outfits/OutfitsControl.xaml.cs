@@ -6,32 +6,21 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Forms;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Input;
 using AloysAdjustments.Configuration;
 using AloysAdjustments.Logic;
 using AloysAdjustments.Logic.Patching;
-using AloysAdjustments.Modules;
 using AloysAdjustments.Plugins.Outfits.Data;
 using AloysAdjustments.UI;
 using AloysAdjustments.Utility;
 using Decima;
 using EnumsNET;
-using PresentationControls;
 
 namespace AloysAdjustments.Plugins.Outfits
 {
-    [Flags]
-    public enum OutfitModelFilter
-    {
-        [Description("Armors")]
-        Armor = 1,
-        [Description("Unique Characters")]
-        Characters = 2,
-        [Description("All Characters")]
-        AllCharacters = 4
-    }
-
-    public partial class OutfitsControl : ModuleBase
+    public partial class OutfitsControl : InteractivePluginBase, INotifyPropertyChanged
     {
         private bool _updatingLists;
         private bool _loading;
@@ -41,12 +30,11 @@ namespace AloysAdjustments.Plugins.Outfits
         private OutfitPatcher Patcher { get; }
 
         private HashSet<Outfit> DefaultOutfits { get; set; }
-        private ReadOnlyCollection<Outfit> Outfits { get; set; }
-        private ReadOnlyCollection<Model> Models { get; set; }
+        public ReadOnlyCollection<Outfit> Outfits { get; set; }
+        public ReadOnlyCollection<Model> Models { get; set; }
+        private ReadOnlyCollection<Outfit> AllOutfitStub { get; }
 
-        private Outfit AllOutfitStub { get; }
-
-        private ListWrapper<OutfitModelFilter> Filters { get; set; }
+        public ReadOnlyCollection<OutfitModelFilter> Filters { get; set; }
 
         public override string PluginName => "Outfits";
 
@@ -54,8 +42,10 @@ namespace AloysAdjustments.Plugins.Outfits
         {
             _loading = true;
 
-            AllOutfitStub = new Outfit();
-            AllOutfitStub.LocalName = "All Outfits";
+            AllOutfitStub = new List<Outfit>
+            {
+                new Outfit() {LocalName = "All Outfits" }
+            }.AsReadOnly();
 
             IoC.Bind(Configs.LoadModuleConfig<OutfitConfig>(PluginName));
 
@@ -65,79 +55,30 @@ namespace AloysAdjustments.Plugins.Outfits
             Outfits = new List<Outfit>().AsReadOnly();
 
             InitializeComponent();
-            
-            SetupLists();
+
+            Filters = OutfitModelFilter.All.ToList().AsReadOnly();
+
             LoadSettings();
 
             _loading = false;
         }
-        
-        private void SetupLists()
-        {
-            Filters = new ListWrapper<OutfitModelFilter>(
-                Enums.GetValues<OutfitModelFilter>(), x => x.AsString(EnumFormat.Description));
-            ccbModelFilter.DataSource = Filters;
-            ccbModelFilter.DisplayMemberSingleItem = "Name";
-            ccbModelFilter.DisplayMember = "NameConcatenated";
-            ccbModelFilter.ValueMember = "Selected";
-            ccbModelFilter.DropDownHeight = (int)(ccbModelFilter.CheckBoxItems.Sum(x => x.Height) * 1.3);
-
-            clbModels.DisplayMember = "DisplayName";
-
-            lbOutfits.DisplayMember = "DisplayName";
-            lbOutfits.DrawMode = DrawMode.OwnerDrawVariable;
-            lbOutfits.ItemHeight = lbOutfits.Font.Height + 2;
-            lbOutfits.DrawItem += (s, e) =>
-            {
-                if (e.Index < 0)
-                    return;
-
-                var l = (ListBox)s;
-
-                if (e.State.HasFlag(DrawItemState.Selected))
-                {
-                    e.DrawBackground();
-                }
-                else
-                {
-                    var backColor = e.BackColor;
-                    var all = IoC.Settings.ApplyToAllOutfits;
-
-                    if ((all && Outfits.Any(x => x.Modified)) ||
-                        (!all && Outfits.Count > e.Index && Outfits[e.Index].Modified))
-                    {
-                        backColor = Color.LightSkyBlue;
-                    }
-
-                    using (var b = new SolidBrush(backColor))
-                        e.Graphics.FillRectangle(b, e.Bounds);
-                }
-
-                using (var b = new SolidBrush(e.ForeColor))
-                {
-                    var text = l.GetItemText(l.Items[e.Index]);
-                    e.Graphics.DrawString(text, e.Font, b, e.Bounds, StringFormat.GenericDefault);
-                }
-                e.DrawFocusRectangle();
-            };
-        }
 
         private void LoadSettings()
         {
-            cbAllOutfits.Checked = IoC.Settings.ApplyToAllOutfits;
-            var filter = (OutfitModelFilter)IoC.Settings.OutfitModelFilter;
+            cbAllOutfits.IsChecked = IoC.Settings.ApplyToAllOutfits;
+            var filter = IoC.Settings.OutfitModelFilter;
             if (filter == 0)
-                filter = OutfitModelFilter.Armor | OutfitModelFilter.Characters;
+                filter = OutfitModelFilter.Armor.Value | OutfitModelFilter.Characters.Value;
 
-            foreach (var f in Filters.Where(x => filter.HasFlag(x.Item)))
-                f.Selected = true;
+            foreach (var f in Filters.Where(x => x.IsFlag(filter)))
+                ccbModelFilter.SelectedItems.Add(f);
         }
 
         public override async Task Initialize()
         {
             ResetSelected.Enabled = false;
             IoC.Notif.ShowUnknownProgress();
-            
+
             IoC.Notif.ShowStatus("Loading outfit list...");
             DefaultOutfits = (await OutfitGen.GenerateOutfits(
                 IoC.Archiver.LoadGameFileAsync)).ToHashSet();
@@ -152,7 +93,7 @@ namespace AloysAdjustments.Plugins.Outfits
             PopulateOutfitsList();
 
             await UpdateModelList();
-            
+
             UpdateAllOutfitsSelection();
 
             //start loading characters in background
@@ -178,28 +119,24 @@ namespace AloysAdjustments.Plugins.Outfits
 
         private async Task UpdateModelList()
         {
-            var filter = (OutfitModelFilter)IoC.Settings.OutfitModelFilter;
+            var filter = IoC.Settings.OutfitModelFilter;
             if (filter == 0)
-                filter = OutfitModelFilter.Armor | OutfitModelFilter.Characters;
+                filter = OutfitModelFilter.Armor.Value | OutfitModelFilter.Characters.Value;
 
             await Async.Run(() =>
             {
                 var models = new List<Model>();
-                if (filter.HasFlag(OutfitModelFilter.Armor))
+                if (OutfitModelFilter.Armor.IsFlag(filter))
                     models.AddRange(LoadOutfitModelList());
-                if (filter.HasFlag(OutfitModelFilter.Characters))
+                if (OutfitModelFilter.Characters.IsFlag(filter))
                     models.AddRange(LoadCharacterModelList(false));
-                if (filter.HasFlag(OutfitModelFilter.AllCharacters))
+                if (OutfitModelFilter.AllCharacters.IsFlag(filter))
                     models.AddRange(LoadCharacterModelList(true));
 
                 Models = models.AsReadOnly();
             });
 
             UpdateModelDisplayNames(DefaultOutfits, Models);
-
-            clbModels.Items.Clear();
-            foreach (var item in Models)
-                clbModels.Items.Add(item);
         }
 
         public void UpdateModelDisplayNames(IEnumerable<Outfit> outfits, IList<Model> models)
@@ -218,7 +155,7 @@ namespace AloysAdjustments.Plugins.Outfits
         public override async Task LoadPatch(string path)
         {
             IoC.Notif.ShowStatus("Loading outfits...");
-            
+
             var patchOutfits = await OutfitGen.GenerateOutfits(f =>
                 IoC.Archiver.LoadFileAsync(path, f));
             if (!patchOutfits.Any())
@@ -242,7 +179,7 @@ namespace AloysAdjustments.Plugins.Outfits
                     if (!variantMapping.TryGetValue(loadedOutfit.ModelId, out var varId))
                         varId = loadedOutfit.ModelId;
 
-                    outfit.Modified = !outfit.ModelId.Equals(varId);
+                    outfit.Modified = !outfit.ModelId.Equals((object) varId);
                     outfit.ModelId.AssignFromOther(varId);
                 }
             }
@@ -258,52 +195,44 @@ namespace AloysAdjustments.Plugins.Outfits
 
             Patcher.CreatePatch(patch, DefaultOutfits.ToList(), Outfits, models);
         }
-        
-        private void lbOutfits_SelectedValueChanged(object sender, EventArgs e)
+
+        private void lbOutfits_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             _updatingLists = true;
-            
+
             ResetSelected.Enabled = lbOutfits.SelectedIndex >= 0;
 
-            var modelIds = GetSelectedOutfits().Select(x => x.ModelId).ToHashSet();
-            var checkState = modelIds.Count > 1 ? CheckState.Indeterminate : CheckState.Checked;
+            var selectedModelIds = GetSelectedOutfits().Select(x => x.ModelId).ToHashSet();
 
-            for (int i = 0; i < clbModels.Items.Count; i++)
+            foreach (var model in Models)
             {
-                if (modelIds.Contains(Models[i].Id))
-                    clbModels.SetItemCheckState(i, checkState);
+                if (selectedModelIds.Contains(model.Id))
+                    model.Checked = selectedModelIds.Count > 1 ? null : (bool?)true;
                 else
-                    clbModels.SetItemCheckState(i, CheckState.Unchecked);
+                    model.Checked = false;
             }
 
             _updatingLists = false;
         }
 
-        private void clbModels_ItemCheck(object sender, ItemCheckEventArgs e)
+        private void clbModels_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (_updatingLists)
+            var selected = (e.AddedItems.Count > 0 ? e.AddedItems[0] : null) as Model;
+
+            if (_updatingLists || selected == null)
                 return;
             _updatingLists = true;
-
-            if (e.CurrentValue == CheckState.Indeterminate)
-                e.NewValue = CheckState.Checked;
-
-            if (e.NewValue == CheckState.Checked)
+            
+            selected.Checked = true;
+            foreach (var model in Models)
             {
-                for (int i = 0; i < clbModels.Items.Count; i++)
-                {
-                    if (i != e.Index)
-                        clbModels.SetItemCheckState(i, CheckState.Unchecked);
-                }
-
-                var model = Models[e.Index];
-
-                foreach (var outfit in GetSelectedOutfits())
-                    UpdateMapping(outfit, model);
-                UpdateAllOutfitStub();
-
-                lbOutfits.Invalidate();
+                if (!ReferenceEquals(selected, model))
+                    model.Checked = false;
             }
+
+            foreach (var outfit in GetSelectedOutfits())
+                UpdateMapping(outfit, selected);
+            UpdateAllOutfitStub();
 
             _updatingLists = false;
         }
@@ -316,25 +245,13 @@ namespace AloysAdjustments.Plugins.Outfits
             outfit.ModelId.AssignFromOther(model.Id);
         }
 
-        private void lbOutfits_KeyDown(object sender, KeyEventArgs e)
-        {
-            var lb = (ListBox)sender;
-
-            if (e.KeyCode == Keys.A && e.Control)
-            {
-                for (int i = 0; i < lb.Items.Count; i++)
-                    lb.SetSelected(i, true);
-                e.SuppressKeyPress = true;
-            }
-        }
-
         protected override async Task Reset_Click()
         {
             using var _ = new ControlLock(Reset);
-            
+
             await Initialize();
             RefreshOutfitList();
-            
+
             IoC.Notif.ShowStatus("Reset complete");
             IoC.Notif.HideProgress();
         }
@@ -343,7 +260,7 @@ namespace AloysAdjustments.Plugins.Outfits
         {
             if (lbOutfits.SelectedIndex < 0)
                 return Task.CompletedTask;
-            
+
             var selected = GetSelectedOutfits();
 
             foreach (var outfit in selected)
@@ -355,16 +272,14 @@ namespace AloysAdjustments.Plugins.Outfits
                 }
             }
 
-            lbOutfits.Invalidate();
-            lbOutfits_SelectedValueChanged(lbOutfits, EventArgs.Empty);
+            lbOutfits_SelectionChanged(lbOutfits, null);
 
             return Task.CompletedTask;
         }
 
         private void RefreshOutfitList()
         {
-            lbOutfits.ClearSelected();
-            lbOutfits.Invalidate();
+            lbOutfits.UnselectAll();
         }
 
         private List<Outfit> GetSelectedOutfits()
@@ -374,10 +289,10 @@ namespace AloysAdjustments.Plugins.Outfits
             return lbOutfits.SelectedItems.Cast<Outfit>().ToList();
         }
 
-        private void cbAllOutfits_CheckedChanged(object sender, EventArgs e)
+        private void cbAllOutfits_Checked(object sender, RoutedEventArgs e)
         {
             if (_loading) return;
-            IoC.Settings.ApplyToAllOutfits = cbAllOutfits.Checked;
+            IoC.Settings.ApplyToAllOutfits = cbAllOutfits.IsChecked == true;
 
             PopulateOutfitsList();
             UpdateAllOutfitsSelection();
@@ -387,65 +302,64 @@ namespace AloysAdjustments.Plugins.Outfits
         {
             if (IoC.Settings.ApplyToAllOutfits)
             {
-                lbOutfits.Items.Clear();
-                lbOutfits.Items.Add(AllOutfitStub);
+                lbOutfits.ItemsSource = AllOutfitStub;
+                lbOutfits.Items.Refresh();
                 UpdateAllOutfitStub();
             }
             else
             {
-                lbOutfits.Items.Clear();
-                foreach (var item in Outfits)
-                    lbOutfits.Items.Add(item);
+                lbOutfits.ItemsSource = Outfits;
+                lbOutfits.Items.Refresh();
             }
         }
 
         private void UpdateAllOutfitStub()
         {
-            AllOutfitStub.Modified = Outfits.Any(x => x.Modified);
+            AllOutfitStub.First().Modified = Outfits.Any(x => x.Modified);
         }
 
         private void UpdateAllOutfitsSelection()
         {
-            lbOutfits.SelectionMode = IoC.Settings.ApplyToAllOutfits ? 
-                SelectionMode.None : SelectionMode.MultiExtended;
-
-            lbOutfits_SelectedValueChanged(lbOutfits, EventArgs.Empty);
+            lbOutfits.IsHitTestVisible = !IoC.Settings.ApplyToAllOutfits;
+            lbOutfits_SelectionChanged(lbOutfits, null);
         }
 
         private bool _disableFilterEvents = false;
-        private void ccbModelFilter_CheckBoxCheckedChanged(object sender, EventArgs e)
+        private void ccbModelFilter_ItemSelectionChanged(object sender, Xceed.Wpf.Toolkit.Primitives.ItemSelectionChangedEventArgs e)
         {
             if (_disableFilterEvents || _loading)
                 return;
             _disableFilterEvents = true;
             
-            var checkedItem = (ObjectWrapper<OutfitModelFilter>)((CheckBoxComboBoxItem)sender).ComboBoxItem;
-            if (checkedItem.Item == OutfitModelFilter.Characters)
-                Filters.FindObjectWithItem(OutfitModelFilter.AllCharacters).Selected = false;
-            if (checkedItem.Item == OutfitModelFilter.AllCharacters)
-                Filters.FindObjectWithItem(OutfitModelFilter.Characters).Selected = false;
+            var checkedItem = (OutfitModelFilter)e.Item;
+            if (checkedItem == OutfitModelFilter.Characters)
+                ccbModelFilter.SelectedItems.Remove(OutfitModelFilter.AllCharacters);
+            if (checkedItem == OutfitModelFilter.AllCharacters)
+                ccbModelFilter.SelectedItems.Remove(OutfitModelFilter.Characters);
 
             _disableFilterEvents = false;
         }
 
-        private async void ccbModelFilter_DropDownClosedCommand(object sender, EventArgs e) 
-            => await Relay.To(sender, e, ccbModelFilter_DropDownClosed);
-        private async Task ccbModelFilter_DropDownClosed(object sender, EventArgs e)
+        private async void ccbModelFilter_ClosedCommand(object sender, RoutedEventArgs e)
+            => await Relay.To(sender, e, ccbModelFilter_Closed);
+        private async Task ccbModelFilter_Closed(object sender, RoutedEventArgs e)
         {
-            var filter = (OutfitModelFilter)Filters.Where(x => x.Selected).Sum(x => (int)x.Item);
+            var filter = ccbModelFilter.SelectedItems.Cast<OutfitModelFilter>().Sum(x => x.Value);
             if (filter == 0)
             {
-                filter = OutfitModelFilter.Characters | OutfitModelFilter.Armor;
-                foreach (var f in Filters.Where(x => filter.HasFlag(x.Item)))
-                    f.Selected = true;
+                filter = OutfitModelFilter.Characters.Value | OutfitModelFilter.Armor.Value;
+                foreach (var f in Filters.Where(x => x.IsFlag(filter)))
+                    ccbModelFilter.SelectedItems.Add(f);
             }
 
-            IoC.Settings.OutfitModelFilter = (int)filter;
+            IoC.Settings.OutfitModelFilter = filter;
 
             await UpdateModelList();
 
             IoC.Notif.ShowStatus("");
             IoC.Notif.HideProgress();
         }
+
+        public event PropertyChangedEventHandler PropertyChanged;
     }
 }

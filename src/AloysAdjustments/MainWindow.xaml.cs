@@ -1,42 +1,48 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Diagnostics;
-using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Forms;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Media;
+using System.Windows.Threading;
 using AloysAdjustments.Configuration;
 using AloysAdjustments.Logic;
 using AloysAdjustments.Logic.Patching;
-using AloysAdjustments.Modules.Settings;
+using AloysAdjustments.Modules;
 using AloysAdjustments.Plugins;
-using AloysAdjustments.Steam;
 using AloysAdjustments.UI;
+using AloysAdjustments.Utility;
 using Decima;
 using Decima.HZD;
-using AloysAdjustments.Utility;
+using Microsoft.Win32;
 using Newtonsoft.Json;
-using Application = System.Windows.Forms.Application;
+using Control = System.Windows.Controls.Control;
+using ControlLock = AloysAdjustments.UI.ControlLock;
+using IInteractivePlugin = AloysAdjustments.Plugins.IInteractivePlugin;
+using Localization = AloysAdjustments.Logic.Localization;
 
 namespace AloysAdjustments
 {
-    public partial class Main : Form
+    /// <summary>
+    /// Interaction logic for MainWindow.xaml
+    /// </summary>
+    public partial class MainWindow : Window
     {
         private const string ConfigPath = "config.json";
-        
+
         private bool _initialized = false;
 
         private List<IInteractivePlugin> Plugins { get; set; }
         private SettingsControl Settings { get; set; }
         public PluginManager PluginManager { get; }
 
-        public Main()
+        public MainWindow()
         {
-            Application.ThreadException += Application_ThreadException;
+            Dispatcher.UnhandledException += Dispatcher_UnhandledException;
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
 
             IoC.Bind(new Notifications(SetStatus, SetAppStatus, SetProgress));
@@ -48,10 +54,10 @@ namespace AloysAdjustments
             InitializeComponent();
 
             WindowMemory.ActivateWindow(this, "Main");
-            
+
             RTTI.SetGameMode(GameType.HZD);
         }
-
+        
         private void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
             SetStatus($"Error: {e.ExceptionObject}", true);
@@ -59,7 +65,7 @@ namespace AloysAdjustments
             Errors.WriteError(e.ExceptionObject);
         }
 
-        private void Application_ThreadException(object sender, ThreadExceptionEventArgs e)
+        private void Dispatcher_UnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
         {
             SetStatus($"Error: {e.Exception.Message}", true);
             SetProgress(0, 0, false, false);
@@ -68,7 +74,7 @@ namespace AloysAdjustments
 
         public void SetAppStatus(string text)
         {
-            this.TryBeginInvoke(() =>
+            Dispatcher.BeginInvoke(() =>
             {
                 tssAppStatus.Text = text;
             });
@@ -76,22 +82,24 @@ namespace AloysAdjustments
 
         public void SetStatus(string text, bool error)
         {
-            this.TryBeginInvoke(() =>
+            Dispatcher.BeginInvoke(() =>
             {
                 tssStatus.Text = text;
-                tssStatus.ForeColor = error ? UIColors.ErrorColor : SystemColors.ControlText;
+                tssStatus.Foreground = error ? 
+                    new SolidColorBrush(UIColors.ErrorColor) : 
+                    SystemColors.WindowTextBrush;
             });
         }
 
         public void SetProgress(int current, int max, bool unknown, bool visible)
         {
-            this.TryBeginInvoke(() =>
+            Dispatcher.BeginInvoke(() =>
             {
-                tssAppStatus.Visible = !visible;
-                tpbStatus.Visible = visible;
+                tssAppStatus.Visibility = !visible ? Visibility.Visible : Visibility.Hidden;
+                tpbStatus.Visibility = visible ? Visibility.Visible : Visibility.Hidden;
                 if (visible)
                 {
-                    tpbStatus.Style = unknown ? ProgressBarStyle.Marquee : ProgressBarStyle.Continuous;
+                    tpbStatus.IsIndeterminate = unknown;
                     if (!unknown)
                     {
                         tpbStatus.Maximum = max;
@@ -108,7 +116,7 @@ namespace AloysAdjustments
 
             IoC.Bind(new Archiver());
             IoC.Bind(new Localization(ELanguage.English));
-            
+
             Settings = new SettingsControl();
             Plugins = PluginManager.LoadAll<IInteractivePlugin>()
                 .OrderBy(x => x.PluginName.Contains("Misc") ? 1 : 0) //TODO: fix
@@ -117,14 +125,14 @@ namespace AloysAdjustments
             IoC.Notif.ShowStatus("Loading Plugins...");
             foreach (var module in Plugins.AsEnumerable().Concat(new[] { Settings }).Reverse())
             {
-                var tab = new TabPage();
+                var tab = new TabItem();
 
-                tab.UseVisualStyleBackColor = true;
-                tab.Text = module.PluginName;
-                tab.Controls.Add(module.PluginControl);
-                module.PluginControl.Dock = DockStyle.Fill;
+                //tab.UseVisualStyleBackColor = true;
+                tab.Header = module.PluginName;
+                tab.Content = module.PluginControl;
+                //module.PluginControl.Dock = DockStyle.Fill;
 
-                tcMain.TabPages.Insert(0, tab);
+                tcMain.Items.Insert(0, tab);
             }
 
             await Settings.Initialize();
@@ -133,7 +141,7 @@ namespace AloysAdjustments
             tcMain.SelectedIndex = 0;
             if (!await InitializePlugins())
             {
-                tcMain.SelectedIndex = tcMain.TabPages.Count - 1;
+                tcMain.SelectedIndex = tcMain.Items.Count - 1;
             }
         }
 
@@ -241,14 +249,14 @@ namespace AloysAdjustments
         private async Task btnLoadPatch_Click(object sender, EventArgs e)
         {
             using var _ = new ControlLock(btnLoadPatch);
-            using var ofd = new OpenFileDialog
+            var ofd = new OpenFileDialog
             {
                 CheckFileExists = true,
                 Multiselect = false,
                 Filter = "Pack files (*.bin)|*.bin|All files (*.*)|*.*"
             };
 
-            if (ofd.ShowDialog() != DialogResult.OK)
+            if (ofd.ShowDialog() != true)
                 return;
 
             await LoadExistingPack(ofd.FileName, false);
@@ -260,7 +268,7 @@ namespace AloysAdjustments
 
             foreach (var module in Plugins)
                 await module.LoadPatch(path);
-            
+
             if (!initial)
             {
                 IoC.Settings.LastPackOpen = path;
@@ -277,11 +285,11 @@ namespace AloysAdjustments
             IoC.Bind(SettingsManager.Load());
         }
 
-        private void tcMain_SelectedIndexChanged(object sender, EventArgs e)
+        private void tcMain_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (tcMain.SelectedIndex >= 0 && tcMain.SelectedIndex < Plugins.Count)
             {
-                btnReset.Enabled = true;
+                btnReset.IsEnabled = true;
 
                 for (int i = 0; i < Plugins.Count; i++)
                 {
@@ -293,8 +301,8 @@ namespace AloysAdjustments
             }
             else
             {
-                btnReset.Enabled = false;
-                btnResetSelected.Enabled = false;
+                btnReset.IsEnabled = false;
+                btnResetSelected.IsEnabled = false;
             }
         }
 
@@ -330,7 +338,7 @@ namespace AloysAdjustments
                 Plugins[tcMain.SelectedIndex].Reset.OnClick();
         }
 
-        private void Main_FormClosing(object sender, FormClosingEventArgs e)
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             Settings.Updater?.TryLaunchUpdater(false);
         }

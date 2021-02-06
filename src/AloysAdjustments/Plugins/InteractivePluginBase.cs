@@ -1,18 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Forms;
-using AloysAdjustments.Logic;
+using System.Windows.Controls;
 using AloysAdjustments.Logic.Patching;
-using AloysAdjustments.Plugins;
 using AloysAdjustments.UI;
 
-namespace AloysAdjustments.Modules
+namespace AloysAdjustments.Plugins
 {
-    [TypeDescriptionProvider(typeof(AbstractControlDescriptionProvider<ModuleBase, UserControl>))]
-    public abstract class ModuleBase : UserControl, IInteractivePlugin
+    public abstract class InteractivePluginBase : UserControl, IInteractivePlugin
     {
         public abstract string PluginName { get; }
         public Control PluginControl => this;
@@ -20,7 +17,7 @@ namespace AloysAdjustments.Modules
         public ControlRelay Reset { get; set; }
         public ControlRelay ResetSelected { get; set; }
 
-        protected ModuleBase()
+        protected InteractivePluginBase()
         {
             Reset = new ControlRelay();
             ResetSelected = new ControlRelay();
@@ -33,7 +30,7 @@ namespace AloysAdjustments.Modules
         public abstract void ApplyChanges(Patch patch);
         public abstract Task Initialize();
         public virtual bool ValidateChanges() => true;
-        
+
         private async void Reset_ClickCommand() => await Relay.To(Reset_Click);
         protected virtual Task Reset_Click() => Task.CompletedTask;
 

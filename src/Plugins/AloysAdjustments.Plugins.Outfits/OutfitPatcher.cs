@@ -39,7 +39,7 @@ namespace AloysAdjustments.Plugins.Outfits
 
             if (hasCharacters)
             {
-                FixUndergarmentTransitions(patch, details, components);
+                FixUndergarmentTransitions(patch, details);
             }
 
             AddVariantReferences(patch, details);
@@ -374,7 +374,7 @@ namespace AloysAdjustments.Plugins.Outfits
             return true;
         }
 
-        private void FixUndergarmentTransitions(Patch patch, List<OutfitDetail> outfits, List<(string File, BaseGGUUID Id)> components)
+        private void FixUndergarmentTransitions(Patch patch, List<OutfitDetail> outfits)
         {
             //entities/spawnsetups/characters/cinematics/mq15_5_restatolinsapartment/c_aloyundergarments
             //doesn't crash during this scene but it does after on the mesa

@@ -3,10 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Forms;
-using AloysAdjustments.UI;
+using System.Windows.Controls;
 
-namespace AloysAdjustments.Utility
+namespace AloysAdjustments.UI
 {
     public class ControlLock : IDisposable
     {
@@ -16,7 +15,7 @@ namespace AloysAdjustments.Utility
         public ControlLock(Control control)
         {
             _control = control;
-            control.Enabled = false;
+            control.IsEnabled = false;
         }
         public ControlLock(ControlRelay control)
         {
@@ -26,7 +25,7 @@ namespace AloysAdjustments.Utility
 
         public void Dispose()
         {
-            if (_control != null) _control.Enabled = true;
+            if (_control != null) _control.IsEnabled = true;
             if (_controlRelay != null) _controlRelay.Enabled = true;
         }
     }
