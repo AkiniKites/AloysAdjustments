@@ -12,7 +12,7 @@ namespace AloysAdjustments.Utility
         {
             try
             {
-                File.AppendAllText("error.log", $"{exception}\r\n");
+                File.AppendAllText("error.log", $"{exception}\r\n\r\n");
             }
             catch { }
         }
@@ -20,7 +20,7 @@ namespace AloysAdjustments.Utility
         {
             try
             {
-                File.AppendAllText("error.log", $"{exception}\r\n");
+                File.AppendAllText("error.log", $"{exception}\r\n\r\n");
             }
             catch { }
         }
