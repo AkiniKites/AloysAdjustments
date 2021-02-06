@@ -198,15 +198,16 @@ namespace AloysAdjustments
 
             var sw = new Stopwatch(); sw.Start();
 
-            await Async.Run(CreatePatch);
+            var success = await Async.Run(CreatePatch);
 
             Settings.UpdatePatchStatus();
 
             IoC.Notif.HideProgress();
-            IoC.Notif.ShowStatus($"Patch installed ({sw.Elapsed.TotalMilliseconds:n0} ms)");
+            if (success)
+                IoC.Notif.ShowStatus($"Patch installed ({sw.Elapsed.TotalMilliseconds:n0} ms)");
         }
 
-        private void CreatePatch()
+        private bool CreatePatch()
         {
             //remove failed patches
             FileBackup.CleanupBackups(Configs.PatchPath);
@@ -231,9 +232,16 @@ namespace AloysAdjustments
                 if (p.Rebuild(patch))
                     p.Save();
 
+                if (!Directory.Exists(patch.WorkingDir))
+                {
+                    IoC.Notif.ShowStatus("No changes found, aborting pack creation.");
+                    
+                    return false;
+                }
+
                 IoC.Notif.ShowStatus("Generating patch (packing)...");
                 patcher.PackPatch(patch);
-
+                
                 IoC.Notif.ShowStatus("Copying patch...");
                 patcher.InstallPatch(patch);
 
@@ -243,6 +251,8 @@ namespace AloysAdjustments
                 Paths.Cleanup(IoC.Config.TempPath);
 #endif
             }
+
+            return true;
         }
 
         private async void btnLoadPatch_ClickCommand(object sender, EventArgs e) => await Relay.To(sender, e, btnLoadPatch_Click);
