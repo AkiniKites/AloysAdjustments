@@ -74,26 +74,26 @@ namespace AloysAdjustments
 
         public void SetAppStatus(string text)
         {
-            Dispatcher.BeginInvoke(() =>
+            Dispatcher.BeginInvoke(new Action(() =>
             {
                 tssAppStatus.Text = text;
-            });
+            }));
         }
 
         public void SetStatus(string text, bool error)
         {
-            Dispatcher.BeginInvoke(() =>
+            Dispatcher.BeginInvoke(new Action(() =>
             {
                 tssStatus.Text = text;
                 tssStatus.Foreground = error ? 
                     new SolidColorBrush(UIColors.ErrorColor) : 
                     SystemColors.WindowTextBrush;
-            });
+            }));
         }
 
         public void SetProgress(int current, int max, bool unknown, bool visible)
         {
-            Dispatcher.BeginInvoke(() =>
+            Dispatcher.BeginInvoke(new Action(() =>
             {
                 tssAppStatus.Visibility = !visible ? Visibility.Visible : Visibility.Hidden;
                 tpbStatus.Visibility = visible ? Visibility.Visible : Visibility.Hidden;
@@ -106,7 +106,7 @@ namespace AloysAdjustments
                         tpbStatus.Value = current;
                     }
                 }
-            });
+            }));
         }
 
         private async void Main_LoadCommand(object sender, EventArgs e) => await Relay.To(sender, e, Main_Load);

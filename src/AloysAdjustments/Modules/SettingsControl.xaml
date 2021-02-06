@@ -3,14 +3,14 @@
                          xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                          xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
                          xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-                         xmlns:system="clr-namespace:System;assembly=System.Runtime"
                          xmlns:plugins="clr-namespace:AloysAdjustments.Plugins"
                          xmlns:ui="clr-namespace:AloysAdjustments.UI"
+                         xmlns:system1="clr-namespace:System;assembly=mscorlib"
                          mc:Ignorable="d" 
                          d:DesignHeight="646" d:DesignWidth="572">
     <DockPanel LastChildFill="False">
         <DockPanel.Resources>
-            <system:Double x:Key="LabelWidth">90</system:Double>
+            <system1:Double x:Key="LabelWidth">90</system1:Double>
         </DockPanel.Resources>
         <GroupBox DockPanel.Dock="Top" Header="General">
             <StackPanel>

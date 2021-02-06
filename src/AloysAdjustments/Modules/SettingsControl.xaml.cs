@@ -191,11 +191,11 @@ namespace AloysAdjustments.Modules
                 if (dir.Exists)
                     size = dir.GetFiles("*.json", SearchOption.AllDirectories).Sum(x => x.Length);
 
-                Dispatcher.BeginInvoke(() =>
+                Dispatcher.BeginInvoke(new Action(() =>
                 {
                     lblCacheSize.Text = $"{(size / 1024):n0} KB";
                     btnClearCache.IsEnabled = size > 0;
-                });
+                }));
             }).ConfigureAwait(false);
         }
 
