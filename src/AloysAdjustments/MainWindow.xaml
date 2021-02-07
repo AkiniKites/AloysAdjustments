@@ -8,7 +8,8 @@
         Title="Aloy's Adjustments" Height="800" Width="800"
         Loaded="Main_LoadCommand" Closing="Window_Closing"
         Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"
-        ResizeMode="CanResizeWithGrip">
+        ResizeMode="CanResizeWithGrip"
+        DataContext="{Binding RelativeSource={RelativeSource Self}}">
     <DockPanel>
         <StatusBar DockPanel.Dock="Bottom">
             <StatusBar.ItemsPanel>
@@ -47,10 +48,10 @@
                         Click="btnLoadPatch_ClickCommand"/>
                 <Button x:Name="btnResetSelected" Content="Reset Selected" 
                         DockPanel.Dock="Top" Margin="0,38,10,0" Height="28" Width="100"
-                        Click="btnResetSelected_Click"/>
+                        Click="btnResetSelected_Click" IsEnabled="{Binding ActivePlugin.ResetSelected.Enabled}"/>
                 <Button x:Name="btnReset" Content="Reset All" 
                         DockPanel.Dock="Top" Margin="0,5,10,0" Height="28" Width="100"
-                        Click="btnReset_Click"/>
+                        Click="btnReset_Click" IsEnabled="{Binding ActivePlugin.Reset.Enabled}"/>
                 <Button x:Name="btnPatch" Content="Install Pack" 
                         DockPanel.Dock="Bottom" Margin="0,10,10,5" Height="42" Width="100"
                         Click="btnPatch_ClickCommand"/>

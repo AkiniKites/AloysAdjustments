@@ -39,6 +39,9 @@ namespace AloysAdjustments.Modules
         {
             InitializeComponent();
 
+            Reset.Enabled = false;
+            ResetSelected.Enabled = false;
+
             Updater = new Updater();
             UpdateVersion();
         }

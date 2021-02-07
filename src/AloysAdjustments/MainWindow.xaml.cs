@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -30,7 +31,7 @@ namespace AloysAdjustments
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow : Window, INotifyPropertyChanged
     {
         private const string ConfigPath = "config.json";
 
@@ -39,11 +40,13 @@ namespace AloysAdjustments
         private List<IInteractivePlugin> Plugins { get; set; }
         private SettingsControl Settings { get; set; }
         public PluginManager PluginManager { get; }
+        public IInteractivePlugin ActivePlugin { get; set; }
 
         public MainWindow()
         {
             Dispatcher.UnhandledException += Dispatcher_UnhandledException;
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
+            PropertyChanged += (s, e) => Debug.WriteLine(e.PropertyName);
 
             IoC.Bind(new Notifications(SetStatus, SetAppStatus, SetProgress));
             IoC.Bind(new Uuid());
@@ -126,11 +129,9 @@ namespace AloysAdjustments
             foreach (var module in Plugins.AsEnumerable().Concat(new[] { Settings }).Reverse())
             {
                 var tab = new TabItem();
-
-                //tab.UseVisualStyleBackColor = true;
+                
                 tab.Header = module.PluginName;
                 tab.Content = module.PluginControl;
-                //module.PluginControl.Dock = DockStyle.Fill;
 
                 tcMain.Items.Insert(0, tab);
             }
@@ -298,43 +299,9 @@ namespace AloysAdjustments
         private void tcMain_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (tcMain.SelectedIndex >= 0 && tcMain.SelectedIndex < Plugins.Count)
-            {
-                btnReset.IsEnabled = true;
-
-                for (int i = 0; i < Plugins.Count; i++)
-                {
-                    if (i == tcMain.SelectedIndex)
-                        EnableModule(Plugins[i]);
-                    else
-                        DisableModule(Plugins[i]);
-                }
-            }
+                ActivePlugin = Plugins[tcMain.SelectedIndex];
             else
-            {
-                btnReset.IsEnabled = false;
-                btnResetSelected.IsEnabled = false;
-            }
-        }
-
-        private void EnableModule(IInteractivePlugin module)
-        {
-            module.Reset.PropertyValueChanged = (p, v) => Relay_PropertyValueChanged(btnReset, p, v);
-            //module.Reset.FirePropertyChanges();
-
-            module.ResetSelected.PropertyValueChanged = (p, v) => Relay_PropertyValueChanged(btnResetSelected, p, v);
-            module.ResetSelected.FirePropertyChanges();
-        }
-
-        private void DisableModule(IInteractivePlugin module)
-        {
-            module.Reset.PropertyValueChanged = null;
-            module.ResetSelected.PropertyValueChanged = null;
-        }
-
-        private void Relay_PropertyValueChanged(Control control, string propertyName, object value)
-        {
-            var pi = control.GetType().GetProperty(propertyName);
-            pi?.SetValue(control, value);
+                ActivePlugin = Settings;
         }
 
         private void btnResetSelected_Click(object sender, EventArgs e)
@@ -348,9 +315,11 @@ namespace AloysAdjustments
                 Plugins[tcMain.SelectedIndex].Reset.OnClick();
         }
 
-        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        private void Window_Closing(object sender, CancelEventArgs e)
         {
             Settings.Updater?.TryLaunchUpdater(false);
         }
+
+        public event PropertyChangedEventHandler PropertyChanged;
     }
 }

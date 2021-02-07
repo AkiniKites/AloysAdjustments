@@ -30,6 +30,7 @@ namespace AloysAdjustments.Plugins.Misc
             MiscLogic = new MiscLogic();
 
             InitializeComponent();
+            ResetSelected.Enabled = false;
 
             _loading = false;
         }
