@@ -26,7 +26,7 @@
                   SelectionChanged="dgUpgrades_SelectionChanged">
             <DataGrid.ColumnHeaderStyle>
                 <Style TargetType="DataGridColumnHeader">
-                    <Setter Property="Padding" Value="5 2 15 2"/>
+                    <Setter Property="Padding" Value="5 5 15 5"/>
                 </Style>
             </DataGrid.ColumnHeaderStyle>
             <DataGrid.CellStyle>
