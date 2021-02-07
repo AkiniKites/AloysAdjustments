@@ -72,4 +72,14 @@ Write-Host "Cleanup..."
 Remove-Item $tmp -Recurse -Force -ErrorAction Ignore
 
 Write-Host "Compressing..."
-Compress-Archive -Path $publishDir -DestinationPath "$out\$publishName.zip"
+$sz="C:\Program Files\7-Zip\7z.exe"
+if ((Test-Path $sz) -eq $false) {
+	Write-Host "7-Zip is missing, aborting packaging"
+    exit
+}
+
+$pack="$out\$publishName-v$version.zip"
+
+& $sz a $pack .\$out\*
+
+#Compress-Archive -Path $publishDir -DestinationPath "$out\$publishName.zip"
