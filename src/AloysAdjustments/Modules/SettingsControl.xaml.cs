@@ -16,6 +16,7 @@ using AloysAdjustments.Steam;
 using AloysAdjustments.UI;
 using AloysAdjustments.Updates;
 using AloysAdjustments.Utility;
+using Ookii.Dialogs.Wpf;
 using MessageBox = System.Windows.MessageBox;
 using UIColors = AloysAdjustments.UI.UIColors;
 
@@ -96,9 +97,9 @@ namespace AloysAdjustments.Modules
 
         private void btnGameDir_Click(object sender, EventArgs e)
         {
-            using var ofd = new FolderBrowserDialog();
+            var ofd = new VistaFolderBrowserDialog();
 
-            if (ofd.ShowDialog() == DialogResult.OK)
+            if (ofd.ShowDialog() == true)
             {
                 tbGameDir.EnableTypingEvent = false;
                 tbGameDir.Text = ofd.SelectedPath;
