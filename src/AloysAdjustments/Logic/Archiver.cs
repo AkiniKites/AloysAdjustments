@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using AloysAdjustments.Configuration;
 using AloysAdjustments.Utility;
 using Decima;
+using Utility;
 
 namespace AloysAdjustments.Logic
 {
@@ -42,7 +43,11 @@ namespace AloysAdjustments.Logic
             if (!File.Exists(libPath))
                 throw new HzdException($"Unable to find archiver support library in: {IoC.Settings.GamePath}");
 
-            await Async.Run(() => File.Copy(libPath, IoC.Config.ArchiverLib, true));
+            await Async.Run(() =>
+            {
+                OodleLZ.Unload();
+                File.Copy(libPath, IoC.Config.ArchiverLib, true);
+            });
         }
 
         public void ClearCache()

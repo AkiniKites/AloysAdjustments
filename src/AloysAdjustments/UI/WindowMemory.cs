@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Forms;
 using AloysAdjustments.Configuration;
 using AloysAdjustments.Logic;
@@ -27,7 +28,7 @@ namespace AloysAdjustments.UI
 
         private class TrackingWindow
         {
-            public Form Window;
+            public Window Window;
             public string Name;
 
             public void AttachEvents()
@@ -48,7 +49,7 @@ namespace AloysAdjustments.UI
         /// Saves and restores window position
         /// Note: There must be at least one other setting in Properties.Settings. To allow the window to be saves.
         /// </summary>
-        public static void ActivateWindow(Form window, string name, 
+        public static void ActivateWindow(Window window, string name, 
             WindowMemoryType memoryType = WindowMemoryType.All, bool attachEvents = true)
         {
             var win = new TrackingWindow()
@@ -70,16 +71,12 @@ namespace AloysAdjustments.UI
                 }
                 if (memoryType.HasFlag(WindowMemoryType.Position))
                 {
-                    var area = new Rectangle(rect.Left, rect.Top, window.Width, window.Height);
+                    var area = new Rectangle(rect.Left, rect.Top, (int)window.Width, (int)window.Height);
                     if (Screen.AllScreens.Any(s => s.WorkingArea.IntersectsWith(area)))
                     {
-                        window.StartPosition = FormStartPosition.Manual;
+                        window.WindowStartupLocation = WindowStartupLocation.Manual;
                         window.Top = rect.Top;
                         window.Left = rect.Left;
-                    }
-                    else
-                    {
-                        window.StartPosition = FormStartPosition.WindowsDefaultLocation;
                     }
                 }
             }
@@ -93,8 +90,8 @@ namespace AloysAdjustments.UI
             if (!Windows.TryGetValue(name, out TrackingWindow window))
                 throw new WindowMemoryException($"Window name not found: {name}");
 
-            var r = new Rectangle(window.Window.Left, window.Window.Top, 
-                window.Window.Width, window.Window.Height);
+            var r = new Rectangle((int)window.Window.Left, (int)window.Window.Top,
+                (int)window.Window.Width, (int)window.Window.Height);
             IoC.Settings.Windows[window.Name] = r;
             SettingsManager.Save();
 

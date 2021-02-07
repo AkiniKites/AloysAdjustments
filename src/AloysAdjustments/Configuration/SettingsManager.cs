@@ -13,7 +13,7 @@ namespace AloysAdjustments.Configuration
         private const string SettingsFile = "settings.json";
         private static readonly string ApplicationSettingsPath = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-            typeof(SettingsManager).Assembly.GetName().Name);
+            "Aloy's Adjustments");
 
         private static string SettingsPath => Path.Combine(ApplicationSettingsPath, SettingsFile);
 

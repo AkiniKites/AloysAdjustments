@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Forms;
+using System.Windows.Controls;
 using AloysAdjustments.Logic.Patching;
 using AloysAdjustments.UI;
 
