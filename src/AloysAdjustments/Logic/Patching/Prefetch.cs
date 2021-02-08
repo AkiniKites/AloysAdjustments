@@ -19,7 +19,7 @@ namespace AloysAdjustments.Logic.Patching
         {
             var prefetch = new Prefetch();
 
-            prefetch.Core = patch?.AddFile(IoC.Config.PrefetchFile) ?? IoC.Archiver.LoadGameFile(IoC.Config.PrefetchFile);
+            prefetch.Core = patch?.AddGameFile(IoC.Config.PrefetchFile) ?? IoC.Archiver.LoadGameFile(IoC.Config.PrefetchFile);
             prefetch.Data = prefetch.Core.GetType<PrefetchList>();
 
             prefetch.Files = new Dictionary<string, int>();

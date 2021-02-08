@@ -39,7 +39,7 @@ namespace AloysAdjustments.Plugins.Misc
 
         private void RemoveIntroLogo(Patch patch)
         {
-            var core = patch.AddFile(IoC.Get<MiscConfig>().IntroFile);
+            var core = patch.AddGameFile(IoC.Get<MiscConfig>().IntroFile);
 
             var menu = GetIntroMenu(core);
             menu.PropertyAnimations.Clear();

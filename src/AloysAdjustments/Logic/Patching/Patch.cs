@@ -40,7 +40,7 @@ namespace AloysAdjustments.Logic.Patching
             Files = new HashSet<string>();
         }
 
-        public HzdCore AddFile(string file)
+        public HzdCore AddGameFile(string file)
         {
             file = HzdCore.NormalizeSource(file);
             var path = Path.Combine(WorkingDir, HzdCore.EnsureExt(file));
@@ -56,6 +56,37 @@ namespace AloysAdjustments.Logic.Patching
             };
 
             return patchCore;
+        }
+
+        public void AddFile(string source, string filePath, bool overwrite = false)
+        {
+            filePath = HzdCore.NormalizeSource(filePath);
+            var path = Path.Combine(WorkingDir, filePath);
+
+            if (!File.Exists(source))
+                throw new PatchException($"File not found, cannot add to pack: {source}");
+            if (Files.Contains(filePath) && !overwrite)
+                throw new PatchException($"File already exists in pack: {filePath}");
+
+            Paths.CheckDirectory(Path.GetDirectoryName(path));
+            File.Copy(source, path, true);
+
+            Files.Add(filePath);
+        }
+
+        public void AddFile(Stream source, string filePath, bool overwrite = false)
+        {
+            filePath = HzdCore.NormalizeSource(filePath);
+            var path = Path.Combine(WorkingDir, filePath);
+
+            if (Files.Contains(filePath) && !overwrite)
+                throw new PatchException($"Attempted to add duplicate file to patch: {filePath}");
+
+            Paths.CheckDirectory(Path.GetDirectoryName(path));
+            using var fs = File.Create(path);
+            source.CopyTo(fs);
+
+            Files.Add(filePath);
         }
     }
 }

@@ -19,7 +19,7 @@ using Decima;
 
 namespace AloysAdjustments.Plugins.Outfits
 {
-    public partial class OutfitsControl : InteractivePluginBase, INotifyPropertyChanged
+    public partial class OutfitsControl : InteractivePluginControl, INotifyPropertyChanged
     {
         private bool _updatingLists;
         private bool _loading;

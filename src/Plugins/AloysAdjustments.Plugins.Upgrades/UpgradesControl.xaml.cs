@@ -18,7 +18,7 @@ namespace AloysAdjustments.Plugins.Upgrades
     /// <summary>
     /// Interaction logic for UpgradeControl.xaml
     /// </summary>
-    public partial class UpgradesControl : InteractivePluginBase, INotifyPropertyChanged
+    public partial class UpgradesControl : InteractivePluginControl, INotifyPropertyChanged
     {
         private UpgradesLogic Logic { get; }
         public List<Upgrade> Upgrades { get; set; }

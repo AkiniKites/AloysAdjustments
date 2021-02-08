@@ -11,7 +11,7 @@ namespace AloysAdjustments.Plugins.Misc
     /// <summary>
     /// Interaction logic for MiscControl.xaml
     /// </summary>
-    public partial class MiscControl : InteractivePluginBase
+    public partial class MiscControl : InteractivePluginControl
     {
         private bool _loading;
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Text;
 
 namespace AloysAdjustments.Plugins.CustomFiles
@@ -11,34 +12,19 @@ namespace AloysAdjustments.Plugins.CustomFiles
         Pack
     }
 
-    public class CustomFile : IComparable<CustomFile>
+    public class CustomFile : IComparable<CustomFile>, INotifyPropertyChanged
     {
-        public string Name { get; }
+        public string Name { get; set; }
         public string SourcePath { get; set; }
-        public string Path { get; set; }
+        public string SubPath { get; set; }
         public SourceType SourceType { get; set; }
         public bool Valid { get; set; }
 
-        public CustomFile(string name, string source)
-        {
-            Name = name;
-            SourcePath = source;
-        }
+        public CustomFile() { }
 
         public override string ToString()
         {
             return Name;
-        }
-
-        public override bool Equals(object obj)
-        {
-            return obj is CustomFile file &&
-                   Path == file.Path;
-        }
-
-        public override int GetHashCode()
-        {
-            return HashCode.Combine(Path);
         }
 
         public int CompareTo(CustomFile other)
@@ -47,5 +33,7 @@ namespace AloysAdjustments.Plugins.CustomFiles
             if (ReferenceEquals(null, other)) return 1;
             return string.Compare(Name, other.Name);
         }
+
+        public event PropertyChangedEventHandler PropertyChanged;
     }
 }

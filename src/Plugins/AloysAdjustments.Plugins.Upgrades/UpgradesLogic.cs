@@ -65,7 +65,7 @@ namespace AloysAdjustments.Plugins.Upgrades
         public void CreatePatch(Patch patch, List<Upgrade> upgrades)
         {
             //extract original outfit files to temp
-            var core = patch.AddFile(IoC.Get<UpgradeConfig>().UpgradeFile);
+            var core = patch.AddGameFile(IoC.Get<UpgradeConfig>().UpgradeFile);
 
             var upgradeChanges = upgrades.ToDictionary(x => x.Id, x => x);
             

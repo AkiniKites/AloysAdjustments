@@ -70,7 +70,7 @@ namespace AloysAdjustments.Plugins.Outfits
         private void AddVariantReferences(Patch patch, List<OutfitDetail> outfits)
         {
             //Add the new variant references to player components
-            var pcCore = patch.AddFile(IoC.Get<OutfitConfig>().PlayerComponentsFile);
+            var pcCore = patch.AddGameFile(IoC.Get<OutfitConfig>().PlayerComponentsFile);
             var variants = OutfitsGenerator.GetPlayerModels(pcCore);
 
             var refs = variants.Select(x => x.GUID).ToHashSet();
@@ -119,7 +119,7 @@ namespace AloysAdjustments.Plugins.Outfits
 
         private void RemoveAloyComponents(Patch patch, List<(string File, BaseGGUUID Id)> components)
         {
-            var core = patch.AddFile(IoC.Get<OutfitConfig>().PlayerCharacterFile);
+            var core = patch.AddGameFile(IoC.Get<OutfitConfig>().PlayerCharacterFile);
             
             var adult = core.GetTypes<SoldierResource>().FirstOrDefault(x=>x.Name == IoC.Get<OutfitConfig>().AloyCharacterName);
             if (adult == null)
@@ -137,7 +137,7 @@ namespace AloysAdjustments.Plugins.Outfits
         {
             foreach (var group in outfits.Where(x => !modifiedOnly || x.Modified).GroupBy(x => x.Model.Source))
             {
-                var core = patch.AddFile(group.Key);
+                var core = patch.AddGameFile(group.Key);
 
                 var changes = new List<(BaseGGUUID SourceId, BaseGGUUID NewId, 
                     HumanoidBodyVariant Data, Action collapse)>();
@@ -380,7 +380,7 @@ namespace AloysAdjustments.Plugins.Outfits
             //doesn't crash during this scene but it does after on the mesa
             
             //levels/worlds/world/scenes/mainquest/mq4_mothersheart/sequences/mq04_bedding_down_seq
-            var core = patch.AddFile(IoC.Get<OutfitConfig>().Mission4UndergarmentFixFile);
+            var core = patch.AddGameFile(IoC.Get<OutfitConfig>().Mission4UndergarmentFixFile);
             var undergarmentModelId = outfits.First(x => x.DefaultModel.Source == IoC.Get<OutfitConfig>().UndergarmentModelFile).DefaultModel.Id;
             var param = core.GetTypes<NodeConstantsResource>().SelectMany(x=>x.Parameters).FirstOrDefault(x=>x.DefaultObjectUUID.GUID == undergarmentModelId);
             if (param == null)
@@ -402,7 +402,7 @@ namespace AloysAdjustments.Plugins.Outfits
             foreach (var map in maps)
             {
                 //extract original outfit files to temp
-                var core = patch.AddFile(map.Key);
+                var core = patch.AddGameFile(map.Key);
 
                 //update references from based on new maps
                 var refs = core.GetTypesById<NodeGraphHumanoidBodyVariantUUIDRefVariableOverride>();

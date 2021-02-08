@@ -7,11 +7,11 @@ using System.Windows;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("AloysAdjustments.Plugins.Upgrades")]
+[assembly: AssemblyTitle("AloysAdjustments.Plugins.CustomFiles")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("AloysAdjustments.Plugins.Upgrades")]
+[assembly: AssemblyProduct("AloysAdjustments.Plugins.CustomFiles")]
 [assembly: AssemblyCopyright("Copyright ©  2021")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

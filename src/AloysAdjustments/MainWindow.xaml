@@ -48,10 +48,12 @@
                         Click="btnLoadPatch_ClickCommand"/>
                 <Button x:Name="btnResetSelected" Content="Reset Selected" 
                         DockPanel.Dock="Top" Margin="0,38,10,0" Height="28" Width="100"
-                        Click="btnResetSelected_Click" IsEnabled="{Binding ActivePlugin.ResetSelected.Enabled}"/>
+                        Click="btnResetSelected_Click" Command="{Binding ActivePlugin.ResetSelected.ClickCommand}"
+                        IsEnabled="{Binding ActivePlugin.ResetSelected.Enabled}"/>
                 <Button x:Name="btnReset" Content="Reset All" 
                         DockPanel.Dock="Top" Margin="0,5,10,0" Height="28" Width="100"
-                        Click="btnReset_Click" IsEnabled="{Binding ActivePlugin.Reset.Enabled}"/>
+                        Click="btnReset_Click"  Command="{Binding ActivePlugin.Reset.ClickCommand}"
+                        IsEnabled="{Binding ActivePlugin.Reset.Enabled}"/>
                 <Button x:Name="btnPatch" Content="Install Pack" 
                         DockPanel.Dock="Bottom" Margin="0,10,10,5" Height="42" Width="100"
                         Click="btnPatch_ClickCommand"/>
