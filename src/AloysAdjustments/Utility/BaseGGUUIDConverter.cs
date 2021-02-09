@@ -11,7 +11,7 @@ namespace AloysAdjustments.Utility
 {
     public class BaseGGUUIDConverter : JsonConverter<BaseGGUUID>
     {
-        public override BaseGGUUID ReadJson(JsonReader reader, Type objectType, [AllowNull] BaseGGUUID existingValue, bool hasExistingValue, JsonSerializer serializer)
+        public override BaseGGUUID ReadJson(JsonReader reader, Type objectType, BaseGGUUID existingValue, bool hasExistingValue, JsonSerializer serializer)
         {
             if (reader.TokenType == JsonToken.Null)
                 return null;
@@ -20,7 +20,7 @@ namespace AloysAdjustments.Utility
             return data;
         }
 
-        public override void WriteJson(JsonWriter writer, [AllowNull] BaseGGUUID value, JsonSerializer serializer)
+        public override void WriteJson(JsonWriter writer, BaseGGUUID value, JsonSerializer serializer)
         {
             if (value != null)
             {

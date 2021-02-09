@@ -4,60 +4,40 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using System.Runtime.Loader;
 using System.Text;
 using System.Threading.Tasks;
 using AloysAdjustments.Logic;
+using AloysAdjustments.Utility;
 
 namespace AloysAdjustments.Plugins
 {
     public class PluginManager
     {
-        private readonly HashSet<string> _ignoreList = new[] { 
-            IoC.Config.ArchiverLib 
-        }.ToHashSet();
-
-        public void ExecuteAll<T>(string dir, Action<T> action)
+        private const string PluginDir = "plugins";
+        private const string PluginPattern = "*.dll";
+        
+        public IEnumerable<T> LoadAll<T>()
         {
-            var dlls = Directory.GetFiles(dir, "*.dll", SearchOption.TopDirectoryOnly);
+            Paths.CheckDirectory(PluginDir);
+            var dlls = Directory.GetFiles(PluginDir, PluginPattern, SearchOption.TopDirectoryOnly);
 
             foreach (string dll in dlls)
             {
-                if (_ignoreList.Contains(Path.GetFileName(dll)))
-                    continue;
-
-                LoadAndExecute(dll, action);
+                foreach (var loadedType in AssemblyLoader.LoadTypes<T>(dll))
+                {
+                    yield return loadedType;
+                }
             }
         }
 
-        [MethodImpl(MethodImplOptions.NoInlining)]
-        public void LoadAndExecute<T>(string path, Action<T> action)
+        public void ExecuteAll<T>(Action<T> action)
         {
-            try
-            {
-                path = Path.GetFullPath(path);
-                var alc = new AssemblyLoadContext(path, true);
-                var a = alc.LoadFromAssemblyPath(path);
-                
-                try
-                {
-                    var types = a.GetTypes().Where(x => typeof(T).IsAssignableFrom(x));
-                    foreach (var t in types)
-                    {
-                        var obj = (T)Activator.CreateInstance(t);
-                        action(obj);
-                    }
-                }
-                catch
-                {
-                    //TODO: implement
-                }
+            Paths.CheckDirectory(PluginDir);
+            var dlls = Directory.GetFiles(PluginDir, PluginPattern, SearchOption.TopDirectoryOnly);
 
-                alc.Unload();
-            }
-            catch
+            foreach (string dll in dlls)
             {
-                //TODO: implement
+                AssemblyLoader.LoadAndExecute(dll, action);
             }
         }
     }

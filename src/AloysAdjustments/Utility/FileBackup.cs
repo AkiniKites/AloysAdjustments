@@ -44,7 +44,8 @@ namespace AloysAdjustments.Utility
 
             if (!success && backupFiles.Any())
             {
-                File.Move(backupFiles.First(), path, true);
+                if (File.Exists(path)) File.Delete(path);
+                File.Move(backupFiles.First(), path);
                 success = action();
             }
 
@@ -99,7 +100,10 @@ namespace AloysAdjustments.Utility
         public void Dispose()
         {
             if (_tempPath != null && File.Exists(_tempPath))
-                File.Move(_tempPath, _path, true);
+            {
+                if (File.Exists(_path)) File.Delete(_path);
+                File.Move(_tempPath, _path);
+            }
         }
     }
 }
