@@ -196,6 +196,7 @@
     <Compile Include="UI\ControlLock.cs" />
     <Compile Include="UI\ControlRelay.cs" />
     <Compile Include="UI\Relay.cs" />
+    <Compile Include="UI\SingleLineConverter.cs" />
     <Compile Include="UI\TypeDelayTextBox.cs" />
     <Compile Include="UI\UIColors.cs" />
     <Compile Include="UI\WindowMemory.cs" />
