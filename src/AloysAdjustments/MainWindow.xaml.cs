@@ -77,6 +77,9 @@ namespace AloysAdjustments
 
         public void SetAppStatus(string text)
         {
+            text ??= "";
+            text = SingleLineConverter.Convert(text);
+
             Dispatcher.BeginInvoke(new Action(() =>
             {
                 tssAppStatus.Text = text;
@@ -85,6 +88,9 @@ namespace AloysAdjustments
 
         public void SetStatus(string text, bool error)
         {
+            text ??= "";
+            text = SingleLineConverter.Convert(text);
+
             Dispatcher.BeginInvoke(new Action(() =>
             {
                 tssStatus.Text = text;
