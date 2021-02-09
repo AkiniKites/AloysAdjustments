@@ -35,7 +35,7 @@ namespace AloysAdjustments.Logic.Patching
         {
             var output = Path.Combine(IoC.Config.TempPath, IoC.Config.PatchFile);
 
-            IoC.Archiver.PackFiles(patch.WorkingDir, patch.Files.Select(HzdCore.EnsureExt).ToArray(), output);
+            IoC.Archiver.PackFiles(patch.WorkingDir, patch.Files.ToArray(), output);
 
             patch.PackedFile = output;
         }

@@ -23,7 +23,7 @@ namespace AloysAdjustments.Logic.Patching
 
             public override void Save()
             {
-                Patch.Files.Add(Source);
+                Patch.Files.Add(HzdCore.EnsureExt(Source));
 
                 Paths.CheckDirectory(Path.GetDirectoryName(FilePath));
                 Binary.ToFile(FilePath);
@@ -42,12 +42,12 @@ namespace AloysAdjustments.Logic.Patching
 
         public HzdCore AddGameFile(string file)
         {
-            file = HzdCore.NormalizeSource(file);
-            var path = Path.Combine(WorkingDir, HzdCore.EnsureExt(file));
+            var subPath = NormalizeSubPath(HzdCore.EnsureExt(file));
+            var path = Path.Combine(WorkingDir, subPath);
 
-            var core = Files.Contains(file) ? 
-                HzdCore.FromFile(path, file) : 
-                IoC.Archiver.LoadGameFile(file);
+            var core = Files.Contains(subPath) ? 
+                HzdCore.FromFile(path, subPath) : 
+                IoC.Archiver.LoadGameFile(subPath);
 
             var patchCore = new HzdCorePatch(core)
             {
@@ -60,33 +60,38 @@ namespace AloysAdjustments.Logic.Patching
 
         public void AddFile(string source, string filePath, bool overwrite = false)
         {
-            filePath = HzdCore.NormalizeSource(filePath);
-            var path = Path.Combine(WorkingDir, filePath);
+            var subPath = NormalizeSubPath(filePath);
+            var path = Path.Combine(WorkingDir, subPath);
 
             if (!File.Exists(source))
                 throw new PatchException($"File not found, cannot add to pack: {source}");
-            if (Files.Contains(filePath) && !overwrite)
-                throw new PatchException($"File already exists in pack: {filePath}");
+            if (Files.Contains(subPath) && !overwrite)
+                throw new PatchException($"File already exists in pack: {subPath}");
 
             Paths.CheckDirectory(Path.GetDirectoryName(path));
             File.Copy(source, path, true);
 
-            Files.Add(filePath);
+            Files.Add(subPath);
         }
 
         public void AddFile(Stream source, string filePath, bool overwrite = false)
         {
-            filePath = HzdCore.NormalizeSource(filePath);
-            var path = Path.Combine(WorkingDir, filePath);
+            var subPath = NormalizeSubPath(filePath);
+            var path = Path.Combine(WorkingDir, subPath);
 
-            if (Files.Contains(filePath) && !overwrite)
-                throw new PatchException($"Attempted to add duplicate file to patch: {filePath}");
+            if (Files.Contains(subPath) && !overwrite)
+                throw new PatchException($"Attempted to add duplicate file to patch: {subPath}");
 
             Paths.CheckDirectory(Path.GetDirectoryName(path));
             using var fs = File.Create(path);
             source.CopyTo(fs);
 
-            Files.Add(filePath);
+            Files.Add(subPath);
+        }
+
+        private string NormalizeSubPath(string path)
+        {
+            return path.Replace("\\", "/");
         }
     }
 }
