@@ -11,6 +11,13 @@ namespace AloysAdjustments.Plugins.CustomFiles
         Zip,
         Pack
     }
+    public enum FileStatus
+    {
+        Invalid,
+        Known,
+        Normal,
+        Suspect
+    }
 
     public class CustomFile : IComparable<CustomFile>, INotifyPropertyChanged
     {
@@ -18,7 +25,9 @@ namespace AloysAdjustments.Plugins.CustomFiles
         public string SourcePath { get; set; }
         public string SubPath { get; set; }
         public SourceType SourceType { get; set; }
-        public bool Valid { get; set; }
+
+        public FileStatus Status { get; set; }
+        public bool Missing { get; set; }
 
         public CustomFile() { }
 

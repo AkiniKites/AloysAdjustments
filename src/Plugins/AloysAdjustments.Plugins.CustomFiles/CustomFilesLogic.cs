@@ -7,15 +7,35 @@ using System.Linq;
 using System.Text;
 using AloysAdjustments.Logic;
 using AloysAdjustments.Logic.Patching;
+using AloysAdjustments.Plugins.CustomFiles.Sources;
+using AloysAdjustments.Plugins.CustomFiles.Utility;
 using Decima;
+using Newtonsoft.Json;
 
 namespace AloysAdjustments.Plugins.CustomFiles
 {
     public class CustomFilesLogic
     {
-        public Dictionary<ulong, (string Name, bool Valid)> KnownCores = new Dictionary<ulong, (string Name, bool Valid)>();
+        private readonly HashSet<string> KnownRootPaths = new HashSet<string>();
+        private readonly Dictionary<ulong, (string Name, bool Valid)> CoreHashes 
+            = new Dictionary<ulong, (string Name, bool Valid)>();
         //mostly guesses
-        public Dictionary<ulong, (string Name, bool Valid)> KnownStreams = new Dictionary<ulong, (string Name, bool Valid)>();
+        private readonly Dictionary<ulong, (string Name, bool Valid)> StreamHashes 
+            = new Dictionary<ulong, (string Name, bool Valid)>();
+
+        private readonly Dictionary<SourceType, FileSource> Sources;
+
+        public CustomFilesLogic()
+        {
+            Sources = new Dictionary<SourceType, FileSource> {
+                { SourceType.Zip, new ZipSource() }
+            };
+
+            foreach (var source in Sources)
+            {
+                source.Value.GetFileStatus = GetFileStatus;
+            }
+        }
 
         public void Initialize()
         {
@@ -23,19 +43,40 @@ namespace AloysAdjustments.Plugins.CustomFiles
 
             foreach (var file in prefetch.Files.Keys)
             {
-                KnownCores.Add(Packfile.GetHashForPath(file), (file, true));
-                KnownStreams.Add(Packfile.GetHashForPath(file, true), (file, true));
+                CoreHashes.Add(Packfile.GetHashForPath(file), (file, true));
+                StreamHashes.Add(Packfile.GetHashForPath(file, true), (file, true));
+
+                var idx = file.IndexOf('/');
+                if (idx > 0)
+                    KnownRootPaths.Add(file.Substring(0, idx + 1));
             }
 
             //prefetch not valid, must be generated
             var prefetchFile = IoC.Config.PrefetchFile;
-            KnownCores.Add(Packfile.GetHashForPath(prefetchFile), (prefetchFile, false));
+            CoreHashes.Add(Packfile.GetHashForPath(prefetchFile), (prefetchFile, false));
+        }
+
+
+        public FileStatus GetFileStatus(ulong hash, string name)
+        {
+            var match = FindFile(hash);
+
+            if (match.Found && !match.Valid)
+                return FileStatus.Invalid;
+            if (match.Found)
+                return FileStatus.Known;
+            if (name != null && KnownRootPaths.Any(name.StartsWith))
+                return FileStatus.Suspect;
+
+            return FileStatus.Known;
         }
 
         private (string Name, bool Valid, bool Found) FindFile(ulong hash)
         {
-            if (KnownCores.TryGetValue(hash, out var knownCore))
-                return (knownCore.Name, knownCore.Valid, true);
+            if (CoreHashes.TryGetValue(hash, out var match))
+                return (match.Name, match.Valid, true);
+            if (StreamHashes.TryGetValue(hash, out match))
+                return (match.Name, match.Valid, true);
             return (null, false, false);
         }
 
@@ -44,15 +85,14 @@ namespace AloysAdjustments.Plugins.CustomFiles
             var files = Directory.GetFiles(dir, "*", SearchOption.AllDirectories);
             foreach (var file in files)
             {
-                var name = Normalize(file.Substring(dir.Length + 1));
-                var known = FindFile(Packfile.GetHashForPath(name));
+                var name = Files.Normalize(file.Substring(dir.Length + 1));
 
                 yield return new CustomFile()
                 {
                     Name = name,
-                    Valid = !known.Found || known.Valid,
                     SourcePath = file,
                     SourceType = SourceType.File,
+                    Status = GetFileStatus(Packfile.GetHashForPath(name), name)
                 };
             }
         }
@@ -62,7 +102,7 @@ namespace AloysAdjustments.Plugins.CustomFiles
             var packFiles = TryLoadAsPack(sourceFile);
             if (packFiles != null) return packFiles;
 
-            var zipFiles = TryLoadAsZip(sourceFile);
+            var zipFiles = Sources[SourceType.Zip].TryLoad(sourceFile);
             if (zipFiles != null) return zipFiles;
 
             return new List<CustomFile>();
@@ -78,15 +118,12 @@ namespace AloysAdjustments.Plugins.CustomFiles
                 foreach (var file in pack.FileEntries)
                 {
                     var known = FindFile(file.PathHash);
-                    if (known.Name == null)
-                        unknown++;
-
                     files.Add(new CustomFile()
                     {
                         Name = known.Found ? known.Name + Packfile.CoreExt : $"Unknown file name - {file.PathHash}",
-                        Valid = !known.Found || known.Valid,
                         SourcePath = path,
                         SourceType = SourceType.Pack,
+                        Status = GetFileStatus(file.PathHash, null)
                     });
                 }
 
@@ -97,41 +134,8 @@ namespace AloysAdjustments.Plugins.CustomFiles
 
             return null;
         }
-
-
-        private List<CustomFile> TryLoadAsZip(string path)
-        {
-            try
-            {
-                using var fs = File.OpenRead(path);
-                var zip = new ZipArchive(fs, ZipArchiveMode.Read);
-
-                var files = new List<CustomFile>();
-                foreach (var entry in zip.Entries)
-                {
-                    if (IsDir(entry.FullName))
-                        continue;
-
-                    var name = Normalize(entry.FullName);
-                    var known = FindFile(Packfile.GetHashForPath(name));
-                    files.Add(new CustomFile()
-                    {
-                        Name = name,
-                        Valid = !known.Found || known.Valid,
-                        SubPath = entry.FullName,
-                        SourcePath = path,
-                        SourceType = SourceType.Zip,
-                    });
-                }
-
-                return files;
-            }
-            catch { }
-
-            return null;
-        }
-
-        public void AddFilesToPatch(Patch patch, IEnumerable<CustomFile> files)
+        
+        public void AddFilesToPatch(Patch patch, IList<CustomFile> files)
         {
             var group =
                 from f in files
@@ -146,13 +150,19 @@ namespace AloysAdjustments.Plugins.CustomFiles
                         AddFilesFromDirectory(patch, source.Files);
                         break;
                     case SourceType.Zip:
-                        AddFilesFromZip(patch, source.SourcePath, source.Files);
+                        Sources[SourceType.Zip].AddFiles(patch, source.SourcePath, source.Files);
                         break;
                     case SourceType.Pack:
                         break;
-                    default:
-                        break;
                 }
+            }
+
+            if (files.Any())
+            {
+                var json = JsonConvert.SerializeObject(files, Formatting.Indented);
+                using var ms = new MemoryStream(Encoding.UTF8.GetBytes(json));
+
+                patch.AddFile(ms, "CustomFiles.json", true);
             }
         }
 
@@ -162,39 +172,6 @@ namespace AloysAdjustments.Plugins.CustomFiles
             {
                 patch.AddFile(file.SourcePath, file.Name, true);
             }
-        }
-
-        private void AddFilesFromZip(Patch patch, string source, IEnumerable<CustomFile> files)
-        {
-            if (!File.Exists(source))
-                throw new PatchException($"Zip file not found: {source}");
-
-            using var fs = File.OpenRead(source);
-            var zip = new ZipArchive(fs, ZipArchiveMode.Read);
-
-            foreach (var file in files)
-            {
-                var entry = zip.Entries.FirstOrDefault(x => x.FullName == file.SubPath);
-                if (entry == null)
-                    throw new PatchException($"File '{file.SubPath}' not found in zip: {source}");
-
-                using var zs = entry.Open();
-                patch.AddFile(zs, file.Name, true);
-            }
-        }
-
-        private string Normalize(string path)
-        {
-            return path.Replace("\\", "/");
-        }
-
-        private bool IsDir(string path)
-        {
-            if (path == null)
-                return false;
-
-            return path.Last() == Path.DirectorySeparatorChar ||
-                path.Last() == Path.AltDirectorySeparatorChar;
         }
     }
 }

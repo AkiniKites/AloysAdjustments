@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -14,6 +15,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using AloysAdjustments.Logic;
 using AloysAdjustments.Logic.Patching;
 using AloysAdjustments.Utility;
 using GalaSoft.MvvmLight.Command;
@@ -42,7 +44,6 @@ namespace AloysAdjustments.Plugins.CustomFiles
             Logic = new CustomFilesLogic();
             
             FilesView = new ListCollectionView(Files);
-            FilesView.SortDescriptions.Add(new SortDescription(nameof(CustomFile.Valid), ListSortDirection.Descending));
             FilesView.SortDescriptions.Add(new SortDescription(nameof(CustomFile.Name), ListSortDirection.Ascending));
 
             InitializeComponent();
