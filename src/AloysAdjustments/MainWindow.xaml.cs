@@ -199,7 +199,7 @@ namespace AloysAdjustments
             if (Plugins.Any() && !Plugins.All(x => x.ValidateChanges()))
             {
                 IoC.Notif.HideProgress();
-                IoC.Notif.ShowStatus("Patch install aborted");
+                IoC.Notif.ShowStatus("Pack install aborted");
                 return;
             }
 
