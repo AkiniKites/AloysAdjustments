@@ -312,6 +312,8 @@ namespace AloysAdjustments
 
         private void btnResetSelected_Click(object sender, EventArgs e)
         {
+            ActivePlugin?.ResetSelected?.OnClick();
+            ActivePlugin?.ResetSelected?.ClickCommand?.Execute(null);
             if (tcMain.SelectedIndex >= 0 && tcMain.SelectedIndex < Plugins.Count)
                 Plugins[tcMain.SelectedIndex].ResetSelected.OnClick();
         }

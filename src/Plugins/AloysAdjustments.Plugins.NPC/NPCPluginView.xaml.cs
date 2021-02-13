@@ -1,29 +1,27 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Input;
-using AloysAdjustments.Configuration;
-using AloysAdjustments.Logic;
-using AloysAdjustments.Logic.Patching;
-using AloysAdjustments.Plugins.Outfits.Data;
-using AloysAdjustments.UI;
-using AloysAdjustments.Utility;
-using Decima;
 
-namespace AloysAdjustments.Plugins.Outfits
+namespace AloysAdjustments.Plugins.NPC
 {
     public partial class NPCPluginView
     {
         public NPCPluginView()
         {
             InitializeComponent();
+        }
+
+        private void clbModels_LostFocus(object sender, System.Windows.RoutedEventArgs e)
+        {
+            clbModels.SelectedItem = null;
+        }
+
+        private void lbNPCs_IsEnabledChanged(object sender, System.Windows.DependencyPropertyChangedEventArgs e)
+        {
+            if (!lbNPCs.IsEnabled)
+                lbNPCs.SelectedItem = null;
         }
     }
 }

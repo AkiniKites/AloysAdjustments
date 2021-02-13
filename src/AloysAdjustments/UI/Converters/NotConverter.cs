@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Data;
 
-namespace AloysAdjustments.Plugins.NPC.Common
+namespace AloysAdjustments.UI.Converters
 {
     [ValueConversion(typeof(bool), typeof(bool))]
     public class NotConverter : IValueConverter

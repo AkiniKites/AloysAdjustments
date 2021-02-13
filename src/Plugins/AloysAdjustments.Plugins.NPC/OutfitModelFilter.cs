@@ -7,6 +7,17 @@ using System.Threading.Tasks;
 
 namespace AloysAdjustments.Plugins.Outfits
 {
+    [Flags]
+    public enum ModelFilter
+    {
+        [Description("Armors")]
+        Armors = 1,
+        [Description("Main Characters")]
+        MainCharacters = 2,
+        [Description("All Characters")]
+        AllCharacters = 4
+    }
+
     public class OutfitModelFilter : INotifyPropertyChanged
     {
         public static OutfitModelFilter Armor = new OutfitModelFilter("Armors", 1);

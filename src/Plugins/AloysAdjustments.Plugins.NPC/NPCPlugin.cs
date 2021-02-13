@@ -4,19 +4,19 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Data;
 using AloysAdjustments.Configuration;
 using AloysAdjustments.Logic;
 using AloysAdjustments.Logic.Patching;
-using AloysAdjustments.Plugins.NPC;
+using AloysAdjustments.Plugins.Outfits;
 using AloysAdjustments.Plugins.Outfits.Data;
 using AloysAdjustments.UI;
 using AloysAdjustments.Utility;
+using EnumsNET;
 
-namespace AloysAdjustments.Plugins.Outfits
+namespace AloysAdjustments.Plugins.NPC
 {
     public class NPCPlugin : InteractivePlugin, INotifyPropertyChanged
     {
@@ -25,29 +25,32 @@ namespace AloysAdjustments.Plugins.Outfits
         private CharacterGenerator CharacterGen { get; }
         private OutfitPatcher Patcher { get; }
 
+        public ValuePair<Model> AllNpcStub { get; set; }
         public ObservableCollection<ValuePair<Model>> Npcs { get; set; }
         public ICollectionView NpcsView { get; set; }
         public ObservableCollection<Model> Models { get; set; }
         public ICollectionView ModelsView { get; set; }
 
-        public ReadOnlyCollection<OutfitModelFilter> Filters { get; set; }
+        public ReadOnlyCollection<ModelFilter> Filters { get; set; }
 
         public IList SelectedNpcModels { get; set; }
-        public ValuePair<Model> SelectedModelMapping { get; set; }
+        public Model SelectedModelMapping { get; set; }
 
-        public int FilterValue { get; set; }
+        public ModelFilter FilterValue { get; set; }
+
+        public bool ApplyToAll { get; set; }
 
         public NPCPlugin()
         {
             IoC.Bind(Configs.LoadModuleConfig<OutfitConfig>(PluginName));
 
-            Reset = new ControlRelay(() => Task.CompletedTask);
-            ResetSelected = new ControlRelay(() => Task.CompletedTask);
+            Reset = new ControlRelay(OnResetAll);
+            ResetSelected = new ControlRelay(OnResetSelected);
 
             CharacterGen = new CharacterGenerator();
             Patcher = new OutfitPatcher();
-            
-            Filters = OutfitModelFilter.All.ToList().AsReadOnly();
+
+            Filters = Enums.GetValues<ModelFilter>().ToList().AsReadOnly();
 
             LoadSettings();
 
@@ -56,21 +59,20 @@ namespace AloysAdjustments.Plugins.Outfits
 
             Models = new ObservableCollection<Model>();
             ModelsView = CollectionViewSource.GetDefaultView(Models);
-
             Npcs = new ObservableCollection<ValuePair<Model>>();
             NpcsView = CollectionViewSource.GetDefaultView(Npcs);
 
             ModelsView.Filter = Filter;
+            NpcsView.Filter = NpcFilter;
+
+            var allNpc = new Model() {DisplayName = "All Outfits"};
+            AllNpcStub = new ValuePair<Model>(allNpc, allNpc);
         }
 
         private void LoadSettings()
         {
-            var filter = IoC.Settings.OutfitModelFilter;
-            if (filter == 0)
-                filter = OutfitModelFilter.Characters.Value;
-
-            //foreach (var f in Filters.Where(x => x.IsFlag(filter)))
-            //    ccbModelFilter.SelectedItems.Add(f);
+            ApplyToAll = IoC.Settings.ApplyToAllOutfits;
+            FilterValue = (ModelFilter)IoC.Settings.OutfitModelFilter;
         }
 
         public override Task LoadPatch(string path)
@@ -80,6 +82,7 @@ namespace AloysAdjustments.Plugins.Outfits
 
         public override void ApplyChanges(Patch patch)
         {
+
         }
 
         public override async Task Initialize()
@@ -87,42 +90,28 @@ namespace AloysAdjustments.Plugins.Outfits
             ResetSelected.Enabled = false;
             IoC.Notif.ShowUnknownProgress();
 
-            await UpdateModelList();
-            await UpdateNpcList();
-        }
-
-        private async Task UpdateModelList()
-        {
             Models.Clear();
-            var models = await LoadCharacterModelList(true);
-            foreach (var model in models)
-            {
-                model.DisplayName = model.ToString();
-                Models.Add(model);
-            }
+            await UpdateModelList(x => Models.Add(x));
 
-            models = await LoadCharacterModelList(false);
-            foreach (var model in models)
-            {
-                model.DisplayName = model.ToString();
-                Models.Add(model);
-            }
-        }
-        private async Task UpdateNpcList()
-        {
             Npcs.Clear();
+            await UpdateModelList(x => Npcs.Add(new ValuePair<Model>(x, x)));
+            Npcs.Add(AllNpcStub);
+        }
+
+        private async Task UpdateModelList(Action<Model> add)
+        {
             var models = await LoadCharacterModelList(true);
             foreach (var model in models)
             {
                 model.DisplayName = model.ToString();
-                Npcs.Add(new ValuePair<Model>(model, model));
+                add(model);
             }
 
             models = await LoadCharacterModelList(false);
             foreach (var model in models)
             {
                 model.DisplayName = model.ToString();
-                Npcs.Add(new ValuePair<Model>(model, model));
+                add(model);
             }
         }
 
@@ -135,26 +124,97 @@ namespace AloysAdjustments.Plugins.Outfits
                 });
         }
 
-        public void UpdateModelDisplayNames(IList<ValuePair<Model>> models)
-        {
-            foreach (var m in models)
-            {
-                m.Value.DisplayName = m.Value.ToString();
-                m.Default.DisplayName = m.Default.ToString();
-            }
-        }
-
         public bool Filter(object obj)
         {
             var model = (CharacterModel)obj;
-            if (FilterValue == OutfitModelFilter.Characters.Value)
+            if ((int)FilterValue == OutfitModelFilter.Characters.Value)
                 return model.UniqueCharacter;
             return true;
+        }
+        public bool NpcFilter(object obj)
+        {
+            return (obj == AllNpcStub) == ApplyToAll;
+        }
+
+        private void OnNpcSelectionChanged()
+        {
+            ResetSelected.Enabled = SelectedNpcModels?.Count > 0;
+
+            var selectedModelIds = GetSelectedOutfits().Select(x => x.Value.Id).ToHashSet();
+
+            foreach (var model in Models)
+            {
+                if (selectedModelIds.Contains(model.Id))
+                    model.Checked = selectedModelIds.Count > 1 ? null : (bool?)true;
+                else
+                    model.Checked = false;
+            }
+        }
+        private List<ValuePair<Model>> GetSelectedOutfits()
+        {
+            if (IoC.Settings.ApplyToAllOutfits)
+                return Npcs.ToList();
+            return SelectedNpcModels?.Cast<ValuePair<Model>>().ToList() ?? new List<ValuePair<Model>>();
+        }
+
+        private void OnModelsSelectionChanged()
+        {
+            if (SelectedModelMapping == null)
+                return;
+
+            SelectedModelMapping.Checked = true;
+            foreach (var model in Models)
+            {
+                if (!ReferenceEquals(SelectedModelMapping, model))
+                    model.Checked = false;
+            }
+
+            foreach (var outfit in GetSelectedOutfits())
+                UpdateMapping(outfit, SelectedModelMapping);
+        }
+
+        private void UpdateMapping(ValuePair<Model> npc, Model model)
+        {
+            npc.Value = model;
+        }
+        
+        private void OnApplyToAll()
+        {
+            IoC.Settings.ApplyToAllOutfits = ApplyToAll;
+            NpcsView.Refresh();
+        }
+
+        private Task OnResetSelected()
+        {
+            foreach (var npc in GetSelectedOutfits())
+                npc.Value = npc.Default;
+
+            return Task.CompletedTask;
+        }
+
+        private Task OnResetAll()
+        {
+            foreach (var npc in Npcs)
+                npc.Value = npc.Default;
+
+            return Task.CompletedTask;
         }
 
         public void OnPropertyChanged(string propertyName, object before, object after)
         {
-
+            switch (propertyName)
+            {
+                case nameof(SelectedNpcModels):
+                    OnNpcSelectionChanged();
+                    break;
+                case nameof(SelectedModelMapping):
+                    OnModelsSelectionChanged();
+                    break;
+                case nameof(ApplyToAll):
+                    OnApplyToAll();
+                    OnNpcSelectionChanged();
+                    break;
+            }
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

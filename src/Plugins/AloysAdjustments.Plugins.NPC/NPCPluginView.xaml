@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="AloysAdjustments.Plugins.Outfits.NPCPluginView"
+﻿<UserControl x:Class="AloysAdjustments.Plugins.NPC.NPCPluginView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
@@ -9,17 +9,21 @@
              xmlns:plugins="clr-namespace:AloysAdjustments.Plugins;assembly=AloysAdjustments"
              xmlns:logic="clr-namespace:AloysAdjustments.Logic;assembly=AloysAdjustments"
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
-             xmlns:common="clr-namespace:AloysAdjustments.Plugins.NPC.Common"
+             xmlns:ui="clr-namespace:AloysAdjustments.UI;assembly=AloysAdjustments"
+             xmlns:cnv="clr-namespace:AloysAdjustments.UI.Converters;assembly=AloysAdjustments"
+             xmlns:npc="clr-namespace:AloysAdjustments.Plugins.NPC"
              mc:Ignorable="d" 
-             d:DesignHeight="646" d:DesignWidth="572">
+             d:DesignHeight="646" d:DesignWidth="572"
+             d:DataContext="{d:DesignInstance Type=npc:NPCPlugin, IsDesignTimeCreatable=True}" >
     <DockPanel>
         <DockPanel.Resources>
-            <common:NotConverter x:Key="NotConverter"/>
+            <cnv:NotConverter x:Key="NotConverter"/>
+            <cnv:ModifiedConverter x:Key="ModifiedConverter"/>
+            <cnv:EnumConverter x:Key="EnumConverter" />
         </DockPanel.Resources>
         <DockPanel DockPanel.Dock="Top" LastChildFill="False">
             <xctk:CheckComboBox x:Name="ccbModelFilter" DockPanel.Dock="Right" Margin="3" Width="172" 
                                 ItemsSource="{Binding Filters}" Delimiter=", "
-                                DisplayMemberPath="Name" 
                                 Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"
                                 HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch"
                                 SelectedValue="{Binding FilterValue}">
@@ -28,6 +32,11 @@
                         <Setter Property="Padding" Value="0 1"/>
                     </Style>
                 </xctk:CheckComboBox.ItemContainerStyle>
+                <xctk:CheckComboBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Converter={StaticResource EnumConverter}}"></TextBlock>
+                    </DataTemplate>
+                </xctk:CheckComboBox.ItemTemplate>
             </xctk:CheckComboBox>
             <TextBlock Text="Filter:" DockPanel.Dock="Right" Margin="0 0 5 0"
                        VerticalAlignment="Center"/>
@@ -43,17 +52,12 @@
                 <DockPanel  DockPanel.Dock="Top" LastChildFill="False" Margin="3 0 3 3">
                     <TextBlock DockPanel.Dock="Left" Text="NPC" FontWeight="Bold" />
                     <CheckBox x:Name="cbAllOutfits" DockPanel.Dock="Right" Content="Apply To All" 
-                              IsChecked="{Binding Path=(logic:IoC.Settings).ApplyToAllOutfits}"/>
+                              IsChecked="{Binding ApplyToAll}"/>
                 </DockPanel>
-                <ListBox x:Name="lbNPCs" SelectionMode="Extended" ItemsSource="{Binding Npcs}"
-                         IsEnabled="{Binding Path=(logic:IoC.Settings).ApplyToAllOutfits, Converter={StaticResource NotConverter}}">
-                    <i:Interaction.Triggers>
-                        <i:EventTrigger EventName="SelectionChanged">
-                            <i:ChangePropertyAction 
-                                TargetObject="{Binding Mode=OneWay}" PropertyName="SelectedNpcModels" 
-                                Value="{Binding Path=SelectedItems, ElementName=lbNPCs}"/>
-                        </i:EventTrigger>
-                    </i:Interaction.Triggers>
+                <ui:ListBoxEx x:Name="lbNPCs" SelectionMode="Extended" ItemsSource="{Binding Npcs}"
+                              IsHitTestVisible="{Binding ElementName=cbAllOutfits, Path=IsChecked, Converter={StaticResource NotConverter}}"
+                              SelectedItemsList="{Binding SelectedNpcModels, Mode=OneWayToSource}"
+                              IsEnabledChanged="lbNPCs_IsEnabledChanged">
                     <ListBox.ItemContainerStyle>
                         <Style TargetType="ListBoxItem">
                             <Style.Triggers>
@@ -67,20 +71,28 @@
                     <ListBox.ItemTemplate>
                         <DataTemplate>
                             <StackPanel Margin="0 1">
-                                <TextBlock Text="{Binding Default.DisplayName}"/>
+                                <TextBlock>
+                                    <TextBlock.Text>
+                                        <MultiBinding Converter="{StaticResource ModifiedConverter}">
+                                            <Binding Path="Default.DisplayName"/>
+                                            <Binding Path="Modified"/>
+                                        </MultiBinding>
+                                    </TextBlock.Text>
+                                </TextBlock>
                             </StackPanel>
                         </DataTemplate>
                     </ListBox.ItemTemplate>
-                </ListBox>
+                </ui:ListBoxEx>
             </DockPanel>
             <GridSplitter Grid.Column="1" Width="5" HorizontalAlignment="Stretch" Background="Transparent"/>
             <DockPanel Grid.Column="2">
                 <DockPanel DockPanel.Dock="Top" LastChildFill="False" Margin="3 0 3 3">
                     <TextBlock DockPanel.Dock="Left" Text="Model Mapping" FontWeight="Bold" />
                 </DockPanel>
-                <ListBox x:Name="clbModels" ItemsSource="{Binding Models}"
-                         HorizontalContentAlignment="Stretch"
-                         SelectedItem="{Binding SelectedModelMapping}">
+                <ui:ListBoxEx x:Name="clbModels" ItemsSource="{Binding Models}"
+                             HorizontalContentAlignment="Stretch"
+                             SelectedItem="{Binding SelectedModelMapping}"
+                             LostFocus="clbModels_LostFocus">
                     <ListBox.ItemTemplate>
                         <DataTemplate>
                             <DockPanel Margin="0 1">
@@ -89,7 +101,7 @@
                             </DockPanel>
                         </DataTemplate>
                     </ListBox.ItemTemplate>
-                </ListBox>
+                </ui:ListBoxEx>
             </DockPanel>
         </Grid>
     </DockPanel>
