@@ -8,8 +8,11 @@
                          mc:Ignorable="d" 
                          d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
-        <CheckBox x:Name="cbIntroLogos" Content="Remove Intro Logos" Margin="10,10,0,0" 
+        <CheckBox x:Name="cbIntroLogos" Content="Remove intro logos" Margin="10,10,0,0" 
                   HorizontalAlignment="Left" VerticalAlignment="Top" 
                   Checked="cbIntroLogos_Checked" Unchecked="cbIntroLogos_Checked"/>
+        <CheckBox x:Name="cbMenuMusic" Content="Remove in-game menu music" Margin="10,30,0,0" 
+                  HorizontalAlignment="Left" VerticalAlignment="Top" 
+                  Checked="cbMenuMusic_Checked" Unchecked="cbMenuMusic_Checked"/>
     </Grid>
 </plugins:InteractivePluginBase>

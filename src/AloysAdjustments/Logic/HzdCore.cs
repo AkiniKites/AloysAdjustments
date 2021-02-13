@@ -52,7 +52,7 @@ namespace AloysAdjustments.Logic
 
         public static string EnsureExt(string file)
         {
-            return Packfile.EnsureExt(file);
+            return Packfile.EnsureExt(file, false);
         }
     }
 }
