@@ -9,12 +9,14 @@ namespace AloysAdjustments.Plugins.Misc.Data
     public class MiscAdjustments
     {
         public bool? SkipIntroLogos { get; set; }
+        public bool? RemoveMenuMusic { get; set; }
 
         public MiscAdjustments Clone()
         {
             return new MiscAdjustments()
             {
-                SkipIntroLogos = SkipIntroLogos
+                SkipIntroLogos = SkipIntroLogos,
+                RemoveMenuMusic = RemoveMenuMusic
             };
         }
     }
