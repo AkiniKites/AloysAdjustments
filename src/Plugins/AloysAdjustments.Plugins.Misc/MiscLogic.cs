@@ -10,7 +10,6 @@ using AloysAdjustments.Plugins.Misc.Data;
 using AloysAdjustments.Utility;
 using Decima;
 using Decima.HZD;
-using NAudio.Wave;
 
 namespace AloysAdjustments.Plugins.Misc
 {
