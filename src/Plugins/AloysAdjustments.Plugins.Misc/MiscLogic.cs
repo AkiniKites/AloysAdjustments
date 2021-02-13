@@ -8,6 +8,7 @@ using AloysAdjustments.Logic;
 using AloysAdjustments.Logic.Patching;
 using AloysAdjustments.Plugins.Misc.Data;
 using AloysAdjustments.Utility;
+using Decima;
 using Decima.HZD;
 using NAudio.Wave;
 
@@ -18,7 +19,8 @@ namespace AloysAdjustments.Plugins.Misc
         public async Task<MiscAdjustments> GenerateMiscData(Func<string, Task<HzdCore>> coreGetter)
         {
             var adj = new MiscAdjustments();
-            adj.SkipIntroLogos = !(await GetIntroLogoState(coreGetter));
+            adj.SkipIntroLogos = !(await CheckIntroLogosExist(coreGetter));
+            adj.RemoveMenuMusic = !(await CheckMenuMusicExists(coreGetter));
 
             return adj;
         }
@@ -30,16 +32,14 @@ namespace AloysAdjustments.Plugins.Misc
             if (adjustments.RemoveMenuMusic == true)
                 RemoveMenuMusic(patch);
         }
-
         
-        private async Task<bool?> GetIntroLogoState(Func<string, Task<HzdCore>> coreGetter)
+        private async Task<bool?> CheckIntroLogosExist(Func<string, Task<HzdCore>> coreGetter)
         {
             var core = await coreGetter(IoC.Get<MiscConfig>().IntroFile);
             if (core == null) return null;
 
             return GetIntroMenu(core).PropertyAnimations.Any();
         }
-
         private void RemoveIntroLogo(Patch patch)
         {
             var core = patch.AddFile(IoC.Get<MiscConfig>().IntroFile);
@@ -50,7 +50,6 @@ namespace AloysAdjustments.Plugins.Misc
 
             core.Save();
         }
-
         private MenuAnimationResource GetIntroMenu(HzdCore core)
         {
             var menuName = IoC.Get<MiscConfig>().IntroMenuName;
@@ -60,27 +59,29 @@ namespace AloysAdjustments.Plugins.Misc
             return menu;
         }
 
+        private async Task<bool?> CheckMenuMusicExists(Func<string, Task<HzdCore>> coreGetter)
+        {
+            var core = await coreGetter(IoC.Get<MiscConfig>().MenuMusicFile);
+            if (core == null) return null;
+
+            return GetMenuMusicParam(core).DefaultObject.Type != BaseRef.Types.Null;
+        }
         private void RemoveMenuMusic(Patch patch)
         {
-            var core = patch.AddFile("sounds/music/menumusic/musicscape_01/musicscape_01.soundbank");
-            
-            using var ms = new MemoryStream(); 
-            var reader = new WaveFileReader("silence.wav");
-            reader.CopyTo(ms);
+            var core = patch.AddFile(IoC.Get<MiscConfig>().MenuMusicFile);
 
-            var byteArray = new Array<byte>(ms.ToArray());
-
-            //ms.Position = 0;
-            //patch.AddFile("sounds/music/menumusic/musicscape_01/musicscape_01.soundbank");
-
-            var wav = core.GetType<WaveResource>();
-            wav.IsStreaming = false;
-            wav.WaveData = byteArray;
-            wav.WaveDataSize = (uint)byteArray.Count;
-            wav.SampleCount = (int)reader.SampleCount;
-            wav.StreamInfo = null;
+            var param = GetMenuMusicParam(core);
+            param.DefaultObject = new Ref<RTTIRefObject>();
 
             core.Save();
+        }
+        private ProgramParameter GetMenuMusicParam(HzdCore core)
+        {
+            var node = core.GetType<NodeConstantsResource>();
+            var param = node?.Parameters.FirstOrDefault();
+            if (param == null)
+                throw new HzdException($"Unable to find menu music program parameter");
+            return param;
         }
     }
 }

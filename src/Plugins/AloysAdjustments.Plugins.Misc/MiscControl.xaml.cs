@@ -56,6 +56,7 @@ namespace AloysAdjustments.Plugins.Misc
                 IoC.Archiver.LoadFileAsync(path, f));
 
             if (newAdj.SkipIntroLogos.HasValue) Adjustments.SkipIntroLogos = newAdj.SkipIntroLogos;
+            if (newAdj.RemoveMenuMusic.HasValue) Adjustments.RemoveMenuMusic = newAdj.RemoveMenuMusic;
 
             RefreshControls();
         }
@@ -66,6 +67,8 @@ namespace AloysAdjustments.Plugins.Misc
 
             if (Adjustments.SkipIntroLogos == DefaultAdjustments.SkipIntroLogos)
                 changedValues.SkipIntroLogos = null;
+            if (Adjustments.RemoveMenuMusic == DefaultAdjustments.RemoveMenuMusic)
+                changedValues.RemoveMenuMusic = null;
 
             MiscLogic.CreatePatch(patch, Adjustments);
         }
