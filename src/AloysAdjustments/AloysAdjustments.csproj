@@ -149,6 +149,7 @@
     <Compile Include="Logic\Notifications.cs" />
     <Compile Include="Logic\Patching\Patch.cs" />
     <Compile Include="Logic\Patching\Patcher.cs" />
+    <Compile Include="Logic\Patching\PatchException.cs" />
     <Compile Include="Logic\Patching\Prefetch.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
