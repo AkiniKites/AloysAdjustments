@@ -17,7 +17,8 @@ namespace AloysAdjustments.Plugins
             var loaded = new List<T>();
 
             path = Path.GetFullPath(path);
-            var assembly = Assembly.LoadFile(path);
+
+            var assembly = Assembly.Load(File.ReadAllBytes(path));
 
             try
             {
