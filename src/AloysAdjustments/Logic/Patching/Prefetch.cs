@@ -44,7 +44,10 @@ namespace AloysAdjustments.Logic.Patching
             
             foreach (var file in patch.Files)
             {
-                if (Files.TryGetValue(file, out int idx))
+                //only operate on .core files
+                var fileName = HzdCore.NormalizeSource(file);
+
+                if (Files.TryGetValue(fileName, out int idx))
                 {
                     var filePath = Path.Combine(patch.WorkingDir, HzdCore.EnsureExt(file));
                     var length = (int)new FileInfo(filePath).Length;
@@ -55,7 +58,7 @@ namespace AloysAdjustments.Logic.Patching
                         Data.Sizes[idx] = length;
                     }
 
-                    if (UpdateLinks(links, filePath, file))
+                    if (UpdateLinks(links, filePath, fileName))
                         linksChanged = true;
                 }
             }

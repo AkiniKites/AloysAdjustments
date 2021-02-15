@@ -56,6 +56,7 @@ namespace AloysAdjustments.Plugins.Misc
                 IoC.Archiver.LoadFileAsync(path, f));
 
             if (newAdj.SkipIntroLogos.HasValue) Adjustments.SkipIntroLogos = newAdj.SkipIntroLogos;
+            if (newAdj.RemoveMenuMusic.HasValue) Adjustments.RemoveMenuMusic = newAdj.RemoveMenuMusic;
 
             RefreshControls();
         }
@@ -66,6 +67,8 @@ namespace AloysAdjustments.Plugins.Misc
 
             if (Adjustments.SkipIntroLogos == DefaultAdjustments.SkipIntroLogos)
                 changedValues.SkipIntroLogos = null;
+            if (Adjustments.RemoveMenuMusic == DefaultAdjustments.RemoveMenuMusic)
+                changedValues.RemoveMenuMusic = null;
 
             MiscLogic.CreatePatch(patch, Adjustments);
         }
@@ -94,13 +97,25 @@ namespace AloysAdjustments.Plugins.Misc
             RefreshControls();
         }
 
+        private void cbMenuMusic_Checked(object sender, RoutedEventArgs e)
+        {
+            if (_loading) return;
+
+            Adjustments.RemoveMenuMusic = cbMenuMusic.IsChecked;
+            RefreshControls();
+        }
+
         private void RefreshControls()
         {
             _loading = true;
 
             cbIntroLogos.IsChecked = Adjustments.SkipIntroLogos == true;
             cbIntroLogos.Content = DefaultAdjustments.SkipIntroLogos == Adjustments.SkipIntroLogos
-                ? "Remove Intro Logos" : "Remove Intro Logos *";
+                ? "Remove intro logos" : "Remove intro logos *";
+
+            cbMenuMusic.IsChecked = Adjustments.RemoveMenuMusic == true;
+            cbMenuMusic.Content = DefaultAdjustments.RemoveMenuMusic == Adjustments.RemoveMenuMusic
+                ? "Remove in-game menu music" : "Remove in-game menu music *";
 
             _loading = false;
         }

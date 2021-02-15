@@ -382,7 +382,7 @@ namespace AloysAdjustments.Plugins.Outfits
             //levels/worlds/world/scenes/mainquest/mq4_mothersheart/sequences/mq04_bedding_down_seq
             var core = patch.AddFile(IoC.Get<OutfitConfig>().Mission4UndergarmentFixFile);
             var undergarmentModelId = outfits.First(x => x.DefaultModel.Source == IoC.Get<OutfitConfig>().UndergarmentModelFile).DefaultModel.Id;
-            var param = core.GetTypes<NodeConstantsResource>().SelectMany(x=>x.Parameters).FirstOrDefault(x=>x.DefaultObjectUUID.GUID == undergarmentModelId);
+            var param = core.GetTypes<NodeConstantsResource>().SelectMany(x => x.Parameters).FirstOrDefault(x => x.DefaultObjectUUID.GUID == undergarmentModelId);
             if (param == null)
                 throw new HzdException($"Failed to fix mission 4, unable to find ProgramParameter");
             param.DefaultObjectUUID = new UUIDRef<RTTIRefObject>();

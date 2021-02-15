@@ -58,9 +58,14 @@ namespace AloysAdjustments.Logic
         
         public HzdCore LoadFile(string path, string file, bool throwError = false)
         {
+            using var fs = LoadFileStream(path, file, throwError);
+            return fs == null ? null : HzdCore.FromStream(fs, file);
+        }
+        public Stream LoadFileStream(string path, string file, bool throwError = false)
+        {
             ValidatePackager();
 
-            using var ms = new MemoryStream();
+            var ms = new MemoryStream();
             if (!TryExtractFile(path, ms, file))
             {
                 if (throwError)
@@ -69,7 +74,7 @@ namespace AloysAdjustments.Logic
             }
 
             ms.Position = 0;
-            return HzdCore.FromStream(ms, file);
+            return ms;
         }
         private bool TryExtractFile(string path, Stream stream, string file)
         {

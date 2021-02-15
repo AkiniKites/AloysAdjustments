@@ -10,5 +10,6 @@ namespace AloysAdjustments.Plugins.Misc
     {
         public string IntroFile { get; set; }
         public string IntroMenuName { get; set; }
+        public string MenuMusicFile { get; set; }
     }
 }

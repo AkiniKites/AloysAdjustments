@@ -72,7 +72,8 @@
     },
     "Misc": {
       "IntroFile": "interface/menu/pages/intro",
-      "IntroMenuName": "GGLogoAnimation"
+      "IntroMenuName": "GGLogoAnimation",
+      "MenuMusicFile": "sounds/music/menumusic/musicscape_01/musicscape_01.soundbank"
     }
   },
   "PrefetchFile": "prefetch/fullgame.prefetch",
