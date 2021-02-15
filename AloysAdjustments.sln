@@ -19,8 +19,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AloysAdjustments.Plugins.Up
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AloysAdjustments.Plugins.NPC", "src\Plugins\AloysAdjustments.Plugins.NPC\AloysAdjustments.Plugins.NPC.csproj", "{DCE522B1-BA53-4091-A0F0-8BF13187FB66}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Common", "Common", "{E0322625-9090-47D7-A087-2F4FBF970E89}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -61,7 +59,6 @@ Global
 		{EABDF0BD-9D2A-4385-B215-B6BE68CCBD09} = {EDF6161E-575C-43D0-8C94-C656455550FE}
 		{EEB3E19D-DEBD-41B8-900C-CE5BBF9C4D1A} = {EDF6161E-575C-43D0-8C94-C656455550FE}
 		{DCE522B1-BA53-4091-A0F0-8BF13187FB66} = {EDF6161E-575C-43D0-8C94-C656455550FE}
-		{E0322625-9090-47D7-A087-2F4FBF970E89} = {EDF6161E-575C-43D0-8C94-C656455550FE}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {34743786-FAA9-44BB-8B10-964C6DB60BE8}

@@ -88,23 +88,17 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CharacterGenerator.cs" />
+    <Compile Include="Characters\CharacterGenerator.cs" />
+    <Compile Include="Characters\CharacterReferences.cs" />
     <Compile Include="Data\CharacterModel.cs" />
     <Compile Include="Data\Model.cs" />
-    <Compile Include="Data\Outfit.cs" />
-    <Compile Include="Data\OutfitFile.cs" />
     <Compile Include="InteractivePlugin.cs" />
     <Compile Include="NPCPlugin.cs" />
     <Compile Include="OutfitConfig.cs" />
-    <Compile Include="OutfitDetail.cs" />
-    <Compile Include="OutfitModelFilter.cs" />
-    <Compile Include="OutfitPatcher.cs" />
+    <Compile Include="NpcPatcher.cs" />
     <Compile Include="NPCPluginView.xaml.cs">
       <DependentUpon>NPCPluginView.xaml</DependentUpon>
     </Compile>
-    <None Include="OutfitsControl.xaml.cs">
-      <DependentUpon>OutfitsControl.xaml</DependentUpon>
-    </None>
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -118,7 +112,7 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="ValuePair.cs" />
+    <Compile Include="Data\ValuePair.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
@@ -137,10 +131,6 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <None Include="OutfitsControl.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\AloysAdjustments\AloysAdjustments.csproj">

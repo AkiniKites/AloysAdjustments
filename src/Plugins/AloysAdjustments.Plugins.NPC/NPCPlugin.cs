@@ -18,12 +18,21 @@ using EnumsNET;
 
 namespace AloysAdjustments.Plugins.NPC
 {
+    [Flags]
+    public enum ModelFilter
+    {
+        [Description("Main Characters")]
+        MainCharacters = 1,
+        [Description("All Characters")]
+        AllCharacters = 2
+    }
+
     public class NPCPlugin : InteractivePlugin, INotifyPropertyChanged
     {
         public override string PluginName => "NPC Models";
 
         private CharacterGenerator CharacterGen { get; }
-        private OutfitPatcher Patcher { get; }
+        private NpcPatcher Patcher { get; }
 
         public ValuePair<Model> AllNpcStub { get; set; }
         public ObservableCollection<ValuePair<Model>> Npcs { get; set; }
@@ -48,7 +57,7 @@ namespace AloysAdjustments.Plugins.NPC
             ResetSelected = new ControlRelay(OnResetSelected);
 
             CharacterGen = new CharacterGenerator();
-            Patcher = new OutfitPatcher();
+            Patcher = new NpcPatcher();
 
             Filters = Enums.GetValues<ModelFilter>().ToList().AsReadOnly();
 
@@ -82,7 +91,7 @@ namespace AloysAdjustments.Plugins.NPC
 
         public override void ApplyChanges(Patch patch)
         {
-
+            Patcher.CreatePatch(patch, Npcs);
         }
 
         public override async Task Initialize()
@@ -127,7 +136,7 @@ namespace AloysAdjustments.Plugins.NPC
         public bool Filter(object obj)
         {
             var model = (CharacterModel)obj;
-            if ((int)FilterValue == OutfitModelFilter.Characters.Value)
+            if (FilterValue.HasFlag(ModelFilter.MainCharacters))
                 return model.UniqueCharacter;
             return true;
         }
@@ -140,7 +149,7 @@ namespace AloysAdjustments.Plugins.NPC
         {
             ResetSelected.Enabled = SelectedNpcModels?.Count > 0;
 
-            var selectedModelIds = GetSelectedOutfits().Select(x => x.Value.Id).ToHashSet();
+            var selectedModelIds = GetSelectedNpcs().Select(x => x.Value.Id).ToHashSet();
 
             foreach (var model in Models)
             {
@@ -150,7 +159,7 @@ namespace AloysAdjustments.Plugins.NPC
                     model.Checked = false;
             }
         }
-        private List<ValuePair<Model>> GetSelectedOutfits()
+        private List<ValuePair<Model>> GetSelectedNpcs()
         {
             if (IoC.Settings.ApplyToAllOutfits)
                 return Npcs.ToList();
@@ -169,7 +178,7 @@ namespace AloysAdjustments.Plugins.NPC
                     model.Checked = false;
             }
 
-            foreach (var outfit in GetSelectedOutfits())
+            foreach (var outfit in GetSelectedNpcs())
                 UpdateMapping(outfit, SelectedModelMapping);
         }
 
@@ -186,7 +195,7 @@ namespace AloysAdjustments.Plugins.NPC
 
         private Task OnResetSelected()
         {
-            foreach (var npc in GetSelectedOutfits())
+            foreach (var npc in GetSelectedNpcs())
                 npc.Value = npc.Default;
 
             return Task.CompletedTask;

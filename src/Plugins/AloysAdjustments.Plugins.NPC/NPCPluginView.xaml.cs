@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Controls;
 
 namespace AloysAdjustments.Plugins.NPC
 {
-    public partial class NPCPluginView
+    public partial class NPCPluginView : UserControl
     {
         public NPCPluginView()
         {
