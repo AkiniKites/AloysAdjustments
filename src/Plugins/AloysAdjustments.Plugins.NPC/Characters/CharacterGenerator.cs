@@ -7,14 +7,13 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using AloysAdjustments.Logic;
 using AloysAdjustments.Logic.Patching;
+using AloysAdjustments.Plugins.Outfits;
 using AloysAdjustments.Plugins.Outfits.Data;
 using AloysAdjustments.Utility;
-using Decima;
 using Decima.HZD;
 using HZDCoreEditor.Util;
-using Model = AloysAdjustments.Plugins.Outfits.Data.Model;
 
-namespace AloysAdjustments.Plugins.Outfits
+namespace AloysAdjustments.Plugins.NPC.Characters
 {
     public class CharacterGenerator
     {

@@ -10,6 +10,7 @@ using System.Windows.Data;
 using AloysAdjustments.Configuration;
 using AloysAdjustments.Logic;
 using AloysAdjustments.Logic.Patching;
+using AloysAdjustments.Plugins.NPC.Characters;
 using AloysAdjustments.Plugins.Outfits;
 using AloysAdjustments.Plugins.Outfits.Data;
 using AloysAdjustments.UI;

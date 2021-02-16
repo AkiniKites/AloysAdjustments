@@ -29,7 +29,16 @@ namespace AloysAdjustments.Logic
         public static UserSettings Settings => Kernel.Get<UserSettings>();
         public static Archiver Archiver => Kernel.Get<Archiver>();
         public static Localization Localization => Kernel.Get<Localization>();
-        public static Notifications Notif => Kernel.Get<Notifications>();
+        public static Notifications Notif
+        {
+            get
+            {
+                var notif = Kernel.TryGet<Notifications>();
+                if (notif == null)
+                    notif = new Notifications((x, y) => { }, x => { }, (x, y, z, w) => { });
+                return notif;
+            }
+        }
         public static Uuid Uuid => Kernel.Get<Uuid>();
 
         public static void Bind<T>(T value)

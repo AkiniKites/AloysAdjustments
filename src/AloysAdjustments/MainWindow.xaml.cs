@@ -33,8 +33,6 @@ namespace AloysAdjustments
     /// </summary>
     public partial class MainWindow : Window, INotifyPropertyChanged
     {
-        private const string ConfigPath = "config.json";
-
         private bool _initialized = false;
 
         private List<IInteractivePlugin> Plugins { get; set; }
@@ -50,15 +48,13 @@ namespace AloysAdjustments
 
             IoC.Bind(new Notifications(SetStatus, SetAppStatus, SetProgress));
             IoC.Bind(new Uuid());
-            LoadConfigs();
+            Configs.LoadConfigs();
 
             PluginManager = new PluginManager();
 
             InitializeComponent();
 
             WindowMemory.ActivateWindow(this, "Main");
-
-            RTTI.SetGameMode(GameType.HZD);
         }
         
         private void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
@@ -293,13 +289,6 @@ namespace AloysAdjustments
                 IoC.Notif.HideProgress();
                 IoC.Notif.ShowStatus($"Loaded pack: {Path.GetFileName(path)}");
             }
-        }
-
-        public void LoadConfigs()
-        {
-            var json = File.ReadAllText(ConfigPath);
-            IoC.Bind(JsonConvert.DeserializeObject<Config>(json));
-            IoC.Bind(SettingsManager.Load());
         }
 
         private void tcMain_SelectionChanged(object sender, SelectionChangedEventArgs e)
