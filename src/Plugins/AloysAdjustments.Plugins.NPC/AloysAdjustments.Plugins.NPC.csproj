@@ -49,6 +49,9 @@
     <Reference Include="Microsoft.Xaml.Behaviors, Version=1.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\..\..\packages\Microsoft.Xaml.Behaviors.Wpf.1.1.31\lib\net45\Microsoft.Xaml.Behaviors.dll</HintPath>
     </Reference>
+    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\..\..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="PresentationFramework.AeroLite" />
     <Reference Include="PropertyChanged, Version=3.3.1.0, Culture=neutral, PublicKeyToken=ee3ee20bcf148ddd, processorArchitecture=MSIL">
       <HintPath>..\..\..\packages\PropertyChanged.Fody.3.3.1\lib\net40\PropertyChanged.dll</HintPath>
@@ -89,7 +92,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Characters\CharacterGenerator.cs" />
+    <Compile Include="Characters\CharacterReference.cs" />
     <Compile Include="Characters\CharacterReferences.cs" />
+    <Compile Include="ProgressReporter.cs" />
     <Compile Include="Data\CharacterModel.cs" />
     <Compile Include="Data\Model.cs" />
     <Compile Include="InteractivePlugin.cs" />
@@ -117,6 +122,9 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <None Include="npc-map.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -153,8 +161,9 @@
     <Error Condition="!Exists('..\..\..\packages\PropertyChanged.Fody.3.3.1\build\PropertyChanged.Fody.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\packages\PropertyChanged.Fody.3.3.1\build\PropertyChanged.Fody.props'))" />
   </Target>
   <PropertyGroup>
-    <PostBuildEvent>if $(ConfigurationName) == Debug (
-copy /y $(TargetPath) $(ProjectDir)..\..\AloysAdjustments\bin\Debug\plugins\$(TargetFileName)
+    <PostBuildEvent>if $(ConfigurationName) == Debug ( 
+xcopy /y/i $(TargetPath) $(ProjectDir)..\..\AloysAdjustments\bin\Debug\plugins\
+xcopy /y/i $(TargetDir)npc-map.json $(ProjectDir)..\..\AloysAdjustments\bin\Debug\data\
 )</PostBuildEvent>
   </PropertyGroup>
 </Project>

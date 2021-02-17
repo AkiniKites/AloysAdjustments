@@ -46,7 +46,7 @@ namespace AloysAdjustments.Tools
             if (cmds.CharacterDir != null)
             {
                 Process.GetCurrentProcess().PriorityClass = ProcessPriorityClass.BelowNormal;
-                new CharacterReferences().SearchDir(cmds.CharacterDir);
+                new NpcRefGenerator().SearchDir(cmds.CharacterDir);
             }
         }
 

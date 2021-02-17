@@ -52,7 +52,7 @@ namespace AloysAdjustments.Plugins.NPC
 
         public NPCPlugin()
         {
-            IoC.Bind(Configs.LoadModuleConfig<OutfitConfig>(PluginName));
+            IoC.Bind(Configs.LoadModuleConfig<NpcConfig>(PluginName));
 
             Reset = new ControlRelay(OnResetAll);
             ResetSelected = new ControlRelay(OnResetSelected);
@@ -61,8 +61,6 @@ namespace AloysAdjustments.Plugins.NPC
             Patcher = new NpcPatcher();
 
             Filters = Enums.GetValues<ModelFilter>().ToList().AsReadOnly();
-
-            LoadSettings();
 
             PluginControl = new NPCPluginView();
             PluginControl.DataContext = this;
@@ -92,7 +90,7 @@ namespace AloysAdjustments.Plugins.NPC
 
         public override void ApplyChanges(Patch patch)
         {
-            Patcher.CreatePatch(patch, Npcs);
+            Patcher.CreatePatch(patch, Npcs.Where(x => x != AllNpcStub).ToList());
         }
 
         public override async Task Initialize()
@@ -106,6 +104,8 @@ namespace AloysAdjustments.Plugins.NPC
             Npcs.Clear();
             await UpdateModelList(x => Npcs.Add(new ValuePair<Model>(x, x)));
             Npcs.Add(AllNpcStub);
+
+            LoadSettings();
         }
 
         private async Task UpdateModelList(Action<Model> add)

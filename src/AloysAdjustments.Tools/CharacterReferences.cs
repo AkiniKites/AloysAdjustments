@@ -17,14 +17,15 @@ using Newtonsoft.Json;
 
 namespace AloysAdjustments.Tools
 {
-    public class CharacterReferences
+    public class NpcRefGenerator
     {
         private const string ResultsFile = "results.json";
-        private const string ReferencesFile = "references.json";
+        private const string ReferencesFile = "npc-refs.json";
+        private readonly object _lock = new object();
 
-        public CharacterReferences()
+        public NpcRefGenerator()
         {
-            IoC.Bind(Configs.LoadModuleConfig<OutfitConfig>("NPC Models"));
+            IoC.Bind(Configs.LoadModuleConfig<NpcConfig>("NPC Models"));
         }
 
         public void SearchDir(string path)
@@ -61,37 +62,52 @@ namespace AloysAdjustments.Tools
                         refs.Add(entry.Key, files);
                     }
 
-                    files.Add(result.File.Substring(path.Length).Replace("\\", "/"));
+                    var fileName = result.File.Substring(path.Length + 1).Replace("\\", "/");
+                    if (fileName.EndsWith(".core"))
+                        fileName = fileName.Substring(0, fileName.Length - 5);
+
+                    files.Add(fileName);
                 }
             }
 
-            var references = refs.Select(x => (x.Key.Source, x.Key.Name, x.Value));
+            var references = refs.Select(x => new CharacterReference()
+            {
+                Source = x.Key.Source,
+                Name = x.Key.Name,
+                Files = x.Value.ToArray()
+            });
             var json = JsonConvert.SerializeObject(references, Formatting.Indented);
             File.WriteAllText(ReferencesFile, json);
         }
 
         private List<ByteSearchResult<CharacterModel>> LoadResults()
         {
-            List<ByteSearchResult<CharacterModel>> results = null;
-            FileBackup.RunWithBackup(ResultsFile, () =>
+            lock (_lock)
             {
-                if (!File.Exists(ResultsFile))
-                    return false;
-                var json = File.ReadAllText(ResultsFile);
-                results = JsonConvert.DeserializeObject<List<ByteSearchResult<CharacterModel>>>(json, new BaseGGUUIDConverter());
-                return true;
-            });
+                List<ByteSearchResult<CharacterModel>> results = null;
+                FileBackup.RunWithBackup(ResultsFile, () =>
+                {
+                    if (!File.Exists(ResultsFile))
+                        return false;
+                    var json = File.ReadAllText(ResultsFile);
+                    results = JsonConvert.DeserializeObject<List<ByteSearchResult<CharacterModel>>>(json, new BaseGGUUIDConverter());
+                    return true;
+                });
 
-            return results;
+                return results;
+            }
         }
         private void SaveResults(List<ByteSearchResult<CharacterModel>> results)
         {
-            var json = JsonConvert.SerializeObject(results, 
-                Formatting.Indented, new BaseGGUUIDConverter());
-            using (var fb = new FileBackup(ResultsFile))
+            lock (_lock)
             {
-                File.WriteAllText(ResultsFile, json);
-                fb.Delete();
+                var json = JsonConvert.SerializeObject(results,
+                Formatting.Indented, new BaseGGUUIDConverter());
+                using (var fb = new FileBackup(ResultsFile))
+                {
+                    File.WriteAllText(ResultsFile, json);
+                    fb.Delete();
+                }
             }
         }
 

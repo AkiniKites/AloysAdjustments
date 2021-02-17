@@ -29,9 +29,9 @@ namespace AloysAdjustments.Plugins.NPC.Characters
 
         public CharacterGenerator()
         {
-            HumanoidMatcher = new Regex(IoC.Get<OutfitConfig>().HumanoidMatcher);
-            UniqueHumanoidMatcher = new Regex(IoC.Get<OutfitConfig>().UniqueHumanoidMatcher);
-            Ignored = IoC.Get<OutfitConfig>().IgnoredCharacters.ToArray();
+            HumanoidMatcher = new Regex(IoC.Get<NpcConfig>().HumanoidMatcher);
+            UniqueHumanoidMatcher = new Regex(IoC.Get<NpcConfig>().UniqueHumanoidMatcher);
+            Ignored = IoC.Get<NpcConfig>().IgnoredCharacters.ToArray();
 
             _cache = new GameCache<List<CharacterModel>>("npcs");
         }

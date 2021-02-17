@@ -62,6 +62,8 @@ namespace AloysAdjustments.Utility
             var filename = Path.GetFileName(path);
             var matcher = new Regex($"^{Regex.Escape(filename)}{GuidPattern}$", RegexOptions.IgnoreCase);
             var dir = Path.GetDirectoryName(path);
+            if (String.IsNullOrEmpty(dir))
+                dir = ".";
 
             if (Directory.Exists(dir))
             {
