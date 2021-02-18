@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace AloysAdjustments.Plugins.NPC
+namespace AloysAdjustments.Plugins.Common.Data
 {
     public class ValuePair<T> : INotifyPropertyChanged
     {

@@ -10,9 +10,9 @@ using System.Windows.Data;
 using AloysAdjustments.Configuration;
 using AloysAdjustments.Logic;
 using AloysAdjustments.Logic.Patching;
+using AloysAdjustments.Plugins.Common;
+using AloysAdjustments.Plugins.Common.Data;
 using AloysAdjustments.Plugins.NPC.Characters;
-using AloysAdjustments.Plugins.Outfits;
-using AloysAdjustments.Plugins.Outfits.Data;
 using AloysAdjustments.UI;
 using AloysAdjustments.Utility;
 using EnumsNET;
@@ -52,7 +52,7 @@ namespace AloysAdjustments.Plugins.NPC
 
         public NPCPlugin()
         {
-            IoC.Bind(Configs.LoadModuleConfig<NpcConfig>(PluginName));
+            IoC.Bind(Configs.LoadModuleConfig<CharacterConfig>(PluginName));
 
             Reset = new ControlRelay(OnResetAll);
             ResetSelected = new ControlRelay(OnResetSelected);

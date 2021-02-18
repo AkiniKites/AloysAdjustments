@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using AloysAdjustments.Logic;
 using AloysAdjustments.Logic.Patching;
-using AloysAdjustments.Plugins.Outfits.Data;
+using AloysAdjustments.Plugins.Common.Data;
 using AloysAdjustments.Utility;
 using HZDCoreEditor.Util;
 using Newtonsoft.Json;

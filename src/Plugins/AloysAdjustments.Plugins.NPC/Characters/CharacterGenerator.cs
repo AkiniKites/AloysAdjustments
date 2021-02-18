@@ -7,8 +7,8 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using AloysAdjustments.Logic;
 using AloysAdjustments.Logic.Patching;
-using AloysAdjustments.Plugins.Outfits;
-using AloysAdjustments.Plugins.Outfits.Data;
+using AloysAdjustments.Plugins.Common;
+using AloysAdjustments.Plugins.Common.Data;
 using AloysAdjustments.Utility;
 using Decima.HZD;
 using HZDCoreEditor.Util;
@@ -29,9 +29,9 @@ namespace AloysAdjustments.Plugins.NPC.Characters
 
         public CharacterGenerator()
         {
-            HumanoidMatcher = new Regex(IoC.Get<NpcConfig>().HumanoidMatcher);
-            UniqueHumanoidMatcher = new Regex(IoC.Get<NpcConfig>().UniqueHumanoidMatcher);
-            Ignored = IoC.Get<NpcConfig>().IgnoredCharacters.ToArray();
+            HumanoidMatcher = new Regex(IoC.Get<CharacterConfig>().HumanoidMatcher);
+            UniqueHumanoidMatcher = new Regex(IoC.Get<CharacterConfig>().UniqueHumanoidMatcher);
+            Ignored = IoC.Get<CharacterConfig>().IgnoredCharacters.ToArray();
 
             _cache = new GameCache<List<CharacterModel>>("npcs");
         }

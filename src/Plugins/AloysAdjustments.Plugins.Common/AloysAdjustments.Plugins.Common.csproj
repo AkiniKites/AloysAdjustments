@@ -4,17 +4,16 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{758736E0-983F-4128-8140-0D101600595B}</ProjectGuid>
-    <OutputType>Exe</OutputType>
-    <RootNamespace>AloysAdjustments.Tools</RootNamespace>
-    <AssemblyName>AloysAdjustments.Tools</AssemblyName>
+    <ProjectGuid>{8F5B7B20-F8CB-4061-A1B6-F4D3DF380E66}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>AloysAdjustments.Plugins.Common</RootNamespace>
+    <AssemblyName>AloysAdjustments.Plugins.Common</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>x64</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -24,7 +23,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -33,12 +31,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="CommandLine, Version=2.8.0.0, Culture=neutral, PublicKeyToken=5a870481e358d379, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\CommandLineParser.2.8.0\lib\net461\CommandLine.dll</HintPath>
-    </Reference>
-    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -49,34 +41,20 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CharacterReferences.cs" />
-    <Compile Include="Program.cs" />
+    <Compile Include="CharacterConfig.cs" />
+    <Compile Include="Data\CharacterModel.cs" />
+    <Compile Include="Data\Model.cs" />
+    <Compile Include="Data\ValuePair.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\AloysAdjustments\config.json">
-      <Link>config.json</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="App.config" />
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\AloysAdjustments\AloysAdjustments.csproj">
+    <ProjectReference Include="..\..\AloysAdjustments\AloysAdjustments.csproj">
       <Project>{7548196A-50AB-40A8-BD8B-70732991C5BA}</Project>
       <Name>AloysAdjustments</Name>
     </ProjectReference>
-    <ProjectReference Include="..\HZDCoreEditor\HZDCoreEditor\HZDCoreEditor.csproj">
+    <ProjectReference Include="..\..\HZDCoreEditor\HZDCoreEditor\HZDCoreEditor.csproj">
       <Project>{F91D468F-AD55-4EDD-BA66-594B8767AC71}</Project>
       <Name>HZDCoreEditor</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Plugins\AloysAdjustments.Plugins.Common\AloysAdjustments.Plugins.Common.csproj">
-      <Project>{8F5B7B20-F8CB-4061-A1B6-F4D3DF380E66}</Project>
-      <Name>AloysAdjustments.Plugins.Common</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Plugins\AloysAdjustments.Plugins.NPC\AloysAdjustments.Plugins.NPC.csproj">
-      <Project>{DCE522B1-BA53-4091-A0F0-8BF13187FB66}</Project>
-      <Name>AloysAdjustments.Plugins.NPC</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

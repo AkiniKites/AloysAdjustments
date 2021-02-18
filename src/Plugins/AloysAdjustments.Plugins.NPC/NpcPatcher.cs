@@ -5,10 +5,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using AloysAdjustments.Logic.Patching;
+using AloysAdjustments.Plugins.Common.Data;
 using AloysAdjustments.Plugins.NPC.Characters;
 using Decima;
 using Decima.HZD;
-using Model = AloysAdjustments.Plugins.Outfits.Data.Model;
+using Model = AloysAdjustments.Plugins.Common.Data.Model;
 
 namespace AloysAdjustments.Plugins.NPC
 {

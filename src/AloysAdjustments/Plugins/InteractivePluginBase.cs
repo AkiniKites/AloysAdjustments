@@ -9,7 +9,7 @@ using AloysAdjustments.UI;
 
 namespace AloysAdjustments.Plugins
 {
-    public abstract class InteractivePluginBase : UserControl, IInteractivePlugin
+    public abstract class InteractivePluginControl : UserControl, IInteractivePlugin
     {
         public abstract string PluginName { get; }
         public Control PluginControl => this;
@@ -17,7 +17,7 @@ namespace AloysAdjustments.Plugins
         public ControlRelay Reset { get; set; }
         public ControlRelay ResetSelected { get; set; }
 
-        protected InteractivePluginBase()
+        protected InteractivePluginControl()
         {
             Reset = new ControlRelay();
             ResetSelected = new ControlRelay();

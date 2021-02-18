@@ -1,4 +1,4 @@
-﻿<plugins:InteractivePluginBase x:Class="AloysAdjustments.Plugins.Upgrades.UpgradesControl"
+﻿<plugins:InteractivePluginControl x:Class="AloysAdjustments.Plugins.Upgrades.UpgradesControl"
                          xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                          xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                          xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
@@ -63,4 +63,4 @@
             </DataGrid.Columns>
         </DataGrid>
     </DockPanel>
-</plugins:InteractivePluginBase>
+</plugins:InteractivePluginControl>

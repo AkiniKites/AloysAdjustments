@@ -6,7 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using AloysAdjustments.Logic;
 
-namespace AloysAdjustments.Plugins.NPC
+namespace AloysAdjustments.UI
 {
     public class ProgressReporter : IDisposable
     {

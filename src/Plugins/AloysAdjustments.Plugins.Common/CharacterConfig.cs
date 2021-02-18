@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace AloysAdjustments.Plugins.NPC
+namespace AloysAdjustments.Plugins.Common
 {
-    public class NpcConfig
+    public class CharacterConfig
     {
         public string HumanoidMatcher { get; set; }
         public string UniqueHumanoidMatcher { get; set; }

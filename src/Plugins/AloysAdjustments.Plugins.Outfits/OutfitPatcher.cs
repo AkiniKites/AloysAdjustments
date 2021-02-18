@@ -9,7 +9,7 @@ using AloysAdjustments.Plugins.Outfits.Data;
 using AloysAdjustments.Utility;
 using Decima;
 using Decima.HZD;
-using Model = AloysAdjustments.Plugins.Outfits.Data.Model;
+using Model = AloysAdjustments.Plugins.Common.Data.Model;
 
 namespace AloysAdjustments.Plugins.Outfits
 {

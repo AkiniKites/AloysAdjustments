@@ -7,10 +7,10 @@ using System.Text;
 using System.Threading.Tasks;
 using AloysAdjustments.Configuration;
 using AloysAdjustments.Logic;
+using AloysAdjustments.Plugins.Common;
+using AloysAdjustments.Plugins.Common.Data;
 using AloysAdjustments.Plugins.NPC;
 using AloysAdjustments.Plugins.NPC.Characters;
-using AloysAdjustments.Plugins.Outfits;
-using AloysAdjustments.Plugins.Outfits.Data;
 using AloysAdjustments.Utility;
 using HZDCoreEditor.Util;
 using Newtonsoft.Json;
@@ -25,7 +25,7 @@ namespace AloysAdjustments.Tools
 
         public NpcRefGenerator()
         {
-            IoC.Bind(Configs.LoadModuleConfig<NpcConfig>("NPC Models"));
+            IoC.Bind(Configs.LoadModuleConfig<CharacterConfig>("NPC Models"));
         }
 
         public void SearchDir(string path)
