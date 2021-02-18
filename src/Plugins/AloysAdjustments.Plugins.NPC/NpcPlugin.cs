@@ -28,7 +28,7 @@ namespace AloysAdjustments.Plugins.NPC
         AllCharacters = 2
     }
 
-    public class NPCPlugin : InteractivePlugin, INotifyPropertyChanged
+    public class NpcPlugin : InteractivePlugin, INotifyPropertyChanged
     {
         public override string PluginName => "NPC Models";
 
@@ -50,7 +50,7 @@ namespace AloysAdjustments.Plugins.NPC
 
         public bool ApplyToAll { get; set; }
 
-        public NPCPlugin()
+        public NpcPlugin()
         {
             IoC.Bind(Configs.LoadModuleConfig<CharacterConfig>(PluginName));
 
@@ -62,7 +62,7 @@ namespace AloysAdjustments.Plugins.NPC
 
             Filters = Enums.GetValues<ModelFilter>().ToList().AsReadOnly();
 
-            PluginControl = new NPCPluginView();
+            PluginControl = new NpcPluginView();
             PluginControl.DataContext = this;
 
             Models = new ObservableCollection<Model>();

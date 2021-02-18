@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="AloysAdjustments.Plugins.NPC.NPCPluginView"
+﻿<UserControl x:Class="AloysAdjustments.Plugins.NPC.NpcPluginView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
@@ -13,7 +13,7 @@
              xmlns:npc="clr-namespace:AloysAdjustments.Plugins.NPC"
              mc:Ignorable="d" 
              d:DesignHeight="646" d:DesignWidth="572"
-             d:DataContext="{d:DesignInstance Type=npc:NPCPlugin, IsDesignTimeCreatable=True}" >
+             d:DataContext="{d:DesignInstance Type=npc:NpcPlugin, IsDesignTimeCreatable=True}" >
     <DockPanel>
         <DockPanel.Resources>
             <cnv:NotConverter x:Key="NotConverter"/>

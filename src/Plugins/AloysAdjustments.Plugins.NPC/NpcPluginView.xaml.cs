@@ -7,9 +7,9 @@ using System.Windows.Controls;
 
 namespace AloysAdjustments.Plugins.NPC
 {
-    public partial class NPCPluginView : UserControl
+    public partial class NpcPluginView : UserControl
     {
-        public NPCPluginView()
+        public NpcPluginView()
         {
             InitializeComponent();
         }

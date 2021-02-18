@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using AloysAdjustments.Logic.Patching;
 using AloysAdjustments.Plugins.Common.Data;
 using AloysAdjustments.Plugins.NPC.Characters;
+using AloysAdjustments.Utility;
 using Decima;
 using Decima.HZD;
 using Model = AloysAdjustments.Plugins.Common.Data.Model;
@@ -22,28 +23,34 @@ namespace AloysAdjustments.Plugins.NPC
             if (!modifiedNpcs.Any())
                 return;
             
-            var npcMap = new CharacterReferences().LoadMap(modifiedNpcs.Select(x => x.Default));
+            var npcMap = new CharacterReferences()
+                .LoadMap(modifiedNpcs.Select(x => x.Default));
 
+            var modifications = new List<(ValuePair<Model> Npc, string File)>();
             foreach (var npc in modifiedNpcs)
             {
                 if (!npcMap.TryGetValue(npc.Default, out var files))
                     continue;
-
                 foreach (var file in files)
-                {
-                    UpdateCharacterReference(patch, npc, file);
-                }
+                    modifications.Add((npc, file));
+            }
+
+            foreach (var mods in modifications.GroupBy(x => x.File))
+            {
+                UpdateCharacterReference(patch, mods.Key, mods.Select(x => x.Npc));
             }
         }
 
-        public void UpdateCharacterReference(Patch patch, ValuePair<Model> npc, string file)
+        public void UpdateCharacterReference(Patch patch, string file, IEnumerable<ValuePair<Model>> npcs)
         {
             var core = patch.AddFile(file);
+
+            var npcById = npcs.ToSoftDictionary(x => x.Default.Id, x => x.Value);
 
             var refs = new List<BaseRef>();
             core.Binary.VisitAllObjects<BaseRef>((refId, parent) =>
             {
-                if (!(parent is HumanoidBodyVariant) && refId.GUID == npc.Default.Id)
+                if (!(parent is HumanoidBodyVariant) && refId.GUID != null && npcById.ContainsKey(refId.GUID))
                     refs.Add(refId);
             });
 
@@ -52,9 +59,11 @@ namespace AloysAdjustments.Plugins.NPC
 
             foreach (var refId in refs)
             {
+                var npc = npcById[refId.GUID];
+
                 refId.Type = BaseRef.Types.ExternalCoreUUID;
-                refId.ExternalFile = npc.Value.Source;
-                refId.GUID = npc.Value.Id;
+                refId.ExternalFile = npc.Source;
+                refId.GUID = npc.Id;
             }
 
             core.Save();
