@@ -146,6 +146,7 @@
     <Compile Include="Configuration\Configs.cs" />
     <Compile Include="Configuration\SettingsManager.cs" />
     <Compile Include="Configuration\UserSettings.cs" />
+    <Compile Include="Logic\ObjectStore.cs" />
     <Compile Include="Plugins\InteractivePlugin.cs" />
     <Compile Include="UI\Converters\EnumConverter.cs" />
     <Compile Include="UI\Converters\ModifiedConverter.cs" />

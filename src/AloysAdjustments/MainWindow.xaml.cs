@@ -306,13 +306,11 @@ namespace AloysAdjustments
         {
             ActivePlugin?.ResetSelected?.OnClick();
             ActivePlugin?.ResetSelected?.ClickCommand?.Execute(null);
-            if (tcMain.SelectedIndex >= 0 && tcMain.SelectedIndex < Plugins.Count)
-                Plugins[tcMain.SelectedIndex].ResetSelected.OnClick();
         }
         private void btnReset_Click(object sender, EventArgs e)
         {
-            if (tcMain.SelectedIndex >= 0 && tcMain.SelectedIndex < Plugins.Count)
-                Plugins[tcMain.SelectedIndex].Reset.OnClick();
+            ActivePlugin?.Reset?.OnClick();
+            ActivePlugin?.Reset?.ClickCommand?.Execute(null);
         }
 
         private void Window_Closing(object sender, CancelEventArgs e)

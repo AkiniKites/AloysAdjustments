@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using AloysAdjustments.Logic;
 using AloysAdjustments.Logic.Patching;
 using AloysAdjustments.Plugins.Common.Data;
 using AloysAdjustments.Plugins.NPC.Characters;
@@ -16,6 +17,8 @@ namespace AloysAdjustments.Plugins.NPC
 {
     public class NpcPatcher
     {
+        private const string MapName = "NpcMap";
+
         public void CreatePatch(Patch patch, IList<ValuePair<Model>> npcs)
         {
             var modifiedNpcs = npcs.Where(x => x.Modified).ToList();
@@ -39,6 +42,9 @@ namespace AloysAdjustments.Plugins.NPC
             {
                 UpdateCharacterReference(patch, mods.Key, mods.Select(x => x.Npc));
             }
+
+            var mapping = modifiedNpcs.Select(x => (x.Default.Id, x.Value.Id));
+            patch.AddObject(mapping, MapName);
         }
 
         public void UpdateCharacterReference(Patch patch, string file, IEnumerable<ValuePair<Model>> npcs)
@@ -67,6 +73,15 @@ namespace AloysAdjustments.Plugins.NPC
             }
 
             core.Save();
+        }
+
+        public async Task<Dictionary<BaseGGUUID, BaseGGUUID>> LoadMap(string path)
+        {
+            var map = await ObjectStore.LoadObjectAsync<List<(BaseGGUUID, BaseGGUUID)>>(path, MapName);
+            if (map == null)
+                return new Dictionary<BaseGGUUID, BaseGGUUID>();
+
+            return map.ToDictionary(x => x.Item1, x => x.Item2);
         }
     }
 }

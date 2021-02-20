@@ -101,9 +101,29 @@ namespace AloysAdjustments.Plugins.NPC
             FilterValue = (ModelFilter)IoC.Settings.NpcModelFilter;
         }
 
-        public override Task LoadPatch(string path)
+        public override async Task LoadPatch(string path)
         {
-            return Task.CompletedTask;
+            IoC.Notif.ShowStatus("Loading npcs...");
+
+            var map = await Patcher.LoadMap(path);
+            if (!map.Any())
+                return;
+
+            await Initialize();
+
+            using (var defer = NpcsView.DeferRefresh())
+            {
+                var models = Models.ToDictionary(x => x.Id, x => x);
+                foreach (var npc in Npcs.Where(x => x != AllNpcStub))
+                {
+                    if (map.TryGetValue(npc.Default.Id, out var newId))
+                    {
+                        npc.Value = models[newId];
+                    }
+                }
+            }
+
+            OnApplyToAll();
         }
 
         public override void ApplyChanges(Patch patch)
@@ -178,7 +198,9 @@ namespace AloysAdjustments.Plugins.NPC
         {
             ResetSelected.Enabled = SelectedNpcModels?.Count > 0;
 
-            var selectedModelIds = GetSelectedNpcs().Select(x => x.Value.Id).ToHashSet();
+            var selectedModelIds = GetSelectedNpcs()
+                .Where(x => x != AllNpcStub)
+                .Select(x => x.Value.Id).ToHashSet();
 
             foreach (var model in Models)
             {
@@ -219,7 +241,15 @@ namespace AloysAdjustments.Plugins.NPC
         private void OnApplyToAll()
         {
             IoC.Settings.ApplyToAllNpcs = ApplyToAll;
+            if (ApplyToAll)
+            {
+                var tmp = new CharacterModel() { Id = Guid.NewGuid() };
+                var val = Npcs.Any(x => x != AllNpcStub && x.Modified) ? tmp : AllNpcStub.Default;
+                AllNpcStub.Value = val;
+            }
             NpcsView.Refresh();
+
+            OnNpcSelectionChanged();
         }
 
         private void OnFilterValue()
@@ -259,7 +289,6 @@ namespace AloysAdjustments.Plugins.NPC
                     break;
                 case nameof(ApplyToAll):
                     OnApplyToAll();
-                    OnNpcSelectionChanged();
                     break;
                 case nameof(FilterValue):
                     OnFilterValue();
