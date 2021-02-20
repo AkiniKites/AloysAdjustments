@@ -40,13 +40,31 @@ namespace AloysAdjustments.Plugins.NPC
         public ICollectionView NpcsView { get; set; }
         public ObservableCollection<Model> Models { get; set; }
         public ICollectionView ModelsView { get; set; }
-
-        public ReadOnlyCollection<ModelFilter> Filters { get; set; }
-
+        
         public IList SelectedNpcModels { get; set; }
         public Model SelectedModelMapping { get; set; }
 
-        public ModelFilter FilterValue { get; set; }
+        private ModelFilter _filterValue;
+        public ModelFilter FilterValue
+        {
+            get => _filterValue;
+            set
+            {
+                if (_filterValue == value)
+                    return;
+
+                var newVal = value;
+                var oldVal = _filterValue;
+
+                if (newVal.HasFlag(ModelFilter.MainCharacters) && oldVal.HasFlag(ModelFilter.AllCharacters))
+                    newVal = newVal.RemoveFlags(ModelFilter.AllCharacters);
+                if (newVal.HasFlag(ModelFilter.AllCharacters) && oldVal.HasFlag(ModelFilter.MainCharacters))
+                    newVal = newVal.RemoveFlags(ModelFilter.MainCharacters);
+                _filterValue = newVal;
+
+                OnPropertyChanged(nameof(FilterValue), oldVal, newVal);
+            }
+        }
 
         public bool ApplyToAll { get; set; }
 
@@ -60,18 +78,18 @@ namespace AloysAdjustments.Plugins.NPC
             CharacterGen = new CharacterGenerator();
             Patcher = new NpcPatcher();
 
-            Filters = Enums.GetValues<ModelFilter>().ToList().AsReadOnly();
-
             PluginControl = new NpcPluginView();
             PluginControl.DataContext = this;
 
             Models = new ObservableCollection<Model>();
             ModelsView = CollectionViewSource.GetDefaultView(Models);
+            ModelsView.Filter = Filter;
+            ModelsView.SortDescriptions.Add(new SortDescription(nameof(Model.DisplayName), ListSortDirection.Ascending));
+
             Npcs = new ObservableCollection<ValuePair<Model>>();
             NpcsView = CollectionViewSource.GetDefaultView(Npcs);
-
-            ModelsView.Filter = Filter;
             NpcsView.Filter = NpcFilter;
+            NpcsView.SortDescriptions.Add(new SortDescription("Default.DisplayName", ListSortDirection.Ascending));
 
             var allNpc = new Model() {DisplayName = "All Outfits"};
             AllNpcStub = new ValuePair<Model>(allNpc, allNpc);
@@ -79,8 +97,8 @@ namespace AloysAdjustments.Plugins.NPC
 
         private void LoadSettings()
         {
-            ApplyToAll = IoC.Settings.ApplyToAllOutfits;
-            FilterValue = (ModelFilter)IoC.Settings.OutfitModelFilter;
+            ApplyToAll = IoC.Settings.ApplyToAllNpcs;
+            FilterValue = (ModelFilter)IoC.Settings.NpcModelFilter;
         }
 
         public override Task LoadPatch(string path)
@@ -143,7 +161,17 @@ namespace AloysAdjustments.Plugins.NPC
         }
         public bool NpcFilter(object obj)
         {
-            return (obj == AllNpcStub) == ApplyToAll;
+            if (ApplyToAll)
+                return obj == AllNpcStub;
+            if (obj != AllNpcStub)
+            {
+                var model = (CharacterModel)((ValuePair<Model>)obj).Default;
+                if (FilterValue.HasFlag(ModelFilter.MainCharacters))
+                    return model.UniqueCharacter;
+                return true;
+            }
+
+            return false;
         }
 
         private void OnNpcSelectionChanged()
@@ -162,7 +190,7 @@ namespace AloysAdjustments.Plugins.NPC
         }
         private List<ValuePair<Model>> GetSelectedNpcs()
         {
-            if (IoC.Settings.ApplyToAllOutfits)
+            if (IoC.Settings.ApplyToAllNpcs)
                 return Npcs.ToList();
             return SelectedNpcModels?.Cast<ValuePair<Model>>().ToList() ?? new List<ValuePair<Model>>();
         }
@@ -190,8 +218,15 @@ namespace AloysAdjustments.Plugins.NPC
         
         private void OnApplyToAll()
         {
-            IoC.Settings.ApplyToAllOutfits = ApplyToAll;
+            IoC.Settings.ApplyToAllNpcs = ApplyToAll;
             NpcsView.Refresh();
+        }
+
+        private void OnFilterValue()
+        {
+            IoC.Settings.NpcModelFilter = (int)FilterValue;
+            NpcsView.Refresh();
+            ModelsView.Refresh();
         }
 
         private Task OnResetSelected()
@@ -212,6 +247,8 @@ namespace AloysAdjustments.Plugins.NPC
 
         public void OnPropertyChanged(string propertyName, object before, object after)
         {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+
             switch (propertyName)
             {
                 case nameof(SelectedNpcModels):
@@ -223,6 +260,9 @@ namespace AloysAdjustments.Plugins.NPC
                 case nameof(ApplyToAll):
                     OnApplyToAll();
                     OnNpcSelectionChanged();
+                    break;
+                case nameof(FilterValue):
+                    OnFilterValue();
                     break;
             }
         }

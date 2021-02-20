@@ -360,6 +360,11 @@ namespace AloysAdjustments.Plugins.Outfits
             IoC.Notif.HideProgress();
         }
 
+        private void clbModels_LostFocus(object sender, RoutedEventArgs e)
+        {
+            clbModels.SelectedItem = null;
+        }
+
         public event PropertyChangedEventHandler PropertyChanged;
     }
 }

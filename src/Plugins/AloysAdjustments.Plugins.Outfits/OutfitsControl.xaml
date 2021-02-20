@@ -69,12 +69,13 @@
                 </DockPanel>
                 <ListBox x:Name="clbModels" ItemsSource="{Binding Models}"
                          HorizontalContentAlignment="Stretch"
-                         SelectionChanged="clbModels_SelectionChanged">
+                         SelectionChanged="clbModels_SelectionChanged"
+                         LostFocus="clbModels_LostFocus">
                     <ListBox.ItemTemplate>
                         <DataTemplate>
                             <DockPanel Margin="0 1">
                                 <CheckBox IsChecked="{Binding Checked}" Content="{Binding DisplayName}" 
-                                          Margin="-1" IsHitTestVisible="False"/>
+                                          IsHitTestVisible="False"/>
                             </DockPanel>
                         </DataTemplate>
                     </ListBox.ItemTemplate>

@@ -1,36 +1,13 @@
 ﻿{
   "ModuleConfigs": {
     "NPC Models": {
-      "AloyCharacterName": "AloyPlayerCharacter",
-      "PlayerComponentsFile": "entities/characters/humanoids/player/player_components",
-      "PlayerCharacterFile": "entities/characters/humanoids/player/playercharacter",
-      "RagdollComponentsFile": "entities/characters/components/humanoidragdollcomponents",
-      "OutfitFiles": [
-        "entities/armor/newgameplus/ng_outfits.core",
-        "entities/armor/outfits/outfits.core",
-        "entities/dlc1/outfits/dlc1_outfits.core"
-      ],
-      "IgnoredOutfits": [
-        "Outfit_Undergarment"
-      ],
       "HumanoidMatcher": "^entities/.*humanoids/.+",
       "UniqueHumanoidMatcher": "^entities/.*humanoids/.*(?:individual_characters|uniquecharacters).+",
       "IgnoredCharacters": [
         "playercostume",
         "playercharacter",
         "debug"
-      ],
-      "OutfitFactFile": "entities/characters/humanoids/player/costumes/facts",
-      "ArmorComponentFiles": [
-        "entities/dlc1/characters/humanoids/player/player_costume_componentsdlc",
-        "entities/characters/humanoids/player/player_costume_components"
-      ],
-      "IgnoredArmorComponents": [
-        "SkeletonHelpersComponentResource",
-        "ScaleEntityFromAnimationComponentResource"
-      ],
-      "UndergarmentModelFile": "entities/characters/humanoids/player/costumes/playercostume_undergarment",
-      "Mission4UndergarmentFixFile": "levels/worlds/world/scenes/mainquest/mq4_mothersheart/sequences/mq04_bedding_down_seq"
+      ]
     },
     "Outfits": {
       "AloyCharacterName": "AloyPlayerCharacter",
@@ -92,6 +69,12 @@
     "Remainder.bin",
     "Remainder_English.bin",
     "Patch.bin"
+  ],
+  "PluginLoadOrder": [
+    "Outfits",
+    "NPC Models",
+    "Upgrades",
+    "Misc"
   ],
   "OldVersionsToDelete": [
     "zMod_AloysAdjustments.bin"

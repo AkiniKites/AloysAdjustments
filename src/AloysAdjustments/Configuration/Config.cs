@@ -21,5 +21,6 @@ namespace AloysAdjustments.Configuration
         public string[] OldVersionsToDelete { get; set; }
         public string UpdatesRepo { get; set; }
         public string[] KnownGameFiles { get; set; }
+        public List<string> PluginLoadOrder { get; set; }
     }
 }

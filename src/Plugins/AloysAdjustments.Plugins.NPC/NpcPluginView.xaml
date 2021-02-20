@@ -18,25 +18,21 @@
         <DockPanel.Resources>
             <cnv:NotConverter x:Key="NotConverter"/>
             <cnv:ModifiedConverter x:Key="ModifiedConverter"/>
-            <cnv:EnumConverter x:Key="EnumConverter" />
         </DockPanel.Resources>
         <DockPanel DockPanel.Dock="Top" LastChildFill="False">
-            <xctk:CheckComboBox x:Name="ccbModelFilter" DockPanel.Dock="Right" Margin="3" Width="172" 
-                                ItemsSource="{Binding Filters}" Delimiter=", "
-                                Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"
-                                HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch"
-                                SelectedValue="{Binding FilterValue}">
+            <TextBlock DockPanel.Dock="Left" Text="Experimental" FontSize="10" Foreground="{x:Static ui:UIColors.ErrorBrush}" />
+            <npc:EnumsCheckComboBox x:Name="ccbModelFilter" DockPanel.Dock="Right" Margin="3" Width="172" 
+                                    Delimiter=", " 
+                                    Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"
+                                    HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch"
+                                    FlagsType="{x:Type npc:ModelFilter}"
+                                    SelectedFlags="{Binding FilterValue}">
                 <xctk:CheckComboBox.ItemContainerStyle>
                     <Style TargetType="xctk:SelectorItem">
                         <Setter Property="Padding" Value="0 1"/>
                     </Style>
                 </xctk:CheckComboBox.ItemContainerStyle>
-                <xctk:CheckComboBox.ItemTemplate>
-                    <DataTemplate>
-                        <TextBlock Text="{Binding Converter={StaticResource EnumConverter}}"></TextBlock>
-                    </DataTemplate>
-                </xctk:CheckComboBox.ItemTemplate>
-            </xctk:CheckComboBox>
+            </npc:EnumsCheckComboBox>
             <TextBlock Text="Filter:" DockPanel.Dock="Right" Margin="0 0 5 0"
                        VerticalAlignment="Center"/>
         </DockPanel>
@@ -50,10 +46,10 @@
             <DockPanel Grid.Column="0">
                 <DockPanel  DockPanel.Dock="Top" LastChildFill="False" Margin="3 0 3 3">
                     <TextBlock DockPanel.Dock="Left" Text="NPC" FontWeight="Bold" />
-                    <CheckBox x:Name="cbAllOutfits" DockPanel.Dock="Right" Content="Apply To All" 
+                    <CheckBox DockPanel.Dock="Right" Content="Apply To All" 
                               IsChecked="{Binding ApplyToAll}"/>
                 </DockPanel>
-                <ui:ListBoxEx x:Name="lbNPCs" SelectionMode="Extended" ItemsSource="{Binding Npcs}"
+                <ui:ListBoxEx x:Name="lbNPCs" SelectionMode="Extended" ItemsSource="{Binding NpcsView}"
                               IsHitTestVisible="{Binding ElementName=cbAllOutfits, Path=IsChecked, Converter={StaticResource NotConverter}}"
                               SelectedItemsList="{Binding SelectedNpcModels, Mode=OneWayToSource}"
                               IsEnabledChanged="lbNPCs_IsEnabledChanged">
@@ -88,15 +84,14 @@
                 <DockPanel DockPanel.Dock="Top" LastChildFill="False" Margin="3 0 3 3">
                     <TextBlock DockPanel.Dock="Left" Text="Model Mapping" FontWeight="Bold" />
                 </DockPanel>
-                <ui:ListBoxEx x:Name="clbModels" ItemsSource="{Binding Models}"
+                <ui:ListBoxEx x:Name="clbModels" ItemsSource="{Binding ModelsView}"
                              HorizontalContentAlignment="Stretch"
                              SelectedItem="{Binding SelectedModelMapping}"
                              LostFocus="clbModels_LostFocus">
                     <ListBox.ItemTemplate>
                         <DataTemplate>
                             <DockPanel Margin="0 1">
-                                <CheckBox IsChecked="{Binding Checked}" Content="{Binding DisplayName}" 
-                                          Margin="-1" IsHitTestVisible="False"/>
+                                <CheckBox IsChecked="{Binding Checked}" Content="{Binding DisplayName}" IsHitTestVisible="False"/>
                             </DockPanel>
                         </DataTemplate>
                     </ListBox.ItemTemplate>

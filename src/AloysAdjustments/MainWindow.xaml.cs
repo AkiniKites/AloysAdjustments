@@ -123,9 +123,12 @@ namespace AloysAdjustments
             IoC.Bind(new Localization(ELanguage.English));
 
             Settings = new SettingsControl();
-            Plugins = PluginManager.LoadAll<IInteractivePlugin>()
-                .OrderBy(x => x.PluginName.Contains("Misc") ? 1 : 0) //TODO: fix
-                .ToList();
+            Plugins = (
+                from plugin in PluginManager.LoadAll<IInteractivePlugin>()
+                let idx = IoC.Config.PluginLoadOrder.IndexOf(plugin.PluginName)
+                let order = idx < 0 ? int.MaxValue : idx
+                orderby order, plugin.PluginName
+                select plugin).ToList();
 
             IoC.Notif.ShowStatus("Loading Plugins...");
             foreach (var module in Plugins.AsEnumerable().Concat(new[] { Settings }).Reverse())
