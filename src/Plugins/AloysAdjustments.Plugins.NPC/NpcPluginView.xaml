@@ -8,8 +8,9 @@
              xmlns:plugins="clr-namespace:AloysAdjustments.Plugins;assembly=AloysAdjustments"
              xmlns:logic="clr-namespace:AloysAdjustments.Logic;assembly=AloysAdjustments"
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
-             xmlns:ui="clr-namespace:AloysAdjustments.UI;assembly=AloysAdjustments"
-             xmlns:cnv="clr-namespace:AloysAdjustments.UI.Converters;assembly=AloysAdjustments"
+             xmlns:ui="clr-namespace:AloysAdjustments.UI;assembly=AloysAdjustments.Common"
+             xmlns:cnv="clr-namespace:AloysAdjustments.UI.Converters;assembly=AloysAdjustments.Common"
+             xmlns:ctrl="clr-namespace:AloysAdjustments.Common.UI.Controls;assembly=AloysAdjustments.Common"
              xmlns:npc="clr-namespace:AloysAdjustments.Plugins.NPC"
              mc:Ignorable="d" 
              d:DesignHeight="646" d:DesignWidth="572"
@@ -21,18 +22,18 @@
         </DockPanel.Resources>
         <DockPanel DockPanel.Dock="Top" LastChildFill="False">
             <TextBlock DockPanel.Dock="Left" Text="Experimental" FontSize="10" Foreground="{x:Static ui:UIColors.ErrorBrush}" />
-            <npc:EnumsCheckComboBox x:Name="ccbModelFilter" DockPanel.Dock="Right" Margin="3" Width="172" 
-                                    Delimiter=", " 
-                                    Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"
-                                    HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch"
-                                    FlagsType="{x:Type npc:ModelFilter}"
-                                    SelectedFlags="{Binding FilterValue}">
+            <ctrl:EnumsCheckComboBox x:Name="ccbModelFilter" DockPanel.Dock="Right" Margin="3" Width="172" 
+                                     Delimiter=", " 
+                                     Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"
+                                     HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch"
+                                     FlagsType="{x:Type npc:ModelFilter}"
+                                     SelectedFlags="{Binding FilterValue}">
                 <xctk:CheckComboBox.ItemContainerStyle>
                     <Style TargetType="xctk:SelectorItem">
                         <Setter Property="Padding" Value="0 1"/>
                     </Style>
                 </xctk:CheckComboBox.ItemContainerStyle>
-            </npc:EnumsCheckComboBox>
+            </ctrl:EnumsCheckComboBox>
             <TextBlock Text="Filter:" DockPanel.Dock="Right" Margin="0 0 5 0"
                        VerticalAlignment="Center"/>
         </DockPanel>

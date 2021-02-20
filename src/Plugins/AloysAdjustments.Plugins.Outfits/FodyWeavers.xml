@@ -4,6 +4,7 @@
   <Costura>
 	  <IncludeAssemblies>
 		  AloysAdjustments.Plugins.Common
+		  AloysAdjustments.Common
 	  </IncludeAssemblies>
   </Costura>
 </Weavers>

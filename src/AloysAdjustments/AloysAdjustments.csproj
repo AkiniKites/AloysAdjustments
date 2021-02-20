@@ -122,21 +122,6 @@
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
-    <Reference Include="Xceed.Wpf.AvalonDock, Version=4.0.0.0, Culture=neutral, PublicKeyToken=3e4669d2f30244f4, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Extended.Wpf.Toolkit.4.0.2\lib\net40\Xceed.Wpf.AvalonDock.dll</HintPath>
-    </Reference>
-    <Reference Include="Xceed.Wpf.AvalonDock.Themes.Aero, Version=4.0.0.0, Culture=neutral, PublicKeyToken=3e4669d2f30244f4, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Extended.Wpf.Toolkit.4.0.2\lib\net40\Xceed.Wpf.AvalonDock.Themes.Aero.dll</HintPath>
-    </Reference>
-    <Reference Include="Xceed.Wpf.AvalonDock.Themes.Metro, Version=4.0.0.0, Culture=neutral, PublicKeyToken=3e4669d2f30244f4, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Extended.Wpf.Toolkit.4.0.2\lib\net40\Xceed.Wpf.AvalonDock.Themes.Metro.dll</HintPath>
-    </Reference>
-    <Reference Include="Xceed.Wpf.AvalonDock.Themes.VS2010, Version=4.0.0.0, Culture=neutral, PublicKeyToken=3e4669d2f30244f4, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Extended.Wpf.Toolkit.4.0.2\lib\net40\Xceed.Wpf.AvalonDock.Themes.VS2010.dll</HintPath>
-    </Reference>
-    <Reference Include="Xceed.Wpf.Toolkit, Version=4.0.0.0, Culture=neutral, PublicKeyToken=3e4669d2f30244f4, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Extended.Wpf.Toolkit.4.0.2\lib\net40\Xceed.Wpf.Toolkit.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App.xaml.cs">
@@ -148,9 +133,6 @@
     <Compile Include="Configuration\UserSettings.cs" />
     <Compile Include="Logic\ObjectStore.cs" />
     <Compile Include="Plugins\InteractivePlugin.cs" />
-    <Compile Include="UI\Converters\EnumConverter.cs" />
-    <Compile Include="UI\Converters\ModifiedConverter.cs" />
-    <Compile Include="UI\Converters\NotConverter.cs" />
     <Compile Include="Logic\Archiver.cs" />
     <Compile Include="Logic\ArchiverExtensions.cs" />
     <Compile Include="Logic\Compatibility.cs" />
@@ -188,32 +170,15 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
     <Compile Include="Steam\GameSearch.cs" />
-    <Compile Include="UI\AbstractControlDescriptionProvider.cs" />
-    <Compile Include="UI\AsyncRelayCommand.cs" />
     <Compile Include="UI\ControlLock.cs" />
     <Compile Include="UI\ControlRelay.cs" />
-    <Compile Include="UI\ListBoxEx.cs" />
     <Compile Include="UI\ProgressReporter.cs" />
     <Compile Include="UI\Relay.cs" />
-    <Compile Include="UI\Converters\SingleLineConverter.cs" />
-    <Compile Include="UI\TypeDelayTextBox.cs" />
-    <Compile Include="UI\UIColors.cs" />
     <Compile Include="UI\WindowMemory.cs" />
     <Compile Include="Updates\ReleaseExtractor.cs" />
     <Compile Include="Updates\UpdateException.cs" />
     <Compile Include="Updates\Updater.cs" />
-    <Compile Include="Utility\Async.cs" />
-    <Compile Include="Utility\AsyncException.cs" />
-    <Compile Include="Utility\BaseGGUUIDConverter.cs" />
-    <Compile Include="Utility\Errors.cs" />
-    <Compile Include="Utility\Extensions.cs" />
-    <Compile Include="Utility\FileBackup.cs" />
     <Compile Include="Utility\GameCache.cs" />
-    <Compile Include="Utility\HzdCloner.cs" />
-    <Compile Include="Utility\HzdException.cs" />
-    <Compile Include="Utility\PackList.cs" />
-    <Compile Include="Utility\Paths.cs" />
-    <Compile Include="Utility\Uuid.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
@@ -243,15 +208,15 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="UI\Common.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
   </ItemGroup>
   <ItemGroup>
     <Resource Include="FodyWeavers.Debug.xml" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\AloysAdjustments.Common\AloysAdjustments.Common.csproj">
+      <Project>{88C71567-DB25-447C-8149-6A9F2EDC88DD}</Project>
+      <Name>AloysAdjustments.Common</Name>
+    </ProjectReference>
     <ProjectReference Include="..\HZDCoreEditor\HZDCoreEditor\HZDCoreEditor.csproj">
       <Project>{f91d468f-ad55-4edd-ba66-594b8767ac71}</Project>
       <Name>HZDCoreEditor</Name>
@@ -264,6 +229,7 @@
     <Resource Include="Icon\icon.ico" />
     <Resource Include="Icon\icon.png" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\..\packages\Fody.6.3.0\build\Fody.targets" Condition="Exists('..\..\packages\Fody.6.3.0\build\Fody.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

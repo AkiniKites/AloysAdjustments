@@ -4,8 +4,8 @@
                          xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
                          xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
                          xmlns:plugins="clr-namespace:AloysAdjustments.Plugins"
-                         xmlns:ui="clr-namespace:AloysAdjustments.UI"
                          xmlns:system1="clr-namespace:System;assembly=mscorlib"
+                         xmlns:ui="clr-namespace:AloysAdjustments.UI;assembly=AloysAdjustments.Common"
                          mc:Ignorable="d" 
                          d:DesignHeight="646" d:DesignWidth="572">
     <DockPanel LastChildFill="False">

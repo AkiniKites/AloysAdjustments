@@ -10,7 +10,7 @@ using AloysAdjustments.UI.Converters;
 using Xceed.Wpf.Toolkit;
 using Xceed.Wpf.Toolkit.Primitives;
 
-namespace AloysAdjustments.Plugins.NPC
+namespace AloysAdjustments.Common.UI.Controls
 {
     public partial class EnumsCheckComboBox : CheckComboBox
     {

@@ -125,6 +125,10 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\AloysAdjustments.Common\AloysAdjustments.Common.csproj">
+      <Project>{88C71567-DB25-447C-8149-6A9F2EDC88DD}</Project>
+      <Name>AloysAdjustments.Common</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\AloysAdjustments\AloysAdjustments.csproj">
       <Project>{7548196a-50ab-40a8-bd8b-70732991c5ba}</Project>
       <Name>AloysAdjustments</Name>

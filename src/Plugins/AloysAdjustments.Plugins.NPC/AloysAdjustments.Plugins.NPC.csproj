@@ -100,9 +100,6 @@
     <Compile Include="Characters\CharacterGenerator.cs" />
     <Compile Include="Characters\CharacterReference.cs" />
     <Compile Include="Characters\CharacterReferences.cs" />
-    <Compile Include="EnumsCheckComboBox.xaml.cs">
-      <DependentUpon>EnumsCheckComboBox.xaml</DependentUpon>
-    </Compile>
     <Compile Include="NpcPlugin.cs" />
     <Compile Include="NpcPatcher.cs" />
     <Compile Include="NPCPluginView.xaml.cs">
@@ -135,16 +132,16 @@
     <Resource Include="FodyWeavers.xml" />
   </ItemGroup>
   <ItemGroup>
-    <Page Include="EnumsCheckComboBox.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="NPCPluginView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\AloysAdjustments.Common\AloysAdjustments.Common.csproj">
+      <Project>{88C71567-DB25-447C-8149-6A9F2EDC88DD}</Project>
+      <Name>AloysAdjustments.Common</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\AloysAdjustments\AloysAdjustments.csproj">
       <Project>{7548196a-50ab-40a8-bd8b-70732991c5ba}</Project>
       <Name>AloysAdjustments</Name>
