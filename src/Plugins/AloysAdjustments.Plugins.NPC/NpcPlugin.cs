@@ -31,15 +31,15 @@ namespace AloysAdjustments.Plugins.NPC
     public class NpcPlugin : InteractivePlugin, INotifyPropertyChanged
     {
         public override string PluginName => "NPC Models";
-
+        
         private CharacterGenerator CharacterGen { get; }
         private NpcPatcher Patcher { get; }
 
         public ValuePair<Model> AllNpcStub { get; set; }
         public ObservableCollection<ValuePair<Model>> Npcs { get; set; }
-        public ICollectionView NpcsView { get; set; }
+        public ListCollectionView NpcsView { get; set; }
         public ObservableCollection<Model> Models { get; set; }
-        public ICollectionView ModelsView { get; set; }
+        public ListCollectionView ModelsView { get; set; }
         
         public IList SelectedNpcModels { get; set; }
         public Model SelectedModelMapping { get; set; }
@@ -82,17 +82,26 @@ namespace AloysAdjustments.Plugins.NPC
             PluginControl.DataContext = this;
 
             Models = new ObservableCollection<Model>();
-            ModelsView = CollectionViewSource.GetDefaultView(Models);
+            ModelsView = new ListCollectionView(Models);
             ModelsView.Filter = Filter;
-            ModelsView.SortDescriptions.Add(new SortDescription(nameof(Model.DisplayName), ListSortDirection.Ascending));
+            ModelsView.CustomSort = Comparer<Model>.Create(CompareModels);
 
             Npcs = new ObservableCollection<ValuePair<Model>>();
-            NpcsView = CollectionViewSource.GetDefaultView(Npcs);
+            NpcsView =new ListCollectionView(Npcs);
             NpcsView.Filter = NpcFilter;
-            NpcsView.SortDescriptions.Add(new SortDescription("Default.DisplayName", ListSortDirection.Ascending));
+            NpcsView.CustomSort = Comparer<ValuePair<Model>>.Create((a, b) => CompareModels(a.Default, b.Default));
 
-            var allNpc = new Model() {DisplayName = "All Outfits"};
+            var allNpc = new Model() {DisplayName = "All Characters"};
             AllNpcStub = new ValuePair<Model>(allNpc, allNpc);
+        }
+
+        private int CompareModels(Model m1, Model m2)
+        {
+            var m1d = m1.DisplayName.Contains("DLC");
+            var m2d = m2.DisplayName.Contains("DLC");
+            var c1 = Comparer<bool>.Default.Compare(m1d, m2d);
+            
+            return c1 != 0 ? c1 : Comparer<string>.Default.Compare(m1.DisplayName, m2.DisplayName);
         }
 
         private void LoadSettings()

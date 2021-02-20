@@ -125,9 +125,6 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <None Include="npc-map.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -175,7 +172,7 @@
   <PropertyGroup>
     <PostBuildEvent>if $(ConfigurationName) == Debug ( 
 xcopy /y/i $(TargetPath) $(ProjectDir)..\..\AloysAdjustments\bin\Debug\plugins\
-xcopy /y/i $(TargetDir)npc-map.json $(ProjectDir)..\..\AloysAdjustments\bin\Debug\data\
+xcopy /y/i $(SolutionDir)data\npc-map.json $(ProjectDir)..\..\AloysAdjustments\bin\Debug\data\
 )</PostBuildEvent>
   </PropertyGroup>
 </Project>
