@@ -32,10 +32,14 @@ namespace AloysAdjustments.Logic
         {
             return await Async.Run(() => LoadGameFile(archiver, file));
         }
-        public static HzdCore LoadGameFile(this Archiver archiver,
-            string file)
+        public static HzdCore LoadGameFile(this Archiver archiver, string file)
         {
             return archiver.LoadFileFromDir(Configs.GamePackDir,
+                IoC.Config.KnownGameFiles.ToHashSet(), file);
+        }
+        public static MemoryStream LoadGameFileStream(this Archiver archiver, string file)
+        {
+            return archiver.LoadFileStreamFromDir(Configs.GamePackDir,
                 IoC.Config.KnownGameFiles.ToHashSet(), file);
         }
     }

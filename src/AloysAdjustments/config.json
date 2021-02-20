@@ -1,5 +1,14 @@
 ﻿{
   "ModuleConfigs": {
+    "NPC Models": {
+      "HumanoidMatcher": "^entities/.*humanoids/.+",
+      "UniqueHumanoidMatcher": "^entities/.*humanoids/.*(?:individual_characters|uniquecharacters).+",
+      "IgnoredCharacters": [
+        "playercostume",
+        "playercharacter",
+        "debug"
+      ]
+    },
     "Outfits": {
       "AloyCharacterName": "AloyPlayerCharacter",
       "PlayerComponentsFile": "entities/characters/humanoids/player/player_components",
@@ -60,6 +69,12 @@
     "Remainder.bin",
     "Remainder_English.bin",
     "Patch.bin"
+  ],
+  "PluginLoadOrder": [
+    "Outfits",
+    "NPC Models",
+    "Upgrades",
+    "Misc"
   ],
   "OldVersionsToDelete": [
     "zMod_AloysAdjustments.bin"

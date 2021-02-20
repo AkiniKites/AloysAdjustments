@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 using System.Text;
 using AloysAdjustments.Logic;
 using Newtonsoft.Json;
@@ -9,6 +10,13 @@ namespace AloysAdjustments.Utility
 {
     public class GameCache<T>
     {
+        private class CacheData
+        {
+            public string Path { get; set; }
+            public string Version { get; set; }
+            public T Data { get; set; }
+        }
+
         private string CachePath => Path.Combine(IoC.Config.CachePath, $"{Name}.json");
 
         public string Name { get; }
@@ -26,10 +34,10 @@ namespace AloysAdjustments.Utility
                 return false;
 
             var json = File.ReadAllText(CachePath);
-            var cache = JsonConvert.DeserializeObject<(string Path, T Data)>(
+            var cache = JsonConvert.DeserializeObject<CacheData>(
                 json, new BaseGGUUIDConverter());
 
-            if (cache.Path != IoC.Settings.GamePath)
+            if (cache == null || cache.Path != IoC.Settings.GamePath)
             {
                 ClearCache();
                 return false;
@@ -41,7 +49,12 @@ namespace AloysAdjustments.Utility
 
         public void Save(T data)
         {
-            var cache = (Path: IoC.Settings.GamePath, Data: data);
+            var cache = new CacheData()
+            {
+                Path = IoC.Settings.GamePath,
+                Version = Assembly.GetEntryAssembly()?.GetName().Version.ToString(),
+                Data = data
+            };
             var json = JsonConvert.SerializeObject(cache,
                 Formatting.Indented, new BaseGGUUIDConverter());
 

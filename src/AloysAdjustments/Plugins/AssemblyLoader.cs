@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
 using AloysAdjustments.Logic;
+using AloysAdjustments.Utility;
 
 namespace AloysAdjustments.Plugins
 {
@@ -19,6 +20,9 @@ namespace AloysAdjustments.Plugins
             path = Path.GetFullPath(path);
 
             var assembly = Assembly.Load(File.ReadAllBytes(path));
+            var assemblyLoaderType = assembly.GetType("Costura.AssemblyLoader", false);
+            var attachMethod = assemblyLoaderType?.GetMethod("Attach", BindingFlags.Static | BindingFlags.Public);
+            attachMethod?.Invoke(null, new object[] { });
 
             try
             {
@@ -34,7 +38,7 @@ namespace AloysAdjustments.Plugins
             }
             catch (Exception ex)
             {
-                //TODO: implement
+                Errors.WriteError(ex);
             }
 
             return loaded;

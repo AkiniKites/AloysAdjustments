@@ -1,4 +1,4 @@
-﻿<plugins:InteractivePluginBase x:Class="AloysAdjustments.Plugins.Misc.MiscControl"
+﻿<plugins:InteractivePluginControl x:Class="AloysAdjustments.Plugins.Misc.MiscControl"
                          xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                          xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                          xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
@@ -15,4 +15,4 @@
                   HorizontalAlignment="Left" VerticalAlignment="Top" 
                   Checked="cbMenuMusic_Checked" Unchecked="cbMenuMusic_Checked"/>
     </Grid>
-</plugins:InteractivePluginBase>
+</plugins:InteractivePluginControl>

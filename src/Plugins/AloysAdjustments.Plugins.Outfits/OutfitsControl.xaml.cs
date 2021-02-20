@@ -12,6 +12,7 @@ using System.Windows.Input;
 using AloysAdjustments.Configuration;
 using AloysAdjustments.Logic;
 using AloysAdjustments.Logic.Patching;
+using AloysAdjustments.Plugins.Common.Data;
 using AloysAdjustments.Plugins.Outfits.Data;
 using AloysAdjustments.UI;
 using AloysAdjustments.Utility;
@@ -19,7 +20,7 @@ using Decima;
 
 namespace AloysAdjustments.Plugins.Outfits
 {
-    public partial class OutfitsControl : InteractivePluginBase, INotifyPropertyChanged
+    public partial class OutfitsControl : InteractivePluginControl, INotifyPropertyChanged
     {
         private bool _updatingLists;
         private bool _loading;
@@ -357,6 +358,11 @@ namespace AloysAdjustments.Plugins.Outfits
 
             IoC.Notif.ShowStatus("");
             IoC.Notif.HideProgress();
+        }
+
+        private void clbModels_LostFocus(object sender, RoutedEventArgs e)
+        {
+            clbModels.SelectedItem = null;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

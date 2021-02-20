@@ -17,6 +17,14 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AloysAdjustments.Plugins.Ou
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AloysAdjustments.Plugins.Upgrades", "src\Plugins\AloysAdjustments.Plugins.Upgrades\AloysAdjustments.Plugins.Upgrades.csproj", "{EEB3E19D-DEBD-41B8-900C-CE5BBF9C4D1A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AloysAdjustments.Plugins.NPC", "src\Plugins\AloysAdjustments.Plugins.NPC\AloysAdjustments.Plugins.NPC.csproj", "{DCE522B1-BA53-4091-A0F0-8BF13187FB66}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AloysAdjustments.Tools", "src\AloysAdjustments.Tools\AloysAdjustments.Tools.csproj", "{758736E0-983F-4128-8140-0D101600595B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Common", "Common", "{D56444FD-69C7-4899-A90A-9FACB3DFC684}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AloysAdjustments.Plugins.Common", "src\Plugins\AloysAdjustments.Plugins.Common\AloysAdjustments.Plugins.Common.csproj", "{8F5B7B20-F8CB-4061-A1B6-F4D3DF380E66}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -43,6 +51,18 @@ Global
 		{EEB3E19D-DEBD-41B8-900C-CE5BBF9C4D1A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EEB3E19D-DEBD-41B8-900C-CE5BBF9C4D1A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EEB3E19D-DEBD-41B8-900C-CE5BBF9C4D1A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DCE522B1-BA53-4091-A0F0-8BF13187FB66}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DCE522B1-BA53-4091-A0F0-8BF13187FB66}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DCE522B1-BA53-4091-A0F0-8BF13187FB66}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DCE522B1-BA53-4091-A0F0-8BF13187FB66}.Release|Any CPU.Build.0 = Release|Any CPU
+		{758736E0-983F-4128-8140-0D101600595B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{758736E0-983F-4128-8140-0D101600595B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{758736E0-983F-4128-8140-0D101600595B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{758736E0-983F-4128-8140-0D101600595B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8F5B7B20-F8CB-4061-A1B6-F4D3DF380E66}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8F5B7B20-F8CB-4061-A1B6-F4D3DF380E66}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8F5B7B20-F8CB-4061-A1B6-F4D3DF380E66}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8F5B7B20-F8CB-4061-A1B6-F4D3DF380E66}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -52,6 +72,9 @@ Global
 		{700A543D-87FA-4EA8-9C2E-DF6C4B745C64} = {EDF6161E-575C-43D0-8C94-C656455550FE}
 		{EABDF0BD-9D2A-4385-B215-B6BE68CCBD09} = {EDF6161E-575C-43D0-8C94-C656455550FE}
 		{EEB3E19D-DEBD-41B8-900C-CE5BBF9C4D1A} = {EDF6161E-575C-43D0-8C94-C656455550FE}
+		{DCE522B1-BA53-4091-A0F0-8BF13187FB66} = {EDF6161E-575C-43D0-8C94-C656455550FE}
+		{D56444FD-69C7-4899-A90A-9FACB3DFC684} = {EDF6161E-575C-43D0-8C94-C656455550FE}
+		{8F5B7B20-F8CB-4061-A1B6-F4D3DF380E66} = {D56444FD-69C7-4899-A90A-9FACB3DFC684}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {34743786-FAA9-44BB-8B10-964C6DB60BE8}
