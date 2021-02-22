@@ -7,6 +7,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using AloysAdjustments.Logic;
 using AloysAdjustments.Logic.Patching;
+using AloysAdjustments.Plugins.Common.Data;
 using AloysAdjustments.Plugins.Outfits.Data;
 using AloysAdjustments.Utility;
 using Decima;

@@ -58,8 +58,15 @@ if ($(Build-Project 'src\AloysAdjustments\AloysAdjustments.csproj' -Rebuild) -ne
 Move-Item "$tmp\AloysAdjustments.exe" "$publishDir\$publishName.exe"
 Move-Item "$tmp\config.json" "$publishDir\config.json"
 
+New-Item -ItemType Directory -Path "$publishDir\data"
+Copy-Item "data\npc-map.json" "$publishDir\data\npc-map.json"
+
 Write-Host "Building plugins..."
 foreach ($project in $(dir 'src\Plugins' | ?{$_.PSISContainer})) {
+	if ($project.Name -eq 'AloysAdjustments.Plugins.Common') {
+		continue;
+	}
+
     $projFile = "$([IO.Path]::Combine($project.FullName, $project.Name)).csproj"
     if ($(Build-Project $projFile) -ne $true) {
         exit

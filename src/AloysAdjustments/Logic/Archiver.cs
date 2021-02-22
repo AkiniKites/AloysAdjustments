@@ -61,7 +61,7 @@ namespace AloysAdjustments.Logic
             using var fs = LoadFileStream(path, file, throwError);
             return fs == null ? null : HzdCore.FromStream(fs, file);
         }
-        public Stream LoadFileStream(string path, string file, bool throwError = false)
+        public MemoryStream LoadFileStream(string path, string file, bool throwError = false)
         {
             ValidatePackager();
 
@@ -89,17 +89,22 @@ namespace AloysAdjustments.Logic
             pack.ExtractFile(hash, stream);
             return true;
         }
-        
+
         public HzdCore LoadFileFromDir(string dir, HashSet<string> fileFilter, string file)
+        {
+            using var fs = LoadFileStreamFromDir(dir, fileFilter, file);
+            return fs == null ? null : HzdCore.FromStream(fs, file);
+        }
+        public MemoryStream LoadFileStreamFromDir(string dir, HashSet<string> fileFilter, string file)
         {
             ValidatePackager();
 
-            using var ms = new MemoryStream();
+            var ms = new MemoryStream();
             if (!TryExtractFileFromDir(dir, fileFilter, ms, file))
                 throw new HzdException($"Unable to extract file, file not found: {file}");
 
             ms.Position = 0;
-            return HzdCore.FromStream(ms, file);
+            return ms;
         }
         private bool TryExtractFileFromDir(string dir, HashSet<string> fileFilter, Stream stream, string file)
         {

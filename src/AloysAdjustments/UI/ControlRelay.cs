@@ -4,7 +4,6 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
-using GalaSoft.MvvmLight.Command;
 
 namespace AloysAdjustments.UI
 {
@@ -19,10 +18,11 @@ namespace AloysAdjustments.UI
 
         public bool Enabled { get; set; } = true;
 
-        public ControlRelay() { }
-        public ControlRelay(Func<Task> onClick)
+        public ControlRelay()
+            : this(() => Task.CompletedTask) { }
+        public ControlRelay(Func<Task> command)
         {
-            ClickCommand = new AsyncRelayCommand(onClick);
+            ClickCommand = new AsyncRelayCommand(command);
         }
 
         public void OnClick()

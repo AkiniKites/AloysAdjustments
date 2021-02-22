@@ -11,13 +11,13 @@ namespace AloysAdjustments.Logic.Patching
     {
         public PatchException() { }
 
-        public PatchException(string message) 
+        public PatchException(string message)
             : base(message) { }
 
-        public PatchException(string message, Exception innerException) 
+        public PatchException(string message, Exception innerException)
             : base(message, innerException) { }
 
-        protected PatchException(SerializationInfo info, StreamingContext context) 
+        protected PatchException(SerializationInfo info, StreamingContext context)
             : base(info, context) { }
     }
 }

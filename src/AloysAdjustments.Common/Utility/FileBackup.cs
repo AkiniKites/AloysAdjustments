@@ -5,7 +5,6 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using AloysAdjustments.Logic;
 
 namespace AloysAdjustments.Utility
 {
@@ -62,6 +61,8 @@ namespace AloysAdjustments.Utility
             var filename = Path.GetFileName(path);
             var matcher = new Regex($"^{Regex.Escape(filename)}{GuidPattern}$", RegexOptions.IgnoreCase);
             var dir = Path.GetDirectoryName(path);
+            if (String.IsNullOrEmpty(dir))
+                dir = ".";
 
             if (Directory.Exists(dir))
             {
@@ -81,7 +82,7 @@ namespace AloysAdjustments.Utility
             {
                 if (File.Exists(path))
                 {
-                    _tempPath = path + IoC.Uuid.New();
+                    _tempPath = path + Guid.NewGuid();
                     File.Move(path, _tempPath);
                 }
             }

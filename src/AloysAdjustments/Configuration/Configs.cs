@@ -6,11 +6,14 @@ using System.Text;
 using System.Threading.Tasks;
 using AloysAdjustments.Logic;
 using AloysAdjustments.Utility;
+using Newtonsoft.Json;
 
 namespace AloysAdjustments.Configuration
 {
     public class Configs
     {
+        private const string ConfigPath = "config.json";
+
         public static string GamePackDir => 
             IoC.Settings.GamePath == null ? null : Path.Combine(IoC.Settings.GamePath, IoC.Config.PackDir);
         public static string PatchPath => 
@@ -22,6 +25,13 @@ namespace AloysAdjustments.Configuration
                 throw new HzdException($"No module config found for: {name}");
 
             return config.ToObject<T>();
+        }
+
+        public static void LoadConfigs()
+        {
+            var json = File.ReadAllText(ConfigPath);
+            IoC.Bind(JsonConvert.DeserializeObject<Config>(json));
+            IoC.Bind(SettingsManager.Load());
         }
     }
 }

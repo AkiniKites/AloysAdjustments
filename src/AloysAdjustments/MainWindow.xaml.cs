@@ -33,8 +33,6 @@ namespace AloysAdjustments
     /// </summary>
     public partial class MainWindow : Window, INotifyPropertyChanged
     {
-        private const string ConfigPath = "config.json";
-
         private bool _initialized = false;
 
         private List<IInteractivePlugin> Plugins { get; set; }
@@ -50,15 +48,13 @@ namespace AloysAdjustments
 
             IoC.Bind(new Notifications(SetStatus, SetAppStatus, SetProgress));
             IoC.Bind(new Uuid());
-            LoadConfigs();
+            Configs.LoadConfigs();
 
             PluginManager = new PluginManager();
 
             InitializeComponent();
 
             WindowMemory.ActivateWindow(this, "Main");
-
-            RTTI.SetGameMode(GameType.HZD);
         }
         
         private void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
@@ -127,9 +123,12 @@ namespace AloysAdjustments
             IoC.Bind(new Localization(ELanguage.English));
 
             Settings = new SettingsControl();
-            Plugins = PluginManager.LoadAll<IInteractivePlugin>()
-                .OrderBy(x => x.PluginName.Contains("Misc") ? 1 : 0) //TODO: fix
-                .ToList();
+            Plugins = (
+                from plugin in PluginManager.LoadAll<IInteractivePlugin>()
+                let idx = IoC.Config.PluginLoadOrder.IndexOf(plugin.PluginName)
+                let order = idx < 0 ? int.MaxValue : idx
+                orderby order, plugin.PluginName
+                select plugin).ToList();
 
             IoC.Notif.ShowStatus("Loading Plugins...");
             foreach (var module in Plugins.AsEnumerable().Concat(new[] { Settings }).Reverse())
@@ -199,7 +198,7 @@ namespace AloysAdjustments
             if (Plugins.Any() && !Plugins.All(x => x.ValidateChanges()))
             {
                 IoC.Notif.HideProgress();
-                IoC.Notif.ShowStatus("Patch install aborted");
+                IoC.Notif.ShowStatus("Pack install aborted");
                 return;
             }
 
@@ -295,13 +294,6 @@ namespace AloysAdjustments
             }
         }
 
-        public void LoadConfigs()
-        {
-            var json = File.ReadAllText(ConfigPath);
-            IoC.Bind(JsonConvert.DeserializeObject<Config>(json));
-            IoC.Bind(SettingsManager.Load());
-        }
-
         private void tcMain_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (tcMain.SelectedIndex >= 0 && tcMain.SelectedIndex < Plugins.Count)
@@ -312,13 +304,13 @@ namespace AloysAdjustments
 
         private void btnResetSelected_Click(object sender, EventArgs e)
         {
-            if (tcMain.SelectedIndex >= 0 && tcMain.SelectedIndex < Plugins.Count)
-                Plugins[tcMain.SelectedIndex].ResetSelected.OnClick();
+            ActivePlugin?.ResetSelected?.OnClick();
+            ActivePlugin?.ResetSelected?.ClickCommand?.Execute(null);
         }
         private void btnReset_Click(object sender, EventArgs e)
         {
-            if (tcMain.SelectedIndex >= 0 && tcMain.SelectedIndex < Plugins.Count)
-                Plugins[tcMain.SelectedIndex].Reset.OnClick();
+            ActivePlugin?.Reset?.OnClick();
+            ActivePlugin?.Reset?.ClickCommand?.Execute(null);
         }
 
         private void Window_Closing(object sender, CancelEventArgs e)

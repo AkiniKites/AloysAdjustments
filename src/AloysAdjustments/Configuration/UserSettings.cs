@@ -20,6 +20,8 @@ namespace AloysAdjustments.Configuration
         public string LastPackOpen { get; set; }
         public bool ApplyToAllOutfits { get; set; }
         public int OutfitModelFilter { get; set; }
+        public bool ApplyToAllNpcs { get; set; }
+        public int NpcModelFilter { get; set; }
 
         public Dictionary<string, Rectangle> Windows { get; set; }
 

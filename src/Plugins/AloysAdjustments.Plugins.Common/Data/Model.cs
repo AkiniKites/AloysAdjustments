@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Decima;
 
-namespace AloysAdjustments.Plugins.Outfits.Data
+namespace AloysAdjustments.Plugins.Common.Data
 {
     public class Model : INotifyPropertyChanged
     {

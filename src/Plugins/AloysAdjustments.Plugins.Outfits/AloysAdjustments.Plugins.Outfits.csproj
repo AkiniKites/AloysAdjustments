@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\..\..\packages\Costura.Fody.4.1.0\build\Costura.Fody.props" Condition="Exists('..\..\..\packages\Costura.Fody.4.1.0\build\Costura.Fody.props')" />
   <Import Project="..\..\..\packages\PropertyChanged.Fody.3.3.1\build\PropertyChanged.Fody.props" Condition="Exists('..\..\..\packages\PropertyChanged.Fody.3.3.1\build\PropertyChanged.Fody.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -42,6 +43,9 @@
     <AutoGenerateBindingRedirects>false</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Costura, Version=4.1.0.0, Culture=neutral, PublicKeyToken=9919ef960d84173d, processorArchitecture=MSIL">
+      <HintPath>..\..\..\packages\Costura.Fody.4.1.0\lib\net40\Costura.dll</HintPath>
+    </Reference>
     <Reference Include="PresentationFramework.AeroLite" />
     <Reference Include="PropertyChanged, Version=3.3.1.0, Culture=neutral, PublicKeyToken=ee3ee20bcf148ddd, processorArchitecture=MSIL">
       <HintPath>..\..\..\packages\PropertyChanged.Fody.3.3.1\lib\net40\PropertyChanged.dll</HintPath>
@@ -78,8 +82,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CharacterGenerator.cs" />
-    <Compile Include="Data\CharacterModel.cs" />
-    <Compile Include="Data\Model.cs" />
     <Compile Include="Data\Outfit.cs" />
     <Compile Include="Data\OutfitFile.cs" />
     <Compile Include="OutfitConfig.cs" />
@@ -123,6 +125,10 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\AloysAdjustments.Common\AloysAdjustments.Common.csproj">
+      <Project>{88C71567-DB25-447C-8149-6A9F2EDC88DD}</Project>
+      <Name>AloysAdjustments.Common</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\AloysAdjustments\AloysAdjustments.csproj">
       <Project>{7548196a-50ab-40a8-bd8b-70732991c5ba}</Project>
       <Name>AloysAdjustments</Name>
@@ -130,6 +136,10 @@
     <ProjectReference Include="..\..\HZDCoreEditor\HZDCoreEditor\HZDCoreEditor.csproj">
       <Project>{f91d468f-ad55-4edd-ba66-594b8767ac71}</Project>
       <Name>HZDCoreEditor</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\AloysAdjustments.Plugins.Common\AloysAdjustments.Plugins.Common.csproj">
+      <Project>{8F5B7B20-F8CB-4061-A1B6-F4D3DF380E66}</Project>
+      <Name>AloysAdjustments.Plugins.Common</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
@@ -140,6 +150,7 @@
     </PropertyGroup>
     <Error Condition="!Exists('..\..\..\packages\Fody.6.3.0\build\Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\packages\Fody.6.3.0\build\Fody.targets'))" />
     <Error Condition="!Exists('..\..\..\packages\PropertyChanged.Fody.3.3.1\build\PropertyChanged.Fody.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\packages\PropertyChanged.Fody.3.3.1\build\PropertyChanged.Fody.props'))" />
+    <Error Condition="!Exists('..\..\..\packages\Costura.Fody.4.1.0\build\Costura.Fody.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\packages\Costura.Fody.4.1.0\build\Costura.Fody.props'))" />
   </Target>
   <PropertyGroup>
     <PostBuildEvent>if $(ConfigurationName) == Debug (
