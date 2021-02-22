@@ -153,7 +153,7 @@
     </Compile>
     <Compile Include="Plugins\AssemblyLoader.cs" />
     <Compile Include="Plugins\IInteractivePlugin.cs" />
-    <Compile Include="Plugins\InteractivePluginBase.cs" />
+    <Compile Include="Plugins\InteractivePluginControl.cs" />
     <Compile Include="Plugins\IPlugin.cs" />
     <Compile Include="Plugins\PluginManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">

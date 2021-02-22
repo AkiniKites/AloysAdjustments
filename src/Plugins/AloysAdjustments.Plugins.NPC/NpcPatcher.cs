@@ -49,7 +49,7 @@ namespace AloysAdjustments.Plugins.NPC
 
         public void UpdateCharacterReference(Patch patch, string file, IEnumerable<ValuePair<Model>> npcs)
         {
-            var core = patch.AddFile(file);
+            var core = patch.AddGameFile(file);
 
             var npcById = npcs.ToSoftDictionary(x => x.Default.Id, x => x.Value);
 

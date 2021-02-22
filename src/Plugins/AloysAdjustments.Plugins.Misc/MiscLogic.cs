@@ -41,7 +41,7 @@ namespace AloysAdjustments.Plugins.Misc
         }
         private void RemoveIntroLogo(Patch patch)
         {
-            var core = patch.AddFile(IoC.Get<MiscConfig>().IntroFile);
+            var core = patch.AddGameFile(IoC.Get<MiscConfig>().IntroFile);
             
             var menu = GetIntroMenu(core);
             menu.PropertyAnimations.Clear();
@@ -67,7 +67,7 @@ namespace AloysAdjustments.Plugins.Misc
         }
         private void RemoveMenuMusic(Patch patch)
         {
-            var core = patch.AddFile(IoC.Get<MiscConfig>().MenuMusicFile);
+            var core = patch.AddGameFile(IoC.Get<MiscConfig>().MenuMusicFile);
 
             var param = GetMenuMusicParam(core);
             param.DefaultObject = new Ref<RTTIRefObject>();
