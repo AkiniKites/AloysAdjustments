@@ -12,6 +12,7 @@
              xmlns:cnv="clr-namespace:AloysAdjustments.UI.Converters;assembly=AloysAdjustments.Common"
              xmlns:ctrl="clr-namespace:AloysAdjustments.Common.UI.Controls;assembly=AloysAdjustments.Common"
              xmlns:npc="clr-namespace:AloysAdjustments.Plugins.NPC"
+             xmlns:ui1="clr-namespace:AloysAdjustments.Common.UI;assembly=AloysAdjustments.Common"
              mc:Ignorable="d" 
              d:DesignHeight="646" d:DesignWidth="572"
              d:DataContext="{d:DesignInstance Type=npc:NpcPlugin, IsDesignTimeCreatable=True}" >
@@ -21,7 +22,7 @@
             <cnv:ModifiedConverter x:Key="ModifiedConverter"/>
         </DockPanel.Resources>
         <DockPanel DockPanel.Dock="Top" LastChildFill="False">
-            <TextBlock DockPanel.Dock="Left" Text="Experimental" FontSize="10" Foreground="{x:Static ui:UIColors.ErrorBrush}" />
+            <TextBlock DockPanel.Dock="Left" Text="Experimental" FontSize="10" Foreground="{x:Static ui1:UIColors.ErrorBrush}" />
             <ctrl:EnumsCheckComboBox x:Name="ccbModelFilter" DockPanel.Dock="Right" Margin="3" Width="172" 
                                      Delimiter=", " 
                                      Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"

@@ -4,6 +4,7 @@
   <Costura>
 	  <IncludeAssemblies>
 		  GalaSoft.MvvmLight
+		  Microsoft.Xaml.Behaviors
 	  </IncludeAssemblies>
   </Costura>
 </Weavers>

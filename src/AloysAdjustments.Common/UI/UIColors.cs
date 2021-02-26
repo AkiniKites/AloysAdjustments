@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Media;
 
-namespace AloysAdjustments.UI
+namespace AloysAdjustments.Common.UI
 {
     public class UIColors
     {

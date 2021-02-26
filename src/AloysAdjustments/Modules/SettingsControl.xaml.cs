@@ -18,7 +18,7 @@ using AloysAdjustments.Updates;
 using AloysAdjustments.Utility;
 using Ookii.Dialogs.Wpf;
 using MessageBox = System.Windows.MessageBox;
-using UIColors = AloysAdjustments.UI.UIColors;
+using UIColors = AloysAdjustments.Common.UI.UIColors;
 
 namespace AloysAdjustments.Modules
 {

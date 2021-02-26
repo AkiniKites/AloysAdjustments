@@ -6,7 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
-namespace AloysAdjustments.UI
+namespace AloysAdjustments.Common.UI
 {
     public class AsyncRelayCommand : ICommand
     {

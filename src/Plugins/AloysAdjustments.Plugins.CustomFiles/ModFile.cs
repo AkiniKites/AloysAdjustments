@@ -5,12 +5,6 @@ using System.Text;
 
 namespace AloysAdjustments.Plugins.CustomFiles
 {
-    public enum SourceType
-    {
-        File,
-        Zip,
-        Pack
-    }
     public enum FileStatus
     {
         Invalid,
@@ -19,24 +13,22 @@ namespace AloysAdjustments.Plugins.CustomFiles
         Suspect
     }
 
-    public class CustomFile : IComparable<CustomFile>, INotifyPropertyChanged
+    public class ModFile : IComparable<ModFile>, INotifyPropertyChanged
     {
         public string Name { get; set; }
-        public string SourcePath { get; set; }
-        public string SubPath { get; set; }
-        public SourceType SourceType { get; set; }
+        public ulong Hash { get; set; }
+        public string Path { get; set; }
 
         public FileStatus Status { get; set; }
-        public bool Missing { get; set; }
 
-        public CustomFile() { }
+        public ModFile() { }
 
         public override string ToString()
         {
             return Name;
         }
 
-        public int CompareTo(CustomFile other)
+        public int CompareTo(ModFile other)
         {
             if (ReferenceEquals(this, other)) return 0;
             if (ReferenceEquals(null, other)) return 1;

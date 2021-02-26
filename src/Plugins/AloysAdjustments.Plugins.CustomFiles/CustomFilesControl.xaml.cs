@@ -15,36 +15,36 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Xml.Xsl;
 using AloysAdjustments.Logic;
 using AloysAdjustments.Logic.Patching;
 using AloysAdjustments.Utility;
+using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
 using Microsoft.Win32;
 using Ookii.Dialogs.Wpf;
+using Path = System.IO.Path;
 
 namespace AloysAdjustments.Plugins.CustomFiles
 {
     /// <summary>
     /// Interaction logic for CustomeFilesControl.xaml
     /// </summary>
-    public partial class CustomeFilesControl : INotifyPropertyChanged
+    public partial class CustomFilesControl : INotifyPropertyChanged
     {
         public override string PluginName => "Custom Files";
 
-        private CustomFilesLogic Logic { get; }
+        private ModFileLoader Loader { get; }
 
-        private List<CustomFile> Files { get; set; } = new List<CustomFile>();
-        public ICollectionView FilesView { get; }
+        public ObservableCollection<Mod> Mods { get; set; }
 
         public RelayCommand AddFolderCommand => new RelayCommand(AddFolder);
         public RelayCommand AddFileCommand => new RelayCommand(AddFile);
 
-        public CustomeFilesControl()
+        public CustomFilesControl()
         {
-            Logic = new CustomFilesLogic();
-            
-            FilesView = new ListCollectionView(Files);
-            FilesView.SortDescriptions.Add(new SortDescription(nameof(CustomFile.Name), ListSortDirection.Ascending));
+            Loader = new ModFileLoader();
+            Mods = new ObservableCollection<Mod>();
 
             InitializeComponent();
         }
@@ -56,24 +56,31 @@ namespace AloysAdjustments.Plugins.CustomFiles
 
         public override void ApplyChanges(Patch patch)
         {
-            if (Files.Any())
-            {
-                Logic.AddFilesToPatch(patch, Files);
-            }
         }
 
         public override async Task Initialize()
         {
-            await Async.Run(Logic.Initialize);
+            await Async.Run(Loader.Initialize);
+
+            for (int i = 0; i < 10; i++)
+                Mods.Add(new Mod() { Name = i.ToString() });
         }
 
         private void AddFolder()
         {
             var ofd = new VistaFolderBrowserDialog();
-            if (ofd.ShowDialog() == true)
+            if (ofd.ShowDialog() != true)
+                return;
+
+            var mod = Loader.LoadPath(ofd.SelectedPath);
+            if (mod == null || !mod.Files.Any())
             {
-                AddFiles(Logic.GetFilesFromDir(ofd.SelectedPath));
+                MessageBox.Show("Unable to find any files in the folder", "No files found",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
             }
+
+            AddMods(mod);
         }
 
         private void AddFile()
@@ -83,17 +90,27 @@ namespace AloysAdjustments.Plugins.CustomFiles
                 Filter = "Supported files (*.bin, *.zip)|*.bin;*.zip|All files (*.*)|*.*",
                 Multiselect = true
             };
-            if (ofd.ShowDialog() == true)
+            if (ofd.ShowDialog() != true)
+                return;
+
+            var mods = ofd.FileNames.Select(x => (x, Loader.LoadPath(x))).ToList();
+            var invalid = mods.Where(x => x.Item2 == null || !x.Item2.Files.Any()).ToList();
+            if (invalid.Any())
             {
-                AddFiles(ofd.FileNames.SelectMany(Logic.GetFiles));
+                MessageBox.Show(
+                    $"Unable to load file(s):\r\n{String.Join("\r\n", invalid.Select(x=>Path.GetFileName(x.x)))}", 
+                    "Failed to load some files",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
             }
+
+            AddMods(mods.Where(x => x.Item2?.Files.Any() == true)
+                .Select(x => x.Item2).ToArray());
         }
 
-        private void AddFiles(IEnumerable<CustomFile> files)
+        private void AddMods(params Mod[] mods)
         {
-            foreach (var f in files)
-                Files.Add(f);
-            FilesView.Refresh();
+            foreach (var mod in mods)
+                Mods.Add(mod);
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

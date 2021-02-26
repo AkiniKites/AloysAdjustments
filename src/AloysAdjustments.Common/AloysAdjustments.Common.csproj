@@ -37,6 +37,9 @@
     <Reference Include="Enums.NET, Version=4.0.0.0, Culture=neutral, PublicKeyToken=7ea1c1650d506225, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Enums.NET.4.0.0\lib\net45\Enums.NET.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.Xaml.Behaviors, Version=1.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Microsoft.Xaml.Behaviors.Wpf.1.1.31\lib\net45\Microsoft.Xaml.Behaviors.dll</HintPath>
+    </Reference>
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
@@ -97,7 +100,9 @@
     <Compile Include="UI\Converters\SingleLineConverter.cs" />
     <Compile Include="UI\Controls\ListBoxEx.cs" />
     <Compile Include="UI\Controls\TypeDelayTextBox.cs" />
+    <Compile Include="UI\DragDropRowBehavior.cs" />
     <Compile Include="UI\UIColors.cs" />
+    <Compile Include="UI\UIHelpers.cs" />
     <Compile Include="Utility\Async.cs" />
     <Compile Include="Utility\AsyncException.cs" />
     <Compile Include="Utility\BaseGGUUIDConverter.cs" />

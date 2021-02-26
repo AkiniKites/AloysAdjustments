@@ -10,37 +10,31 @@ using Decima;
 
 namespace AloysAdjustments.Plugins.CustomFiles.Sources
 {
-    public class ZipSource : Source
+    public class DirSource : Source
     {
-        public override SourceType SourceType => SourceType.Zip;
+        public override SourceType SourceType => SourceType.Dir;
 
         public override Mod TryLoad(string path)
         {
-            if (!File.Exists(path))
+            if (!Directory.Exists(path))
                 return null;
 
             try
             {
-                using var fs = File.OpenRead(path);
-                var zip = new ZipArchive(fs, ZipArchiveMode.Read);
+                var dir = Path.GetFullPath(path);
+                var filePaths = Directory.GetFiles(path, "*", SearchOption.AllDirectories);
 
                 var files = new List<ModFile>();
-                foreach (var entry in zip.Entries)
+                foreach (var filePath in filePaths)
                 {
-                    if (Files.IsDir(entry.FullName))
-                        continue;
+                    var name = Files.Normalize(filePath.Substring(dir.Length + 1));
 
-                    var name = Files.Normalize(entry.FullName);
-
-                    var file = new ModFile()
+                    files.Add(new ModFile()
                     {
                         Name = name,
-                        Path = entry.FullName,
-                        Hash = Packfile.GetHashForPath(name)
-                    };
-                    file.Status = GetFileStatus(file.Hash, name);
-
-                    files.Add(file);
+                        Path = name,
+                        Status = GetFileStatus(Packfile.GetHashForPath(name), name)
+                    });
                 }
 
                 return new Mod()
