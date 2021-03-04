@@ -13,6 +13,7 @@ using AloysAdjustments.Logic.Patching;
 using AloysAdjustments.Plugins.Common;
 using AloysAdjustments.Plugins.Common.Data;
 using AloysAdjustments.Plugins.NPC.Characters;
+using AloysAdjustments.Plugins.NPC.Configuration;
 using AloysAdjustments.UI;
 using AloysAdjustments.Utility;
 using EnumsNET;
@@ -70,7 +71,8 @@ namespace AloysAdjustments.Plugins.NPC
 
         public NpcPlugin()
         {
-            IoC.Bind(Configs.LoadModuleConfig<CharacterConfig>(PluginName));
+            Configs.BindModuleConfig<CharacterConfig>(PluginName);
+            Settings.BindModuleSettings<NpcSettings>(PluginName);
 
             Reset = new ControlRelay(OnResetAll);
             ResetSelected = new ControlRelay(OnResetSelected);
@@ -106,8 +108,8 @@ namespace AloysAdjustments.Plugins.NPC
 
         private void LoadSettings()
         {
-            ApplyToAll = IoC.Settings.ApplyToAllNpcs;
-            FilterValue = (ModelFilter)IoC.Settings.NpcModelFilter;
+            ApplyToAll = IoC.Get<NpcSettings>().ApplyToAll;
+            FilterValue = (ModelFilter)IoC.Get<NpcSettings>().ModelFilter;
         }
 
         public override async Task LoadPatch(string path)
@@ -221,7 +223,7 @@ namespace AloysAdjustments.Plugins.NPC
         }
         private List<ValuePair<Model>> GetSelectedNpcs()
         {
-            if (IoC.Settings.ApplyToAllNpcs)
+            if (IoC.Get<NpcSettings>().ApplyToAll)
                 return Npcs.ToList();
             return SelectedNpcModels?.Cast<ValuePair<Model>>().ToList() ?? new List<ValuePair<Model>>();
         }
@@ -249,7 +251,7 @@ namespace AloysAdjustments.Plugins.NPC
         
         private void OnApplyToAll()
         {
-            IoC.Settings.ApplyToAllNpcs = ApplyToAll;
+            IoC.Get<NpcSettings>().ApplyToAll = ApplyToAll;
             if (ApplyToAll)
             {
                 var tmp = new CharacterModel() { Id = Guid.NewGuid() };
@@ -263,7 +265,7 @@ namespace AloysAdjustments.Plugins.NPC
 
         private void OnFilterValue()
         {
-            IoC.Settings.NpcModelFilter = (int)FilterValue;
+            IoC.Get<NpcSettings>().ModelFilter = (int)FilterValue;
             NpcsView.Refresh();
             ModelsView.Refresh();
         }

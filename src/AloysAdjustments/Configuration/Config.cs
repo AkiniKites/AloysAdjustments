@@ -8,8 +8,8 @@ using Newtonsoft.Json.Linq;
 namespace AloysAdjustments.Configuration
 {
     public class Config
-    { 
-        public Dictionary<string, JObject> ModuleConfigs { get; set; }
+    {
+        public Dictionary<string, JObject> PluginConfigs { get; set; }
 
         public string PrefetchFile { get; set; }
 

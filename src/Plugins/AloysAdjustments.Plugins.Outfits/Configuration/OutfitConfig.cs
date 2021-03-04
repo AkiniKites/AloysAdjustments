@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace AloysAdjustments.Plugins.Outfits
+namespace AloysAdjustments.Plugins.Outfits.Configuration
 {
     public class OutfitConfig
     {

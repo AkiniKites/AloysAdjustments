@@ -6,6 +6,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json.Linq;
 
 namespace AloysAdjustments.Configuration
 {
@@ -16,12 +17,12 @@ namespace AloysAdjustments.Configuration
             Windows = new Dictionary<string, Rectangle>();
         }
 
+        public int Version { get; set; }
+
+        public Dictionary<string, JObject> PluginSettings { get; set; }
+
         public string GamePath { get; set; }
         public string LastPackOpen { get; set; }
-        public bool ApplyToAllOutfits { get; set; }
-        public int OutfitModelFilter { get; set; }
-        public bool ApplyToAllNpcs { get; set; }
-        public int NpcModelFilter { get; set; }
 
         public Dictionary<string, Rectangle> Windows { get; set; }
 

@@ -18,6 +18,7 @@ namespace AloysAdjustments.Common.UI
         private FrameworkElement _draggedRow;
         private bool _isEditing;
         private bool _isDragging;
+        private DataGridRow _dropRow;
 
         public static readonly RoutedEvent DragEndedEvent =
             EventManager.RegisterRoutedEvent("DragEnded", RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(DragDropRowBehavior));
@@ -44,6 +45,10 @@ namespace AloysAdjustments.Common.UI
         {
             get { return (Popup)GetValue(PopupProperty); }
             set { SetValue(PopupProperty, value); }
+        }
+
+        public DragDropRowBehavior()
+        {
         }
 
         protected override void OnAttached()
@@ -102,22 +107,15 @@ namespace AloysAdjustments.Common.UI
         {
             if (!_isDragging || _isEditing)
                 return;
-
-            //get the target item
-            var targetItem = AssociatedObject.SelectedItem;
-
-            if (targetItem == null || !ReferenceEquals(_draggedItem, targetItem))
+            
+            if (_dropRow != null && !ReferenceEquals(_draggedRow, _dropRow))
             {
-                //get target index
-                var targetIndex = ((AssociatedObject).ItemsSource as IList).IndexOf(targetItem);
+                var list = (IList)AssociatedObject.ItemsSource;
+                var targetIndex = list.IndexOf(_dropRow.Item);
 
-                //remove the source from the list
-                ((AssociatedObject).ItemsSource as IList).Remove(_draggedItem);
-
-                //move source at the target's location
-                ((AssociatedObject).ItemsSource as IList).Insert(targetIndex, _draggedItem);
-
-                //select the dropped item
+                list.Remove(_draggedItem);
+                list.Insert(targetIndex, _draggedItem);
+                
                 AssociatedObject.SelectedItem = _draggedItem;
                 RaiseDragEndedEvent();
             }
@@ -131,6 +129,7 @@ namespace AloysAdjustments.Common.UI
             _isDragging = false;
             Popup.IsOpen = false;
             AssociatedObject.IsReadOnly = false;
+            _dropRow = null;
         }
 
         private void OnMouseMove(object sender, MouseEventArgs e)
@@ -142,7 +141,9 @@ namespace AloysAdjustments.Common.UI
             if (!Popup.IsOpen)
             {
                 AssociatedObject.IsReadOnly = true;
-                Popup.Child = new Image() { Source = UIHelpers.ToImage(_draggedRow) };
+                Popup.Child = new Image() { 
+                    Source = UIHelpers.ToImage(_draggedRow)
+                };
                 Popup.IsOpen = true;
             }
 
@@ -151,8 +152,8 @@ namespace AloysAdjustments.Common.UI
 
             //make sure the row under the grid is being selected
             var position = e.GetPosition(AssociatedObject);
-            var row = UIHelpers.TryFindFromPoint<DataGridRow>(AssociatedObject, position);
-            if (row != null) AssociatedObject.SelectedItem = row.Item;
+            _dropRow = UIHelpers.TryFindFromPoint<DataGridRow>(AssociatedObject, position);
+            //if (row != null) AssociatedObject.SelectedItem = row.Item;
         }
     }
 }

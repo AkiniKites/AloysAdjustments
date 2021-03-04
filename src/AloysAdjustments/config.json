@@ -1,5 +1,5 @@
 ﻿{
-  "ModuleConfigs": {
+  "PluginConfigs": {
     "NPC Models": {
       "HumanoidMatcher": "^entities/.*humanoids/.+",
       "UniqueHumanoidMatcher": "^entities/.*humanoids/.*(?:individual_characters|uniquecharacters).+",

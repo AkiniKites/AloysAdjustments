@@ -1,14 +1,17 @@
 ﻿using AloysAdjustments.Utility;
 using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using AloysAdjustments.Logic;
+using Newtonsoft.Json.Linq;
 
 namespace AloysAdjustments.Configuration
 {
-    public class SettingsManager
+    internal class SettingsManager
     {
         private const string SettingsFile = "settings.json";
         private static readonly string ApplicationSettingsPath = Path.Combine(
@@ -26,18 +29,26 @@ namespace AloysAdjustments.Configuration
             if (_settings != null)
                 _settings.PropertyChanged -= Settings_PropertyChanged;
 
+            var changed = false;
+
             if (!FileBackup.RunWithBackup(SettingsPath, () =>
             {
                 var json = File.ReadAllText(SettingsPath);
                 if (String.IsNullOrEmpty(json))
                     return false;
 
-                _settings = JsonConvert.DeserializeObject<UserSettings>(json);
+                var obj = JObject.Parse(json);
+                changed = Compatibility.MigrateSettings(obj);
+                _settings = obj.ToObject<UserSettings>();
+                
                 return true;
             }))
             {
                 _settings = new UserSettings();
             }
+
+            if (changed)
+                Save(_settings);
 
             _settings.PropertyChanged += Settings_PropertyChanged;
             return _settings;
@@ -46,6 +57,11 @@ namespace AloysAdjustments.Configuration
         public static void Save()
         {
             Save(_settings);
+        }
+
+        public static void AddPlugin(IPluginSettings settings)
+        {
+            settings.PropertyChanged += Settings_PropertyChanged;
         }
 
         private static async void Settings_PropertyChanged(object sender, PropertyChangedEventArgs e)

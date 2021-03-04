@@ -19,12 +19,12 @@ namespace AloysAdjustments.Configuration
         public static string PatchPath => 
             GamePackDir == null ? null : Path.Combine(GamePackDir, IoC.Config.PatchFile);
 
-        public static T LoadModuleConfig<T>(string name)
+        public static void BindModuleConfig<T>(string name)
         {
-            if (!IoC.Config.ModuleConfigs.TryGetValue(name, out var config))
+            if (!IoC.Config.PluginConfigs.TryGetValue(name, out var config))
                 throw new HzdException($"No module config found for: {name}");
 
-            return config.ToObject<T>();
+            IoC.Bind(config.ToObject<T>());
         }
 
         public static void LoadConfigs()

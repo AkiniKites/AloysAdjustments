@@ -22,24 +22,17 @@
         <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="3 3 0 0">
             <Button Content="Add File"  Width="100" Command="{Binding AddFileCommand}"/>
             <Button Content="Add Folder"  Width="100" Margin="6 0" Command="{Binding AddFolderCommand}"/>
-
         </StackPanel>
-        <!--  Drag and Drop Popup  -->
-        <Popup x:Name="popup1"
-               AllowsTransparency="True"
-               IsHitTestVisible="False"
-               Placement="RelativePoint"
-               PlacementTarget="{Binding ElementName=shareGrid}">
 
-            <!--  Your own Popup construction Use properties of DraggedObject inside for Binding  -->
-
+        <Popup x:Name="dragDropPopup" AllowsTransparency="True"
+               IsHitTestVisible="False" Placement="RelativePoint">
         </Popup>
-        <DataGrid Margin="0 6 0 0" ItemsSource="{Binding Mods}" 
-                  CanUserAddRows="False" AutoGenerateColumns="False"
-                  CanUserSortColumns="False" 
-                  CellStyle="{StaticResource DataGridCellFullSelectStyle}">
+        <ui:DataGridEx Margin="0 6 0 0" ItemsSource="{Binding Mods}" 
+                       CanUserAddRows="False" AutoGenerateColumns="False"
+                       CanUserSortColumns="False" 
+                       CellStyle="{StaticResource DataGridCellFullSelectStyle}">
             <b:Interaction.Behaviors>
-                <ui:DragDropRowBehavior Popup="{Binding ElementName=popup1}"/>
+                <ui:DragDropRowBehavior Popup="{Binding ElementName=dragDropPopup}"/>
             </b:Interaction.Behaviors>
             <DataGrid.RowStyle>
                 <Style TargetType="DataGridRow" BasedOn="{StaticResource DataGridRowFullSelectStyle}">
@@ -55,6 +48,6 @@
                 <DataGridTextColumn Header="Source" Binding="{Binding Path}" IsReadOnly="True"/>
                 <DataGridTextColumn Header="" Width="*"  IsReadOnly="True"/>
             </DataGrid.Columns>
-        </DataGrid>
+        </ui:DataGridEx>
     </DockPanel>
 </plugins:InteractivePluginControl>

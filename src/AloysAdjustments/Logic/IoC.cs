@@ -24,7 +24,7 @@ namespace AloysAdjustments.Logic
 
         public static IKernel Kernel { get; }
         public static T Get<T>() => Kernel.Get<T>();
-
+        
         public static Config Config => Kernel.Get<Config>();
         public static UserSettings Settings => Kernel.Get<UserSettings>();
         public static Archiver Archiver => Kernel.Get<Archiver>();

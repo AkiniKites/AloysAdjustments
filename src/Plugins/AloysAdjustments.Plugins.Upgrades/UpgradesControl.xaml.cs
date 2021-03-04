@@ -27,7 +27,7 @@ namespace AloysAdjustments.Plugins.Upgrades
 
         public UpgradesControl()
         {
-            IoC.Bind(Configs.LoadModuleConfig<UpgradeConfig>(PluginName));
+            Configs.BindModuleConfig<UpgradeConfig>(PluginName);
 
             Logic = new UpgradesLogic();
 

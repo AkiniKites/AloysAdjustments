@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using AloysAdjustments.Logic;
+using AloysAdjustments.Plugins.Outfits.Configuration;
 using AloysAdjustments.Plugins.Outfits.Data;
 using AloysAdjustments.Utility;
 using Decima;

@@ -82,9 +82,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CharacterGenerator.cs" />
+    <Compile Include="Configuration\OutfitSettings.cs" />
     <Compile Include="Data\Outfit.cs" />
     <Compile Include="Data\OutfitFile.cs" />
-    <Compile Include="OutfitConfig.cs" />
+    <Compile Include="Configuration\OutfitConfig.cs" />
     <Compile Include="OutfitDetail.cs" />
     <Compile Include="OutfitModelFilter.cs" />
     <Compile Include="OutfitPatcher.cs" />
@@ -142,6 +143,7 @@
       <Name>AloysAdjustments.Plugins.Common</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\..\..\packages\Fody.6.3.0\build\Fody.targets" Condition="Exists('..\..\..\packages\Fody.6.3.0\build\Fody.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

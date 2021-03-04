@@ -129,6 +129,7 @@
     </Compile>
     <Compile Include="Configuration\Config.cs" />
     <Compile Include="Configuration\Configs.cs" />
+    <Compile Include="Configuration\Settings.cs" />
     <Compile Include="Configuration\SettingsManager.cs" />
     <Compile Include="Configuration\UserSettings.cs" />
     <Compile Include="Logic\ObjectStore.cs" />

@@ -24,8 +24,8 @@ namespace AloysAdjustments.Plugins.Misc
         public MiscControl()
         {
             _loading = true;
-
-            IoC.Bind(Configs.LoadModuleConfig<MiscConfig>(PluginName));
+            
+            Configs.BindModuleConfig<MiscConfig>(PluginName);
 
             MiscLogic = new MiscLogic();
 

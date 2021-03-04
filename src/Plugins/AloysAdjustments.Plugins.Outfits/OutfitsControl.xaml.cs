@@ -13,6 +13,7 @@ using AloysAdjustments.Configuration;
 using AloysAdjustments.Logic;
 using AloysAdjustments.Logic.Patching;
 using AloysAdjustments.Plugins.Common.Data;
+using AloysAdjustments.Plugins.Outfits.Configuration;
 using AloysAdjustments.Plugins.Outfits.Data;
 using AloysAdjustments.UI;
 using AloysAdjustments.Utility;
@@ -46,8 +47,9 @@ namespace AloysAdjustments.Plugins.Outfits
             {
                 new Outfit() {LocalName = "All Outfits" }
             }.AsReadOnly();
-
-            IoC.Bind(Configs.LoadModuleConfig<OutfitConfig>(PluginName));
+            
+            Configs.BindModuleConfig<OutfitConfig>(PluginName);
+            Settings.BindModuleSettings<OutfitSettings>(PluginName);
 
             OutfitGen = new OutfitsGenerator();
             CharacterGen = new CharacterGenerator();
@@ -65,8 +67,8 @@ namespace AloysAdjustments.Plugins.Outfits
 
         private void LoadSettings()
         {
-            cbAllOutfits.IsChecked = IoC.Settings.ApplyToAllOutfits;
-            var filter = IoC.Settings.OutfitModelFilter;
+            cbAllOutfits.IsChecked = IoC.Get<OutfitSettings>().ApplyToAll;
+            var filter = IoC.Get<OutfitSettings>().ModelFilter;
             if (filter == 0)
                 filter = OutfitModelFilter.Armor.Value | OutfitModelFilter.Characters.Value;
 
@@ -119,7 +121,7 @@ namespace AloysAdjustments.Plugins.Outfits
 
         private async Task UpdateModelList()
         {
-            var filter = IoC.Settings.OutfitModelFilter;
+            var filter = IoC.Get<OutfitSettings>().ModelFilter;
             if (filter == 0)
                 filter = OutfitModelFilter.Armor.Value | OutfitModelFilter.Characters.Value;
 
@@ -284,7 +286,7 @@ namespace AloysAdjustments.Plugins.Outfits
 
         private List<Outfit> GetSelectedOutfits()
         {
-            if (IoC.Settings.ApplyToAllOutfits)
+            if (IoC.Get<OutfitSettings>().ApplyToAll)
                 return Outfits.ToList();
             return lbOutfits.SelectedItems.Cast<Outfit>().ToList();
         }
@@ -292,7 +294,7 @@ namespace AloysAdjustments.Plugins.Outfits
         private void cbAllOutfits_Checked(object sender, RoutedEventArgs e)
         {
             if (_loading) return;
-            IoC.Settings.ApplyToAllOutfits = cbAllOutfits.IsChecked == true;
+            IoC.Get<OutfitSettings>().ApplyToAll = cbAllOutfits.IsChecked == true;
 
             PopulateOutfitsList();
             UpdateAllOutfitsSelection();
@@ -300,7 +302,7 @@ namespace AloysAdjustments.Plugins.Outfits
 
         private void PopulateOutfitsList()
         {
-            if (IoC.Settings.ApplyToAllOutfits)
+            if (IoC.Get<OutfitSettings>().ApplyToAll)
             {
                 lbOutfits.ItemsSource = AllOutfitStub;
                 lbOutfits.Items.Refresh();
@@ -320,7 +322,7 @@ namespace AloysAdjustments.Plugins.Outfits
 
         private void UpdateAllOutfitsSelection()
         {
-            lbOutfits.IsHitTestVisible = !IoC.Settings.ApplyToAllOutfits;
+            lbOutfits.IsHitTestVisible = !IoC.Get<OutfitSettings>().ApplyToAll;
             lbOutfits_SelectionChanged(lbOutfits, null);
         }
 
@@ -352,7 +354,7 @@ namespace AloysAdjustments.Plugins.Outfits
                     ccbModelFilter.SelectedItems.Add(f);
             }
 
-            IoC.Settings.OutfitModelFilter = filter;
+            IoC.Get<OutfitSettings>().ModelFilter = filter;
 
             await UpdateModelList();
 
