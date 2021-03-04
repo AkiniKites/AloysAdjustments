@@ -3,7 +3,7 @@ Change characters, swap outfits and more. Mods for Horizon Zero Dawn.
 It creates patch files for Horizon Zero Dawn and doesn't edit exiting game files.
 
 ## Setup
-- This app requires .Net Core 3.1. Windows will prompt to download if its missing
+- If you have Horizon Zero Dawn in Steam it should be detected and setup automatically. Otherwise follow the 2 steps below. 
 - In settings, set the game folder to the Horizon Zero Dawn main directory (ex. `E:\Games\SteamLibrary\steamapps\common\Horizon Zero Dawn`)
 - In settings, click `Get Oodle DLL` which will copy the required dll from the game folder
 
