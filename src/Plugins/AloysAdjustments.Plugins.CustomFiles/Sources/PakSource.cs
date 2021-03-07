@@ -15,6 +15,20 @@ namespace AloysAdjustments.Plugins.CustomFiles.Sources
     {
         public override SourceType SourceType => SourceType.Pack;
 
+        public override bool Validate(string path)
+        {
+            if (!File.Exists(path))
+                return false;
+            try
+            {
+                var pack = new PackfileReader(path);
+                return pack.FileEntries.Any();
+            }
+            catch { }
+
+            return false;
+        }
+
         public override Mod TryLoad(string path)
         {
             if (!File.Exists(path))
@@ -40,7 +54,7 @@ namespace AloysAdjustments.Plugins.CustomFiles.Sources
                 
                 return new Mod()
                 {
-                    Name = Path.GetFileName(path),
+                    Name = Path.GetFileNameWithoutExtension(path),
                     SourceType = SourceType,
                     Path = path,
                     Files = files.ToDictionary(x => x.Hash, x => x)

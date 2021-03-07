@@ -44,7 +44,7 @@
                 </Style>
             </DataGrid.RowStyle>
             <DataGrid.Columns>
-                <DataGridTextColumn Header="File Name" Binding="{Binding Name}" IsReadOnly="True"/>
+                <DataGridTextColumn Header="Name" Binding="{Binding Name}" IsReadOnly="True"/>
                 <DataGridTextColumn Header="Source" Binding="{Binding Path}" IsReadOnly="True"/>
                 <DataGridTextColumn Header="" Width="*"  IsReadOnly="True"/>
             </DataGrid.Columns>

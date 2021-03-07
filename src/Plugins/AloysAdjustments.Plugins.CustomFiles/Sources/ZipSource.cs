@@ -14,6 +14,23 @@ namespace AloysAdjustments.Plugins.CustomFiles.Sources
     {
         public override SourceType SourceType => SourceType.Zip;
 
+        public override bool Validate(string path)
+        {
+            if (!File.Exists(path))
+                return false;
+
+            try
+            {
+                using var fs = File.OpenRead(path);
+                using var zip = new ZipArchive(fs, ZipArchiveMode.Read);
+
+                return zip.Entries.Any(x => Files.IsDir(x.FullName));
+            }
+            catch { }
+
+            return false;
+        }
+
         public override Mod TryLoad(string path)
         {
             if (!File.Exists(path))
@@ -22,7 +39,7 @@ namespace AloysAdjustments.Plugins.CustomFiles.Sources
             try
             {
                 using var fs = File.OpenRead(path);
-                var zip = new ZipArchive(fs, ZipArchiveMode.Read);
+                using var zip = new ZipArchive(fs, ZipArchiveMode.Read);
 
                 var files = new List<ModFile>();
                 foreach (var entry in zip.Entries)
@@ -45,7 +62,7 @@ namespace AloysAdjustments.Plugins.CustomFiles.Sources
 
                 return new Mod()
                 {
-                    Name = Path.GetFileName(path),
+                    Name = Path.GetFileNameWithoutExtension(path),
                     SourceType = SourceType,
                     Path = path,
                     Files = files.ToDictionary(x => x.Hash, x => x)

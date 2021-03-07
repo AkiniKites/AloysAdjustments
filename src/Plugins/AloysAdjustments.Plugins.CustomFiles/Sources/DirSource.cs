@@ -14,6 +14,13 @@ namespace AloysAdjustments.Plugins.CustomFiles.Sources
     {
         public override SourceType SourceType => SourceType.Dir;
 
+        public override bool Validate(string path)
+        {
+            if (!Directory.Exists(path))
+                return false;
+            return Directory.GetFiles(path, "*", SearchOption.AllDirectories).Any();
+        }
+
         public override Mod TryLoad(string path)
         {
             if (!Directory.Exists(path))
@@ -22,18 +29,20 @@ namespace AloysAdjustments.Plugins.CustomFiles.Sources
             try
             {
                 var dir = Path.GetFullPath(path);
-                var filePaths = Directory.GetFiles(path, "*", SearchOption.AllDirectories);
+                var filePaths = Directory.GetFiles(dir, "*", SearchOption.AllDirectories);
 
                 var files = new List<ModFile>();
                 foreach (var filePath in filePaths)
                 {
                     var name = Files.Normalize(filePath.Substring(dir.Length + 1));
+                    var hash = Packfile.GetHashForPath(name);
 
                     files.Add(new ModFile()
                     {
                         Name = name,
                         Path = name,
-                        Status = GetFileStatus(Packfile.GetHashForPath(name), name)
+                        Hash = hash,
+                        Status = GetFileStatus(hash, name)
                     });
                 }
 

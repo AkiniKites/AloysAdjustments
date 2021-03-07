@@ -16,8 +16,10 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Xml.Xsl;
+using AloysAdjustments.Configuration;
 using AloysAdjustments.Logic;
 using AloysAdjustments.Logic.Patching;
+using AloysAdjustments.Plugins.CustomFiles.Configuration;
 using AloysAdjustments.Utility;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
@@ -33,8 +35,8 @@ namespace AloysAdjustments.Plugins.CustomFiles
     public partial class CustomFilesControl : INotifyPropertyChanged
     {
         public override string PluginName => "Custom Files";
-
-        private ModFileLoader Loader { get; }
+        
+        private ModFileManager ModManager { get; }
 
         public ObservableCollection<Mod> Mods { get; set; }
 
@@ -43,7 +45,8 @@ namespace AloysAdjustments.Plugins.CustomFiles
 
         public CustomFilesControl()
         {
-            Loader = new ModFileLoader();
+            ModManager = new ModFileManager();
+
             Mods = new ObservableCollection<Mod>();
 
             InitializeComponent();
@@ -60,10 +63,12 @@ namespace AloysAdjustments.Plugins.CustomFiles
 
         public override async Task Initialize()
         {
-            await Async.Run(Loader.Initialize);
+            Settings.BindModuleSettings<ModSettings>(PluginName);
 
-            for (int i = 0; i < 10; i++)
-                Mods.Add(new Mod() { Name = i.ToString() });
+            await ModManager.Initialize();
+
+            foreach (var mod in ModManager.Mods)
+                Mods.Add(mod);
         }
 
         private void AddFolder()
@@ -72,45 +77,26 @@ namespace AloysAdjustments.Plugins.CustomFiles
             if (ofd.ShowDialog() != true)
                 return;
 
-            var mod = Loader.LoadPath(ofd.SelectedPath);
-            if (mod == null || !mod.Files.Any())
-            {
-                MessageBox.Show("Unable to find any files in the folder", "No files found",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
-
-            AddMods(mod);
+            var mod = ModManager.AddFolder(ofd.SelectedPath);
+            AddMod(mod);
         }
 
         private void AddFile()
         {
             var ofd = new OpenFileDialog()
             {
-                Filter = "Supported files (*.bin, *.zip)|*.bin;*.zip|All files (*.*)|*.*",
-                Multiselect = true
+                Filter = "Supported files (*.bin, *.zip)|*.bin;*.zip|All files (*.*)|*.*"
             };
             if (ofd.ShowDialog() != true)
                 return;
 
-            var mods = ofd.FileNames.Select(x => (x, Loader.LoadPath(x))).ToList();
-            var invalid = mods.Where(x => x.Item2 == null || !x.Item2.Files.Any()).ToList();
-            if (invalid.Any())
-            {
-                MessageBox.Show(
-                    $"Unable to load file(s):\r\n{String.Join("\r\n", invalid.Select(x=>Path.GetFileName(x.x)))}", 
-                    "Failed to load some files",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-
-            AddMods(mods.Where(x => x.Item2?.Files.Any() == true)
-                .Select(x => x.Item2).ToArray());
+            var mod = ModManager.AddFile(ofd.FileName);
+            AddMod(mod);
         }
 
-        private void AddMods(params Mod[] mods)
+        private void AddMod(Mod mod)
         {
-            foreach (var mod in mods)
-                Mods.Add(mod);
+            Mods.Add(mod);
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

@@ -22,5 +22,33 @@ namespace AloysAdjustments.Utility
             if (Directory.Exists(path))
                 Directory.Delete(path, true);
         }
+
+        public static void DirectoryCopy(string sourceDirName, string destDirName, bool copySubDirs = true)
+        {
+            var dir = new DirectoryInfo(sourceDirName);
+            if (!dir.Exists)
+            {
+                throw new DirectoryNotFoundException(
+                    "Source directory does not exist or could not be found: " + sourceDirName);
+            }
+   
+            CheckDirectory(destDirName);
+
+            var files = dir.GetFiles();
+            foreach (var file in files)
+            {
+                var tempPath = Path.Combine(destDirName, file.Name);
+                file.CopyTo(tempPath, false);
+            }
+
+            if (copySubDirs)
+            {
+                foreach (var subDir in dir.GetDirectories())
+                {
+                    var tempPath = Path.Combine(destDirName, subDir.Name);
+                    DirectoryCopy(subDir.FullName, tempPath, copySubDirs);
+                }
+            }
+        }
     }
 }

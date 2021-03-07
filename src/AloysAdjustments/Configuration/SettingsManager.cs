@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AloysAdjustments.Logic;
@@ -23,6 +24,7 @@ namespace AloysAdjustments.Configuration
         private static readonly SemaphoreSlim _lock = new SemaphoreSlim(1, 1);
 
         private static UserSettings _settings;
+        private static Dictionary<string, IPluginSettings> _pluginSettings = new Dictionary<string, IPluginSettings>();
 
         public static UserSettings Load()
         {
@@ -59,8 +61,9 @@ namespace AloysAdjustments.Configuration
             Save(_settings);
         }
 
-        public static void AddPlugin(IPluginSettings settings)
+        public static void AddPlugin(string name, IPluginSettings settings)
         {
+            _pluginSettings.Add(name, settings);
             settings.PropertyChanged += Settings_PropertyChanged;
         }
 
@@ -82,6 +85,15 @@ namespace AloysAdjustments.Configuration
                 Paths.CheckDirectory(ApplicationSettingsPath);
 
                 using var backup = new FileBackup(SettingsPath);
+
+                settings.Version = Compatibility.CurrentSettingsVersion;
+
+                //clear and assign to prevent property event
+                settings.PluginSettings.Clear();
+                foreach (var plugin in _pluginSettings)
+                {
+                    settings.PluginSettings.Add(plugin.Key, JObject.FromObject(plugin.Value));
+                }
 
                 var json = JsonConvert.SerializeObject(settings, Formatting.Indented);
                 File.WriteAllText(SettingsPath, json);

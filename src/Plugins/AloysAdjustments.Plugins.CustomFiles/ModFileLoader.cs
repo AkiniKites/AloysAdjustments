@@ -83,6 +83,11 @@ namespace AloysAdjustments.Plugins.CustomFiles
             return (null, false, false);
         }
 
+        public bool ValidatePath(string path)
+        {
+            return Sources.Any(x => x.Validate(path));
+        }
+
         public Mod LoadPath(string path)
         {
             foreach (var source in Sources)
@@ -95,8 +100,14 @@ namespace AloysAdjustments.Plugins.CustomFiles
             return null;
         }
 
+        public Mod LoadModData(Mod mod)
+        {
+            var source = Sources.FirstOrDefault(x => x.SourceType == mod.SourceType);
+            return source?.TryLoad(mod.Path);
+        }
 
-    //public void AddFilesToPatch(Patch patch, IList<ModFile> files)
+
+        //public void AddFilesToPatch(Patch patch, IList<ModFile> files)
         //{
         //    var group =
         //        from f in files

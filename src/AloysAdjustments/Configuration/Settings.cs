@@ -19,8 +19,13 @@ namespace AloysAdjustments.Configuration
         public static void BindModuleSettings<T>(string name) where T : IPluginSettings, new()
         {
             var settings = IoC.Settings.PluginSettings.TryGetValue(name, out var config) ? config.ToObject<T>() : new T();
-            SettingsManager.AddPlugin(settings);
+            SettingsManager.AddPlugin(name, settings);
             IoC.Bind(settings);
-        } 
+        }
+
+        public static void Save()
+        {
+            SettingsManager.Save();
+        }
     }
 }

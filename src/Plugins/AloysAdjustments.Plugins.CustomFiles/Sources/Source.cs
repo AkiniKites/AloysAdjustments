@@ -17,6 +17,7 @@ namespace AloysAdjustments.Plugins.CustomFiles.Sources
         public Func<ulong, string> GetFileName { get; set; }
 
         public abstract SourceType SourceType { get; }
+        public abstract bool Validate(string path);
         public abstract Mod TryLoad(string path);
     }
 }

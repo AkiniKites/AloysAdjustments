@@ -94,13 +94,14 @@
     <Reference Include="PresentationFramework" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Configuration\ModSettings.cs" />
     <Compile Include="CustomFilesControl.xaml.cs">
       <DependentUpon>CustomFilesControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="ModFile.cs" />
     <Compile Include="ModFileLoader.cs" />
     <Compile Include="Mod.cs" />
-    <Compile Include="ModLogic.cs" />
+    <Compile Include="ModFileManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>

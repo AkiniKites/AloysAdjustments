@@ -11,6 +11,8 @@ namespace AloysAdjustments.Logic
 {
     public class Compatibility
     {
+        public static int CurrentSettingsVersion = 1;
+
         public static void CleanupOldVersions()
         {
             foreach (var fileName in IoC.Config.OldVersionsToDelete)
