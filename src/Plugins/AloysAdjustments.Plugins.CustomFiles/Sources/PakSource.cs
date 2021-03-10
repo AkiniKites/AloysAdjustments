@@ -57,7 +57,9 @@ namespace AloysAdjustments.Plugins.CustomFiles.Sources
                     Name = Path.GetFileNameWithoutExtension(path),
                     SourceType = SourceType,
                     Path = path,
-                    Files = files.ToDictionary(x => x.Hash, x => x)
+                    Files = files.ToDictionary(x => x.Hash, x => x),
+                    FileStatus = files.Any(x => x.Status == FileStatus.Suspect) ?
+                        ModFileStatus.Suspect : ModFileStatus.Normal
                 };
             }
             catch { }

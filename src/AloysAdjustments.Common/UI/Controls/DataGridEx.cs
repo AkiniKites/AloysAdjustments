@@ -6,16 +6,22 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
+using AloysAdjustments.UI;
 
 namespace AloysAdjustments.Common.UI.Controls
 {
-    public class ListBoxEx : ListBox
+    public class DataGridEx : DataGrid
     {
         public static readonly DependencyProperty SelectedItemsListProperty =
             DependencyProperty.Register(nameof(SelectedItemsList), typeof(IList),
-                typeof(ListBoxEx), new PropertyMetadata(null));
+                typeof(DataGridEx), new PropertyMetadata(null));
 
-        public ListBoxEx()
+        protected override void OnMouseMove(MouseEventArgs e)
+        {
+        }
+
+        public DataGridEx()
         {
             SelectionChanged += ListBoxEx_SelectionChanged;
         }

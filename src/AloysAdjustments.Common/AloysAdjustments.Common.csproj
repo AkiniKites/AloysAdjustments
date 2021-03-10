@@ -100,7 +100,7 @@
     <Compile Include="UI\Converters\SingleLineConverter.cs" />
     <Compile Include="UI\Controls\ListBoxEx.cs" />
     <Compile Include="UI\Controls\TypeDelayTextBox.cs" />
-    <Compile Include="UI\DataGridEx.cs" />
+    <Compile Include="UI\Controls\DataGridEx.cs" />
     <Compile Include="UI\DragDropRowBehavior.cs" />
     <Compile Include="UI\UIColors.cs" />
     <Compile Include="UI\UIHelpers.cs" />

@@ -95,9 +95,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Configuration\ModSettings.cs" />
-    <Compile Include="CustomFilesControl.xaml.cs">
-      <DependentUpon>CustomFilesControl.xaml</DependentUpon>
+    <Compile Include="CustomFilesView.xaml.cs">
+      <DependentUpon>CustomFilesView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="CustomFilesPlugin.cs" />
     <Compile Include="ModFile.cs" />
     <Compile Include="ModFileLoader.cs" />
     <Compile Include="Mod.cs" />
@@ -110,11 +111,6 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="Properties\Settings.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Settings.settings</DependentUpon>
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
-    </Compile>
     <Compile Include="Sources\Source.cs" />
     <Compile Include="Sources\PakSource.cs" />
     <Compile Include="Sources\DirSource.cs" />
@@ -125,10 +121,6 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <None Include="packages.config" />
-    <None Include="Properties\Settings.settings">
-      <Generator>SettingsSingleFileGenerator</Generator>
-      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\AloysAdjustments.Common\AloysAdjustments.Common.csproj">
@@ -145,7 +137,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Page Include="CustomFilesControl.xaml">
+    <Page Include="CustomFilesView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

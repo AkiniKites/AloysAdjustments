@@ -4,14 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Controls;
-using System.Windows.Input;
 
-namespace AloysAdjustments.Common.UI
+namespace AloysAdjustments.Plugins.CustomFiles
 {
-    public class DataGridEx : DataGrid
+    public partial class CustomFilesView : UserControl
     {
-        protected override void OnMouseMove(MouseEventArgs e)
+        public CustomFilesView()
         {
+            InitializeComponent();
         }
     }
 }

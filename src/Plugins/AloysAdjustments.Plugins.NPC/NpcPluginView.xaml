@@ -51,7 +51,7 @@
                     <CheckBox DockPanel.Dock="Right" Content="Apply To All" 
                               IsChecked="{Binding ApplyToAll}"/>
                 </DockPanel>
-                <ui:ListBoxEx x:Name="lbNPCs" SelectionMode="Extended" ItemsSource="{Binding NpcsView}"
+                <ctrl:ListBoxEx x:Name="lbNPCs" SelectionMode="Extended" ItemsSource="{Binding NpcsView}"
                               IsHitTestVisible="{Binding ElementName=cbAllOutfits, Path=IsChecked, Converter={StaticResource NotConverter}}"
                               SelectedItemsList="{Binding SelectedNpcModels, Mode=OneWayToSource}"
                               IsEnabledChanged="lbNPCs_IsEnabledChanged">
@@ -79,14 +79,14 @@
                             </StackPanel>
                         </DataTemplate>
                     </ListBox.ItemTemplate>
-                </ui:ListBoxEx>
+                </ctrl:ListBoxEx>
             </DockPanel>
             <GridSplitter Grid.Column="1" Width="5" HorizontalAlignment="Stretch" Background="Transparent"/>
             <DockPanel Grid.Column="2">
                 <DockPanel DockPanel.Dock="Top" LastChildFill="False" Margin="3 0 3 3">
                     <TextBlock DockPanel.Dock="Left" Text="Model Mapping" FontWeight="Bold" />
                 </DockPanel>
-                <ui:ListBoxEx x:Name="clbModels" ItemsSource="{Binding ModelsView}"
+                <ctrl:ListBoxEx x:Name="clbModels" ItemsSource="{Binding ModelsView}"
                              HorizontalContentAlignment="Stretch"
                              SelectedItem="{Binding SelectedModelMapping}"
                              LostFocus="clbModels_LostFocus">
@@ -97,7 +97,7 @@
                             </DockPanel>
                         </DataTemplate>
                     </ListBox.ItemTemplate>
-                </ui:ListBoxEx>
+                </ctrl:ListBoxEx>
             </DockPanel>
         </Grid>
     </DockPanel>
