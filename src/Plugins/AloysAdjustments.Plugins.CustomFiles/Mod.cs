@@ -12,9 +12,9 @@ namespace AloysAdjustments.Plugins.CustomFiles
     [Flags]
     public enum ModStatus
     {
-        Normal,
-        OverridesFiles,
-        OverridenFiles,
+        Normal = 1,
+        OverridesFiles = 2,
+        OverridenFiles = 4,
     }
     
     public enum ModFileStatus
@@ -27,11 +27,14 @@ namespace AloysAdjustments.Plugins.CustomFiles
     {
         public string Name { get; set; }
         public string Path { get; set; }
+        public int Order { get; set; }
         public SourceType SourceType { get; set; }
         public ModFileStatus FileStatus { get; set; }
 
         [JsonIgnore]
         public ModStatus Status { get; set; }
+        [JsonIgnore]
+        public ModStatus SelectedStatus { get; set; }
 
         [JsonIgnore]
         public Dictionary<ulong, ModFile> Files { get; set; }

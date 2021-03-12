@@ -27,10 +27,10 @@
                IsHitTestVisible="False" Placement="RelativePoint">
         </Popup>
         <controls:DataGridEx Margin="0 6 0 0" ItemsSource="{Binding Mods}" 
-                       CanUserAddRows="False" AutoGenerateColumns="False"
-                       CanUserSortColumns="False" 
-                       SelectedItemsList="{Binding SelectedMods, Mode=OneWayToSource}"
-                       CellStyle="{StaticResource DataGridCellFullSelectStyle}">
+                             CanUserAddRows="False" AutoGenerateColumns="False"
+                             CanUserSortColumns="False" 
+                             SelectedItemsList="{Binding SelectedMods, Mode=OneWayToSource}"
+                             CellStyle="{StaticResource DataGridCellFullSelectStyle}">
             <b:Interaction.Behaviors>
                 <ui:DragDropRowBehavior Popup="{Binding ElementName=dragDropPopup}"/>
             </b:Interaction.Behaviors>
@@ -40,11 +40,11 @@
                         <DataTrigger Binding="{Binding FileStatus}" Value="Suspect">
                             <Setter Property="TextElement.Foreground" Value="{Binding Source={x:Static ui:UIColors.ErrorBrush}}"></Setter>
                         </DataTrigger>
-                        <DataTrigger Binding="{Binding Status}" Value="OverridesFiles">
+                        <DataTrigger Binding="{Binding SelectedStatus}" Value="OverridesFiles">
                             <Setter Property="Background" Value="#BFFFBF" />
                             <Setter Property="BorderBrush" Value="#BFFFBF" />
                         </DataTrigger>
-                        <DataTrigger Binding="{Binding Status}" Value="OverridenFiles">
+                        <DataTrigger Binding="{Binding SelectedStatus}" Value="OverridenFiles">
                             <Setter Property="Background" Value="#FFBFBF" />
                             <Setter Property="BorderBrush" Value="#FFBFBF" />
                         </DataTrigger>
@@ -56,6 +56,7 @@
                 <DataGridTextColumn Header="Source" Binding="{Binding Path}" IsReadOnly="True"/>
                 <DataGridTextColumn Header="Status" Binding="{Binding Status}" IsReadOnly="True"/>
                 <DataGridTextColumn Header="FileStatus" Binding="{Binding FileStatus}" IsReadOnly="True"/>
+                <DataGridTextColumn Header="Order" Binding="{Binding Order}" IsReadOnly="True"/>
                 <DataGridTextColumn Header="" Width="*"  IsReadOnly="True"/>
             </DataGrid.Columns>
         </controls:DataGridEx>

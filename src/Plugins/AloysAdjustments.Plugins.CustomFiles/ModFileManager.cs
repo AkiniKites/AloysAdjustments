@@ -41,6 +41,8 @@ namespace AloysAdjustments.Plugins.CustomFiles
                 
                 Mods[i] = loaded;
             }
+
+            Mods.Sort((a, b) => a.Order.CompareTo(b.Order));
         }
 
         public Mod AddFile(string path)

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,6 +10,7 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using Microsoft.Xaml.Behaviors;
+using Utility;
 
 namespace AloysAdjustments.Common.UI
 {
@@ -113,8 +115,19 @@ namespace AloysAdjustments.Common.UI
                 var list = (IList)AssociatedObject.ItemsSource;
                 var targetIndex = list.IndexOf(_dropRow.Item);
 
-                list.Remove(_draggedItem);
-                list.Insert(targetIndex, _draggedItem);
+                if (list.GetType().InheritsGeneric(typeof(ObservableCollection<>)))
+                {
+                    var sourceIndex = list.IndexOf(_draggedItem);
+
+                    //not ideal
+                    var mi = list.GetType().GetMethod("Move");
+                    mi.Invoke(list, new object[] { sourceIndex, targetIndex });
+                }
+                else
+                {
+                    list.Remove(_draggedItem);
+                    list.Insert(targetIndex, _draggedItem);
+                }
                 
                 AssociatedObject.SelectedItem = _draggedItem;
                 RaiseDragEndedEvent();

@@ -34,6 +34,7 @@ namespace AloysAdjustments.Plugins.CustomFiles
             ModManager = new ModFileManager();
 
             Mods = new ObservableCollection<Mod>();
+            Mods.CollectionChanged += ModsOnCollectionChanged;
 
             PluginControl = new CustomFilesView();
             PluginControl.DataContext = this;
@@ -53,7 +54,7 @@ namespace AloysAdjustments.Plugins.CustomFiles
             Settings.BindModuleSettings<ModSettings>(PluginName);
 
             await ModManager.Initialize();
-
+            
             foreach (var mod in ModManager.Mods)
                 Mods.Add(mod);
         }
@@ -86,6 +87,28 @@ namespace AloysAdjustments.Plugins.CustomFiles
             Mods.Add(mod);
         }
 
+        private void UpdateFileOverride()
+        {
+            for (int i = 0; i < Mods.Count; i++)
+            {
+                var files = Mods[i].Files.Keys.ToList();
+
+                bool overrides = false;
+                for (int j = 0; j < i; j++)
+                {
+                    if (files.Any(x => Mods[j].Files.ContainsKey(x)))
+                    {
+                        Mods[j].Status |= ModStatus.OverridenFiles;
+                        Mods[i].Status = ModStatus.OverridesFiles;
+                        overrides = true;
+                    }
+                }
+
+                if (!overrides)
+                    Mods[i].Status = ModStatus.Normal;
+            }
+        }
+
         private void OnSelectedMods()
         {
             if (SelectedMods.Count != 1)
@@ -107,12 +130,18 @@ namespace AloysAdjustments.Plugins.CustomFiles
                 }
 
                 if (mod.Files.Any(x => files.ContainsKey(x.Key)))
-                    mod.Status = before ? ModStatus.OverridenFiles : ModStatus.OverridesFiles;
+                    mod.SelectedStatus = before ? ModStatus.OverridenFiles : ModStatus.OverridesFiles;
                 else
-                    mod.Status = ModStatus.Normal;
+                    mod.SelectedStatus = ModStatus.Normal;
             }
         }
-        
+
+        private void ModsOnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            for (int i = 0; i < Mods.Count; i++)
+                Mods[i].Order = i;
+        }
+
         public void OnPropertyChanged(string propertyName, object before, object after)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
