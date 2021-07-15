@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using AloysAdjustments.Logic.Patching;
 using AloysAdjustments.Plugins.CustomFiles.Utility;
+using AloysAdjustments.Utility;
 using Decima;
 
 namespace AloysAdjustments.Plugins.CustomFiles.Sources
@@ -51,6 +52,7 @@ namespace AloysAdjustments.Plugins.CustomFiles.Sources
                     Name = Path.GetFileName(path),
                     SourceType = SourceType,
                     Path = path,
+                    Size = Paths.Size(path),
                     Files = files.ToDictionary(x => x.Hash, x => x),
                     FileStatus = files.Any(x => x.Status == FileStatus.Suspect) ?
                         ModFileStatus.Suspect : ModFileStatus.Normal

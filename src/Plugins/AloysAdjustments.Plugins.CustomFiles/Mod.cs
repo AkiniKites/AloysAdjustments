@@ -30,11 +30,14 @@ namespace AloysAdjustments.Plugins.CustomFiles
         public int Order { get; set; }
         public SourceType SourceType { get; set; }
         public ModFileStatus FileStatus { get; set; }
+        public DateTime Added { get; set; }
 
         [JsonIgnore]
         public ModStatus Status { get; set; }
         [JsonIgnore]
         public ModStatus SelectedStatus { get; set; }
+        [JsonIgnore]
+        public long Size { get; set; }
 
         [JsonIgnore]
         public Dictionary<ulong, ModFile> Files { get; set; }

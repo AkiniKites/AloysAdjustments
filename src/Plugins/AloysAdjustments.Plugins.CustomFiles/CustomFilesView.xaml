@@ -57,6 +57,7 @@
                 <DataGridTextColumn Header="Status" Binding="{Binding Status}" IsReadOnly="True"/>
                 <DataGridTextColumn Header="FileStatus" Binding="{Binding FileStatus}" IsReadOnly="True"/>
                 <DataGridTextColumn Header="Order" Binding="{Binding Order}" IsReadOnly="True"/>
+                <DataGridTextColumn Header="Date Added" Binding="{Binding Path=Added, StringFormat='MM/dd/yyyy hh:mm:ss tt'}" IsReadOnly="True"/>
                 <DataGridTextColumn Header="" Width="*"  IsReadOnly="True"/>
             </DataGrid.Columns>
         </controls:DataGridEx>

@@ -52,6 +52,7 @@ namespace AloysAdjustments.Plugins.CustomFiles
 
             var modPath = CopyFile(path);
             var mod = Loader.LoadPath(modPath);
+            mod.Added = DateTime.Now;
 
             if (mod == null)
             {
@@ -71,6 +72,7 @@ namespace AloysAdjustments.Plugins.CustomFiles
 
             var modPath = CopyFolder(path);
             var mod = Loader.LoadPath(modPath);
+            mod.Added = DateTime.Now;
 
             if (mod == null)
             {

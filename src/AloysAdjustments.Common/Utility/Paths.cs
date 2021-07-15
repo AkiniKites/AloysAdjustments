@@ -50,5 +50,23 @@ namespace AloysAdjustments.Utility
                 }
             }
         }
+
+        public static long Size(string path)
+        {
+            if (File.Exists(path))
+                return new FileInfo(path).Length;
+            return DirectorySize(new DirectoryInfo(path));
+        }
+        public static long DirectorySize(DirectoryInfo dir)
+        {
+            long size = 0;
+
+            foreach (var fi in dir.GetFiles())
+                size += fi.Length;
+            foreach (var di in dir.GetDirectories())
+                size += DirectorySize(di);
+
+            return size;
+        }
     }
 }
