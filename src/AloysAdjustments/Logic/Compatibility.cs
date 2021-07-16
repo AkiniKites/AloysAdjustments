@@ -61,7 +61,6 @@ namespace AloysAdjustments.Logic
 
         public static Version GetVersion()
         {
-            return new Version(1, 7, 4);
             var entry = Assembly.GetEntryAssembly();
             return entry?.GetName().Version;
         }
