@@ -144,11 +144,18 @@ namespace AloysAdjustments
             await Settings.Initialize();
             Settings.SettingsOkay += Settings_SettingsOkayCommand;
 
+            IoC.Notif.ShowUnknownProgress();
+
+            await RunCompatibility();
+
             tcMain.SelectedIndex = 0;
             if (!await InitializePlugins())
             {
                 tcMain.SelectedIndex = tcMain.Items.Count - 1;
             }
+
+            IoC.Notif.HideProgress();
+            IoC.Notif.ShowStatus("Loading complete");
         }
 
         private async void Settings_SettingsOkayCommand() => await Relay.To(Settings_SettingsOkay);
@@ -157,13 +164,22 @@ namespace AloysAdjustments
             if (!_initialized)
                 await InitializePlugins();
         }
+        
+        private async Task RunCompatibility()
+        {
+            await Async.Run(() =>
+            {
+                IoC.Notif.ShowStatus("Compatibility fixes...");
+                Compatibility.CleanupOldCache();
+            });
+
+            IoC.Settings.Version = Compatibility.GetVersion()?.ToString(3);
+        }
 
         private async Task<bool> InitializePlugins()
         {
             if (!Settings.ValidateAll())
                 return false;
-
-            IoC.Notif.ShowUnknownProgress();
 
             await Async.Run(() =>
             {
@@ -181,9 +197,7 @@ namespace AloysAdjustments
 
             if (File.Exists(Configs.PatchPath))
                 await LoadExistingPack(Configs.PatchPath, true);
-
-            IoC.Notif.HideProgress();
-            IoC.Notif.ShowStatus("Loading complete");
+            
             return true;
         }
 

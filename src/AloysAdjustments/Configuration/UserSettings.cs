@@ -22,6 +22,7 @@ namespace AloysAdjustments.Configuration
         public int OutfitModelFilter { get; set; }
         public bool ApplyToAllNpcs { get; set; }
         public int NpcModelFilter { get; set; }
+        public string Version { get; set; }
 
         public Dictionary<string, Rectangle> Windows { get; set; }
 
