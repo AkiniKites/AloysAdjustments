@@ -178,6 +178,7 @@
     <Compile Include="Updates\ReleaseExtractor.cs" />
     <Compile Include="Updates\UpdateException.cs" />
     <Compile Include="Updates\Updater.cs" />
+    <Compile Include="Utility\FileCollector.cs" />
     <Compile Include="Utility\GameCache.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
