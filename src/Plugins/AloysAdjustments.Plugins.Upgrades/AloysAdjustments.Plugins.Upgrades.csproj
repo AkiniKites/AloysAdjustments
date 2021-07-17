@@ -61,6 +61,8 @@
     <Reference Include="PresentationFramework" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AmmoGenerator.cs" />
+    <Compile Include="Data\AmmoItem.cs" />
     <Compile Include="Data\Upgrade.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
@@ -79,6 +81,7 @@
     <Compile Include="UpgradesControl.xaml.cs">
       <DependentUpon>UpgradesControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="AmmoUpgradesLogic.cs" />
     <Compile Include="UpgradesLogic.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
