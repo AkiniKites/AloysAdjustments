@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using AloysAdjustments.Logic;
 using AloysAdjustments.Logic.Patching;
+using AloysAdjustments.Plugins.Upgrades.Data;
 using Decima;
 using Decima.HZD;
 using Upgrade = AloysAdjustments.Plugins.Upgrades.Data.Upgrade;
@@ -13,84 +14,62 @@ namespace AloysAdjustments.Plugins.Upgrades
 {
     public class AmmoUpgradesLogic
     {
-        public async Task<Dictionary<BaseGGUUID, Upgrade>> GenerateAmmoList(
-            Func<string, Task<HzdCore>> coreGetter)
-        {
-            new AmmoGenerator().GetCharacterModels();
-            return null;
-        }
-
         public async Task<Dictionary<BaseGGUUID, Upgrade>> GenerateUpgradeList(
             Func<string, Task<HzdCore>> coreGetter)
         {
-            var ignored = IoC.Get<UpgradeConfig>().IgnoredUpgrades.ToHashSet();
-
-            await GenerateUpgrades(ignored);
-
-            return null;
-        }
-        
-        private async Task GenerateUpgrades(System.Collections.Generic.HashSet<string> ignored)
-        {
+            var ammoItems = new AmmoGenerator().GetAmmoItems();
             var upgradesCore = await IoC.Archiver.LoadGameFileAsync(IoC.Get<UpgradeConfig>().UpgradeFile);
             Dictionary<BaseGGUUID, RTTIRefObject> ammoUpgradesObjs = null;
 
-            //get all recipes
+            var upgrades = new Dictionary<BaseGGUUID, Upgrade>();
+
+            //get all recipes with facts
             var recipes = upgradesCore.GetTypesById<UpgradeRecipe>();
             foreach (var recipe in recipes)
             {
                 //get item reference in entities/weapons/ammo/ammopouchupgrades
                 var itemRef = recipe.Value.Item;
-                if (ammoUpgradesObjs == null)
-                    ammoUpgradesObjs = (await IoC.Archiver.LoadGameFileAsync(itemRef.ExternalFile)).GetTypesById();
+                ammoUpgradesObjs ??= (await IoC.Archiver.LoadGameFileAsync(itemRef.ExternalFile)).GetTypesById();
 
+                var (name, fact, level) = GetUpgradeDetails(ammoUpgradesObjs, recipe.Value);
+                if (name == null)
+                    continue;
+
+                var ammoItem = ammoItems.FirstOrDefault(x => x.FactId == fact.GUID);
+                if (ammoItem == null)
+                    continue;
+                
+                int GetUpgradeValue(HzdCore core, int defaultValue)
+                {
+                    if (core == null)
+                        return defaultValue;
+                    var stackable = (UpgradableStackableComponentResource)core.GetTypeById(ammoItem.Id);
+                    return stackable.UpgradedLimits[level];
+                }
+                
+                var upgrade = new Upgrade()
+                {
+                    Id = recipe.Key,
+                    Name = recipe.Value.Name,
+                    Type = UpgradeType.Ammo,
+                    Level = level,
+                    LocalNameFile = name.ExternalFile,
+                    LocalNameId = name.GUID,
+                };
+
+                upgrade.DefaultValue = GetUpgradeValue(await IoC.Archiver.LoadGameFileAsync(ammoItem.File), 0);
+                upgrade.Value = GetUpgradeValue(await coreGetter(ammoItem.File), upgrade.DefaultValue);
+
+                upgrades.Add(upgrade.Id, upgrade);
             }
 
-            return ;
-
-
-            //var invMods = core.GetTypesById<InventoryCapacityModificationComponentResource>();
-
-            //var upgrades = new Dictionary<BaseGGUUID, Upgrade>();
-            //foreach (var charUpgrade in charUpgrades.Values)
-            //{
-            //    var modRef = charUpgrade.Components.FirstOrDefault();
-
-            //    if (modRef?.GUID == null || !invMods.TryGetValue(modRef.GUID, out var invMod))
-            //        continue;
-
-            //    if (ignored.Contains(invMod.ObjectUUID.ToString()))
-            //        continue;
-
-            //    //TODO: maybe allow individual changes
-            //    var value = new[] {
-            //        invMod.WeaponsCapacityIncrease,
-            //        invMod.ModificationsCapacityIncrease,
-            //        invMod.OutfitsCapacityIncrease,
-            //        invMod.ResourcesCapacityIncrease,
-            //        invMod.ToolsCapacityIncrease
-            //    }.Max();
-
-            //    var up = new Upgrade
-            //    {
-            //        Id = invMod.ObjectUUID,
-            //        Name = invMod.Name,
-            //        Value = value,
-            //        DefaultValue = value,
-            //        LocalNameId = charUpgrade.DisplayName.GUID,
-            //        LocalNameFile = charUpgrade.DisplayName.ExternalFile.ToString()
-            //    };
-
-            //    upgrades.Add(up.Id, up);
-            //}
-
-            //return upgrades;
+            return upgrades;
         }
-
-        private async Task<(string, Ref<BaseResource>, int)> GetUpgradeDetails(
+        
+        private (Ref<LocalizedTextResource>, Ref<BaseResource>, int) GetUpgradeDetails(
             Dictionary<BaseGGUUID, RTTIRefObject> objs, UpgradeRecipe recipe)
         {
-            string name = null;
+            Ref<LocalizedTextResource> name = null;
             Ref<BaseResource> fact = null;
             int upgradeLevel = 0;
 
@@ -102,7 +81,7 @@ namespace AloysAdjustments.Plugins.Upgrades
                 if (comp is InventoryItemComponentResource item)
                 {
                     //component has upgrade name
-                    name = await IoC.Localization.GetString(item.LocalizedItemName.ExternalFile, item.LocalizedItemName.GUID);
+                    name = item.LocalizedItemName;
                 }
                 else if (comp is InventoryNodeGraphPackageComponentResource node)
                 {

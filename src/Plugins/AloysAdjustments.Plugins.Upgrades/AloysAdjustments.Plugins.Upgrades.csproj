@@ -63,6 +63,7 @@
   <ItemGroup>
     <Compile Include="AmmoGenerator.cs" />
     <Compile Include="Data\AmmoItem.cs" />
+    <Compile Include="Data\AmmoUpgrade.cs" />
     <Compile Include="Data\Upgrade.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
@@ -82,7 +83,7 @@
       <DependentUpon>UpgradesControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="AmmoUpgradesLogic.cs" />
-    <Compile Include="UpgradesLogic.cs" />
+    <Compile Include="CharacterUpgradesLogic.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>

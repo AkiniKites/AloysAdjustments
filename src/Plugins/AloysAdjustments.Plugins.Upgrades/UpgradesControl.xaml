@@ -57,7 +57,9 @@
                 </Style>
             </DataGrid.RowStyle>
             <DataGrid.Columns>
+                <DataGridTextColumn Header="Type" Binding="{Binding Type}" IsReadOnly="True" />
                 <DataGridTextColumn Header="Upgrade" Binding="{Binding DisplayName}" IsReadOnly="True" />
+                <DataGridTextColumn Header="Level" Binding="{Binding Level}" IsReadOnly="True" />
                 <DataGridTextColumn Header="Capacity Increase" Binding="{Binding Value}" />
                 <DataGridTextColumn Header="" Width="*" />
             </DataGrid.Columns>

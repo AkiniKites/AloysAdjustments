@@ -12,6 +12,7 @@ using AloysAdjustments.Logic.Patching;
 using AloysAdjustments.Plugins.Upgrades.Data;
 using AloysAdjustments.UI;
 using Decima;
+using Decima.HZD;
 
 namespace AloysAdjustments.Plugins.Upgrades
 {
@@ -20,7 +21,8 @@ namespace AloysAdjustments.Plugins.Upgrades
     /// </summary>
     public partial class UpgradesControl : InteractivePluginControl, INotifyPropertyChanged
     {
-        private UpgradesLogic Logic { get; }
+        private CharacterUpgradesLogic CharacterLogic { get; }
+        private AmmoUpgradesLogic AmmoLogic { get; }
         public List<Upgrade> Upgrades { get; set; }
 
         public override string PluginName => "Upgrades";
@@ -29,7 +31,8 @@ namespace AloysAdjustments.Plugins.Upgrades
         {
             IoC.Bind(Configs.LoadModuleConfig<UpgradeConfig>(PluginName));
 
-            Logic = new UpgradesLogic();
+            CharacterLogic = new CharacterUpgradesLogic();
+            AmmoLogic = new AmmoUpgradesLogic();
 
             InitializeComponent();
         }
@@ -40,7 +43,7 @@ namespace AloysAdjustments.Plugins.Upgrades
 
             IoC.Notif.ShowStatus("Loading upgrades...");
 
-            var loadedUpgrades = await Logic.GenerateUpgradeList(f =>
+            var loadedUpgrades = await CharacterLogic.GenerateUpgradeList(f =>
                 IoC.Archiver.LoadFileAsync(path, f));
 
             foreach (var upgrade in Upgrades)
@@ -53,7 +56,7 @@ namespace AloysAdjustments.Plugins.Upgrades
         public override void ApplyChanges(Patch patch)
         {
             if (Upgrades.Any(x => x.Modified))
-                Logic.CreatePatch(patch, Upgrades);
+                CharacterLogic.CreatePatch(patch, Upgrades);
         }
 
         public override async Task Initialize()
@@ -61,9 +64,12 @@ namespace AloysAdjustments.Plugins.Upgrades
             ResetSelected.Enabled = false;
 
             IoC.Notif.ShowStatus("Loading upgrades list...");
-            Upgrades = (await Logic.GenerateUpgradeList(IoC.Archiver.LoadGameFileAsync))
+            var items = (await CharacterLogic.GenerateUpgradeList(IoC.Archiver.LoadGameFileAsync))
                 .Values.OrderBy(x => x.DisplayName).ToList();
+            items.AddRange((await AmmoLogic.GenerateUpgradeList(IoC.Archiver.LoadGameFileAsync))
+                .Values.OrderBy(x => x.DisplayName));
 
+            Upgrades = items;
             await UpdateDisplayNames(Upgrades);
         }
 
@@ -91,7 +97,9 @@ namespace AloysAdjustments.Plugins.Upgrades
         {
             foreach (var o in upgrades)
             {
-                o.SetDisplayName(await IoC.Localization.GetString(o.LocalNameFile, o.LocalNameId));
+                var name = await IoC.Localization.GetString(o.LocalNameFile, o.LocalNameId);
+                name = IoC.Localization.ToTitleCase(name.Trim());
+                o.SetDisplayName(name);
             }
         }
 

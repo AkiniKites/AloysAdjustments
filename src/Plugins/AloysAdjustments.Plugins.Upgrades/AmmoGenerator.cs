@@ -9,7 +9,6 @@ using AloysAdjustments.Logic;
 using AloysAdjustments.Plugins.Upgrades.Data;
 using AloysAdjustments.Utility;
 using Decima.HZD;
-using String = System.String;
 
 namespace AloysAdjustments.Plugins.Upgrades
 {
@@ -28,10 +27,10 @@ namespace AloysAdjustments.Plugins.Upgrades
             Ignored = new string[0];
 
             _ammoFileCollector = new FileCollector<AmmoItem>("ammo",
-                f => IsAmmoFile(f), GetAmmoItems, Ignored);
+                IsAmmoFile, GetAmmoItems, Ignored);
         }
 
-        public List<AmmoItem> GetCharacterModels()
+        public List<AmmoItem> GetAmmoItems()
         {
             return _ammoFileCollector.Load();
         }
@@ -45,28 +44,25 @@ namespace AloysAdjustments.Plugins.Upgrades
         {
             var pack = IoC.Archiver.LoadGameFile(file);
             var stackables = pack.GetTypes<UpgradableStackableComponentResource>();
-
-            var ammos = new List<AmmoItem>();
+            
             foreach (var stackable in stackables)
             {
-                ammos.Add(new AmmoItem()
+                yield return new AmmoItem()
                 {
                     Id = stackable.ObjectUUID,
                     File = file,
+                    FactId = stackable.UpgradeLevelFact.GUID,
+                    FactFile = stackable.UpgradeLevelFact.ExternalFile
+                };
 
-                });
-
-                var fact = IoC.Archiver.LoadGameFile(stackables[0].UpgradeLevelFact.ExternalFile);
-                var intFact = fact.GetTypesById<IntegerFact>()[stackables[0].UpgradeLevelFact.GUID];
+                //var fact = IoC.Archiver.LoadGameFile(stackables[0].UpgradeLevelFact.ExternalFile);
+                //var intFact = fact.GetTypesById<IntegerFact>()[stackables[0].UpgradeLevelFact.GUID];
 
 
 
-                Debug.WriteLine(file + " :: " + intFact.Name + " :: " + String.Join(",", stackables[0].UpgradedLimits));
+                //Debug.WriteLine(file + " :: " + intFact.Name + " :: " + String.Join(",", stackables[0].UpgradedLimits));
                 
             }
-
-
-            return ammos;
         }
     }
 }

@@ -14,6 +14,11 @@ namespace AloysAdjustments.Plugins.Upgrades.Data
         public string File { get; set; }
 
         public string FactFile { get; set; }
-        public string FactId { get; set; }
+        public BaseGGUUID FactId { get; set; }
+
+        public override string ToString()
+        {
+            return $"{File}: {Id}";
+        }
     }
 }

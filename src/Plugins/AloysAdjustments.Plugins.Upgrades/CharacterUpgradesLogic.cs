@@ -5,13 +5,14 @@ using System.Text;
 using System.Threading.Tasks;
 using AloysAdjustments.Logic;
 using AloysAdjustments.Logic.Patching;
+using AloysAdjustments.Plugins.Upgrades.Data;
 using Decima;
 using Decima.HZD;
 using Upgrade = AloysAdjustments.Plugins.Upgrades.Data.Upgrade;
 
 namespace AloysAdjustments.Plugins.Upgrades
 {
-    public class UpgradesLogic
+    public class CharacterUpgradesLogic
     {
         public async Task<Dictionary<BaseGGUUID, Upgrade>> GenerateUpgradeList(
             Func<string, Task<HzdCore>> coreGetter)
@@ -50,6 +51,8 @@ namespace AloysAdjustments.Plugins.Upgrades
                 {
                     Id = invMod.ObjectUUID,
                     Name = invMod.Name,
+                    Type = UpgradeType.Character,
+                    Level = 0,
                     Value = value,
                     DefaultValue = value,
                     LocalNameId = charUpgrade.DisplayName.GUID,

@@ -8,20 +8,10 @@ using Decima;
 
 namespace AloysAdjustments.Plugins.Upgrades.Data
 {
-    public enum UpgradeType
-    { 
-        Character,
-        Ammo
-    }
-
-    public class Upgrade : INotifyPropertyChanged
+    public class AmmoUpgrade : INotifyPropertyChanged
     {
         public BaseGGUUID Id { get; set; }
         public string Name { get; set; }
-        
-        public UpgradeType Type { get; set; }
-        public int Level { get; set; }
-        
         public int DefaultValue { get; set; }
         public int Value { get; set; }
 
