@@ -63,7 +63,6 @@
   <ItemGroup>
     <Compile Include="AmmoGenerator.cs" />
     <Compile Include="Data\AmmoItem.cs" />
-    <Compile Include="Data\AmmoUpgrade.cs" />
     <Compile Include="Data\Upgrade.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
