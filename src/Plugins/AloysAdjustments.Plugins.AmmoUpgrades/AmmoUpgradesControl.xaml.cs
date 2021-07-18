@@ -63,7 +63,7 @@ namespace AloysAdjustments.Plugins.AmmoUpgrades
         public override void ApplyChanges(Patch patch)
         {
             if (Upgrades.Any(x => x.Modified))
-                ;// Logic.CreatePatch(patch, Upgrades);
+                Logic.CreatePatch(patch, Upgrades);
         }
 
         public override async Task Initialize()

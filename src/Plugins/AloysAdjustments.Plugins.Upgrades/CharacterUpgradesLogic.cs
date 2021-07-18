@@ -25,7 +25,6 @@ namespace AloysAdjustments.Plugins.Upgrades
 
             var charUpgrades = core.GetTypesById<CharacterUpgrade>();
             var invMods = core.GetTypesById<InventoryCapacityModificationComponentResource>();
-            var sets = core.GetTypesById<CharacterUpgradeSet>();
             
             var upgrades = new Dictionary<BaseGGUUID, Upgrade>();
             foreach (var charUpgrade in charUpgrades.Values)

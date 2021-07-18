@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using AloysAdjustments.Logic;
+using AloysAdjustments.Logic.Patching;
 using AloysAdjustments.Plugins.AmmoUpgrades.Data;
 using AloysAdjustments.Plugins.Upgrades;
 using Decima;
@@ -128,6 +129,19 @@ namespace AloysAdjustments.Plugins.AmmoUpgrades
             }
 
             return (name, fact, upgradeLevel);
+        }
+        
+        public void CreatePatch(Patch patch, List<AmmoUpgrade> upgrades)
+        {
+            foreach (var upgrade in upgrades.Where(x => x.Modified))
+            {
+                //extract original ammo files to temp
+                var core = patch.AddFile(upgrade.File);
+                var stackable = (UpgradableStackableComponentResource)core.GetTypeById(upgrade.Id);
+                stackable.UpgradedLimits[upgrade.Level] = upgrade.Value;
+
+                core.Save();
+            }
         }
     }
 }
