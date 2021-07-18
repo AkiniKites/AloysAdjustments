@@ -9,7 +9,7 @@ using Decima;
 
 namespace AloysAdjustments.Plugins.AmmoUpgrades.Data
 {
-    public class Upgrade : INotifyPropertyChanged
+    public class AmmoUpgrade : INotifyPropertyChanged
     {
         public BaseGGUUID Id { get; set; }
         public string File { get; set; }
@@ -43,13 +43,17 @@ namespace AloysAdjustments.Plugins.AmmoUpgrades.Data
 
         public override bool Equals(object obj)
         {
-            return obj is Upgrade upgrade &&
-                EqualityComparer<BaseGGUUID>.Default.Equals(Id, upgrade.Id);
+            return obj is AmmoUpgrade upgrade &&
+                   EqualityComparer<BaseGGUUID>.Default.Equals(Id, upgrade.Id) &&
+                   Level == upgrade.Level;
         }
 
         public override int GetHashCode()
         {
-            return Id?.GetHashCode() ?? 0;
+            int hashCode = -1089996163;
+            hashCode = hashCode * -1521134295 + EqualityComparer<BaseGGUUID>.Default.GetHashCode(Id);
+            hashCode = hashCode * -1521134295 + Level.GetHashCode();
+            return hashCode;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

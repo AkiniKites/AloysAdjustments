@@ -6,12 +6,14 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 using AloysAdjustments.Configuration;
 using AloysAdjustments.Logic;
 using AloysAdjustments.Logic.Patching;
 using AloysAdjustments.Plugins.AmmoUpgrades.Data;
 using AloysAdjustments.Plugins.Upgrades;
 using AloysAdjustments.UI;
+using AloysAdjustments.Utility;
 
 namespace AloysAdjustments.Plugins.AmmoUpgrades
 {
@@ -21,7 +23,8 @@ namespace AloysAdjustments.Plugins.AmmoUpgrades
     public partial class AmmoUpgradesControl : InteractivePluginControl, INotifyPropertyChanged
     {
         private AmmoUpgradesLogic Logic { get; }
-        public List<Upgrade> Upgrades { get; set; }
+        public ListCollectionView UpgradesView { get; set; }
+        public List<AmmoUpgrade> Upgrades { get; set; }
 
         public override string PluginName => "Ammo Upgrades";
 
@@ -31,6 +34,13 @@ namespace AloysAdjustments.Plugins.AmmoUpgrades
 
             Logic = new AmmoUpgradesLogic();
 
+            Upgrades = new List<AmmoUpgrade>();
+            UpgradesView = new ListCollectionView(Upgrades);
+            UpgradesView.SortDescriptions.Add(
+                new SortDescription("Category", ListSortDirection.Ascending));
+            UpgradesView.SortDescriptions.Add(
+                new SortDescription("Level", ListSortDirection.Ascending));
+            
             InitializeComponent();
         }
 
@@ -61,10 +71,18 @@ namespace AloysAdjustments.Plugins.AmmoUpgrades
             ResetSelected.Enabled = false;
 
             IoC.Notif.ShowStatus("Loading upgrades list...");
-            Upgrades = (await Logic.GenerateUpgradeList(IoC.Archiver.LoadGameFileAsync))
-                .Values.OrderBy(x => x.DisplayName).ToList();
 
+            Upgrades.Clear();
+            Upgrades.AddRange((await Logic.GenerateUpgradeList(IoC.Archiver.LoadGameFileAsync))
+                .Values.OrderBy(x => x.DisplayName));
             await UpdateDisplayNames(Upgrades);
+
+            RefreshView();
+        }
+
+        private void RefreshView()
+        {
+            UpgradesView.Refresh();
         }
 
         protected override async Task Reset_Click()
@@ -80,23 +98,28 @@ namespace AloysAdjustments.Plugins.AmmoUpgrades
         {
             if (dgUpgrades.SelectedItems.Count > 0)
             {
-                foreach (var upgrade in dgUpgrades.SelectedItems.Cast<Upgrade>())
+                foreach (var upgrade in dgUpgrades.SelectedItems.Cast<AmmoUpgrade>())
                     upgrade.Value = upgrade.DefaultValue;
             }
 
             return Task.CompletedTask;
         }
 
-        public async Task UpdateDisplayNames(IEnumerable<Upgrade> upgrades)
+        public async Task UpdateDisplayNames(IEnumerable<AmmoUpgrade> upgrades)
         {
-            foreach (var u in upgrades)
+            foreach (var upgrade in upgrades)
             {
-                var name = await IoC.Localization.GetString(u.LocalName);
-                name = IoC.Localization.ToTitleCase(name);
-                u.SetDisplayName(name);
+                async Task<string> GetLocal(LocalString localText)
+                {
+                    var text = await IoC.Localization.GetString(localText);
+                    text = IoC.Localization.ToTitleCase(text);
+                    if (upgrade.Level == 0)
+                        text = text.Replace("1", "0");
+                    return text;
+                }
 
-                var category = await IoC.Localization.GetString(u.LocalCategory);
-                u.DisplayCategory = IoC.Localization.ToTitleCase(category);
+                upgrade.SetDisplayName(await GetLocal(upgrade.LocalName));
+                upgrade.DisplayCategory = await GetLocal(upgrade.LocalCategory);
             }
         }
 

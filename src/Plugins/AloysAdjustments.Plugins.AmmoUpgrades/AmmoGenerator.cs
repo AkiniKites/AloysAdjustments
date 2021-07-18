@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -11,7 +10,7 @@ using AloysAdjustments.Utility;
 using Decima;
 using Decima.HZD;
 
-namespace AloysAdjustments.Plugins.Upgrades
+namespace AloysAdjustments.Plugins.AmmoUpgrades
 {
     public class AmmoGenerator
     {

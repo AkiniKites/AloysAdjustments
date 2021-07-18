@@ -3,7 +3,7 @@
                          xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                          xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
                          xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-                         xmlns:local="clr-namespace:AloysAdjustments.Plugins.Upgrades"
+                         xmlns:local="clr-namespace:AloysAdjustments.Plugins.AmmoUpgrades"
                          xmlns:plugins="clr-namespace:AloysAdjustments.Plugins;assembly=AloysAdjustments"
                          mc:Ignorable="d" 
                          d:DesignHeight="450" d:DesignWidth="800"
@@ -20,7 +20,7 @@
                     Click="btnMulti10_Click"
                     Width="60" Height="25" Margin="6 6 0 0"/>
         </StackPanel>
-        <DataGrid x:Name="dgUpgrades" ItemsSource="{Binding Upgrades}" AutoGenerateColumns="False"
+        <DataGrid x:Name="dgUpgrades" ItemsSource="{Binding UpgradesView}" AutoGenerateColumns="False"
                   HorizontalGridLinesBrush="DarkGray" VerticalGridLinesBrush="DarkGray"
                   RowHeaderWidth="0" CanUserAddRows="False"
                   SelectionChanged="dgUpgrades_SelectionChanged">
@@ -57,7 +57,7 @@
                 </Style>
             </DataGrid.RowStyle>
             <DataGrid.Columns>
-                <DataGridTextColumn Header="Type" Binding="{Binding DisplayCategory}" IsReadOnly="True" />
+                <DataGridTextColumn Header="Category" Binding="{Binding DisplayCategory}" IsReadOnly="True" />
                 <DataGridTextColumn Header="Upgrade" Binding="{Binding DisplayName}" IsReadOnly="True" />
                 <DataGridTextColumn Header="Level" Binding="{Binding Level}" IsReadOnly="True" />
                 <DataGridTextColumn Header="Capacity" Binding="{Binding Value}" />
