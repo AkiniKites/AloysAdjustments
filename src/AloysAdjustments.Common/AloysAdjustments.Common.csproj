@@ -88,6 +88,7 @@
     <Compile Include="Notifications.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UI\AsyncRelayCommand.cs" />
+    <Compile Include="UI\Controls\AutoSelectTextBox.cs" />
     <Compile Include="UI\Controls\EnumsCheckComboBox.xaml.cs">
       <DependentUpon>EnumsCheckComboBox.xaml</DependentUpon>
     </Compile>
