@@ -9,13 +9,24 @@ using Decima;
 
 namespace AloysAdjustments.Plugins.Upgrades.Data
 {
+    public enum UpgradeType
+    {
+        Character,
+        Ammo
+    }
+
     public class Upgrade : INotifyPropertyChanged
     {
         public BaseGGUUID Id { get; set; }
         public string File { get; set; }
+
         public string Name { get; set; }
-        
-        public string Type { get; set; }
+        public LocalString LocalName { get; set; }
+
+        public string Category { get; set; }
+        public LocalString LocalCategory { get; set; }
+
+        public UpgradeType Type { get; set; }
         public int Level { get; set; }
         
         public int DefaultValue { get; set; }
@@ -23,11 +34,9 @@ namespace AloysAdjustments.Plugins.Upgrades.Data
 
         public bool Modified => DefaultValue != Value;
 
-        public LocalString LocalType { get; set; }
-        public LocalString LocalName { get; set; }
-
         private string _displayName;
         public string DisplayName => _displayName == null ? null : _displayName + (Modified ? " *" : "");
+        public string DisplayCategory { get; set; }
 
         public void SetDisplayName(string name)
         {

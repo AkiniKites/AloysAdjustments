@@ -95,11 +95,14 @@ namespace AloysAdjustments.Plugins.Upgrades
 
         public async Task UpdateDisplayNames(IEnumerable<Upgrade> upgrades)
         {
-            foreach (var o in upgrades)
+            foreach (var u in upgrades)
             {
-                var name = await IoC.Localization.GetString(o.LocalName);
-                name = IoC.Localization.ToTitleCase(name.Trim());
-                o.SetDisplayName(name);
+                var name = await IoC.Localization.GetString(u.LocalName);
+                name = IoC.Localization.ToTitleCase(name);
+                u.SetDisplayName(name);
+
+                var category = await IoC.Localization.GetString(u.LocalCategory);
+                u.DisplayCategory = IoC.Localization.ToTitleCase(category);
             }
         }
 

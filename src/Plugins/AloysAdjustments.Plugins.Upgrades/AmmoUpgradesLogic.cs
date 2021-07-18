@@ -50,8 +50,9 @@ namespace AloysAdjustments.Plugins.Upgrades
                     {
                         Id = ammoItem.UpgradeId,
                         File = ammoItem.UpgradeFile,
-                        Type = recipe.Value.Name,
-                        LocalType = name,
+                        Type = UpgradeType.Ammo,
+                        Category = recipe.Value.Name,
+                        LocalCategory = name,
                         Name = ammoItem.Name,
                         LocalName = ammoItem.LocalName,
                         Level = level,
@@ -65,8 +66,8 @@ namespace AloysAdjustments.Plugins.Upgrades
                     //combined upgrade
                     if (combined.Contains(ammoItem.UpgradeFile))
                     {
-                        upgrade.Name = upgrade.Type;
-                        upgrade.LocalName = upgrade.LocalType;
+                        upgrade.Name = upgrade.Category;
+                        upgrade.LocalName = upgrade.LocalCategory;
                         break;
                     }
                 }
