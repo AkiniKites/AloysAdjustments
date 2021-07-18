@@ -48,7 +48,7 @@ namespace AloysAdjustments.Plugins.Upgrades
 
             foreach (var upgrade in Upgrades)
             {
-                if (loadedUpgrades.TryGetValue(upgrade.Id, out var loadedUpgrade))
+                if (loadedUpgrades.TryGetValue((upgrade.Id, upgrade.Level), out var loadedUpgrade))
                     upgrade.Value = loadedUpgrade.Value;
             }
         }
@@ -97,7 +97,7 @@ namespace AloysAdjustments.Plugins.Upgrades
         {
             foreach (var o in upgrades)
             {
-                var name = await IoC.Localization.GetString(o.LocalNameFile, o.LocalNameId);
+                var name = await IoC.Localization.GetString(o.LocalName);
                 name = IoC.Localization.ToTitleCase(name.Trim());
                 o.SetDisplayName(name);
             }

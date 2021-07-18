@@ -10,6 +10,6 @@ namespace AloysAdjustments.Plugins.Common
     {
         public string HumanoidMatcher { get; set; }
         public string UniqueHumanoidMatcher { get; set; }
-        public string[] IgnoredCharacters { get; set; }
+        public string[] IgnoredFiles { get; set; }
     }
 }

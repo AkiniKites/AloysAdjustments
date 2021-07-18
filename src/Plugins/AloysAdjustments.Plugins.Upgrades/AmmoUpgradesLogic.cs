@@ -14,14 +14,15 @@ namespace AloysAdjustments.Plugins.Upgrades
 {
     public class AmmoUpgradesLogic
     {
-        public async Task<Dictionary<BaseGGUUID, Upgrade>> GenerateUpgradeList(
+        public async Task<Dictionary<(BaseGGUUID, int), Upgrade>> GenerateUpgradeList(
             Func<string, Task<HzdCore>> coreGetter)
         {
+            var combined = new [] { "entities/weapons/ammo/trapammo/trap_mine_shared" };
             var ammoItems = new AmmoGenerator().GetAmmoItems();
             var upgradesCore = await IoC.Archiver.LoadGameFileAsync(IoC.Get<UpgradeConfig>().UpgradeFile);
             Dictionary<BaseGGUUID, RTTIRefObject> ammoUpgradesObjs = null;
 
-            var upgrades = new Dictionary<BaseGGUUID, Upgrade>();
+            var upgrades = new Dictionary<(BaseGGUUID, int), Upgrade>();
 
             //get all recipes with facts
             var recipes = upgradesCore.GetTypesById<UpgradeRecipe>();
@@ -35,32 +36,40 @@ namespace AloysAdjustments.Plugins.Upgrades
                 if (name == null)
                     continue;
 
-                var ammoItem = ammoItems.FirstOrDefault(x => x.FactId == fact.GUID);
-                if (ammoItem == null)
-                    continue;
-                
-                int GetUpgradeValue(HzdCore core, int defaultValue)
+                foreach (var ammoItem in ammoItems.Where(x => x.FactId == fact.GUID))
                 {
-                    if (core == null)
-                        return defaultValue;
-                    var stackable = (UpgradableStackableComponentResource)core.GetTypeById(ammoItem.Id);
-                    return stackable.UpgradedLimits[level];
+                    int GetUpgradeValue(HzdCore core, int defaultValue)
+                    {
+                        if (core == null)
+                            return defaultValue;
+                        var stackable = (UpgradableStackableComponentResource)core.GetTypeById(ammoItem.UpgradeId);
+                        return stackable.UpgradedLimits[level];
+                    }
+
+                    var upgrade = new Upgrade()
+                    {
+                        Id = ammoItem.UpgradeId,
+                        File = ammoItem.UpgradeFile,
+                        Type = recipe.Value.Name,
+                        LocalType = name,
+                        Name = ammoItem.Name,
+                        LocalName = ammoItem.LocalName,
+                        Level = level,
+                    };
+                    
+                    upgrade.DefaultValue = GetUpgradeValue(await IoC.Archiver.LoadGameFileAsync(ammoItem.UpgradeFile), 0);
+                    upgrade.Value = GetUpgradeValue(await coreGetter(ammoItem.UpgradeFile), upgrade.DefaultValue);
+
+                    upgrades.Add((upgrade.Id, upgrade.Level), upgrade);
+
+                    //combined upgrade
+                    if (combined.Contains(ammoItem.UpgradeFile))
+                    {
+                        upgrade.Name = upgrade.Type;
+                        upgrade.LocalName = upgrade.LocalType;
+                        break;
+                    }
                 }
-                
-                var upgrade = new Upgrade()
-                {
-                    Id = recipe.Key,
-                    Name = recipe.Value.Name,
-                    Type = UpgradeType.Ammo,
-                    Level = level,
-                    LocalNameFile = name.ExternalFile,
-                    LocalNameId = name.GUID,
-                };
-
-                upgrade.DefaultValue = GetUpgradeValue(await IoC.Archiver.LoadGameFileAsync(ammoItem.File), 0);
-                upgrade.Value = GetUpgradeValue(await coreGetter(ammoItem.File), upgrade.DefaultValue);
-
-                upgrades.Add(upgrade.Id, upgrade);
             }
 
             return upgrades;

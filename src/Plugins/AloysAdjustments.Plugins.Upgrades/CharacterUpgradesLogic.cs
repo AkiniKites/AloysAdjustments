@@ -14,7 +14,7 @@ namespace AloysAdjustments.Plugins.Upgrades
 {
     public class CharacterUpgradesLogic
     {
-        public async Task<Dictionary<BaseGGUUID, Upgrade>> GenerateUpgradeList(
+        public async Task<Dictionary<(BaseGGUUID, int), Upgrade>> GenerateUpgradeList(
             Func<string, Task<HzdCore>> coreGetter)
         {
             var ignored = IoC.Get<UpgradeConfig>().IgnoredUpgrades.ToHashSet();
@@ -22,12 +22,12 @@ namespace AloysAdjustments.Plugins.Upgrades
             var core = await coreGetter(IoC.Get<UpgradeConfig>().UpgradeFile);
 
             if (core == null)
-                return new Dictionary<BaseGGUUID, Upgrade>();
+                return new Dictionary<(BaseGGUUID, int), Upgrade>();
 
             var charUpgrades = core.GetTypesById<CharacterUpgrade>();
             var invMods = core.GetTypesById<InventoryCapacityModificationComponentResource>();
             
-            var upgrades = new Dictionary<BaseGGUUID, Upgrade>();
+            var upgrades = new Dictionary<(BaseGGUUID, int), Upgrade>();
             foreach (var charUpgrade in charUpgrades.Values)
             {
                 var modRef = charUpgrade.Components.FirstOrDefault();
@@ -51,15 +51,14 @@ namespace AloysAdjustments.Plugins.Upgrades
                 {
                     Id = invMod.ObjectUUID,
                     Name = invMod.Name,
-                    Type = UpgradeType.Character,
+                    Type = "Character",
                     Level = 0,
                     Value = value,
                     DefaultValue = value,
-                    LocalNameId = charUpgrade.DisplayName.GUID,
-                    LocalNameFile = charUpgrade.DisplayName.ExternalFile.ToString()
+                    LocalName = charUpgrade.DisplayName,
                 };
 
-                upgrades.Add(up.Id, up);
+                upgrades.Add((up.Id, up.Level), up);
             }
 
             return upgrades;

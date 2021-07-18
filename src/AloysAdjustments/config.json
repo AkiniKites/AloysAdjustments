@@ -3,10 +3,8 @@
     "NPC Models": {
       "HumanoidMatcher": "^entities/.*humanoids/.+",
       "UniqueHumanoidMatcher": "^entities/.*humanoids/.*(?:individual_characters|uniquecharacters).+",
-      "IgnoredCharacters": [
-        "playercostume",
-        "playercharacter",
-        "debug"
+      "IgnoredFiles": [
+        "(playercostume|playercharacter|debug)"
       ]
     },
     "Outfits": {

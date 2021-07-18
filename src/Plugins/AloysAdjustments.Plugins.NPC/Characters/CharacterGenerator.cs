@@ -19,7 +19,6 @@ namespace AloysAdjustments.Plugins.NPC.Characters
     {
         private readonly Regex HumanoidMatcher;
         private readonly Regex UniqueHumanoidMatcher;
-        private readonly string[] Ignored;
 
         private readonly FileCollector<CharacterModel> _uniqueFileCollector;
         private readonly FileCollector<CharacterModel> _normalFileCollector;
@@ -28,12 +27,12 @@ namespace AloysAdjustments.Plugins.NPC.Characters
         {
             HumanoidMatcher = new Regex(IoC.Get<CharacterConfig>().HumanoidMatcher);
             UniqueHumanoidMatcher = new Regex(IoC.Get<CharacterConfig>().UniqueHumanoidMatcher);
-            Ignored = IoC.Get<CharacterConfig>().IgnoredCharacters.ToArray();
+            var ignored = IoC.Get<CharacterConfig>().IgnoredFiles;
 
             _uniqueFileCollector = new FileCollector<CharacterModel>("npc-u",
-                f => IsHumanoid(f) && IsUnique(f), GetCharacterModels, Ignored);
+                f => IsHumanoid(f) && IsUnique(f), GetCharacterModels, ignored);
             _normalFileCollector = new FileCollector<CharacterModel>("npc-n",
-                f => IsHumanoid(f) && !IsUnique(f), GetCharacterModels, Ignored);
+                f => IsHumanoid(f) && !IsUnique(f), GetCharacterModels, ignored);
         }
 
         public List<CharacterModel> GetCharacterModels(bool unique)

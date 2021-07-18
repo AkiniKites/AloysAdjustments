@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using AloysAdjustments.Logic.Patching;
 using HZDCoreEditor.Util;
@@ -13,7 +14,7 @@ namespace AloysAdjustments.Utility
     {
         private readonly Func<string, bool> _fileNameValidator;
         private readonly Func<string, IEnumerable<T>> _itemGetter;
-        private readonly HashSet<string> Ignored;
+        private readonly Regex[] Ignored;
 
         private readonly GameCache<List<T>> _cache;
         private readonly object _lock = new object();
@@ -24,8 +25,7 @@ namespace AloysAdjustments.Utility
             _fileNameValidator = fileNameValidator;
             _itemGetter = itemGetter;
 
-            Ignored = new HashSet<string>(
-                ignored ?? new string[0], StringComparer.OrdinalIgnoreCase);
+            Ignored = (ignored ?? new string[0]).Select(x => new Regex(x, RegexOptions.IgnoreCase)).ToArray();
             _cache = new GameCache<List<T>>(name);
         }
 
@@ -54,7 +54,7 @@ namespace AloysAdjustments.Utility
             var tasks = new ParallelTasks<string>(
                 Environment.ProcessorCount, file =>
                 {
-                    if (!Ignored.Contains(file) && _fileNameValidator(file))
+                    if (_fileNameValidator(file) && !Ignored.Any(x => x.IsMatch(file)))
                     {
                         foreach (var item in _itemGetter(file))
                             bag.Add(item);

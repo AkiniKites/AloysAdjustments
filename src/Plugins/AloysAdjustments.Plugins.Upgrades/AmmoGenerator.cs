@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using AloysAdjustments.Logic;
 using AloysAdjustments.Plugins.Upgrades.Data;
 using AloysAdjustments.Utility;
+using Decima;
 using Decima.HZD;
 
 namespace AloysAdjustments.Plugins.Upgrades
@@ -15,7 +16,6 @@ namespace AloysAdjustments.Plugins.Upgrades
     public class AmmoGenerator
     {
         private readonly Regex AmmoMatcher;
-        private readonly string[] Ignored;
 
         private readonly FileCollector<AmmoItem> _ammoFileCollector;
 
@@ -24,10 +24,10 @@ namespace AloysAdjustments.Plugins.Upgrades
             //HumanoidMatcher = new Regex(IoC.Get<UpgradeConfig>().HumanoidMatcher);
             AmmoMatcher = new Regex("^entities/.*weapons/ammo/.+");
             //Ignored = IoC.Get<UpgradeConfig>().IgnoredCharacters.ToArray();
-            Ignored = new string[0];
+            var ignored = new[] { "aiammo" };
 
             _ammoFileCollector = new FileCollector<AmmoItem>("ammo",
-                IsAmmoFile, GetAmmoItems, Ignored);
+                IsAmmoFile, GetAmmoItems, ignored);
         }
 
         public List<AmmoItem> GetAmmoItems()
@@ -39,29 +39,50 @@ namespace AloysAdjustments.Plugins.Upgrades
         {
             return AmmoMatcher.IsMatch(file);
         }
-
+        
         private IEnumerable<AmmoItem> GetAmmoItems(string file)
         {
             var pack = IoC.Archiver.LoadGameFile(file);
-            var stackables = pack.GetTypes<UpgradableStackableComponentResource>();
+            var projectiles = pack.GetTypes<EntityProjectileAmmoResource>();
             
-            foreach (var stackable in stackables)
+            foreach (var projectile in projectiles)
             {
-                yield return new AmmoItem()
+                var ammo = new AmmoItem()
                 {
-                    Id = stackable.ObjectUUID,
-                    File = file,
-                    FactId = stackable.UpgradeLevelFact.GUID,
-                    FactFile = stackable.UpgradeLevelFact.ExternalFile
+                    Name = projectile.Name,
+                    MainId = projectile.ObjectUUID,
+                    MainFile = file
                 };
 
-                //var fact = IoC.Archiver.LoadGameFile(stackables[0].UpgradeLevelFact.ExternalFile);
-                //var intFact = fact.GetTypesById<IntegerFact>()[stackables[0].UpgradeLevelFact.GUID];
+                foreach (var comp in projectile.EntityComponentResources)
+                {
+                    if (comp.Type == BaseRef.Types.LocalCoreUUID)
+                    {
+                        if (pack.GetTypeById(comp.GUID) is InventoryItemComponentResource item)
+                            ammo.LocalName = item.LocalizedItemName;
+                    }
+                    else
+                    {
+                        var core = IoC.Archiver.LoadGameFile(comp.ExternalFile);
+                        if (core.GetTypeById(comp.GUID) is UpgradableStackableComponentResource stackable)
+                        {
+                            ammo.UpgradeId = stackable.ObjectUUID;
+                            ammo.UpgradeFile = comp.ExternalFile;
+                            ammo.FactId = stackable.UpgradeLevelFact.GUID;
+                            ammo.FactFile = stackable.UpgradeLevelFact.ExternalFile;
+                        }
+                    }
+                }
 
+                if (ammo.UpgradeId != null)
+                {
+                    Console.WriteLine($"{file}");
 
+                    yield return ammo;
 
-                //Debug.WriteLine(file + " :: " + intFact.Name + " :: " + String.Join(",", stackables[0].UpgradedLimits));
-                
+                    //only take 1 projectile from file
+                    break;
+                }
             }
         }
     }
