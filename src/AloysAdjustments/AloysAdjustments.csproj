@@ -180,6 +180,7 @@
     <Compile Include="Updates\Updater.cs" />
     <Compile Include="Utility\FileCollector.cs" />
     <Compile Include="Utility\GameCache.cs" />
+    <Compile Include="Utility\LocalString.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>

@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using AloysAdjustments.Configuration;
+using AloysAdjustments.Utility;
 using Decima;
 using Decima.HZD;
 
@@ -35,6 +36,11 @@ namespace AloysAdjustments.Logic
             return _textInfo.ToTitleCase(text);
         }
 
+        public async Task<string> GetString(LocalString text)
+        {
+            if (text == null) return string.Empty;
+            return await GetString(text.File, text.Id);
+        }
         public async Task<string> GetString(string file, BaseGGUUID id)
         {
             if (!_cache.TryGetValue(file, out var texts))
