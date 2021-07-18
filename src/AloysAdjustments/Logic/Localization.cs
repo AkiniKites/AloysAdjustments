@@ -72,7 +72,7 @@ namespace AloysAdjustments.Logic
 
             foreach (var obj in core.GetTypes<LocalizedTextResource>())
             {
-                texts[obj.ObjectUUID] = obj.GetStringForLanguage(Language);
+                texts[obj.ObjectUUID] = obj.GetStringForLanguage(Language).Trim();
             }
 
             return texts;
