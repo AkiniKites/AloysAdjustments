@@ -26,6 +26,7 @@ namespace AloysAdjustments.Plugins.Upgrades
 
             var charUpgrades = core.GetTypesById<CharacterUpgrade>();
             var invMods = core.GetTypesById<InventoryCapacityModificationComponentResource>();
+            var sets = core.GetTypesById<CharacterUpgradeSet>();
             
             var upgrades = new Dictionary<(BaseGGUUID, int), Upgrade>();
             foreach (var charUpgrade in charUpgrades.Values)
@@ -37,8 +38,7 @@ namespace AloysAdjustments.Plugins.Upgrades
 
                 if (ignored.Contains(invMod.ObjectUUID.ToString()))
                     continue;
-
-                //TODO: maybe allow individual changes
+                
                 var value = new[] {
                     invMod.WeaponsCapacityIncrease,
                     invMod.ModificationsCapacityIncrease,
@@ -47,18 +47,25 @@ namespace AloysAdjustments.Plugins.Upgrades
                     invMod.ToolsCapacityIncrease
                 }.Max();
 
-                var up = new Upgrade
+                var set = sets[charUpgrade.Set.GUID];
+                int level = set.Upgrades.FindIndex(x => x.GUID == charUpgrade.ObjectUUID);
+
+                var upgrade = new Upgrade
                 {
                     Id = invMod.ObjectUUID,
+                    File = core.Source,
                     Name = invMod.Name,
-                    Type = "Character",
-                    Level = 0,
+                    LocalName = charUpgrade.DisplayName,
+                    Type = UpgradeType.Ammo,
+                    Level = level + 1,
                     Value = value,
                     DefaultValue = value,
-                    LocalName = charUpgrade.DisplayName,
                 };
 
-                upgrades.Add((up.Id, up.Level), up);
+                upgrade.Category = upgrade.Name;
+                upgrade.LocalCategory = upgrade.LocalName;
+                
+                upgrades.Add((upgrade.Id, upgrade.Level), upgrade);
             }
 
             return upgrades;
