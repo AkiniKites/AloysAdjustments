@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace AloysAdjustments.Plugins.Upgrades
+namespace AloysAdjustments.Plugins.AmmoUpgrades
 {
-    public class UpgradeConfig
+    public class AmmoUpgradeConfig
     {
+        public string AmmoMatcher { get; set; }
         public string UpgradeFile { get; set; }
-        public string[] IgnoredUpgrades { get; set; }
     }
 }

@@ -5,10 +5,11 @@ using System.Text;
 using System.Threading.Tasks;
 using AloysAdjustments.Logic;
 using AloysAdjustments.Logic.Patching;
+using AloysAdjustments.Plugins.AmmoUpgrades;
 using AloysAdjustments.Plugins.Upgrades.Data;
 using Decima;
 using Decima.HZD;
-using Upgrade = AloysAdjustments.Plugins.Upgrades.Data.Upgrade;
+using Upgrade = AloysAdjustments.Plugins.AmmoUpgrades.Data.Upgrade;
 
 namespace AloysAdjustments.Plugins.Upgrades
 {
@@ -19,7 +20,7 @@ namespace AloysAdjustments.Plugins.Upgrades
         {
             var combined = new [] { "entities/weapons/ammo/trapammo/trap_mine_shared" };
             var ammoItems = new AmmoGenerator().GetAmmoItems();
-            var upgradesCore = await IoC.Archiver.LoadGameFileAsync(IoC.Get<UpgradeConfig>().UpgradeFile);
+            var upgradesCore = await IoC.Archiver.LoadGameFileAsync(IoC.Get<AmmoUpgradeConfig>().UpgradeFile);
             Dictionary<BaseGGUUID, RTTIRefObject> ammoUpgradesObjs = null;
 
             var upgrades = new Dictionary<(BaseGGUUID, int), Upgrade>();
@@ -50,7 +51,6 @@ namespace AloysAdjustments.Plugins.Upgrades
                     {
                         Id = ammoItem.UpgradeId,
                         File = ammoItem.UpgradeFile,
-                        Type = UpgradeType.Ammo,
                         Category = recipe.Value.Name,
                         LocalCategory = name,
                         Name = ammoItem.Name,

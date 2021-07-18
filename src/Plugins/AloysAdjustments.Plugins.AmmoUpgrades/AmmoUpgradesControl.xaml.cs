@@ -9,28 +9,27 @@ using System.Windows.Controls;
 using AloysAdjustments.Configuration;
 using AloysAdjustments.Logic;
 using AloysAdjustments.Logic.Patching;
-using AloysAdjustments.Plugins.Upgrades.Data;
+using AloysAdjustments.Plugins.AmmoUpgrades.Data;
+using AloysAdjustments.Plugins.Upgrades;
 using AloysAdjustments.UI;
-using Decima;
-using Decima.HZD;
 
-namespace AloysAdjustments.Plugins.Upgrades
+namespace AloysAdjustments.Plugins.AmmoUpgrades
 {
     /// <summary>
     /// Interaction logic for UpgradeControl.xaml
     /// </summary>
-    public partial class UpgradesControl : InteractivePluginControl, INotifyPropertyChanged
+    public partial class AmmoUpgradesControl : InteractivePluginControl, INotifyPropertyChanged
     {
-        private CharacterUpgradesLogic Logic { get; }
+        private AmmoUpgradesLogic Logic { get; }
         public List<Upgrade> Upgrades { get; set; }
 
-        public override string PluginName => "Upgrades";
+        public override string PluginName => "Ammo Upgrades";
 
-        public UpgradesControl()
+        public AmmoUpgradesControl()
         {
-            IoC.Bind(Configs.LoadModuleConfig<UpgradeConfig>(PluginName));
+            IoC.Bind(Configs.LoadModuleConfig<AmmoUpgradeConfig>(PluginName));
 
-            Logic = new CharacterUpgradesLogic();
+            Logic = new AmmoUpgradesLogic();
 
             InitializeComponent();
         }
@@ -46,7 +45,7 @@ namespace AloysAdjustments.Plugins.Upgrades
 
             foreach (var upgrade in Upgrades)
             {
-                if (loadedUpgrades.TryGetValue(upgrade.Id, out var loadedUpgrade))
+                if (loadedUpgrades.TryGetValue((upgrade.Id, upgrade.Level), out var loadedUpgrade))
                     upgrade.Value = loadedUpgrade.Value;
             }
         }
@@ -54,7 +53,7 @@ namespace AloysAdjustments.Plugins.Upgrades
         public override void ApplyChanges(Patch patch)
         {
             if (Upgrades.Any(x => x.Modified))
-                Logic.CreatePatch(patch, Upgrades);
+                ;// Logic.CreatePatch(patch, Upgrades);
         }
 
         public override async Task Initialize()

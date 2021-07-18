@@ -45,6 +45,16 @@
         "{82882593-A2FA-F541-A3FA-3FE2A2C69165}"
       ]
     },
+    "Ammo Upgrades": {
+      "UpgradeFile": "entities/characters/craftingrecipes",
+      "AmmoMatcher": "^entities/.*weapons/ammo/.+",
+      "CombinedFiles": [
+        "entities/weapons/ammo/trapammo/trap_mine_shared"
+      ],
+      "IgnoredFiles": [
+        "aiammo"
+      ]
+    },
     "Misc": {
       "IntroFile": "interface/menu/pages/intro",
       "IntroMenuName": "GGLogoAnimation",

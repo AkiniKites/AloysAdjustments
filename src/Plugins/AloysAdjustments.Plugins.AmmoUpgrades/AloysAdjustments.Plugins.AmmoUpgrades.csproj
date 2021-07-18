@@ -5,10 +5,10 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{EEB3E19D-DEBD-41B8-900C-CE5BBF9C4D1A}</ProjectGuid>
+    <ProjectGuid>{5638273E-7F64-4A62-BF33-FFEBA0CE785A}</ProjectGuid>
     <OutputType>library</OutputType>
-    <RootNamespace>AloysAdjustments.Plugins.Upgrades</RootNamespace>
-    <AssemblyName>AloysAdjustments.Plugins.Upgrades</AssemblyName>
+    <RootNamespace>AloysAdjustments.Plugins.AmmoUpgrades</RootNamespace>
+    <AssemblyName>AloysAdjustments.Plugins.AmmoUpgrades</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
@@ -61,6 +61,8 @@
     <Reference Include="PresentationFramework" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AmmoGenerator.cs" />
+    <Compile Include="Data\AmmoItem.cs" />
     <Compile Include="Data\Upgrade.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
@@ -75,11 +77,11 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="UpgradesConfig.cs" />
-    <Compile Include="UpgradesControl.xaml.cs">
-      <DependentUpon>UpgradesControl.xaml</DependentUpon>
+    <Compile Include="AmmoUpgradeConfig.cs" />
+    <Compile Include="AmmoUpgradesControl.xaml.cs">
+      <DependentUpon>AmmoUpgradesControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="CharacterUpgradesLogic.cs" />
+    <Compile Include="AmmoUpgradesLogic.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
@@ -94,7 +96,7 @@
     <Resource Include="FodyWeavers.xml" />
   </ItemGroup>
   <ItemGroup>
-    <Page Include="UpgradesControl.xaml">
+    <Page Include="AmmoUpgradesControl.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

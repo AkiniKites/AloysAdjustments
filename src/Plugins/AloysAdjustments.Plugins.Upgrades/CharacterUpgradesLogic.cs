@@ -5,7 +5,6 @@ using System.Text;
 using System.Threading.Tasks;
 using AloysAdjustments.Logic;
 using AloysAdjustments.Logic.Patching;
-using AloysAdjustments.Plugins.Upgrades.Data;
 using Decima;
 using Decima.HZD;
 using Upgrade = AloysAdjustments.Plugins.Upgrades.Data.Upgrade;
@@ -14,7 +13,7 @@ namespace AloysAdjustments.Plugins.Upgrades
 {
     public class CharacterUpgradesLogic
     {
-        public async Task<Dictionary<(BaseGGUUID, int), Upgrade>> GenerateUpgradeList(
+        public async Task<Dictionary<BaseGGUUID, Upgrade>> GenerateUpgradeList(
             Func<string, Task<HzdCore>> coreGetter)
         {
             var ignored = IoC.Get<UpgradeConfig>().IgnoredUpgrades.ToHashSet();
@@ -22,13 +21,13 @@ namespace AloysAdjustments.Plugins.Upgrades
             var core = await coreGetter(IoC.Get<UpgradeConfig>().UpgradeFile);
 
             if (core == null)
-                return new Dictionary<(BaseGGUUID, int), Upgrade>();
+                return new Dictionary<BaseGGUUID, Upgrade>();
 
             var charUpgrades = core.GetTypesById<CharacterUpgrade>();
             var invMods = core.GetTypesById<InventoryCapacityModificationComponentResource>();
             var sets = core.GetTypesById<CharacterUpgradeSet>();
             
-            var upgrades = new Dictionary<(BaseGGUUID, int), Upgrade>();
+            var upgrades = new Dictionary<BaseGGUUID, Upgrade>();
             foreach (var charUpgrade in charUpgrades.Values)
             {
                 var modRef = charUpgrade.Components.FirstOrDefault();
@@ -46,26 +45,17 @@ namespace AloysAdjustments.Plugins.Upgrades
                     invMod.ResourcesCapacityIncrease,
                     invMod.ToolsCapacityIncrease
                 }.Max();
-
-                var set = sets[charUpgrade.Set.GUID];
-                int level = set.Upgrades.FindIndex(x => x.GUID == charUpgrade.ObjectUUID);
-
+                
                 var upgrade = new Upgrade
                 {
                     Id = invMod.ObjectUUID,
-                    File = core.Source,
                     Name = invMod.Name,
                     LocalName = charUpgrade.DisplayName,
-                    Type = UpgradeType.Ammo,
-                    Level = level + 1,
                     Value = value,
                     DefaultValue = value,
                 };
-
-                upgrade.Category = upgrade.Name;
-                upgrade.LocalCategory = upgrade.LocalName;
                 
-                upgrades.Add((upgrade.Id, upgrade.Level), upgrade);
+                upgrades.Add(upgrade.Id, upgrade);
             }
 
             return upgrades;

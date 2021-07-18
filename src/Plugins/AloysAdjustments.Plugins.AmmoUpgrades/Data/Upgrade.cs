@@ -7,14 +7,20 @@ using System.Threading.Tasks;
 using AloysAdjustments.Utility;
 using Decima;
 
-namespace AloysAdjustments.Plugins.Upgrades.Data
+namespace AloysAdjustments.Plugins.AmmoUpgrades.Data
 {
     public class Upgrade : INotifyPropertyChanged
     {
         public BaseGGUUID Id { get; set; }
+        public string File { get; set; }
 
         public string Name { get; set; }
         public LocalString LocalName { get; set; }
+
+        public string Category { get; set; }
+        public LocalString LocalCategory { get; set; }
+        
+        public int Level { get; set; }
         
         public int DefaultValue { get; set; }
         public int Value { get; set; }
@@ -23,6 +29,7 @@ namespace AloysAdjustments.Plugins.Upgrades.Data
 
         private string _displayName;
         public string DisplayName => _displayName == null ? null : _displayName + (Modified ? " *" : "");
+        public string DisplayCategory { get; set; }
 
         public void SetDisplayName(string name)
         {
