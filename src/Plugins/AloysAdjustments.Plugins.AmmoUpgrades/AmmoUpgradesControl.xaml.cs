@@ -94,6 +94,9 @@ namespace AloysAdjustments.Plugins.AmmoUpgrades
                 var name = await IoC.Localization.GetString(u.LocalName);
                 name = IoC.Localization.ToTitleCase(name);
                 u.SetDisplayName(name);
+
+                var category = await IoC.Localization.GetString(u.LocalCategory);
+                u.DisplayCategory = IoC.Localization.ToTitleCase(category);
             }
         }
 

@@ -4,14 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using AloysAdjustments.Logic;
-using AloysAdjustments.Logic.Patching;
-using AloysAdjustments.Plugins.AmmoUpgrades;
-using AloysAdjustments.Plugins.Upgrades.Data;
+using AloysAdjustments.Plugins.Upgrades;
 using Decima;
 using Decima.HZD;
 using Upgrade = AloysAdjustments.Plugins.AmmoUpgrades.Data.Upgrade;
 
-namespace AloysAdjustments.Plugins.Upgrades
+namespace AloysAdjustments.Plugins.AmmoUpgrades
 {
     public class AmmoUpgradesLogic
     {
