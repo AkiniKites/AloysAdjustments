@@ -3,8 +3,10 @@
                          xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                          xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
                          xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+                         xmlns:fa5="http://schemas.fontawesome.com/icons/"
                          xmlns:local="clr-namespace:AloysAdjustments.Plugins.AmmoUpgrades"
                          xmlns:plugins="clr-namespace:AloysAdjustments.Plugins;assembly=AloysAdjustments"
+                         xmlns:controls="clr-namespace:AloysAdjustments.Common.UI.Controls;assembly=AloysAdjustments.Common"
                          mc:Ignorable="d" 
                          d:DesignHeight="450" d:DesignWidth="800"
                          DataContext="{Binding RelativeSource={RelativeSource Self}}">
@@ -59,8 +61,31 @@
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Category" Binding="{Binding DisplayCategory}" IsReadOnly="True" />
                 <DataGridTextColumn Header="Upgrade" Binding="{Binding DisplayName}" IsReadOnly="True" />
-                <DataGridTextColumn Header="Level" Binding="{Binding Level}" IsReadOnly="True" />
-                <DataGridTextColumn Header="Capacity" Binding="{Binding Value}" />
+                <DataGridTextColumn Header="Level" Binding="{Binding Level}" IsReadOnly="false" />
+                <DataGridTemplateColumn Header="Capacity" MinWidth="100">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <DockPanel Margin="0 0 -10 0">
+                                <fa5:SvgAwesome DockPanel.Dock="Right" Icon="Solid_PencilAlt" Foreground="#CCCCCC"
+                                                HorizontalAlignment="Right" VerticalAlignment="Center" 
+                                                Width="12" Height="12" Margin="3 0 0 0"/>
+                                <TextBlock x:Name="Tb" Text="{Binding Value}" />
+                            </DockPanel>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                    <DataGridTemplateColumn.CellEditingTemplate>
+                        <DataTemplate>
+                            <DockPanel Margin="0 0 -10 0">
+                                <fa5:SvgAwesome DockPanel.Dock="Right" Icon="Solid_PencilAlt" Foreground="#CCCCCC"
+                                                    HorizontalAlignment="Right" VerticalAlignment="Center" 
+                                                    Width="12" Height="12" Margin="3 0 0 0"/>
+                                <controls:AutoSelectTextBox x:Name="Tb" Text="{Binding Value}" BorderBrush="Transparent" BorderThickness="0" Background="White"
+                                                            FocusManager.FocusedElement="{Binding RelativeSource={RelativeSource Self}}"/>
+                            </DockPanel>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellEditingTemplate>
+                </DataGridTemplateColumn>
+
                 <DataGridTextColumn Header="" Width="*" />
             </DataGrid.Columns>
         </DataGrid>
