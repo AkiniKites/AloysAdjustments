@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using AloysAdjustments.Configuration;
 using AloysAdjustments.Logic;
 using CommandLine;
 
@@ -22,6 +23,7 @@ namespace AloysAdjustments
                 .WithParsed(o => cmds = o)
                 .WithNotParsed(errs => Console.WriteLine("Unable to parse command line: {0}", String.Join(" ", e.Args)));
 
+            IoC.Bind(new DebugConfig());
             IoC.Debug.DisableGameCache = cmds.DisableGameCache;
             IoC.Debug.SingleThread = cmds.SingleThread;
 
