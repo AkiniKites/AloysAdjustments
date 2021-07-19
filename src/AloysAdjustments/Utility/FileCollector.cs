@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using AloysAdjustments.Logic;
 using AloysAdjustments.Logic.Patching;
 using HZDCoreEditor.Util;
 
@@ -51,8 +52,9 @@ namespace AloysAdjustments.Utility
             var files = Prefetch.Load().Files.Keys;
             var bag = new ConcurrentBag<T>();
 
+            var parallels = IoC.Debug.SingleThread ? 1 : Environment.ProcessorCount;
             var tasks = new ParallelTasks<string>(
-                Environment.ProcessorCount, file =>
+                parallels, file =>
                 {
                     if (_fileNameValidator(file) && !Ignored.Any(x => x.IsMatch(file)))
                     {

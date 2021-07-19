@@ -27,6 +27,7 @@ namespace AloysAdjustments.Logic
 
         public static Config Config => Kernel.Get<Config>();
         public static UserSettings Settings => Kernel.Get<UserSettings>();
+        public static DebugConfig Debug => Kernel.Get<DebugConfig>();
         public static Archiver Archiver => Kernel.Get<Archiver>();
         public static Localization Localization => Kernel.Get<Localization>();
         public static Notifications Notif

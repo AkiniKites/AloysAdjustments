@@ -30,6 +30,8 @@ namespace AloysAdjustments.Utility
         {
             data = default(T);
 
+            if (IoC.Debug.DisableGameCache)
+                return false;
             if (!File.Exists(CachePath))
                 return false;
 
