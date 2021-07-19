@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -35,15 +36,15 @@ namespace AloysAdjustments.Plugins.AmmoUpgrades
             Logic = new AmmoUpgradesLogic();
 
             Upgrades = new List<AmmoUpgrade>();
-            UpgradesView = new ListCollectionView(Upgrades);
-            UpgradesView.SortDescriptions.Add(
-                new SortDescription("Sort", ListSortDirection.Ascending));
-            UpgradesView.SortDescriptions.Add(
-                new SortDescription("DisplayCategory", ListSortDirection.Ascending));
-            UpgradesView.SortDescriptions.Add(
-                new SortDescription("Level", ListSortDirection.Ascending));
+            UpgradesView = CollectionViewSource.GetDefaultView(Upgrades) as ListCollectionView;
             
             InitializeComponent();
+
+            dgUpgrades.SetDefaultSorts(new [] {
+                new SortDescription("Sort", ListSortDirection.Ascending),
+                new SortDescription("DisplayName", ListSortDirection.Ascending),
+                new SortDescription("Level", ListSortDirection.Ascending)
+            });
         }
 
         public override async Task LoadPatch(string path)
@@ -68,17 +69,27 @@ namespace AloysAdjustments.Plugins.AmmoUpgrades
                 Logic.CreatePatch(patch, Upgrades);
         }
 
+        private static readonly SemaphoreSlim _lock = new SemaphoreSlim(1, 1);
         public override async Task Initialize()
         {
-            ResetSelected.Enabled = false;
+            await _lock.WaitAsync();
+            {
+                ResetSelected.Enabled = false;
 
-            IoC.Notif.ShowStatus("Loading upgrades list...");
+                IoC.Notif.ShowStatus("Loading upgrades list...");
 
-            Upgrades.Clear();
-            Upgrades.AddRange((await Logic.GenerateUpgradeList(IoC.Archiver.LoadGameFileAsync)).Values);
-            await UpdateDisplayNames(Upgrades);
+                Upgrades.Clear();
 
-            RefreshView();
+
+                var upgrades = (await Logic.GenerateUpgradeList(IoC.Archiver.LoadGameFileAsync)).Values
+                    .OrderBy(x => x.Level).ToList();
+                Upgrades.AddRange(upgrades);
+
+                await UpdateDisplayNames(Upgrades);
+
+                RefreshView();
+            }
+            _lock.Release();
         }
 
         private void RefreshView()
@@ -130,12 +141,16 @@ namespace AloysAdjustments.Plugins.AmmoUpgrades
 
         private void MultiplyValues(int multi)
         {
-            Upgrades.ForEach(x => {
-                if ((long)x.Value * multi > int.MaxValue)
-                    x.Value = int.MaxValue;
+            var upgrades = dgUpgrades.SelectedItems.Count == 0 ?
+                Upgrades : dgUpgrades.SelectedItems.Cast<AmmoUpgrade>();
+
+            foreach (var upgrade in upgrades)
+            {
+                if ((long)upgrade.Value * multi > int.MaxValue)
+                    upgrade.Value = int.MaxValue;
                 else
-                    x.Value *= multi;
-            });
+                    upgrade.Value *= multi;
+            }
         }
 
         private void dgUpgrades_SelectionChanged(object sender, SelectionChangedEventArgs e)

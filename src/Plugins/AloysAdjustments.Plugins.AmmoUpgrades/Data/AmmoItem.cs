@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using AloysAdjustments.Utility;
 using Decima;
 
-namespace AloysAdjustments.Plugins.Upgrades.Data
+namespace AloysAdjustments.Plugins.AmmoUpgrades.Data
 {
     public class AmmoItem
     {

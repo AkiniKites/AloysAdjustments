@@ -6,7 +6,7 @@
                          xmlns:fa5="http://schemas.fontawesome.com/icons/"
                          xmlns:local="clr-namespace:AloysAdjustments.Plugins.AmmoUpgrades"
                          xmlns:plugins="clr-namespace:AloysAdjustments.Plugins;assembly=AloysAdjustments"
-                         xmlns:controls="clr-namespace:AloysAdjustments.Common.UI.Controls;assembly=AloysAdjustments.Common"
+                         xmlns:c="clr-namespace:AloysAdjustments.Common.UI.Controls;assembly=AloysAdjustments.Common"
                          mc:Ignorable="d" 
                          d:DesignHeight="450" d:DesignWidth="800"
                          DataContext="{Binding RelativeSource={RelativeSource Self}}">
@@ -22,11 +22,11 @@
                     Click="btnMulti10_Click"
                     Width="60" Height="25" Margin="6 6 0 0"/>
         </StackPanel>
-        <DataGrid x:Name="dgUpgrades" ItemsSource="{Binding UpgradesView}" AutoGenerateColumns="False"
-                  HorizontalGridLinesBrush="DarkGray" VerticalGridLinesBrush="DarkGray"
-                  RowHeaderWidth="0" CanUserAddRows="False"
-                  AlternationCount="2" AlternatingRowBackground="#EEEEEE"
-                  SelectionChanged="dgUpgrades_SelectionChanged">
+        <c:DataGridEx x:Name="dgUpgrades" ItemsSource="{Binding Upgrades, Mode=TwoWay}" AutoGenerateColumns="False"
+                      HorizontalGridLinesBrush="DarkGray" VerticalGridLinesBrush="DarkGray"
+                      RowHeaderWidth="0" CanUserAddRows="False"
+                      AlternationCount="2"
+                      SelectionChanged="dgUpgrades_SelectionChanged">
             <DataGrid.ColumnHeaderStyle>
                 <Style TargetType="DataGridColumnHeader">
                     <Setter Property="Padding" Value="5 5 15 5"/>
@@ -53,16 +53,26 @@
             <DataGrid.RowStyle>
                 <Style TargetType="DataGridRow">
                     <Style.Triggers>
+                        <Trigger Property="AlternationIndex" Value="1">
+                            <Setter Property="Background" Value="#EEEEEE"/>
+                        </Trigger>
                         <DataTrigger Binding="{Binding Modified}" Value="True">
                             <Setter Property="Background" Value="#BFFFBF"></Setter>
                         </DataTrigger>
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding RelativeSource={RelativeSource Mode=Self}, Path=AlternationIndex}" Value="1"/>
+                                <Condition Binding="{Binding Modified}" Value="True"/>
+                            </MultiDataTrigger.Conditions>
+                            <Setter Property="Background" Value="#A7DFA7"></Setter>
+                        </MultiDataTrigger>
                     </Style.Triggers>
                 </Style>
             </DataGrid.RowStyle>
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Category" Binding="{Binding DisplayCategory}" IsReadOnly="True" />
                 <DataGridTextColumn Header="Upgrade" Binding="{Binding DisplayName}" IsReadOnly="True" />
-                <DataGridTextColumn Header="Level" Binding="{Binding Level}" IsReadOnly="false" />
+                <DataGridTextColumn Header="Level" Binding="{Binding Level}" IsReadOnly="True" />
                 <DataGridTemplateColumn Header="Capacity" MinWidth="100">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
@@ -80,15 +90,15 @@
                                 <fa5:SvgAwesome DockPanel.Dock="Right" Icon="Solid_PencilAlt" Foreground="#CCCCCC"
                                                     HorizontalAlignment="Right" VerticalAlignment="Center" 
                                                     Width="12" Height="12" Margin="5 0 0 0"/>
-                                <controls:AutoSelectTextBox x:Name="Tb" Text="{Binding Value}" BorderBrush="Transparent" BorderThickness="0" Background="White"
-                                                            FocusManager.FocusedElement="{Binding RelativeSource={RelativeSource Self}}"/>
+                                <c:AutoSelectTextBox x:Name="Tb" Text="{Binding Value}" BorderBrush="Transparent" BorderThickness="0" Background="White"
+                                                     FocusManager.FocusedElement="{Binding RelativeSource={RelativeSource Self}}"/>
                             </DockPanel>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellEditingTemplate>
                 </DataGridTemplateColumn>
 
-                <DataGridTextColumn Header="" Width="*" />
+                <DataGridTextColumn Header="" Width="*" IsReadOnly="True" />
             </DataGrid.Columns>
-        </DataGrid>
+        </c:DataGridEx>
     </DockPanel>
 </plugins:InteractivePluginControl>
