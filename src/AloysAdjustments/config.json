@@ -47,9 +47,10 @@
     },
     "Ammo Upgrades": {
       "UpgradeFile": "entities/characters/craftingrecipes",
-      "AmmoMatcher": "^entities/.*weapons/ammo/.+",
+      "AmmoMatcher": "^entities/.*(weapons/ammo/|pickups/potions/).+",
       "CombinedFiles": [
-        "entities/weapons/ammo/trapammo/trap_mine_shared"
+        "entities/weapons/ammo/trapammo/trap_mine_shared",
+        "entities/pickups/template_inventoryactionitem"
       ],
       "IgnoredFiles": [
         "aiammo"

@@ -37,7 +37,9 @@ namespace AloysAdjustments.Plugins.AmmoUpgrades
             Upgrades = new List<AmmoUpgrade>();
             UpgradesView = new ListCollectionView(Upgrades);
             UpgradesView.SortDescriptions.Add(
-                new SortDescription("Category", ListSortDirection.Ascending));
+                new SortDescription("Sort", ListSortDirection.Ascending));
+            UpgradesView.SortDescriptions.Add(
+                new SortDescription("DisplayCategory", ListSortDirection.Ascending));
             UpgradesView.SortDescriptions.Add(
                 new SortDescription("Level", ListSortDirection.Ascending));
             
@@ -73,8 +75,7 @@ namespace AloysAdjustments.Plugins.AmmoUpgrades
             IoC.Notif.ShowStatus("Loading upgrades list...");
 
             Upgrades.Clear();
-            Upgrades.AddRange((await Logic.GenerateUpgradeList(IoC.Archiver.LoadGameFileAsync))
-                .Values.OrderBy(x => x.DisplayName));
+            Upgrades.AddRange((await Logic.GenerateUpgradeList(IoC.Archiver.LoadGameFileAsync)).Values);
             await UpdateDisplayNames(Upgrades);
 
             RefreshView();

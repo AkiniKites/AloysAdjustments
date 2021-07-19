@@ -19,6 +19,8 @@ namespace AloysAdjustments.Plugins.AmmoUpgrades.Data
 
         public string Category { get; set; }
         public LocalString LocalCategory { get; set; }
+
+        public int Sort { get; set; }
         
         public int Level { get; set; }
         

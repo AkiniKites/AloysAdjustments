@@ -20,10 +20,8 @@ namespace AloysAdjustments.Plugins.AmmoUpgrades
 
         public AmmoGenerator()
         {
-            //HumanoidMatcher = new Regex(IoC.Get<UpgradeConfig>().HumanoidMatcher);
-            AmmoMatcher = new Regex("^entities/.*weapons/ammo/.+");
-            //Ignored = IoC.Get<UpgradeConfig>().IgnoredCharacters.ToArray();
-            var ignored = new[] { "aiammo" };
+            AmmoMatcher = new Regex(IoC.Get<AmmoUpgradeConfig>().AmmoMatcher);
+            var ignored = IoC.Get<AmmoUpgradeConfig>().IgnoredFiles.ToArray();
 
             _ammoFileCollector = new FileCollector<AmmoItem>("ammo",
                 IsAmmoFile, GetAmmoItems, ignored);
@@ -42,18 +40,22 @@ namespace AloysAdjustments.Plugins.AmmoUpgrades
         private IEnumerable<AmmoItem> GetAmmoItems(string file)
         {
             var pack = IoC.Archiver.LoadGameFile(file);
-            var projectiles = pack.GetTypes<EntityProjectileAmmoResource>();
-            
-            foreach (var projectile in projectiles)
+
+            var entities = pack.GetTypes<EntityProjectileAmmoResource>() //ammo entities
+                .Select(x => (x.Name, x.ObjectUUID, x.EntityComponentResources))
+                .Concat(pack.GetTypes<InventoryActionAbilityResource>() //potion entities
+                    .Select(x => (x.Name, x.ObjectUUID, x.EntityComponentResources)));
+
+            foreach (var entity in entities)
             {
                 var ammo = new AmmoItem()
                 {
-                    Name = projectile.Name,
-                    MainId = projectile.ObjectUUID,
+                    Name = entity.Name,
+                    MainId = entity.ObjectUUID,
                     MainFile = file
                 };
 
-                foreach (var comp in projectile.EntityComponentResources)
+                foreach (var comp in entity.EntityComponentResources)
                 {
                     if (comp.Type == BaseRef.Types.LocalCoreUUID)
                     {

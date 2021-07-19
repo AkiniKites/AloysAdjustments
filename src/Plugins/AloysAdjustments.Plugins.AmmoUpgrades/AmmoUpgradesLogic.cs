@@ -19,7 +19,7 @@ namespace AloysAdjustments.Plugins.AmmoUpgrades
         public async Task<Dictionary<(BaseGGUUID, int), AmmoUpgrade>> GenerateUpgradeList(
             Func<string, Task<HzdCore>> coreGetter)
         {
-            var combined = new [] { "entities/weapons/ammo/trapammo/trap_mine_shared" };
+            var combined = IoC.Get<AmmoUpgradeConfig>().CombinedFiles;
             var ammoItems = _ammoGenerator.GetAmmoItems();
             var upgradesCore = await IoC.Archiver.LoadGameFileAsync(IoC.Get<AmmoUpgradeConfig>().UpgradeFile);
             Dictionary<BaseGGUUID, RTTIRefObject> ammoUpgradesObjs = null;
@@ -59,6 +59,7 @@ namespace AloysAdjustments.Plugins.AmmoUpgrades
                             Name = ammoItem.Name,
                             LocalName = ammoItem.LocalName,
                             Level = level,
+                            Sort = 10,
                         };
 
                         upgrade.DefaultValue = GetUpgradeValue(await IoC.Archiver.LoadGameFileAsync(ammoItem.UpgradeFile), 0);
@@ -69,6 +70,7 @@ namespace AloysAdjustments.Plugins.AmmoUpgrades
                     
                     void UpdateCombined(AmmoUpgrade upgrade)
                     {
+                        upgrade.Sort = 1;
                         upgrade.Name = upgrade.Category;
                         upgrade.LocalName = upgrade.LocalCategory;
                     }

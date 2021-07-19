@@ -25,6 +25,7 @@
         <DataGrid x:Name="dgUpgrades" ItemsSource="{Binding UpgradesView}" AutoGenerateColumns="False"
                   HorizontalGridLinesBrush="DarkGray" VerticalGridLinesBrush="DarkGray"
                   RowHeaderWidth="0" CanUserAddRows="False"
+                  AlternationCount="2" AlternatingRowBackground="#EEEEEE"
                   SelectionChanged="dgUpgrades_SelectionChanged">
             <DataGrid.ColumnHeaderStyle>
                 <Style TargetType="DataGridColumnHeader">
@@ -68,7 +69,7 @@
                             <DockPanel Margin="0 0 -10 0">
                                 <fa5:SvgAwesome DockPanel.Dock="Right" Icon="Solid_PencilAlt" Foreground="#CCCCCC"
                                                 HorizontalAlignment="Right" VerticalAlignment="Center" 
-                                                Width="12" Height="12" Margin="3 0 0 0"/>
+                                                Width="12" Height="12" Margin="5 0 0 0"/>
                                 <TextBlock x:Name="Tb" Text="{Binding Value}" />
                             </DockPanel>
                         </DataTemplate>
@@ -78,7 +79,7 @@
                             <DockPanel Margin="0 0 -10 0">
                                 <fa5:SvgAwesome DockPanel.Dock="Right" Icon="Solid_PencilAlt" Foreground="#CCCCCC"
                                                     HorizontalAlignment="Right" VerticalAlignment="Center" 
-                                                    Width="12" Height="12" Margin="3 0 0 0"/>
+                                                    Width="12" Height="12" Margin="5 0 0 0"/>
                                 <controls:AutoSelectTextBox x:Name="Tb" Text="{Binding Value}" BorderBrush="Transparent" BorderThickness="0" Background="White"
                                                             FocusManager.FocusedElement="{Binding RelativeSource={RelativeSource Self}}"/>
                             </DockPanel>
