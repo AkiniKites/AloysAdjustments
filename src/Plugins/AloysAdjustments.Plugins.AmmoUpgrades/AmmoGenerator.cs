@@ -5,7 +5,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using AloysAdjustments.Logic;
-using AloysAdjustments.Plugins.Upgrades.Data;
+using AloysAdjustments.Plugins.AmmoUpgrades.Data;
 using AloysAdjustments.Utility;
 using Decima;
 using Decima.HZD;
@@ -39,11 +39,11 @@ namespace AloysAdjustments.Plugins.AmmoUpgrades
         
         private IEnumerable<AmmoItem> GetAmmoItems(string file)
         {
-            var pack = IoC.Archiver.LoadGameFile(file);
+            var ammoCore = IoC.Archiver.LoadGameFile(file);
 
-            var entities = pack.GetTypes<EntityProjectileAmmoResource>() //ammo entities
+            var entities = ammoCore.GetTypes<EntityProjectileAmmoResource>() //ammo entities
                 .Select(x => (x.Name, x.ObjectUUID, x.EntityComponentResources))
-                .Concat(pack.GetTypes<InventoryActionAbilityResource>() //potion entities
+                .Concat(ammoCore.GetTypes<InventoryActionAbilityResource>() //potion entities
                     .Select(x => (x.Name, x.ObjectUUID, x.EntityComponentResources)));
 
             foreach (var entity in entities)
@@ -57,21 +57,16 @@ namespace AloysAdjustments.Plugins.AmmoUpgrades
 
                 foreach (var comp in entity.EntityComponentResources)
                 {
-                    if (comp.Type == BaseRef.Types.LocalCoreUUID)
+                    var core = HzdCoreUtility.GetRefCore(ammoCore, comp);
+
+                    if (ammoCore.GetTypeById(comp.GUID) is InventoryItemComponentResource item)
+                        ammo.LocalName = item.LocalizedItemName;
+                    else if (core.GetTypeById(comp.GUID) is UpgradableStackableComponentResource stackable)
                     {
-                        if (pack.GetTypeById(comp.GUID) is InventoryItemComponentResource item)
-                            ammo.LocalName = item.LocalizedItemName;
-                    }
-                    else
-                    {
-                        var core = IoC.Archiver.LoadGameFile(comp.ExternalFile);
-                        if (core.GetTypeById(comp.GUID) is UpgradableStackableComponentResource stackable)
-                        {
-                            ammo.UpgradeId = stackable.ObjectUUID;
-                            ammo.UpgradeFile = comp.ExternalFile;
-                            ammo.FactId = stackable.UpgradeLevelFact.GUID;
-                            ammo.FactFile = stackable.UpgradeLevelFact.ExternalFile;
-                        }
+                        ammo.UpgradeId = stackable.ObjectUUID;
+                        ammo.UpgradeFile = core.Source;
+                        ammo.FactId = stackable.UpgradeLevelFact.GUID;
+                        ammo.FactFile = stackable.UpgradeLevelFact.ExternalFile;
                     }
                 }
 
