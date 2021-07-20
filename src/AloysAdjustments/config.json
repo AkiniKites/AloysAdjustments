@@ -53,7 +53,7 @@
         "entities/pickups/template_inventoryactionitem"
       ],
       "IgnoredFiles": [
-        "(aiammo|ropeammo)"
+        "(aiammo|ropepathpoint)"
       ]
     },
     "Misc": {

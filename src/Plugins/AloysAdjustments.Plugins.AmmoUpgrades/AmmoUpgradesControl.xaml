@@ -73,7 +73,7 @@
                 <DataGridTextColumn Header="Upgrade" Binding="{Binding DisplayCategory}" IsReadOnly="True" />
                 <DataGridTextColumn Header="Ammo" Binding="{Binding DisplayName}" IsReadOnly="True" />
                 <DataGridTextColumn Header="Level" Binding="{Binding Level}" IsReadOnly="True" />
-                <DataGridTemplateColumn Header="Capacity" MinWidth="100">
+                <DataGridTemplateColumn Header="Capacity" SortMemberPath="Value" MinWidth="100">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <DockPanel Margin="0 0 -10 0">

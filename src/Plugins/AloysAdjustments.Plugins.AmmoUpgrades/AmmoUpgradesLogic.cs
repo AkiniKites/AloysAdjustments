@@ -182,8 +182,13 @@ namespace AloysAdjustments.Plugins.AmmoUpgrades
             {
                 //extract original ammo files to temp
                 var core = patch.AddFile(upgrade.File);
-                var stackable = (UpgradableStackableComponentResource)core.GetTypeById(upgrade.Id);
-                stackable.UpgradedLimits[upgrade.Level] = upgrade.Value;
+                
+                var stackable = core.GetTypeById(upgrade.Id);
+
+                if (stackable is UpgradableStackableComponentResource upgradeable)
+                    upgradeable.UpgradedLimits[upgrade.Level] = upgrade.Value;
+                else if (stackable is StackableComponentResource other)
+                    other.StackLimit = upgrade.Value;
 
                 core.Save();
             }
