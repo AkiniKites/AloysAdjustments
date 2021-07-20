@@ -163,6 +163,9 @@ namespace AloysAdjustments
         {
             if (!_initialized)
                 await InitializePlugins();
+
+            IoC.Notif.HideProgress();
+            IoC.Notif.ShowStatus("Loading complete");
         }
         
         private async Task RunCompatibility()
