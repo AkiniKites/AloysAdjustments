@@ -31,5 +31,16 @@ namespace AloysAdjustments.Logic
         {
             return GetTypes<T>(core).FirstOrDefault();
         }
+
+        public static RTTIRefObject GetTypeById(this HzdCore core, BaseGGUUID id)
+        {
+            foreach (var obj in core.Binary)
+            {
+                if (obj is RTTIRefObject refObj && refObj.ObjectUUID.Equals(id))
+                    return refObj;
+            }
+
+            return null;
+        }
     }
 }

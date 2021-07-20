@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using AloysAdjustments.Configuration;
@@ -20,6 +21,10 @@ namespace AloysAdjustments.Logic
                     LoadExtensions = false
                 });
             Kernel.Components.Remove<IMissingBindingResolver, SelfBindingResolver>();
+
+            var entry = Assembly.GetEntryAssembly();
+            if (entry != null)
+                Bind(entry.GetName().Version);
         }
 
         public static IKernel Kernel { get; }
@@ -27,6 +32,7 @@ namespace AloysAdjustments.Logic
 
         public static Config Config => Kernel.Get<Config>();
         public static UserSettings Settings => Kernel.Get<UserSettings>();
+        public static DebugConfig Debug => Kernel.Get<DebugConfig>();
         public static Archiver Archiver => Kernel.Get<Archiver>();
         public static Localization Localization => Kernel.Get<Localization>();
         public static Notifications Notif
@@ -40,6 +46,7 @@ namespace AloysAdjustments.Logic
             }
         }
         public static Uuid Uuid => Kernel.Get<Uuid>();
+        public static Version CurrentVersion => Kernel.Get<Version>(); 
 
         public static void Bind<T>(T value)
         {

@@ -3,10 +3,8 @@
     "NPC Models": {
       "HumanoidMatcher": "^entities/.*humanoids/.+",
       "UniqueHumanoidMatcher": "^entities/.*humanoids/.*(?:individual_characters|uniquecharacters).+",
-      "IgnoredCharacters": [
-        "playercostume",
-        "playercharacter",
-        "debug"
+      "IgnoredFiles": [
+        "(playercostume|playercharacter|debug)"
       ]
     },
     "Outfits": {
@@ -47,6 +45,17 @@
         "{82882593-A2FA-F541-A3FA-3FE2A2C69165}"
       ]
     },
+    "Ammo Upgrades": {
+      "UpgradeFile": "entities/characters/craftingrecipes",
+      "AmmoMatcher": "^entities/.*(weapons/ammo/|pickups/potions/).+",
+      "CombinedFiles": [
+        "entities/weapons/ammo/trapammo/trap_mine_shared",
+        "entities/pickups/template_inventoryactionitem"
+      ],
+      "IgnoredFiles": [
+        "(aiammo|ropepathpoint)"
+      ]
+    },
     "Misc": {
       "IntroFile": "interface/menu/pages/intro",
       "IntroMenuName": "GGLogoAnimation",
@@ -74,6 +83,7 @@
     "Outfits",
     "NPC Models",
     "Upgrades",
+    "Ammo Upgrades",
     "Misc"
   ],
   "OldVersionsToDelete": [

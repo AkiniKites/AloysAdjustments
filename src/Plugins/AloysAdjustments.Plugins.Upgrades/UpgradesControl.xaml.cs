@@ -12,6 +12,7 @@ using AloysAdjustments.Logic.Patching;
 using AloysAdjustments.Plugins.Upgrades.Data;
 using AloysAdjustments.UI;
 using Decima;
+using Decima.HZD;
 
 namespace AloysAdjustments.Plugins.Upgrades
 {
@@ -20,7 +21,7 @@ namespace AloysAdjustments.Plugins.Upgrades
     /// </summary>
     public partial class UpgradesControl : InteractivePluginControl, INotifyPropertyChanged
     {
-        private UpgradesLogic Logic { get; }
+        private CharacterUpgradesLogic Logic { get; }
         public List<Upgrade> Upgrades { get; set; }
 
         public override string PluginName => "Upgrades";
@@ -29,7 +30,7 @@ namespace AloysAdjustments.Plugins.Upgrades
         {
             IoC.Bind(Configs.LoadModuleConfig<UpgradeConfig>(PluginName));
 
-            Logic = new UpgradesLogic();
+            Logic = new CharacterUpgradesLogic();
 
             InitializeComponent();
         }
@@ -89,9 +90,11 @@ namespace AloysAdjustments.Plugins.Upgrades
 
         public async Task UpdateDisplayNames(IEnumerable<Upgrade> upgrades)
         {
-            foreach (var o in upgrades)
+            foreach (var u in upgrades)
             {
-                o.SetDisplayName(await IoC.Localization.GetString(o.LocalNameFile, o.LocalNameId));
+                var name = await IoC.Localization.GetString(u.LocalName);
+                name = IoC.Localization.ToTitleCase(name);
+                u.SetDisplayName(name);
             }
         }
 
@@ -101,12 +104,16 @@ namespace AloysAdjustments.Plugins.Upgrades
 
         private void MultiplyValues(int multi)
         {
-            Upgrades.ForEach(x => {
-                if ((long)x.Value * multi > int.MaxValue)
-                    x.Value = int.MaxValue;
+            var upgrades = dgUpgrades.SelectedItems.Count == 0 ?
+                Upgrades : dgUpgrades.SelectedItems.Cast<Upgrade>();
+
+            foreach (var upgrade in upgrades)
+            {
+                if ((long)upgrade.Value * multi > int.MaxValue)
+                    upgrade.Value = int.MaxValue;
                 else
-                    x.Value *= multi;
-            });
+                    upgrade.Value *= multi;
+            }
         }
 
         private void dgUpgrades_SelectionChanged(object sender, SelectionChangedEventArgs e)

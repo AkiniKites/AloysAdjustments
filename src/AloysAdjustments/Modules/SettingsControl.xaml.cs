@@ -205,8 +205,7 @@ namespace AloysAdjustments.Modules
 
         private void UpdateVersion()
         {
-            var version = Assembly.GetEntryAssembly()?.GetName().Version;
-            lblCurrentVersion.Text = version?.ToString(3) ?? "Unknown";
+            lblCurrentVersion.Text = IoC.CurrentVersion?.ToString(3) ?? "Unknown";
         }
 
         private async Task CheckUpdates()

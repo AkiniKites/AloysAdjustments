@@ -30,6 +30,8 @@ namespace AloysAdjustments.Utility
         {
             data = default(T);
 
+            if (IoC.Debug.DisableGameCache)
+                return false;
             if (!File.Exists(CachePath))
                 return false;
 
@@ -52,7 +54,7 @@ namespace AloysAdjustments.Utility
             var cache = new CacheData()
             {
                 Path = IoC.Settings.GamePath,
-                Version = Assembly.GetEntryAssembly()?.GetName().Version.ToString(),
+                Version = IoC.CurrentVersion.ToString(),
                 Data = data
             };
             var json = JsonConvert.SerializeObject(cache,

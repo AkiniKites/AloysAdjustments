@@ -11,7 +11,7 @@ using Upgrade = AloysAdjustments.Plugins.Upgrades.Data.Upgrade;
 
 namespace AloysAdjustments.Plugins.Upgrades
 {
-    public class UpgradesLogic
+    public class CharacterUpgradesLogic
     {
         public async Task<Dictionary<BaseGGUUID, Upgrade>> GenerateUpgradeList(
             Func<string, Task<HzdCore>> coreGetter)
@@ -36,8 +36,7 @@ namespace AloysAdjustments.Plugins.Upgrades
 
                 if (ignored.Contains(invMod.ObjectUUID.ToString()))
                     continue;
-
-                //TODO: maybe allow individual changes
+                
                 var value = new[] {
                     invMod.WeaponsCapacityIncrease,
                     invMod.ModificationsCapacityIncrease,
@@ -45,18 +44,17 @@ namespace AloysAdjustments.Plugins.Upgrades
                     invMod.ResourcesCapacityIncrease,
                     invMod.ToolsCapacityIncrease
                 }.Max();
-
-                var up = new Upgrade
+                
+                var upgrade = new Upgrade
                 {
                     Id = invMod.ObjectUUID,
                     Name = invMod.Name,
+                    LocalName = charUpgrade.DisplayName,
                     Value = value,
                     DefaultValue = value,
-                    LocalNameId = charUpgrade.DisplayName.GUID,
-                    LocalNameFile = charUpgrade.DisplayName.ExternalFile.ToString()
                 };
-
-                upgrades.Add(up.Id, up);
+                
+                upgrades.Add(upgrade.Id, upgrade);
             }
 
             return upgrades;

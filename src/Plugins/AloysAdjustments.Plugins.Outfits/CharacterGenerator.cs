@@ -60,8 +60,9 @@ namespace AloysAdjustments.Plugins.Outfits
 
             var modelBag = new ConcurrentBag<CharacterModel>();
 
+            var parallels = IoC.Debug.SingleThread ? 1 : Environment.ProcessorCount;
             var tasks = new ParallelTasks<string>(
-                Environment.ProcessorCount, file =>
+                parallels, file =>
                 {
                     if (IsValid(file, all))
                     {

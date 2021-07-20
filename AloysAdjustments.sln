@@ -32,6 +32,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "data", "data", "{1BDB0801-8
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AloysAdjustments.Common", "src\AloysAdjustments.Common\AloysAdjustments.Common.csproj", "{88C71567-DB25-447C-8149-6A9F2EDC88DD}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AloysAdjustments.Plugins.AmmoUpgrades", "src\Plugins\AloysAdjustments.Plugins.AmmoUpgrades\AloysAdjustments.Plugins.AmmoUpgrades.csproj", "{5638273E-7F64-4A62-BF33-FFEBA0CE785A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -74,6 +76,10 @@ Global
 		{88C71567-DB25-447C-8149-6A9F2EDC88DD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{88C71567-DB25-447C-8149-6A9F2EDC88DD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{88C71567-DB25-447C-8149-6A9F2EDC88DD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5638273E-7F64-4A62-BF33-FFEBA0CE785A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5638273E-7F64-4A62-BF33-FFEBA0CE785A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5638273E-7F64-4A62-BF33-FFEBA0CE785A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5638273E-7F64-4A62-BF33-FFEBA0CE785A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -86,6 +92,7 @@ Global
 		{DCE522B1-BA53-4091-A0F0-8BF13187FB66} = {EDF6161E-575C-43D0-8C94-C656455550FE}
 		{D56444FD-69C7-4899-A90A-9FACB3DFC684} = {EDF6161E-575C-43D0-8C94-C656455550FE}
 		{8F5B7B20-F8CB-4061-A1B6-F4D3DF380E66} = {D56444FD-69C7-4899-A90A-9FACB3DFC684}
+		{5638273E-7F64-4A62-BF33-FFEBA0CE785A} = {EDF6161E-575C-43D0-8C94-C656455550FE}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {34743786-FAA9-44BB-8B10-964C6DB60BE8}

@@ -87,7 +87,7 @@ namespace AloysAdjustments.Plugins.NPC
             ModelsView.CustomSort = Comparer<Model>.Create(CompareModels);
 
             Npcs = new ObservableCollection<ValuePair<Model>>();
-            NpcsView =new ListCollectionView(Npcs);
+            NpcsView = new ListCollectionView(Npcs);
             NpcsView.Filter = NpcFilter;
             NpcsView.CustomSort = Comparer<ValuePair<Model>>.Create((a, b) => CompareModels(a.Default, b.Default));
 
