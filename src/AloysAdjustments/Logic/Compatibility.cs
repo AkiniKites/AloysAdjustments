@@ -15,7 +15,7 @@ namespace AloysAdjustments.Logic
     public class Compatibility
     {
         private static readonly Version[] CleanCacheBreakpoints = { 
-            new Version(1,7,2)
+            new Version(1,7,4)
         };
 
         public static void CleanupOldVersions()
@@ -39,30 +39,26 @@ namespace AloysAdjustments.Logic
         private static bool HitBreakpoint(Version[] breakpoints)
         {
             var version = IoC.Settings.Version;
-            
+            var curVersion = IoC.CurrentVersion;
+
             //prev setting was before versions so assume true
-            if (String.IsNullOrEmpty(version) || !Version.TryParse(version, out var prevVersion))
-                return true;
-
             //can't get current version, shouldn't happen
-            var curVersion = GetVersion();
-            if (curVersion == null || curVersion.Equals(prevVersion))
+            if (String.IsNullOrEmpty(version) 
+                || !Version.TryParse(version, out var prevVersion)
+                || curVersion == null)
                 return true;
 
-            //prev version before or at breakpoint and current version after
+            if (curVersion.Equals(prevVersion))
+                return false;
+
+            //prev version before breakpoint and current version after or at
             foreach (var v in breakpoints)
             {
-                if (prevVersion <= v && curVersion >= v)
+                if (prevVersion < v && curVersion >= v)
                     return true;
             }
 
             return false;
-        }
-
-        public static Version GetVersion()
-        {
-            var entry = Assembly.GetEntryAssembly();
-            return entry?.GetName().Version;
         }
     }
 }

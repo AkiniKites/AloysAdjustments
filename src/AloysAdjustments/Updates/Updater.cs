@@ -122,8 +122,8 @@ namespace AloysAdjustments.Updates
                 throw new InvalidOperationException("Cannot get entry assembly");
             
             return new AssemblyMetadata(
-                entry.GetName().Name, 
-                entry.GetName().Version,
+                entry.GetName().Name,
+                IoC.CurrentVersion,
                 Process.GetCurrentProcess().MainModule.FileName);
         }
     }

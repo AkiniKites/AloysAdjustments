@@ -173,7 +173,7 @@ namespace AloysAdjustments
                 Compatibility.CleanupOldCache();
             });
 
-            IoC.Settings.Version = Compatibility.GetVersion()?.ToString(3);
+            IoC.Settings.Version = IoC.CurrentVersion.ToString(3);
         }
 
         private async Task<bool> InitializePlugins()

@@ -23,11 +23,23 @@ namespace AloysAdjustments
                 .WithParsed(o => cmds = o)
                 .WithNotParsed(errs => Console.WriteLine("Unable to parse command line: {0}", String.Join(" ", e.Args)));
 
+            SetDebug(cmds);
+
+            base.OnStartup(e);
+        }
+
+        private void SetDebug(CmdOptions cmds)
+        {
             IoC.Bind(new DebugConfig());
             IoC.Debug.DisableGameCache = cmds.DisableGameCache;
             IoC.Debug.SingleThread = cmds.SingleThread;
 
-            base.OnStartup(e);
+            if (!String.IsNullOrEmpty(cmds.Version) 
+                && Version.TryParse(cmds.Version, out var debugVersion))
+            {
+                IoC.Bind(debugVersion);
+            }
+
         }
     }
 
@@ -38,5 +50,8 @@ namespace AloysAdjustments
 
         [Option("single-thread", HelpText = "Run all parallel tasks in a single thread")]
         public bool SingleThread { get; set; }
+
+        [Option("version", HelpText = "Set the program version")]
+        public string Version { get; set; }
     }
 }

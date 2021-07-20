@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using AloysAdjustments.Configuration;
@@ -20,6 +21,10 @@ namespace AloysAdjustments.Logic
                     LoadExtensions = false
                 });
             Kernel.Components.Remove<IMissingBindingResolver, SelfBindingResolver>();
+
+            var entry = Assembly.GetEntryAssembly();
+            if (entry != null)
+                Bind(entry.GetName().Version);
         }
 
         public static IKernel Kernel { get; }
@@ -41,6 +46,7 @@ namespace AloysAdjustments.Logic
             }
         }
         public static Uuid Uuid => Kernel.Get<Uuid>();
+        public static Version CurrentVersion => Kernel.Get<Version>(); 
 
         public static void Bind<T>(T value)
         {
