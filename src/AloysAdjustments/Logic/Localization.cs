@@ -38,7 +38,8 @@ namespace AloysAdjustments.Logic
 
         public async Task<string> GetString(LocalString text)
         {
-            if (text == null) return string.Empty;
+            if (text == null) 
+                return string.Empty;
             return await GetString(text.File, text.Id);
         }
         public async Task<string> GetString(string file, BaseGGUUID id)

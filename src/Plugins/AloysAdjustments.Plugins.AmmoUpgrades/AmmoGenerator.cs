@@ -59,18 +59,27 @@ namespace AloysAdjustments.Plugins.AmmoUpgrades
                 {
                     var core = HzdCoreUtility.GetRefCore(ammoCore, comp);
 
-                    if (ammoCore.GetTypeById(comp.GUID) is InventoryItemComponentResource item)
+                    var resource = core.GetTypeById(comp.GUID);
+
+                    if (resource is InventoryItemComponentResource item)
                         ammo.LocalName = item.LocalizedItemName;
-                    else if (core.GetTypeById(comp.GUID) is UpgradableStackableComponentResource stackable)
+                    else if (resource is UpgradableStackableComponentResource stackable)
                     {
-                        ammo.UpgradeId = stackable.ObjectUUID;
-                        ammo.UpgradeFile = core.Source;
+                        ammo.StackableId = stackable.ObjectUUID;
+                        ammo.StackableFile = core.Source;
                         ammo.FactId = stackable.UpgradeLevelFact.GUID;
                         ammo.FactFile = stackable.UpgradeLevelFact.ExternalFile;
+                        ammo.Upgradeable = true;
+                    }
+                    else if (resource is StackableComponentResource singleStackable)
+                    {
+                        ammo.StackableId = singleStackable.ObjectUUID;
+                        ammo.StackableFile = core.Source;
+                        ammo.Upgradeable = false;
                     }
                 }
 
-                if (ammo.UpgradeId != null)
+                if (ammo.StackableId != null)
                 {
                     yield return ammo;
 

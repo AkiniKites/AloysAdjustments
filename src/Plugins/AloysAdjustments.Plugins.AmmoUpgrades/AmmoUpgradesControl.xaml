@@ -70,8 +70,8 @@
                 </Style>
             </DataGrid.RowStyle>
             <DataGrid.Columns>
-                <DataGridTextColumn Header="Category" Binding="{Binding DisplayCategory}" IsReadOnly="True" />
-                <DataGridTextColumn Header="Upgrade" Binding="{Binding DisplayName}" IsReadOnly="True" />
+                <DataGridTextColumn Header="Upgrade" Binding="{Binding DisplayCategory}" IsReadOnly="True" />
+                <DataGridTextColumn Header="Ammo" Binding="{Binding DisplayName}" IsReadOnly="True" />
                 <DataGridTextColumn Header="Level" Binding="{Binding Level}" IsReadOnly="True" />
                 <DataGridTemplateColumn Header="Capacity" MinWidth="100">
                     <DataGridTemplateColumn.CellTemplate>
