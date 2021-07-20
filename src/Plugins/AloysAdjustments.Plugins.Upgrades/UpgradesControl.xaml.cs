@@ -104,12 +104,16 @@ namespace AloysAdjustments.Plugins.Upgrades
 
         private void MultiplyValues(int multi)
         {
-            Upgrades.ForEach(x => {
-                if ((long)x.Value * multi > int.MaxValue)
-                    x.Value = int.MaxValue;
+            var upgrades = dgUpgrades.SelectedItems.Count == 0 ?
+                Upgrades : dgUpgrades.SelectedItems.Cast<Upgrade>();
+
+            foreach (var upgrade in upgrades)
+            {
+                if ((long)upgrade.Value * multi > int.MaxValue)
+                    upgrade.Value = int.MaxValue;
                 else
-                    x.Value *= multi;
-            });
+                    upgrade.Value *= multi;
+            }
         }
 
         private void dgUpgrades_SelectionChanged(object sender, SelectionChangedEventArgs e)

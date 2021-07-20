@@ -5,6 +5,8 @@
                          xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
                          xmlns:local="clr-namespace:AloysAdjustments.Plugins.Upgrades"
                          xmlns:plugins="clr-namespace:AloysAdjustments.Plugins;assembly=AloysAdjustments"
+                         xmlns:fa5="http://schemas.fontawesome.com/icons/"
+                         xmlns:c="clr-namespace:AloysAdjustments.Common.UI.Controls;assembly=AloysAdjustments.Common"
                          mc:Ignorable="d" 
                          d:DesignHeight="450" d:DesignWidth="800"
                          DataContext="{Binding RelativeSource={RelativeSource Self}}">
@@ -58,8 +60,30 @@
             </DataGrid.RowStyle>
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Upgrade" Binding="{Binding DisplayName}" IsReadOnly="True" />
-                <DataGridTextColumn Header="Capacity Increase" Binding="{Binding Value}" />
-                <DataGridTextColumn Header="" Width="*" />
+                <DataGridTemplateColumn Header="Capacity Increase" MinWidth="100">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <DockPanel Margin="0 0 -10 0">
+                                <fa5:SvgAwesome DockPanel.Dock="Right" Icon="Solid_PencilAlt" Foreground="#CCCCCC"
+                                            HorizontalAlignment="Right" VerticalAlignment="Center" 
+                                            Width="12" Height="12" Margin="5 0 0 0"/>
+                                <TextBlock x:Name="Tb" Text="{Binding Value}" />
+                            </DockPanel>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                    <DataGridTemplateColumn.CellEditingTemplate>
+                        <DataTemplate>
+                            <DockPanel Margin="0 0 -10 0">
+                                <fa5:SvgAwesome DockPanel.Dock="Right" Icon="Solid_PencilAlt" Foreground="#CCCCCC"
+                                            HorizontalAlignment="Right" VerticalAlignment="Center" 
+                                            Width="12" Height="12" Margin="5 0 0 0"/>
+                                <c:AutoSelectTextBox x:Name="Tb" Text="{Binding Value}" BorderBrush="Transparent" BorderThickness="0" Background="White"
+                                                 FocusManager.FocusedElement="{Binding RelativeSource={RelativeSource Self}}"/>
+                            </DockPanel>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellEditingTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTextColumn Header="" Width="*" IsReadOnly="True"/>
             </DataGrid.Columns>
         </DataGrid>
     </DockPanel>
