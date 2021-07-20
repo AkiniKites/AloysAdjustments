@@ -41,13 +41,13 @@ namespace AloysAdjustments.Plugins.AmmoUpgrades
         {
             var ammoCore = IoC.Archiver.LoadGameFile(file);
 
-            var entities = ammoCore.GetTypes<EntityProjectileAmmoResource>() //ammo entities
-                .Select(x => (x.Name, x.ObjectUUID, x.EntityComponentResources))
-                .Concat(ammoCore.GetTypes<InventoryActionAbilityResource>() //potion entities
-                    .Select(x => (x.Name, x.ObjectUUID, x.EntityComponentResources)));
-
+            var entities = ammoCore.GetTypes<AmmoResource>() //ammo entities
+                .Select(x => (x.Name, x.ObjectUUID, x.EntityComponentResources));
+            entities = entities.Concat(ammoCore.GetTypes<InventoryActionAbilityResource>() //potion entities
+                .Select(x => (x.Name, x.ObjectUUID, x.EntityComponentResources)));
+            
             foreach (var entity in entities)
-            {
+            { 
                 var ammo = new AmmoItem()
                 {
                     Name = entity.Name,
@@ -72,11 +72,9 @@ namespace AloysAdjustments.Plugins.AmmoUpgrades
 
                 if (ammo.UpgradeId != null)
                 {
-                    Console.WriteLine($"{file}");
-
                     yield return ammo;
 
-                    //only take 1 projectile from file
+                    //only take 1 entity from file
                     break;
                 }
             }
