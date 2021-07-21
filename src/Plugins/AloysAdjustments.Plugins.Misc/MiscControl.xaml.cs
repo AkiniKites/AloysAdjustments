@@ -1,10 +1,13 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using System.Windows;
 using AloysAdjustments.Configuration;
 using AloysAdjustments.Logic;
 using AloysAdjustments.Logic.Patching;
 using AloysAdjustments.Plugins.Misc.Data;
 using AloysAdjustments.UI;
+using AloysAdjustments.Utility;
 
 namespace AloysAdjustments.Plugins.Misc
 {
@@ -71,6 +74,23 @@ namespace AloysAdjustments.Plugins.Misc
                 changedValues.RemoveMenuMusic = null;
 
             MiscLogic.CreatePatch(patch, Adjustments);
+        }
+
+        public override Task CommandAction(string command)
+        {
+            //skip intro movies: i
+            if (command.IndexOf("i", StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                Adjustments.SkipIntroLogos = true;
+            }
+
+            //mute menu music: m
+            if (command.IndexOf("m", StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                Adjustments.RemoveMenuMusic = true;
+            }
+
+            return Task.CompletedTask;
         }
 
 

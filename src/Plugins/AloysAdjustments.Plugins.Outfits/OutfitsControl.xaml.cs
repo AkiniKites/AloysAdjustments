@@ -217,7 +217,6 @@ namespace AloysAdjustments.Plugins.Outfits
             return Task.CompletedTask;
         }
 
-
         private void lbOutfits_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             _updatingLists = true;
