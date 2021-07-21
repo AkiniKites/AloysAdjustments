@@ -20,5 +20,8 @@ namespace AloysAdjustments.Configuration
 
         [Option('p', "patch", HelpText = "Build patch and exit")]
         public bool BuildPatch { get; set; }
+        
+        [Option('c', "cmd", HelpText = "Execute commands automatically. Command format is '<plugin name> <command>'...")]
+        public IEnumerable<string> Commands { get; set; }
     }
 }

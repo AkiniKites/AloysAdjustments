@@ -21,5 +21,7 @@ namespace AloysAdjustments.Plugins.NPC
         public abstract Task Initialize();
 
         public virtual bool ValidateChanges() => true;
+
+        public virtual Task CommandAction(string command) => Task.CompletedTask;
     }
 }

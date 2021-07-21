@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -195,6 +196,27 @@ namespace AloysAdjustments.Plugins.Outfits
 
             Patcher.CreatePatch(patch, DefaultOutfits.ToList(), Outfits, models);
         }
+
+        public override Task CommandAction(string command)
+        {
+            //format: s###
+            var m = new Regex(@"s(?<index>\d+)").Match(command);
+            if (!m.Success)
+                throw new InvalidOperationException("Invalid auto command: " + command);
+
+            var idx = int.Parse(m.Groups["index"].Value);
+            if (idx < 0 || idx >= Models.Count)
+                throw new InvalidOperationException("Invalid auto command model index: " + idx);
+            
+            CmdOutput.WriteLine("outfit=" + Models[idx].Name);
+
+            //select the model from the index
+            foreach (var outfit in Outfits.ToList())
+                UpdateMapping(outfit, Models[idx]);
+
+            return Task.CompletedTask;
+        }
+
 
         private void lbOutfits_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {

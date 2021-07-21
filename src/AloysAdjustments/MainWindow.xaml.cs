@@ -157,7 +157,26 @@ namespace AloysAdjustments
             IoC.Notif.HideProgress();
             IoC.Notif.ShowStatus("Loading complete");
 
+            await TryApplyCommands();
             await TryPatchAndExit();
+        }
+
+        private async Task TryApplyCommands()
+        {
+            if (!IoC.CmdOptions.Commands.Any())
+                return;
+
+            CmdOutput.Reset();
+            var cmds = IoC.CmdOptions.Commands.ToArray();
+            for (int i = 0; i < cmds.Length; i+=2)
+            {
+                var pluginName = cmds[i];
+                var cmd = cmds[i+1];
+
+                var plugin = Plugins.FirstOrDefault(x => string.Equals(x.PluginName, pluginName, StringComparison.OrdinalIgnoreCase));
+                if (plugin != null)
+                    await plugin.CommandAction(cmd);
+            }
         }
 
         private async Task TryPatchAndExit()

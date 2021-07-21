@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -22,6 +23,9 @@ namespace AloysAdjustments
             parser.ParseArguments<CmdOptions>(e.Args)
                 .WithParsed(o => cmds = o)
                 .WithNotParsed(errs => Console.WriteLine("Unable to parse command line: {0}", String.Join(" ", e.Args)));
+
+            if (cmds.Commands.ToList().Count % 2 != 0)
+                throw new ArgumentException("Invalid number of commands: " + cmds.Commands.ToList().Count);
 
             IoC.Bind(cmds);
 

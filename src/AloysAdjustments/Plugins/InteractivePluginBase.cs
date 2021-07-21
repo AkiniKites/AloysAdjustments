@@ -36,5 +36,7 @@ namespace AloysAdjustments.Plugins
 
         private async void ResetSelected_ClickCommand() => await Relay.To(ResetSelected_Click);
         protected virtual Task ResetSelected_Click() => Task.CompletedTask;
+
+        public virtual Task CommandAction(string command) => Task.CompletedTask;
     }
 }
