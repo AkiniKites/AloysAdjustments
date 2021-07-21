@@ -52,7 +52,7 @@ namespace AloysAdjustments.Utility
             var files = Prefetch.Load().Files.Keys;
             var bag = new ConcurrentBag<T>();
 
-            var parallels = IoC.Debug.SingleThread ? 1 : Environment.ProcessorCount;
+            var parallels = IoC.CmdOptions.SingleThread ? 1 : Environment.ProcessorCount;
             var tasks = new ParallelTasks<string>(
                 parallels, file =>
                 {

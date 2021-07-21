@@ -156,6 +156,17 @@ namespace AloysAdjustments
 
             IoC.Notif.HideProgress();
             IoC.Notif.ShowStatus("Loading complete");
+
+            await TryPatchAndExit();
+        }
+
+        private async Task TryPatchAndExit()
+        {
+            if (!IoC.CmdOptions.BuildPatch)
+                return;
+
+            await btnPatch_Click(null, null);
+            System.Windows.Application.Current.Shutdown();
         }
 
         private async void Settings_SettingsOkayCommand() => await Relay.To(Settings_SettingsOkay);
