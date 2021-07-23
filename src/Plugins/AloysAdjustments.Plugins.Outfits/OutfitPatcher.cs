@@ -208,9 +208,9 @@ namespace AloysAdjustments.Plugins.Outfits
             newVariant.ObjectUUID = IoC.Uuid.New();
 
             //rename if not a copy
-            if (!CharacterGenerator.VariantNameMatcher.IsMatch(variant.Name))
+            if (!OutfitCharacterGenerator.VariantNameMatcher.IsMatch(variant.Name))
             {
-                newVariant.Name = $"{variant.Name}{CharacterGenerator.VariantNameFormat}{variant.ObjectUUID}";
+                newVariant.Name = $"{variant.Name}{OutfitCharacterGenerator.VariantNameFormat}{variant.ObjectUUID}";
                 isOriginal = true;
             }
             else

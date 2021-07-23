@@ -26,7 +26,7 @@ namespace AloysAdjustments.Plugins.Outfits
         private bool _loading;
 
         private OutfitsGenerator OutfitGen { get; }
-        private CharacterGenerator CharacterGen { get; }
+        private OutfitCharacterGenerator CharacterGen { get; }
         private OutfitPatcher Patcher { get; }
 
         private HashSet<Outfit> DefaultOutfits { get; set; }
@@ -50,7 +50,7 @@ namespace AloysAdjustments.Plugins.Outfits
             IoC.Bind(Configs.LoadModuleConfig<OutfitConfig>(PluginName));
 
             OutfitGen = new OutfitsGenerator();
-            CharacterGen = new CharacterGenerator();
+            CharacterGen = new OutfitCharacterGenerator();
             Patcher = new OutfitPatcher();
             Outfits = new List<Outfit>().AsReadOnly();
 

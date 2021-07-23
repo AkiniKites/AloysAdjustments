@@ -1,19 +1,15 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using AloysAdjustments.Logic;
-using AloysAdjustments.Logic.Patching;
-using AloysAdjustments.Plugins.Common;
 using AloysAdjustments.Plugins.Common.Data;
 using AloysAdjustments.Utility;
 using Decima.HZD;
-using HZDCoreEditor.Util;
 
-namespace AloysAdjustments.Plugins.NPC.Characters
+namespace AloysAdjustments.Plugins.Common.Characters
 {
     public class CharacterGenerator
     {
@@ -29,9 +25,9 @@ namespace AloysAdjustments.Plugins.NPC.Characters
             UniqueHumanoidMatcher = new Regex(IoC.Get<CharacterConfig>().UniqueHumanoidMatcher);
             var ignored = IoC.Get<CharacterConfig>().IgnoredFiles;
 
-            _uniqueFileCollector = new FileCollector<CharacterModel>("npc-u",
+            _uniqueFileCollector = new FileCollector<CharacterModel>("characters-u",
                 f => IsHumanoid(f) && IsUnique(f), GetCharacterModels, ignored);
-            _normalFileCollector = new FileCollector<CharacterModel>("npc-n",
+            _normalFileCollector = new FileCollector<CharacterModel>("characters-n",
                 f => IsHumanoid(f) && !IsUnique(f), GetCharacterModels, ignored);
         }
 

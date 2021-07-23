@@ -48,6 +48,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CharacterConfig.cs" />
+    <Compile Include="Characters\CharacterGenerator.cs" />
     <Compile Include="Data\CharacterModel.cs" />
     <Compile Include="Data\Model.cs" />
     <Compile Include="Data\ValuePair.cs" />

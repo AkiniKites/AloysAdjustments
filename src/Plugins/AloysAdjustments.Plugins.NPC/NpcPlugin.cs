@@ -11,6 +11,7 @@ using AloysAdjustments.Configuration;
 using AloysAdjustments.Logic;
 using AloysAdjustments.Logic.Patching;
 using AloysAdjustments.Plugins.Common;
+using AloysAdjustments.Plugins.Common.Characters;
 using AloysAdjustments.Plugins.Common.Data;
 using AloysAdjustments.Plugins.NPC.Characters;
 using AloysAdjustments.UI;

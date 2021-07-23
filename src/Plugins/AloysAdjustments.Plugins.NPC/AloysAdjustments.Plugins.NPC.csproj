@@ -97,7 +97,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Characters\CharacterGenerator.cs" />
     <Compile Include="Characters\CharacterReference.cs" />
     <Compile Include="Characters\CharacterReferences.cs" />
     <Compile Include="NpcPlugin.cs" />
