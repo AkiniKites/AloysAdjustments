@@ -8,6 +8,7 @@
       ]
     },
     "Outfits": {
+      "ImageSource": "",
       "AloyCharacterName": "AloyPlayerCharacter",
       "PlayerComponentsFile": "entities/characters/humanoids/player/player_components",
       "PlayerCharacterFile": "entities/characters/humanoids/player/playercharacter",
@@ -66,6 +67,7 @@
   "ArchiverLib": "oo2core_3_win64.dll",
   "TempPath": "temp",
   "CachePath": "caches",
+  "ImageCachePath": "caches/img",
   "PackDir": "Packed_DX12",
   "PatchFile": "Patch_AloysAdjustments.bin",
   "UpdatesRepo": "AkiniKites/AloysAdjustments",

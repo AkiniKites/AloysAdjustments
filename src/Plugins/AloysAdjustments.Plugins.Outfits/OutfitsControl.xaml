@@ -33,6 +33,8 @@
                 <ColumnDefinition Width="4*" />
                 <ColumnDefinition Width="5"/>
                 <ColumnDefinition Width="5*"/>
+                <ColumnDefinition Width="5"/>
+                <ColumnDefinition Width="5*"/>
             </Grid.ColumnDefinitions>
 
             <DockPanel Grid.Column="0">
@@ -81,6 +83,8 @@
                     </ListBox.ItemTemplate>
                 </ListBox>
             </DockPanel>
+            <GridSplitter Grid.Column="3" Width="5" HorizontalAlignment="Stretch" Background="Transparent"/>
+            <Image Grid.Column="4" Source="{Binding ModelImage}"/>
         </Grid>
     </DockPanel>
 </plugins:InteractivePluginControl>

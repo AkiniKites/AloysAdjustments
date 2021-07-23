@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -13,11 +14,13 @@ using System.Windows.Input;
 using AloysAdjustments.Configuration;
 using AloysAdjustments.Logic;
 using AloysAdjustments.Logic.Patching;
-using AloysAdjustments.Plugins.Common.Data;
+using AloysAdjustments.Plugins.Common;
 using AloysAdjustments.Plugins.Outfits.Data;
 using AloysAdjustments.UI;
 using AloysAdjustments.Utility;
 using Decima;
+using Model = AloysAdjustments.Plugins.Common.Data.Model;
+using String = System.String;
 
 namespace AloysAdjustments.Plugins.Outfits
 {
@@ -30,12 +33,14 @@ namespace AloysAdjustments.Plugins.Outfits
         private CharacterGenerator CharacterGen { get; }
         private OutfitPatcher Patcher { get; }
 
-        private HashSet<Outfit> DefaultOutfits { get; set; }
+        private System.Collections.Generic.HashSet<Outfit> DefaultOutfits { get; set; }
         public ReadOnlyCollection<Outfit> Outfits { get; set; }
         public ReadOnlyCollection<Model> Models { get; set; }
         private ReadOnlyCollection<Outfit> AllOutfitStub { get; }
 
         public ReadOnlyCollection<OutfitModelFilter> Filters { get; set; }
+
+        public byte[] ModelImage { get; set; }
 
         public override string PluginName => "Outfits";
 
@@ -135,6 +140,13 @@ namespace AloysAdjustments.Plugins.Outfits
                     models.AddRange(LoadCharacterModelList(true));
 
                 Models = models.AsReadOnly();
+
+                lock (this)
+                {
+                    if (File.Exists("models.txt")) File.Delete("model.txt");
+                    foreach (var m in models)
+                        File.AppendAllText("model.txt", m.Name + "\r\n");
+                }
             });
 
             UpdateModelDisplayNames(DefaultOutfits, Models);
@@ -199,20 +211,14 @@ namespace AloysAdjustments.Plugins.Outfits
 
         public override Task CommandAction(string command)
         {
-            //format: s###
-            var m = new Regex(@"s(?<index>\d+)").Match(command);
-            if (!m.Success)
-                throw new InvalidOperationException("Invalid auto command: " + command);
-
-            var idx = int.Parse(m.Groups["index"].Value);
-            if (idx < 0 || idx >= Models.Count)
-                throw new InvalidOperationException("Invalid auto command model index: " + idx);
+            //format: <armor-name>
+            var model = Models.FirstOrDefault(x => String.Equals(x.Name, command.Trim(), StringComparison.OrdinalIgnoreCase));
+            if (model == null)
+                throw new InvalidOperationException("Invalid auto command model name: " + command);
             
-            CmdOutput.WriteLine("outfit=" + Models[idx].Name);
-
             //select the model from the index
             foreach (var outfit in Outfits.ToList())
-                UpdateMapping(outfit, Models[idx]);
+                UpdateMapping(outfit, model);
 
             return Task.CompletedTask;
         }
@@ -236,14 +242,17 @@ namespace AloysAdjustments.Plugins.Outfits
             _updatingLists = false;
         }
 
-        private void clbModels_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private async void clbModels_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             var selected = (e.AddedItems.Count > 0 ? e.AddedItems[0] : null) as Model;
 
             if (_updatingLists || selected == null)
                 return;
             _updatingLists = true;
-            
+
+            var mir = new ModelImageRepo();
+            ModelImage = await mir.LoadImage(selected.Name);
+
             selected.Checked = true;
             foreach (var model in Models)
             {
