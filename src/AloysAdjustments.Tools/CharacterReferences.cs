@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using AloysAdjustments.Configuration;
 using AloysAdjustments.Logic;
 using AloysAdjustments.Plugins.Common;
+using AloysAdjustments.Plugins.Common.Characters;
 using AloysAdjustments.Plugins.Common.Data;
 using AloysAdjustments.Plugins.NPC;
 using AloysAdjustments.Plugins.NPC.Characters;

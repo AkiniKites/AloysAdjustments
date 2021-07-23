@@ -81,7 +81,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CharacterGenerator.cs" />
+    <Compile Include="OutfitCharacterGenerator.cs" />
     <Compile Include="Data\Outfit.cs" />
     <Compile Include="Data\OutfitFile.cs" />
     <Compile Include="OutfitConfig.cs" />

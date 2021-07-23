@@ -9,7 +9,7 @@ namespace AloysAdjustments.Configuration
 {
     public class CmdOptions
     {
-        [Option("disable-game-cache", HelpText = "Disable all game caches")]
+        [Option("no-cache", HelpText = "Disable all game caches")]
         public bool DisableGameCache { get; set; }
 
         [Option("single-thread", HelpText = "Run all parallel tasks in a single thread")]
