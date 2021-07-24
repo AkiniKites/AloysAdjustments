@@ -24,7 +24,7 @@ namespace AloysAdjustments.Plugins.AmmoUpgrades
             var ignored = IoC.Get<AmmoUpgradeConfig>().IgnoredFiles.ToArray();
 
             _ammoFileCollector = new FileCollector<AmmoItem>("ammo",
-                IsAmmoFile, GetAmmoItems, ignored);
+                IsAmmoFile, GetAmmoItems).WithIgnored(ignored).Build();
         }
 
         public List<AmmoItem> GetAmmoItems()

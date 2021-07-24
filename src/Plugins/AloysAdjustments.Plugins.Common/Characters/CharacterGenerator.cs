@@ -26,9 +26,12 @@ namespace AloysAdjustments.Plugins.Common.Characters
             var ignored = IoC.Get<CharacterConfig>().IgnoredFiles;
 
             _uniqueFileCollector = new FileCollector<CharacterModel>("characters-u",
-                f => IsHumanoid(f) && IsUnique(f), GetCharacterModels, ignored);
+                f => IsHumanoid(f) && IsUnique(f), GetModels)
+                .WithIgnored(ignored).WithConsolidate(ConsolidateModels).Build();
+
             _normalFileCollector = new FileCollector<CharacterModel>("characters-n",
-                f => IsHumanoid(f) && !IsUnique(f), GetCharacterModels, ignored);
+                f => IsHumanoid(f) && !IsUnique(f), GetModels)
+                .WithIgnored(ignored).WithConsolidate(ConsolidateModels).Build();
         }
 
         public List<CharacterModel> GetCharacterModels(bool unique)
@@ -45,7 +48,7 @@ namespace AloysAdjustments.Plugins.Common.Characters
             return HumanoidMatcher.IsMatch(file);
         }
 
-        private List<CharacterModel> GetCharacterModels(string file)
+        private List<CharacterModel> GetModels(string file)
         {
             var pack = IoC.Archiver.LoadGameFile(file);
             var variants = pack.GetTypes<HumanoidBodyVariant>();
@@ -67,6 +70,17 @@ namespace AloysAdjustments.Plugins.Common.Characters
             }
 
             return models;
+        }
+
+        private IEnumerable<CharacterModel> ConsolidateModels(IEnumerable<CharacterModel> models)
+        {
+            //models with the same name have the same mesh, just different properties on the HumanoidBodyVariant
+            //try and take the dlc models
+            foreach (var modelGroup in models.GroupBy(x => x.Name))
+            {
+                var model = modelGroup.OrderBy(x => x.Source.Contains("dlc1") ? 0 : 1).FirstOrDefault();
+                yield return model;
+            }
         }
     }
 }

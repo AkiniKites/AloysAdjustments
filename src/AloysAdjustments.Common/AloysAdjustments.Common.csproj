@@ -103,11 +103,13 @@
     <Compile Include="Utility\Async.cs" />
     <Compile Include="Utility\AsyncException.cs" />
     <Compile Include="Utility\BaseGGUUIDConverter.cs" />
+    <Compile Include="Utility\Disposable.cs" />
     <Compile Include="Utility\Errors.cs" />
     <Compile Include="Utility\Extensions.cs" />
     <Compile Include="Utility\FileBackup.cs" />
     <Compile Include="Utility\HzdCloner.cs" />
     <Compile Include="Utility\HzdException.cs" />
+    <Compile Include="Utility\Locks.cs" />
     <Compile Include="Utility\PackList.cs" />
     <Compile Include="Utility\Paths.cs" />
     <Compile Include="Utility\Uuid.cs" />

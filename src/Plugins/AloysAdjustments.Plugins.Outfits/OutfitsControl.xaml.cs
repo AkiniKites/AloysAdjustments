@@ -138,14 +138,15 @@ namespace AloysAdjustments.Plugins.Outfits
                     models.AddRange(LoadCharacterModelList(false));
                 if (OutfitModelFilter.AllCharacters.IsFlag(filter))
                     models.AddRange(LoadCharacterModelList(true));
-
+                
                 Models = models.AsReadOnly();
 
                 lock (this)
                 {
-                    if (File.Exists("models.txt")) File.Delete("model.txt");
+                    if (File.Exists("models.txt")) 
+                        File.Delete("models.txt");
                     foreach (var m in models)
-                        File.AppendAllText("model.txt", m.Name + "\r\n");
+                        File.AppendAllText("models.txt", m.Name + "\r\n");
                 }
             });
 

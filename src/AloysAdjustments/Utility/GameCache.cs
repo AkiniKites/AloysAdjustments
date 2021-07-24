@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Text;
+using System.Threading;
+using AloysAdjustments.Common.Utility;
 using AloysAdjustments.Logic;
 using Newtonsoft.Json;
 
@@ -16,6 +19,8 @@ namespace AloysAdjustments.Utility
             public string Version { get; set; }
             public T Data { get; set; }
         }
+
+        private static ConcurrentDictionary<string, ReaderWriterLockSlim> _cacheLocks = new ConcurrentDictionary<string, ReaderWriterLockSlim>();
 
         private string CachePath => Path.Combine(IoC.Config.CachePath, $"{Name}.json");
 
@@ -32,10 +37,18 @@ namespace AloysAdjustments.Utility
 
             if (IoC.CmdOptions.DisableGameCache)
                 return false;
-            if (!File.Exists(CachePath))
-                return false;
 
-            var json = File.ReadAllText(CachePath);
+            var cacheLock = _cacheLocks.GetOrAdd(CachePath, x => new ReaderWriterLockSlim());
+            string json;
+
+            using (cacheLock.UsingReaderLock())
+            {
+                if (!File.Exists(CachePath))
+                    return false;
+
+                json = File.ReadAllText(CachePath);
+            }
+
             var cache = JsonConvert.DeserializeObject<CacheData>(
                 json, new BaseGGUUIDConverter());
 
@@ -61,7 +74,10 @@ namespace AloysAdjustments.Utility
                 Formatting.Indented, new BaseGGUUIDConverter());
 
             CheckDirectory();
-            File.WriteAllText(CachePath, json);
+
+            var cacheLock = _cacheLocks.GetOrAdd(CachePath, x => new ReaderWriterLockSlim());
+            using (cacheLock.UsingWriterLock())
+                File.WriteAllText(CachePath, json);
 
             IoC.Notif.CacheUpdate?.Invoke();
         }
