@@ -243,7 +243,7 @@ namespace AloysAdjustments.Plugins.Outfits
             _updatingLists = false;
         }
 
-        private async void clbModels_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void clbModels_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             var selected = (e.AddedItems.Count > 0 ? e.AddedItems[0] : null) as Model;
 
@@ -251,8 +251,7 @@ namespace AloysAdjustments.Plugins.Outfits
                 return;
             _updatingLists = true;
 
-            var mir = new ModelImageRepo();
-            ModelImage = await mir.LoadImage(selected.Name);
+            LoadImage(selected.Name).Forget();
 
             selected.Checked = true;
             foreach (var model in Models)
@@ -274,6 +273,13 @@ namespace AloysAdjustments.Plugins.Outfits
 
             outfit.Modified = !defaultOutfit.ModelId.Equals(model.Id);
             outfit.ModelId.AssignFromOther(model.Id);
+        }
+
+        private async Task LoadImage(string modelName)
+        {
+            var mir = new ModelImageRepo();
+            var image = await mir.LoadImage(modelName);
+            ModelImage = image;
         }
 
         protected override async Task Reset_Click()

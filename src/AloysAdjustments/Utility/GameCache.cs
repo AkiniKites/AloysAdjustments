@@ -20,7 +20,8 @@ namespace AloysAdjustments.Utility
             public T Data { get; set; }
         }
 
-        private static ConcurrentDictionary<string, ReaderWriterLockSlim> _cacheLocks = new ConcurrentDictionary<string, ReaderWriterLockSlim>();
+        private static readonly ConcurrentDictionary<string, ReaderWriterLockSlim> _cacheLocks 
+            = new ConcurrentDictionary<string, ReaderWriterLockSlim>();
 
         private string CachePath => Path.Combine(IoC.Config.CachePath, $"{Name}.json");
 

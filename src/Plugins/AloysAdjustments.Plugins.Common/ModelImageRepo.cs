@@ -1,16 +1,22 @@
 ﻿using AloysAdjustments.Logic;
 using System;
+using System.Collections.Concurrent;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
+using AloysAdjustments.Common.Utility;
 
 namespace AloysAdjustments.Plugins.Common
 {
     public class ModelImageRepo
     {
         public const string ModelImageExt = ".jpg";
+        
+        private static readonly ConcurrentDictionary<string, ReaderWriterLockSlim> _cacheLocks
+            = new ConcurrentDictionary<string, ReaderWriterLockSlim>();
 
         public async Task<byte[]> LoadImage(string modelName)
         {
@@ -29,6 +35,9 @@ namespace AloysAdjustments.Plugins.Common
 
         private async Task<byte[]> ReadAllBytesAsync(string path)
         {
+            var cacheLock = _cacheLocks.GetOrAdd(path, x => new ReaderWriterLockSlim());
+
+            using (cacheLock.UsingReaderLock())
             using (FileStream stream = File.Open(path, FileMode.Open))
             {
                 var result = new byte[stream.Length];
@@ -39,6 +48,9 @@ namespace AloysAdjustments.Plugins.Common
 
         private async Task WriteAllBytesAsync(string path, byte[] bytes)
         {
+            var cacheLock = _cacheLocks.GetOrAdd(path, x => new ReaderWriterLockSlim());
+
+            using (cacheLock.UsingWriterLock())
             using (FileStream sourceStream = new FileStream(path,
                 FileMode.Append, FileAccess.Write, FileShare.None,
                 4096, true))
