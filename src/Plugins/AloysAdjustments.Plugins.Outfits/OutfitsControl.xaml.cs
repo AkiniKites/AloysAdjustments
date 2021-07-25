@@ -32,6 +32,7 @@ namespace AloysAdjustments.Plugins.Outfits
         private OutfitsGenerator OutfitGen { get; }
         private OutfitCharacterGenerator CharacterGen { get; }
         private OutfitPatcher Patcher { get; }
+        private ModelImageRepo ModelRepo { get; }
 
         private System.Collections.Generic.HashSet<Outfit> DefaultOutfits { get; set; }
         public ReadOnlyCollection<Outfit> Outfits { get; set; }
@@ -41,6 +42,7 @@ namespace AloysAdjustments.Plugins.Outfits
         public ReadOnlyCollection<OutfitModelFilter> Filters { get; set; }
 
         public byte[] ModelImage { get; set; }
+        public string SelectedModel { get; set; }
 
         public override string PluginName => "Outfits";
 
@@ -59,6 +61,7 @@ namespace AloysAdjustments.Plugins.Outfits
             CharacterGen = new OutfitCharacterGenerator();
             Patcher = new OutfitPatcher();
             Outfits = new List<Outfit>().AsReadOnly();
+            ModelRepo = new ModelImageRepo();
 
             InitializeComponent();
 
@@ -251,7 +254,8 @@ namespace AloysAdjustments.Plugins.Outfits
                 return;
             _updatingLists = true;
 
-            LoadImage(selected.Name).Forget();
+            SelectedModel = selected.Name;
+            LoadImage(selected.Name);
 
             selected.Checked = true;
             foreach (var model in Models)
@@ -275,11 +279,13 @@ namespace AloysAdjustments.Plugins.Outfits
             outfit.ModelId.AssignFromOther(model.Id);
         }
 
-        private async Task LoadImage(string modelName)
+        private void LoadImage(string modelName)
         {
-            var mir = new ModelImageRepo();
-            var image = await mir.LoadImage(modelName);
-            ModelImage = image;
+            ModelRepo.LoadImage(modelName, image =>
+            {
+                if (SelectedModel == modelName)
+                    ModelImage = image;
+            });
         }
 
         protected override async Task Reset_Click()

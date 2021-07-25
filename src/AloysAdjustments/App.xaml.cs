@@ -18,12 +18,6 @@ namespace AloysAdjustments
     {
         protected override void OnStartup(StartupEventArgs e)
         {
-            var dl = new AloysAdjustments.Common.Downloader();
-            for (int i = 0; i < 100; i++)
-            {
-                dl.Download(i.ToString(), null, b => { });
-            }
-
             var cmds = new CmdOptions();
             var parser = new Parser(with => with.HelpWriter = Console.Error);
             parser.ParseArguments<CmdOptions>(e.Args)

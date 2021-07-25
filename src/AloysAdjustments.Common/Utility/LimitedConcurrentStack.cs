@@ -89,6 +89,7 @@ namespace AloysAdjustments.Common.Utility
             lock (_lock)
             {
                 _head = (_items.Length + _head - 1) % _capacity;
+                _count--;
 
                 var val = _items[_head];
                 _items[_head] = default;
