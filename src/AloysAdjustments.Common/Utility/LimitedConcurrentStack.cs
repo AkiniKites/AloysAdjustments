@@ -55,6 +55,8 @@ namespace AloysAdjustments.Common.Utility
                     _waitingCount.Release();
                     _count++;
                 }
+                else
+                    Console.WriteLine("Drop");
             }
         }
         

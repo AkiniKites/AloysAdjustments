@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -12,21 +13,35 @@ namespace AloysAdjustments.Common.Downloads
 {
     public class TestDownloader : ThrottledDownloader<string>
     {
+        private readonly WebClient _client;
+
         public TestDownloader(int maxStackSize)
-            : base(maxStackSize) { }
+            : base(maxStackSize)
+        {
+            _client = new WebClient();
+        }
+
 
         protected override byte[] DownloadFile(string modelName)
         {
-            Thread.Sleep(1000);
-
-            var files = Directory.GetFiles(Path.Combine("caches", "imgDebug")).ToList();
-            var baseImg = files[new Random((int)DateTime.Now.Ticks).Next(files.Count)];
-
-            var bytes = File.ReadAllBytes(baseImg);
-            bytes = ApplyText(bytes, modelName);
-
-            return bytes;
+            var dl = File.ReadAllLines(@"caches\urls.txt");
+            var url = dl[new Random((int)DateTime.Now.Ticks).Next(dl.Length)];
+            var bytes = _client.DownloadData(url);
+            return ApplyText(bytes, modelName);
         }
+
+        //protected override byte[] DownloadFile(string modelName)
+        //{
+        //    Thread.Sleep(1000);
+
+        //    var files = Directory.GetFiles(Path.Combine("caches", "imgDebug2")).ToList();
+        //    var baseImg = files[new Random((int)DateTime.Now.Ticks).Next(files.Count)];
+
+        //    var bytes = File.ReadAllBytes(baseImg);
+        //    bytes = ApplyText(bytes, modelName);
+
+        //    return bytes;
+        //}
 
         private byte[] ApplyText(byte[] img, string modelName)
         {
@@ -41,7 +56,7 @@ namespace AloysAdjustments.Common.Downloads
 
                 var fSize = bmp.Height / 30;
                 var f = GetAdjustedFont(g, modelName, new Font("Arial", fSize), fSize);
-                var textPosition = new Point(bmp.Height / 30, bmp.Height / 30);
+                var textPosition = new Point(bmp.Height / 30, (bmp.Height / 30) * 29);
                 var size = g.MeasureString(modelName, f);
                 var rect = new RectangleF(textPosition.X, textPosition.Y, size.Width, size.Height);
                 g.FillRectangle(Brushes.Black, rect);

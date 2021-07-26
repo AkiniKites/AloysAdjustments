@@ -7,6 +7,7 @@
                          xmlns:themes="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.AeroLite"
                          xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
                          xmlns:plugins="clr-namespace:AloysAdjustments.Plugins;assembly=AloysAdjustments"
+                         xmlns:controls="clr-namespace:AloysAdjustments.Common.UI.Controls;assembly=AloysAdjustments.Common"
                          mc:Ignorable="d" 
                          d:DesignHeight="646" d:DesignWidth="572"
                          DataContext="{Binding RelativeSource={RelativeSource Self}}">
@@ -86,7 +87,8 @@
             </ListBox>
             <GridSplitter  Grid.Column="3" Grid.Row="0" Grid.RowSpan="2" Width="5" HorizontalAlignment="Stretch" Background="Transparent"/>
             <Border Grid.Column="4" Grid.Row="1" BorderThickness="1" BorderBrush="#FFABADB3">
-                <Image Source="{Binding ModelImage}"/>
+                <controls:Spinner Width="100" Height="100"/>
+                <!--<Image Source="{Binding ModelImage}"/>-->
             </Border>
         </Grid>
     </DockPanel>
