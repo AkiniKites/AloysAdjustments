@@ -24,24 +24,26 @@ namespace AloysAdjustments.Common.Downloads
 
         protected override byte[] DownloadFile(string modelName)
         {
-            var dl = File.ReadAllLines(@"caches\urls.txt");
-            var url = dl[new Random((int)DateTime.Now.Ticks).Next(dl.Length)];
-            var bytes = _client.DownloadData(url);
-            return ApplyText(bytes, modelName);
+            if (false)
+            {
+                var dl = File.ReadAllLines(@"caches\urls.txt");
+                var url = dl[new Random((int)DateTime.Now.Ticks).Next(dl.Length)];
+                var bytes = _client.DownloadData(url);
+                return ApplyText(bytes, modelName);
+            }
+            else
+            {
+                Thread.Sleep(1000);
+
+                var files = Directory.GetFiles(Path.Combine("caches", "imgDebug")).ToList();
+                var baseImg = files[new Random((int)DateTime.Now.Ticks).Next(files.Count)];
+
+                var bytes = File.ReadAllBytes(baseImg);
+                bytes = ApplyText(bytes, modelName);
+
+                return bytes;
+            }
         }
-
-        //protected override byte[] DownloadFile(string modelName)
-        //{
-        //    Thread.Sleep(1000);
-
-        //    var files = Directory.GetFiles(Path.Combine("caches", "imgDebug2")).ToList();
-        //    var baseImg = files[new Random((int)DateTime.Now.Ticks).Next(files.Count)];
-
-        //    var bytes = File.ReadAllBytes(baseImg);
-        //    bytes = ApplyText(bytes, modelName);
-
-        //    return bytes;
-        //}
 
         private byte[] ApplyText(byte[] img, string modelName)
         {

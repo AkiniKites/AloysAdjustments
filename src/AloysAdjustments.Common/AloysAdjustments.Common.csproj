@@ -92,6 +92,7 @@
     <Compile Include="UI\Controls\Spinner.xaml.cs">
       <DependentUpon>Spinner.xaml</DependentUpon>
     </Compile>
+    <Compile Include="UI\Converters\BoolToVisibilityConverter.cs" />
     <Compile Include="Utility\LimitedConcurrentStack.cs" />
     <Compile Include="Notifications.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

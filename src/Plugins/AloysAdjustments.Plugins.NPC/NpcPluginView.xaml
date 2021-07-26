@@ -12,12 +12,13 @@
              xmlns:cnv="clr-namespace:AloysAdjustments.UI.Converters;assembly=AloysAdjustments.Common"
              xmlns:ctrl="clr-namespace:AloysAdjustments.Common.UI.Controls;assembly=AloysAdjustments.Common"
              xmlns:npc="clr-namespace:AloysAdjustments.Plugins.NPC"
+             xmlns:conv="clr-namespace:AloysAdjustments.Common.UI.Converters;assembly=AloysAdjustments.Common"
              mc:Ignorable="d" 
              d:DesignHeight="646" d:DesignWidth="572"
              d:DataContext="{d:DesignInstance Type=npc:NpcPlugin, IsDesignTimeCreatable=True}" >
     <DockPanel>
         <DockPanel.Resources>
-            <cnv:NotConverter x:Key="NotConverter"/>
+            <conv:NotConverter x:Key="NotConverter"/>
             <cnv:ModifiedConverter x:Key="ModifiedConverter"/>
         </DockPanel.Resources>
         <DockPanel DockPanel.Dock="Top" LastChildFill="False">

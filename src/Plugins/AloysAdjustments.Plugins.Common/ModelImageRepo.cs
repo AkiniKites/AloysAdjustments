@@ -11,7 +11,7 @@ namespace AloysAdjustments.Plugins.Common
         
         private readonly TestDownloader _downloader = new TestDownloader(10);
 
-        public void LoadImage(string modelName, Action<byte[]> callback)
+        public void LoadImage(string modelName, Action<bool, byte[]> callback)
         {
             DownloadModelImage(modelName, callback);
         }
@@ -21,14 +21,10 @@ namespace AloysAdjustments.Plugins.Common
             return Path.Combine(IoC.Config.ImageCachePath, modelName + ModelImageExt);
         }
 
-        private void DownloadModelImage(string modelName, Action<byte[]> callback)
+        private void DownloadModelImage(string modelName, Action<bool, byte[]> callback)
         {
             var path = GetFileName(modelName);
-            _downloader.Download(modelName, path, (success, bytes) =>
-            {
-                if (success)
-                    callback(bytes);
-            });
+            _downloader.Download(modelName, path, callback);
         }
 
     }

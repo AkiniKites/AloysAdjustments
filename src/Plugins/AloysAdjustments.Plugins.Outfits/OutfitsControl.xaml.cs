@@ -34,18 +34,19 @@ namespace AloysAdjustments.Plugins.Outfits
         private OutfitPatcher Patcher { get; }
         private ModelImageRepo ModelRepo { get; }
 
-        private System.Collections.Generic.HashSet<Outfit> DefaultOutfits { get; set; }
+        private HashSet<Outfit> DefaultOutfits { get; set; }
         public ReadOnlyCollection<Outfit> Outfits { get; set; }
         public ReadOnlyCollection<Model> Models { get; set; }
         private ReadOnlyCollection<Outfit> AllOutfitStub { get; }
 
         public ReadOnlyCollection<OutfitModelFilter> Filters { get; set; }
 
+        public bool Loading { get; set; }
         public byte[] ModelImage { get; set; }
         public string SelectedModel { get; set; }
 
         public override string PluginName => "Outfits";
-
+        
         public OutfitsControl()
         {
             _loading = true;
@@ -143,14 +144,6 @@ namespace AloysAdjustments.Plugins.Outfits
                     models.AddRange(LoadCharacterModelList(true));
                 
                 Models = models.AsReadOnly();
-
-                lock (this)
-                {
-                    if (File.Exists("models.txt")) 
-                        File.Delete("models.txt");
-                    foreach (var m in models)
-                        File.AppendAllText("models.txt", m.Name + "\r\n");
-                }
             });
 
             UpdateModelDisplayNames(DefaultOutfits, Models);
@@ -281,10 +274,15 @@ namespace AloysAdjustments.Plugins.Outfits
 
         private void LoadImage(string modelName)
         {
-            ModelRepo.LoadImage(modelName, image =>
+            Loading = true;
+            ModelRepo.LoadImage(modelName, (success, image) =>
             {
                 if (SelectedModel == modelName)
-                    ModelImage = image;
+                {
+                    Loading = false;
+                    if (success)
+                        ModelImage = image;
+                }
             });
         }
 

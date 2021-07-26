@@ -8,10 +8,15 @@
                          xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
                          xmlns:plugins="clr-namespace:AloysAdjustments.Plugins;assembly=AloysAdjustments"
                          xmlns:controls="clr-namespace:AloysAdjustments.Common.UI.Controls;assembly=AloysAdjustments.Common"
+                         xmlns:conv="clr-namespace:AloysAdjustments.Common.UI.Converters;assembly=AloysAdjustments.Common"
                          mc:Ignorable="d" 
                          d:DesignHeight="646" d:DesignWidth="572"
                          DataContext="{Binding RelativeSource={RelativeSource Self}}">
     <DockPanel>
+        <DockPanel.Resources>
+            <conv:BoolToVisibilityConverter x:Key="btv"/>
+            <conv:BoolToVisibilityConverter x:Key="btvn" Inverse="True"/>
+        </DockPanel.Resources>
         <DockPanel DockPanel.Dock="Top" LastChildFill="False">
             <xctk:CheckComboBox x:Name="ccbModelFilter" DockPanel.Dock="Right" Margin="3" Width="172" 
                                 ItemsSource="{Binding Filters}" Delimiter=", "
@@ -87,8 +92,10 @@
             </ListBox>
             <GridSplitter  Grid.Column="3" Grid.Row="0" Grid.RowSpan="2" Width="5" HorizontalAlignment="Stretch" Background="Transparent"/>
             <Border Grid.Column="4" Grid.Row="1" BorderThickness="1" BorderBrush="#FFABADB3">
-                <controls:Spinner Width="100" Height="100"/>
-                <!--<Image Source="{Binding ModelImage}"/>-->
+                <Grid>
+                    <controls:Spinner Width="100" Height="100" Visibility="{Binding Path=Loading, Converter={StaticResource btv}}"/>
+                    <Image Source="{Binding ModelImage}" Visibility="{Binding Path=Loading, Converter={StaticResource btvn}}"/>
+                </Grid>
             </Border>
         </Grid>
     </DockPanel>
