@@ -86,7 +86,9 @@
     <Reference Include="PresentationFramework" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Downloader.cs" />
+    <Compile Include="Downloads\HttpDownloader.cs" />
+    <Compile Include="Downloads\TestDownloader.cs" />
+    <Compile Include="Downloads\ThrottledDownloader.cs" />
     <Compile Include="Utility\LimitedConcurrentStack.cs" />
     <Compile Include="Notifications.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -132,5 +134,6 @@
       <Name>HZDCoreEditor</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

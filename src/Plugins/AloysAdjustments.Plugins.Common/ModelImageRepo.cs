@@ -1,14 +1,7 @@
 ﻿using AloysAdjustments.Logic;
 using System;
-using System.Collections.Concurrent;
-using System.Drawing;
-using System.Drawing.Drawing2D;
 using System.IO;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using AloysAdjustments.Common;
-using AloysAdjustments.Common.Utility;
+using AloysAdjustments.Common.Downloads;
 
 namespace AloysAdjustments.Plugins.Common
 {
@@ -16,7 +9,7 @@ namespace AloysAdjustments.Plugins.Common
     {
         public const string ModelImageExt = ".jpg";
         
-        private readonly Downloader _downloader = new Downloader();
+        private readonly TestDownloader _downloader = new TestDownloader(10);
 
         public void LoadImage(string modelName, Action<byte[]> callback)
         {

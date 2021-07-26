@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -8,82 +7,15 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using AloysAdjustments.Common.Utility;
 
-namespace AloysAdjustments.Common
+namespace AloysAdjustments.Common.Downloads
 {
-    public class Downloader
+    public class TestDownloader : ThrottledDownloader<string>
     {
-        private readonly LimitedConcurrentStack<Action> _requests;
+        public TestDownloader(int maxStackSize)
+            : base(maxStackSize) { }
 
-        private static readonly ConcurrentDictionary<string, ReaderWriterLockSlim> _cacheLocks
-            = new ConcurrentDictionary<string, ReaderWriterLockSlim>(StringComparer.OrdinalIgnoreCase);
-
-        public Downloader()
-        {
-            _requests = new LimitedConcurrentStack<Action>(10);
-
-            Task.Run(DownloadWorker);
-        }
-
-        public void Shutdown()
-        {
-            _requests.CompleteAdding();
-        }
-
-        public void Download(string url, string filePath, Action<bool, byte[]> callback)
-        {
-            var path = Path.GetFullPath(filePath);
-            var cacheLock = _cacheLocks.GetOrAdd(path, x => new ReaderWriterLockSlim());
-            if (GetExisting(path, cacheLock, callback))
-                return;
-
-            _requests.Push(() =>
-            {
-                try
-                {
-                    if (GetExisting(path, cacheLock, callback))
-                        return;
-
-                    Console.WriteLine("Miss: " + Path.GetFileName(filePath));
-                    var bytes = FakeDownload(url, filePath);
-                    using (cacheLock.UsingWriterLock())
-                        File.WriteAllBytes(filePath, bytes);
-                    callback(true, bytes);
-                }
-                catch (Exception)
-                {
-                    callback(false, null);
-                }
-            });
-        }
-
-        private bool GetExisting(string filePath, ReaderWriterLockSlim cacheLock, Action<bool, byte[]> callback)
-        {
-            using (cacheLock.UsingReaderLock())
-            {
-                if (File.Exists(filePath))
-                {
-                    Console.WriteLine("Hit: " + Path.GetFileName(filePath));
-                    var bytes = File.ReadAllBytes(filePath);
-                    callback(true, bytes);
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
-        private void DownloadWorker()
-        {
-            while (_requests.TryPopWait(out var request))
-            {
-                request();
-            }
-        }
-
-
-        private byte[] FakeDownload(string modelName, string path)
+        protected override byte[] DownloadFile(string modelName)
         {
             Thread.Sleep(1000);
 
@@ -92,8 +24,6 @@ namespace AloysAdjustments.Common
 
             var bytes = File.ReadAllBytes(baseImg);
             bytes = ApplyText(bytes, modelName);
-
-            File.WriteAllBytes(path, bytes);
 
             return bytes;
         }
