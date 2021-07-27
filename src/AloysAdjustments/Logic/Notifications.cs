@@ -27,7 +27,7 @@ namespace AloysAdjustments.Logic
         {
             _appStatusSetter(text);
         }
-        public void ShowStatus(string text)
+        public void ShowStatus(string text = "")
         {
             _statusSetter(text, false);
         }

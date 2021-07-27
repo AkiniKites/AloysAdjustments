@@ -281,7 +281,14 @@ namespace AloysAdjustments.Plugins.Outfits
                 {
                     Loading = false;
                     if (success)
+                    {
                         ModelImage = image;
+                        IoC.Notif.ShowStatus();
+                    }
+                    else
+                    {
+                        IoC.Notif.ShowError("Error downloading image: " + modelName);
+                    }
                 }
             });
         }

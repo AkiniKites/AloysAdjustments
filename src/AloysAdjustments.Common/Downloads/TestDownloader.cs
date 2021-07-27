@@ -21,7 +21,6 @@ namespace AloysAdjustments.Common.Downloads
             _client = new WebClient();
         }
 
-
         protected override byte[] DownloadFile(string modelName)
         {
             if (false)

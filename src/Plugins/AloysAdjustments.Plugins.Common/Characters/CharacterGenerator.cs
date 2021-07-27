@@ -78,7 +78,7 @@ namespace AloysAdjustments.Plugins.Common.Characters
             //try and take the dlc models
             foreach (var modelGroup in models.GroupBy(x => x.Name))
             {
-                var model = modelGroup.OrderBy(x => x.Source.Contains("dlc1") ? 0 : 1).FirstOrDefault();
+                var model = modelGroup.OrderBy(x => x.Source.Contains("dlc1") ? 1 : 0).FirstOrDefault();
                 yield return model;
             }
         }
