@@ -25,10 +25,10 @@ namespace AloysAdjustments.Logic.Patching
 
         public void ApplyCustomPatches(Patch patch, PluginManager plugins)
         {
-            plugins.ExecuteAll<IPlugin>(p =>
+            foreach (var plugin in plugins.LoadAll<IPlugin>())
             {
-                p.ApplyChanges(patch);
-            });
+                plugin.ApplyChanges(patch);
+            }
         }
 
         public void PackPatch(Patch patch)

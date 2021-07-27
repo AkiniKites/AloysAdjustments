@@ -29,16 +29,5 @@ namespace AloysAdjustments.Plugins
                 }
             }
         }
-
-        public void ExecuteAll<T>(Action<T> action)
-        {
-            Paths.CheckDirectory(PluginDir);
-            var dlls = Directory.GetFiles(PluginDir, PluginPattern, SearchOption.TopDirectoryOnly);
-
-            foreach (string dll in dlls)
-            {
-                AssemblyLoader.LoadAndExecute(dll, action);
-            }
-        }
     }
 }
