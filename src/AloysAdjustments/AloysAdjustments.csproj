@@ -138,11 +138,12 @@
     <Compile Include="Configuration\CmdOptions.cs" />
     <Compile Include="Configuration\SettingsManager.cs" />
     <Compile Include="Configuration\UserSettings.cs" />
+    <Compile Include="Logic\Compatibility\FileCompatibility.cs" />
     <Compile Include="Logic\ObjectStore.cs" />
     <Compile Include="Plugins\InteractivePlugin.cs" />
     <Compile Include="Logic\Archiver.cs" />
     <Compile Include="Logic\ArchiverExtensions.cs" />
-    <Compile Include="Logic\Compatibility.cs" />
+    <Compile Include="Logic\Compatibility\AppCompatibility.cs" />
     <Compile Include="Logic\HzdCore.cs" />
     <Compile Include="Logic\HzdCoreExtensions.cs" />
     <Compile Include="Logic\IoC.cs" />

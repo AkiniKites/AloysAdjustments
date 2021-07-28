@@ -17,6 +17,7 @@ namespace AloysAdjustments.Utility
         private readonly Func<string, IEnumerable<T>> _itemGetter;
         private Regex[] _ignored;
         private Func<IEnumerable<T>, IEnumerable<T>> _consolidator;
+        private bool _useCache = true;
 
         private bool _sealed;
         private readonly GameCache<List<T>> _cache;
@@ -45,6 +46,12 @@ namespace AloysAdjustments.Utility
             _consolidator = consolidator;
             return this;
         }
+        public FileCollector<T> DisableCaching(bool disableCache = true)
+        {
+            if (_sealed) throw new InvalidOperationException("FileCollector has been built cannot change caching.");
+            _useCache = !disableCache;
+            return this;
+        }
         public FileCollector<T> Build()
         {
             _sealed = true;
@@ -62,7 +69,7 @@ namespace AloysAdjustments.Utility
         }
         private List<T> LoadInternal()
         {
-            if (_cache.TryLoadCache(out var cached))
+            if (_useCache && _cache.TryLoadCache(out var cached))
             {
                 if (cached.Any())
                     return cached;
@@ -96,8 +103,11 @@ namespace AloysAdjustments.Utility
             if (_consolidator != null)
                 itemList = _consolidator(itemList).ToList();
 
-            cached.AddRange(itemList);
-            _cache.Save(cached);
+            if (_useCache)
+            {
+                cached.AddRange(itemList);
+                _cache.Save(cached);
+            }
 
             return itemList;
         }

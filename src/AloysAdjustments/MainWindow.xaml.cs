@@ -203,7 +203,7 @@ namespace AloysAdjustments
             await Async.Run(() =>
             {
                 IoC.Notif.ShowStatus("Compatibility fixes...");
-                Compatibility.CleanupOldCache();
+                AppCompatibility.RunMigrations();
             });
 
             IoC.Settings.Version = IoC.CurrentVersion.ToString(3);
@@ -218,7 +218,7 @@ namespace AloysAdjustments
             {
                 IoC.Notif.ShowStatus("Removing old version...");
                 //remove failed / old patches
-                Compatibility.CleanupOldVersions();
+                AppCompatibility.CleanupOldVersions();
                 FileBackup.CleanupBackups(Configs.PatchPath);
             });
 
@@ -278,6 +278,8 @@ namespace AloysAdjustments
 
                 IoC.Notif.ShowStatus("Generating plugin patches...");
                 patcher.ApplyCustomPatches(patch, PluginManager);
+
+                FileCompatibility.SaveVersion(patch);
 
                 IoC.Notif.ShowStatus("Generating patch (rebuild prefetch)...");
 
