@@ -9,6 +9,7 @@
                          xmlns:plugins="clr-namespace:AloysAdjustments.Plugins;assembly=AloysAdjustments"
                          xmlns:controls="clr-namespace:AloysAdjustments.Common.UI.Controls;assembly=AloysAdjustments.Common"
                          xmlns:conv="clr-namespace:AloysAdjustments.Common.UI.Converters;assembly=AloysAdjustments.Common"
+                         xmlns:logic="clr-namespace:AloysAdjustments.Logic;assembly=AloysAdjustments"
                          mc:Ignorable="d" 
                          d:DesignHeight="646" d:DesignWidth="572"
                          DataContext="{Binding RelativeSource={RelativeSource Self}}">
@@ -16,6 +17,15 @@
         <DockPanel.Resources>
             <conv:BoolToVisibilityConverter x:Key="btv"/>
             <conv:BoolToVisibilityConverter x:Key="btvn" Inverse="True"/>
+
+            <Style TargetType="ColumnDefinition" x:Key="ImageColumn">
+                <Setter Property="Width" Value="*" />
+                <Style.Triggers>
+                    <DataTrigger Binding="{Binding Source={x:Static logic:IoC.Settings}, Path=ShowImages, Mode=OneWay}" Value="False">
+                        <Setter Property="Width" Value="0" />
+                    </DataTrigger>
+                </Style.Triggers>
+            </Style>
         </DockPanel.Resources>
         <DockPanel DockPanel.Dock="Top" LastChildFill="False">
             <xctk:CheckComboBox x:Name="ccbModelFilter" DockPanel.Dock="Right" Margin="3" Width="172" 
@@ -43,8 +53,30 @@
                 <ColumnDefinition Width="4*" />
                 <ColumnDefinition Width="5"/>
                 <ColumnDefinition Width="5*"/>
-                <ColumnDefinition Width="5"/>
-                <ColumnDefinition Width="5*"/>
+                <ColumnDefinition>
+                    <ColumnDefinition.Style>
+                        <Style TargetType="ColumnDefinition">
+                            <Setter Property="Width" Value="5" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Source={x:Static logic:IoC.Settings}, Path=ShowImages, Mode=OneWay}" Value="False">
+                                    <Setter Property="Width" Value="0" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ColumnDefinition.Style>
+                </ColumnDefinition>
+                <ColumnDefinition>
+                    <ColumnDefinition.Style>
+                        <Style TargetType="ColumnDefinition">
+                            <Setter Property="Width" Value="5*" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Source={x:Static logic:IoC.Settings}, Path=ShowImages, Mode=OneWay}" Value="False">
+                                    <Setter Property="Width" Value="0" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ColumnDefinition.Style>
+                </ColumnDefinition>
             </Grid.ColumnDefinitions>
 
             <DockPanel Grid.Column="0" Grid.Row="0" LastChildFill="False" Margin="3 0 3 3">

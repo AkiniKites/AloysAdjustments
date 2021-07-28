@@ -24,8 +24,14 @@ namespace AloysAdjustments.Common.Downloads
         protected ThrottledDownloader(int maxStackSize)
         {
             _requests = new LimitedConcurrentStack<Action>(maxStackSize);
+            _requests.ItemDropped += Requests_ItemDropped;
 
             Task.Run(DownloadWorker);
+        }
+
+        private void Requests_ItemDropped(Action item)
+        {
+            throw new NotImplementedException();
         }
 
         public void Shutdown()
@@ -37,44 +43,63 @@ namespace AloysAdjustments.Common.Downloads
         {
             var path = Path.GetFullPath(filePath);
             var cacheLock = _cacheLocks.GetOrAdd(path, x => new ReaderWriterLockSlim());
-            if (GetExisting(path, cacheLock, callback))
-                return;
 
-            _requests.Push(() =>
+            //TODO: Refactor for async
+            void downloadFile()
             {
                 try
                 {
-                    if (GetExisting(path, cacheLock, callback))
-                        return;
-                    
-                    var bytes = DownloadFile(source);
-                    using (cacheLock.UsingWriterLock())
+                    GetExisting(path, cacheLock, (success, bytes) =>
                     {
-                        Paths.CheckDirectory(Path.GetDirectoryName(filePath));
-                        File.WriteAllBytes(filePath, bytes);
-                    }
-                    callback(true, bytes);
+                        if (success)
+                        {
+                            callback(true, bytes);
+                            return;
+                        }
+
+                        bytes = DownloadFile(source);
+                        using (cacheLock.UsingWriterLock())
+                        {
+                            Paths.CheckDirectory(Path.GetDirectoryName(filePath));
+                            File.WriteAllBytes(filePath, bytes);
+                        }
+                        callback(true, bytes);
+                    });
                 }
                 catch (Exception)
                 {
                     callback(false, null);
                 }
+            }
+
+            GetExisting(path, cacheLock, (success, bytes) =>
+            {
+                if (success)
+                {
+                    callback(true, bytes);
+                    return;
+                }
+
+                _requests.Push(downloadFile);
             });
         }
 
-        private bool GetExisting(string filePath, ReaderWriterLockSlim cacheLock, Action<bool, byte[]> callback)
+        private void GetExisting(string filePath, ReaderWriterLockSlim cacheLock, Action<bool, byte[]> callback)
         {
-            using (cacheLock.UsingReaderLock())
+            Task.Run(() =>
             {
-                if (File.Exists(filePath))
+                using (cacheLock.UsingReaderLock())
                 {
-                    var bytes = File.ReadAllBytes(filePath);
-                    callback(true, bytes);
-                    return true;
+                    Thread.Sleep(1000);
+                    if (File.Exists(filePath))
+                    {
+                        var bytes = File.ReadAllBytes(filePath);
+                        callback(true, bytes);
+                    }
                 }
-            }
 
-            return false;
+                callback(false, null);
+            });
         }
 
         private void DownloadWorker()

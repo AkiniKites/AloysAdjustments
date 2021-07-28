@@ -52,6 +52,8 @@ namespace AloysAdjustments.Modules
 
         public override async Task Initialize()
         {
+            cbShowImages.IsChecked = IoC.Settings.ShowImages ?? true;
+
             IoC.Notif.CacheUpdate = UpdateCacheStatus;
 
             await InitializeFirstRun();
@@ -284,6 +286,11 @@ namespace AloysAdjustments.Modules
             }
 
             IoC.Notif.HideProgress();
+        }
+
+        private void cbShowImages_Checked(object sender, RoutedEventArgs e)
+        {
+            IoC.Settings.ShowImages = cbShowImages.IsChecked ?? false;
         }
     }
 }

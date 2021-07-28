@@ -10,6 +10,8 @@ namespace AloysAdjustments.Common.Utility
 {
     public class LimitedConcurrentStack<T> : IEnumerable<T>, IEnumerable
     {
+        public delegate void ItemDroppedEventArgs(T item);
+
         private readonly object _lock = new object();
         
         private readonly T[] _items;
@@ -19,6 +21,8 @@ namespace AloysAdjustments.Common.Utility
         private int _count;
         private int _head;
         private bool _complete;
+
+        public event ItemDroppedEventArgs ItemDropped;
 
         public LimitedConcurrentStack(int capacity)
         {
@@ -48,6 +52,8 @@ namespace AloysAdjustments.Common.Utility
                 if (_complete)
                     throw new InvalidOperationException("Collection is complete adding.");
 
+                var oldItem = _items[_head];
+
                 _items[_head] = item;
                 _head = (_head + 1) % _items.Length;
                 if (_waitingCount.CurrentCount < 10)
@@ -56,7 +62,9 @@ namespace AloysAdjustments.Common.Utility
                     _count++;
                 }
                 else
-                    Console.WriteLine("Drop");
+                {
+                    ItemDropped?.Invoke(oldItem);
+                }
             }
         }
         

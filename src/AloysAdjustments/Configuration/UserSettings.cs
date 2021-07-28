@@ -23,6 +23,7 @@ namespace AloysAdjustments.Configuration
         public bool ApplyToAllNpcs { get; set; }
         public int NpcModelFilter { get; set; }
         public string Version { get; set; }
+        public bool? ShowImages { get; set; }
 
         public Dictionary<string, Rectangle> Windows { get; set; }
 

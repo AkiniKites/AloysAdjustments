@@ -71,6 +71,15 @@
                         Click="btnUpdates_ClickCommand"/>
             </Grid>
         </GroupBox>
+        <GroupBox DockPanel.Dock="Top" Header="Plugins">
+            <DockPanel Height="25" LastChildFill="False">
+                <TextBlock DockPanel.Dock="Left" Text="Images:"
+                           VerticalAlignment="Center" Margin="3,0,0,0"
+                           Width="{StaticResource LabelWidth}"/>
+                <CheckBox x:Name="cbShowImages" DockPanel.Dock="Left" Content="Show model images"
+                          Checked="cbShowImages_Checked" Unchecked="cbShowImages_Checked"/>
+            </DockPanel>
+        </GroupBox>
         <GroupBox DockPanel.Dock="Bottom" Header="Game Pack">
             <DockPanel Height="25">
                 <TextBlock DockPanel.Dock="Left" Text="Status:"

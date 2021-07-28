@@ -16,7 +16,6 @@ namespace AloysAdjustments.Plugins.Outfits.Compatibility
         public async Task<Dictionary<BaseGGUUID, BaseGGUUID>> UpdateVariants(
             string path, Dictionary<BaseGGUUID, BaseGGUUID> mapping)
         {
-            //return mapping;
             if (!FileCompatibility.ShouldMigrate(path, new Version(1, 7, 5)))
                 return mapping;
 
