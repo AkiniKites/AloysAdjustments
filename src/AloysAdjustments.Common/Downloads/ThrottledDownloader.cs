@@ -45,8 +45,7 @@ namespace AloysAdjustments.Common.Downloads
                 {
                     if (GetExisting(path, cacheLock, callback))
                         return;
-
-                    Console.WriteLine("Miss: " + Path.GetFileName(filePath));
+                    
                     var bytes = DownloadFile(source);
                     using (cacheLock.UsingWriterLock())
                         File.WriteAllBytes(filePath, bytes);
@@ -65,7 +64,6 @@ namespace AloysAdjustments.Common.Downloads
             {
                 if (File.Exists(filePath))
                 {
-                    Console.WriteLine("Hit: " + Path.GetFileName(filePath));
                     var bytes = File.ReadAllBytes(filePath);
                     callback(true, bytes);
                     return true;
