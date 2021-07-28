@@ -19,7 +19,7 @@ namespace AloysAdjustments.Plugins.Common.Characters
         private readonly FileCollector<CharacterModel> _uniqueFileCollector;
         private readonly FileCollector<CharacterModel> _normalFileCollector;
 
-        public CharacterGenerator()
+        public CharacterGenerator(bool useCache = true)
         {
             HumanoidMatcher = new Regex(IoC.Get<CharacterConfig>().HumanoidMatcher);
             UniqueHumanoidMatcher = new Regex(IoC.Get<CharacterConfig>().UniqueHumanoidMatcher);
@@ -27,11 +27,13 @@ namespace AloysAdjustments.Plugins.Common.Characters
 
             _uniqueFileCollector = new FileCollector<CharacterModel>("characters-u",
                 f => IsHumanoid(f) && IsUnique(f), GetModels)
-                .WithIgnored(ignored).WithConsolidate(ConsolidateModels).Build();
+                .WithIgnored(ignored).WithConsolidate(ConsolidateModels)
+                .DisableCaching(!useCache).Build();
 
             _normalFileCollector = new FileCollector<CharacterModel>("characters-n",
                 f => IsHumanoid(f) && !IsUnique(f), GetModels)
-                .WithIgnored(ignored).WithConsolidate(ConsolidateModels).Build();
+                .WithIgnored(ignored).WithConsolidate(ConsolidateModels)
+                .DisableCaching(!useCache).Build();
         }
 
         public List<CharacterModel> GetCharacterModels(bool unique)
@@ -48,7 +50,7 @@ namespace AloysAdjustments.Plugins.Common.Characters
             return HumanoidMatcher.IsMatch(file);
         }
 
-        private List<CharacterModel> GetModels(string file)
+        protected virtual List<CharacterModel> GetModels(string file)
         {
             var pack = IoC.Archiver.LoadGameFile(file);
             var variants = pack.GetTypes<HumanoidBodyVariant>();
@@ -72,15 +74,20 @@ namespace AloysAdjustments.Plugins.Common.Characters
             return models;
         }
 
-        private IEnumerable<CharacterModel> ConsolidateModels(IEnumerable<CharacterModel> models)
+        protected virtual IEnumerable<CharacterModel> ConsolidateModels(IEnumerable<CharacterModel> models)
         {
             //models with the same name have the same mesh, just different properties on the HumanoidBodyVariant
             //try and take the dlc models
             foreach (var modelGroup in models.GroupBy(x => x.Name))
             {
-                var model = modelGroup.OrderBy(x => x.Source.Contains("dlc1") ? 1 : 0).FirstOrDefault();
+                var model = modelGroup.OrderBy(GetModelSorting).FirstOrDefault();
                 yield return model;
             }
+        }
+
+        protected int GetModelSorting(CharacterModel model)
+        {
+            return model.Source.Contains("dlc1") ? 1 : 0;
         }
     }
 }

@@ -89,6 +89,8 @@
     <Compile Include="Downloads\HttpDownloader.cs" />
     <Compile Include="Downloads\TestDownloader.cs" />
     <Compile Include="Downloads\ThrottledDownloader.cs" />
+    <Compile Include="JsonConverters\JsonExtensions.cs" />
+    <Compile Include="JsonConverters\VersionConverter.cs" />
     <Compile Include="UI\Controls\Spinner.xaml.cs">
       <DependentUpon>Spinner.xaml</DependentUpon>
     </Compile>
@@ -111,7 +113,7 @@
     <Compile Include="UI\UIColors.cs" />
     <Compile Include="Utility\Async.cs" />
     <Compile Include="Utility\AsyncException.cs" />
-    <Compile Include="Utility\BaseGGUUIDConverter.cs" />
+    <Compile Include="JsonConverters\BaseGGUUIDConverter.cs" />
     <Compile Include="Utility\Disposable.cs" />
     <Compile Include="Utility\Errors.cs" />
     <Compile Include="Utility\Extensions.cs" />

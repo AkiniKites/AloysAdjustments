@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using AloysAdjustments.Common.Utility;
 using AloysAdjustments.Configuration;
 using AloysAdjustments.Plugins;
 using AloysAdjustments.Utility;
@@ -18,7 +19,7 @@ namespace AloysAdjustments.Logic.Patching
 
         public Patch StartPatch()
         {
-            Paths.Cleanup(IoC.Config.TempPath);
+            Paths.DeleteDirectory(IoC.Config.TempPath);
 
             return new Patch(Path.Combine(IoC.Config.TempPath, PatchTempDir));
         }

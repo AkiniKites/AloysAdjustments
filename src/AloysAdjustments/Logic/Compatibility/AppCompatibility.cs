@@ -1,16 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using AloysAdjustments.Common.Utility;
 using AloysAdjustments.Configuration;
 using AloysAdjustments.Utility;
-using Onova.Models;
 
-namespace AloysAdjustments.Logic
+namespace AloysAdjustments.Logic.Compatibility
 {
     public class AppCompatibility
     {
@@ -33,10 +31,11 @@ namespace AloysAdjustments.Logic
         public static void RunMigrations()
         {
             var prevVersion = GetPreviousVersion();
+            var curVersion = IoC.CurrentVersion ?? new Version();
 
             foreach (var migration in _migrations.OrderBy(x => x.Version))
             {
-                if (prevVersion < migration.Version)
+                if (prevVersion < migration.Version && curVersion >= migration.Version)
                     migration.Action();
             }
         }
@@ -71,7 +70,7 @@ namespace AloysAdjustments.Logic
 
         public static void CleanCache()
         {
-            Paths.Cleanup(IoC.Config.CachePath);
+            Paths.DeleteDirectory(IoC.Config.CachePath);
         }
     }
 }

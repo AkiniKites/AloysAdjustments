@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using AloysAdjustments.Common.Utility;
+using AloysAdjustments.Utility;
 
 namespace AloysAdjustments.Common.Downloads
 {
@@ -48,7 +49,10 @@ namespace AloysAdjustments.Common.Downloads
                     
                     var bytes = DownloadFile(source);
                     using (cacheLock.UsingWriterLock())
+                    {
+                        Paths.CheckDirectory(Path.GetDirectoryName(filePath));
                         File.WriteAllBytes(filePath, bytes);
+                    }
                     callback(true, bytes);
                 }
                 catch (Exception)

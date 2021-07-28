@@ -5,6 +5,7 @@ using System.IO;
 using System.Reflection;
 using System.Text;
 using System.Threading;
+using AloysAdjustments.Common.JsonConverters;
 using AloysAdjustments.Common.Utility;
 using AloysAdjustments.Logic;
 using Newtonsoft.Json;
@@ -51,7 +52,7 @@ namespace AloysAdjustments.Utility
             }
 
             var cache = JsonConvert.DeserializeObject<CacheData>(
-                json, new BaseGGUUIDConverter());
+                json, JsonHelper.Converters);
 
             if (cache == null || cache.Path != IoC.Settings.GamePath)
             {
@@ -72,7 +73,7 @@ namespace AloysAdjustments.Utility
                 Data = data
             };
             var json = JsonConvert.SerializeObject(cache,
-                Formatting.Indented, new BaseGGUUIDConverter());
+                Formatting.Indented, JsonHelper.Converters);
 
             CheckDirectory();
 

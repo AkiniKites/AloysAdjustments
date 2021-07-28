@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Threading;
 using AloysAdjustments.Configuration;
 using AloysAdjustments.Logic;
+using AloysAdjustments.Logic.Compatibility;
 using AloysAdjustments.Logic.Patching;
 using AloysAdjustments.Modules;
 using AloysAdjustments.Plugins;

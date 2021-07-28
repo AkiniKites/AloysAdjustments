@@ -25,7 +25,7 @@ namespace AloysAdjustments.Common.Downloads
         {
             if (false)
             {
-                var dl = File.ReadAllLines(@"caches\urls.txt");
+                var dl = File.ReadAllLines(@"debug\urls.txt");
                 var url = dl[new Random((int)DateTime.Now.Ticks).Next(dl.Length)];
                 var bytes = _client.DownloadData(url);
                 return ApplyText(bytes, modelName);
@@ -34,7 +34,7 @@ namespace AloysAdjustments.Common.Downloads
             {
                 Thread.Sleep(1000);
 
-                var files = Directory.GetFiles(Path.Combine("caches", "imgDebug")).ToList();
+                var files = Directory.GetFiles("debug\\img").ToList();
                 var baseImg = files[new Random((int)DateTime.Now.Ticks).Next(files.Count)];
 
                 var bytes = File.ReadAllBytes(baseImg);

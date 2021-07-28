@@ -15,6 +15,8 @@ using AloysAdjustments.Configuration;
 using AloysAdjustments.Logic;
 using AloysAdjustments.Logic.Patching;
 using AloysAdjustments.Plugins.Common;
+using AloysAdjustments.Plugins.Common.Characters;
+using AloysAdjustments.Plugins.Outfits.Compatibility;
 using AloysAdjustments.Plugins.Outfits.Data;
 using AloysAdjustments.UI;
 using AloysAdjustments.Utility;
@@ -38,6 +40,7 @@ namespace AloysAdjustments.Plugins.Outfits
         public ReadOnlyCollection<Outfit> Outfits { get; set; }
         public ReadOnlyCollection<Model> Models { get; set; }
         private ReadOnlyCollection<Outfit> AllOutfitStub { get; }
+        private OutfitCompatibility OutfitCompatibility { get; }
 
         public ReadOnlyCollection<OutfitModelFilter> Filters { get; set; }
 
@@ -59,10 +62,11 @@ namespace AloysAdjustments.Plugins.Outfits
             IoC.Bind(Configs.LoadModuleConfig<OutfitConfig>(PluginName));
 
             OutfitGen = new OutfitsGenerator();
-            CharacterGen = new OutfitCharacterGenerator();
+            CharacterGen = new OutfitCharacterGenerator(new CharacterGenerator());
             Patcher = new OutfitPatcher();
             Outfits = new List<Outfit>().AsReadOnly();
             ModelRepo = new ModelImageRepo();
+            OutfitCompatibility = new OutfitCompatibility();
 
             InitializeComponent();
 
@@ -175,6 +179,7 @@ namespace AloysAdjustments.Plugins.Outfits
 
             var loadedOutfits = patchOutfits.ToHashSet();
             var variantMapping = await CharacterGen.GetVariantMapping(path, OutfitGen);
+            variantMapping = await OutfitCompatibility.UpdateVariants(path, variantMapping);
             LoadOutfits(loadedOutfits, variantMapping);
 
             RefreshOutfitList();

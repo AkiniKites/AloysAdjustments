@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Decima;
 using Newtonsoft.Json;
 
-namespace AloysAdjustments.Utility
+namespace AloysAdjustments.Common.JsonConverters
 {
-    public class BaseGGUUIDConverter : JsonConverter<BaseGGUUID>
+    public class BaseGGUUIDConverter2 : JsonConverter<BaseGGUUID>
     {
         public override BaseGGUUID ReadJson(JsonReader reader, Type objectType, BaseGGUUID existingValue, bool hasExistingValue, JsonSerializer serializer)
         {

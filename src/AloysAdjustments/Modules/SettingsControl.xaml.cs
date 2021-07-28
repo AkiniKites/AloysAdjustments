@@ -9,6 +9,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Forms;
 using System.Windows.Threading;
+using AloysAdjustments.Common.Utility;
 using AloysAdjustments.Configuration;
 using AloysAdjustments.Logic;
 using AloysAdjustments.Logic.Patching;
@@ -132,7 +133,7 @@ namespace AloysAdjustments.Modules
         private async void btnClearCache_ClickCommand(object sender, EventArgs e) => await Relay.To(sender, e, btnClearCache_Click);
         private async Task btnClearCache_Click(object sender, EventArgs e)
         {
-            await Async.Run(() => Paths.Cleanup(IoC.Config.CachePath));
+            await Async.Run(() => Paths.DeleteDirectory(IoC.Config.CachePath));
             UpdateCacheStatus();
         }
 
