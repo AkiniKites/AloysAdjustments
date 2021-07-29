@@ -44,6 +44,14 @@ namespace AloysAdjustments.Utility
             }
         }
 
-
+        public static void RunSync(this Func<Task> task)
+        {
+            Task.Factory.StartNew(task).Unwrap().GetAwaiter().GetResult();
+        }
+        
+        public static TResult RunSync<TResult>(this Func<Task<TResult>> task)
+        {
+            return Task.Factory.StartNew(task).Unwrap().GetAwaiter().GetResult();
+        }
     }
 }

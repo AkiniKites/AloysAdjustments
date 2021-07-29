@@ -167,7 +167,8 @@
   </Target>
   <PropertyGroup>
     <PostBuildEvent>if $(ConfigurationName) == Debug ( 
-xcopy /y/i $(TargetPath) $(ProjectDir)..\..\AloysAdjustments\bin\Debug\plugins\
+copy /y $(TargetDir)$(TargetFileName) $(ProjectDir)..\..\AloysAdjustments\bin\Debug\plugins\$(TargetFileName)
+copy /y $(TargetDir)$(TargetName).pdb $(ProjectDir)..\..\AloysAdjustments\bin\Debug\plugins\$(TargetName).pdb
 xcopy /y/i $(SolutionDir)data\npc-map.json $(ProjectDir)..\..\AloysAdjustments\bin\Debug\data\
 )</PostBuildEvent>
   </PropertyGroup>

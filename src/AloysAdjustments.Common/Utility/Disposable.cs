@@ -6,22 +6,36 @@ using System.Threading.Tasks;
 
 namespace AloysAdjustments.Common.Utility
 {
-    public class Disposable<T> : IDisposable
+    public class Disposable
     {
-        private readonly T _obj;
-        private readonly Action<T> _exit;
-
-        public Disposable(T obj, Action<T> enter, Action<T> exit)
+        private class DisposableWrapper<T> : IDisposable
         {
-            _obj = obj;
-            _exit = exit;
+            private readonly T _obj;
+            private readonly Action<T> _exit;
 
-            enter(obj);
+            public DisposableWrapper(T obj, Action<T> exit)
+            {
+                _obj = obj;
+                _exit = exit;
+            }
+
+            public void Dispose()
+            {
+                _exit(_obj);
+            }
         }
-
-        public void Dispose()
+        
+        public static IDisposable Create<T>(T obj, Action<T> enter, Action<T> exit)
         {
-            _exit(_obj);
+            enter(obj);
+
+            return new DisposableWrapper<T>(obj, exit);
+        }
+        public static async Task<IDisposable> CreateAsync<T>(T obj, Func<T, Task> enter, Action<T> exit)
+        {
+            await enter(obj);
+
+            return new DisposableWrapper<T>(obj, exit);
         }
     }
 }

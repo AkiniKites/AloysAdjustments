@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace AloysAdjustments.Common.Downloads
 {
-    public class TestDownloader : ThrottledDownloader<string>
+    public class TestDownloader : ThrottledDownloaderOld<string>
     {
         private readonly WebClient _client;
 

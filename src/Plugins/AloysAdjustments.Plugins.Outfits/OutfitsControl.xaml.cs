@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using AloysAdjustments.Common.Utility;
 using AloysAdjustments.Configuration;
 using AloysAdjustments.Logic;
 using AloysAdjustments.Logic.Patching;
@@ -44,6 +45,8 @@ namespace AloysAdjustments.Plugins.Outfits
 
         public ReadOnlyCollection<OutfitModelFilter> Filters { get; set; }
 
+        private DelayAction LoadlingAction { get; }
+
         public bool Loading { get; set; }
         public byte[] ModelImage { get; set; }
         public string SelectedModel { get; set; }
@@ -58,6 +61,7 @@ namespace AloysAdjustments.Plugins.Outfits
             {
                 new Outfit() {LocalName = "All Outfits" }
             }.AsReadOnly();
+            LoadlingAction = new DelayAction(() => Loading = true);
 
             IoC.Bind(Configs.LoadModuleConfig<OutfitConfig>(PluginName));
 
@@ -253,7 +257,8 @@ namespace AloysAdjustments.Plugins.Outfits
             _updatingLists = true;
 
             SelectedModel = selected.Name;
-            LoadImage(selected.Name);
+            LoadImageOld(selected.Name);
+            //LoadImage(selected.Name).Forget();
 
             selected.Checked = true;
             foreach (var model in Models)
@@ -277,13 +282,33 @@ namespace AloysAdjustments.Plugins.Outfits
             outfit.ModelId.AssignFromOther(model.Id);
         }
 
-        private void LoadImage(string modelName)
+        private async Task LoadImage(string modelName)
         {
-            Loading = true;
+            var bytes = await ModelRepo.LoadImageAsync(modelName);
+
+            if (SelectedModel == modelName)
+            {
+                //da.Complete();
+                Loading = false;
+                if (bytes != null)
+                {
+                    ModelImage = bytes;
+                    IoC.Notif.ShowStatus();
+                }
+                else
+                {
+                    IoC.Notif.ShowError("Error downloading image: " + modelName);
+                }
+            }
+        }
+        private void LoadImageOld(string modelName)
+        {
+            LoadlingAction.Start(500);
             ModelRepo.LoadImage(modelName, (success, image) =>
             {
                 if (SelectedModel == modelName)
                 {
+                    LoadlingAction.Complete();
                     Loading = false;
                     if (success)
                     {

@@ -88,13 +88,16 @@
   <ItemGroup>
     <Compile Include="Downloads\HttpDownloader.cs" />
     <Compile Include="Downloads\TestDownloader.cs" />
-    <Compile Include="Downloads\ThrottledDownloader.cs" />
+    <Compile Include="Downloads\ThrottledDownloaderAsync.cs" />
+    <Compile Include="Downloads\ThrottledDownloaderOld.cs" />
     <Compile Include="JsonConverters\JsonExtensions.cs" />
     <Compile Include="JsonConverters\VersionConverter.cs" />
     <Compile Include="UI\Controls\Spinner.xaml.cs">
       <DependentUpon>Spinner.xaml</DependentUpon>
     </Compile>
     <Compile Include="UI\Converters\BoolToVisibilityConverter.cs" />
+    <Compile Include="Utility\AsyncReaderWriterLock.cs" />
+    <Compile Include="Utility\DelayAction.cs" />
     <Compile Include="Utility\LimitedConcurrentStack.cs" />
     <Compile Include="Notifications.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
