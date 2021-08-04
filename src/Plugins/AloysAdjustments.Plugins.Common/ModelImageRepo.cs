@@ -3,6 +3,7 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 using AloysAdjustments.Common.Downloads;
+using HZDCoreEditor.Util;
 
 namespace AloysAdjustments.Plugins.Common
 {
@@ -12,22 +13,11 @@ namespace AloysAdjustments.Plugins.Common
         
         private readonly TestDownloader _downloader = new TestDownloader(10);
         
-        public async Task<byte[]> LoadImageAsync(string modelName)
-        {
-            return await Task.Run(() => DownloadModelImage(modelName));
-        }
-
         private string GetFileName(string modelName)
         {
             return Path.Combine(IoC.Config.ImageCachePath, modelName + ModelImageExt);
         }
-
-        private byte[] DownloadModelImage(string modelName)
-        {
-            var path = GetFileName(modelName);
-            return null;// _downloader.Download(modelName, path);
-        }
-
+        
         public void LoadImage(string modelName, Action<bool, byte[]> callback)
         {
             DownloadModelImage(modelName, callback);
@@ -36,7 +26,11 @@ namespace AloysAdjustments.Plugins.Common
         private void DownloadModelImage(string modelName, Action<bool, byte[]> callback)
         {
             var path = GetFileName(modelName);
-            _downloader.Download(modelName, path, callback);
+            _downloader.Download(modelName, path, (success, downloaded, bytes) =>
+            {
+                if (downloaded) IoC.Notif.CacheUpdate();
+                callback(success, bytes);
+            });
         }
     }
 }

@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace AloysAdjustments.Common.Downloads
 {
-    public class TestDownloader : ThrottledDownloaderOld<string>
+    public class TestDownloader : ThrottledDownloader<string>
     {
         private readonly WebClient _client;
 
@@ -23,14 +23,15 @@ namespace AloysAdjustments.Common.Downloads
 
         protected override byte[] DownloadFile(string modelName)
         {
-            if (false)
+            var mode = 2;
+            if (mode == 0)
             {
                 var dl = File.ReadAllLines(@"debug\urls.txt");
                 var url = dl[new Random((int)DateTime.Now.Ticks).Next(dl.Length)];
                 var bytes = _client.DownloadData(url);
                 return ApplyText(bytes, modelName);
             }
-            else
+            if (mode == 1)
             {
                 Thread.Sleep(1000);
 
@@ -42,6 +43,15 @@ namespace AloysAdjustments.Common.Downloads
 
                 return bytes;
             }
+            if (mode == 2)
+            {
+                var file = Path.Combine(@"E:\Projects\hzd-model-db-gen\db", modelName + ".jpg");
+                var bytes = File.ReadAllBytes(file);
+
+                return bytes;
+            }
+
+            return null;
         }
 
         private byte[] ApplyText(byte[] img, string modelName)

@@ -17,42 +17,17 @@
         <DockPanel.Resources>
             <conv:BoolToVisibilityConverter x:Key="btv"/>
             <conv:BoolToVisibilityConverter x:Key="btvn" Inverse="True"/>
-
-            <Style TargetType="ColumnDefinition" x:Key="ImageColumn">
-                <Setter Property="Width" Value="*" />
-                <Style.Triggers>
-                    <DataTrigger Binding="{Binding Source={x:Static logic:IoC.Settings}, Path=ShowImages, Mode=OneWay}" Value="False">
-                        <Setter Property="Width" Value="0" />
-                    </DataTrigger>
-                </Style.Triggers>
-            </Style>
         </DockPanel.Resources>
-        <DockPanel DockPanel.Dock="Top" LastChildFill="False">
-            <xctk:CheckComboBox x:Name="ccbModelFilter" DockPanel.Dock="Right" Margin="3" Width="172" 
-                                ItemsSource="{Binding Filters}" Delimiter=", "
-                                DisplayMemberPath="Name" 
-                                Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"
-                                HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch"
-                                ItemSelectionChanged="ccbModelFilter_ItemSelectionChanged"
-                                Closed="ccbModelFilter_ClosedCommand">
-                <xctk:CheckComboBox.ItemContainerStyle>
-                    <Style TargetType="xctk:SelectorItem">
-                        <Setter Property="Padding" Value="0 1"/>
-                    </Style>
-                </xctk:CheckComboBox.ItemContainerStyle>
-            </xctk:CheckComboBox>
-            <TextBlock Text="Filter:" DockPanel.Dock="Right" Margin="0 0 5 0"
-                       VerticalAlignment="Center"/>
-        </DockPanel>
-        <Grid Margin="0 -5 0 0">
+        <Grid>
             <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="4*" />
+                <ColumnDefinition Width="4*" MinWidth="150"/>
                 <ColumnDefinition Width="5"/>
-                <ColumnDefinition Width="5*"/>
+                <ColumnDefinition Width="5*" MinWidth="150"/>
                 <ColumnDefinition>
                     <ColumnDefinition.Style>
                         <Style TargetType="ColumnDefinition">
@@ -79,12 +54,30 @@
                 </ColumnDefinition>
             </Grid.ColumnDefinitions>
 
-            <DockPanel Grid.Column="0" Grid.Row="0" LastChildFill="False" Margin="3 0 3 3">
+            <DockPanel Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="3" Margin="0 0 0 -5" LastChildFill="False">
+                <xctk:CheckComboBox x:Name="ccbModelFilter" DockPanel.Dock="Right" Margin="3" Width="172" 
+                                    ItemsSource="{Binding Filters}" Delimiter=", "
+                                    DisplayMemberPath="Name" 
+                                    Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"
+                                    HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch"
+                                    ItemSelectionChanged="ccbModelFilter_ItemSelectionChanged"
+                                    Closed="ccbModelFilter_ClosedCommand">
+                    <xctk:CheckComboBox.ItemContainerStyle>
+                        <Style TargetType="xctk:SelectorItem">
+                            <Setter Property="Padding" Value="0 1"/>
+                        </Style>
+                    </xctk:CheckComboBox.ItemContainerStyle>
+                </xctk:CheckComboBox>
+                <TextBlock Text="Filter:" DockPanel.Dock="Right" Margin="0 0 5 0"
+                           VerticalAlignment="Center"/>
+            </DockPanel>
+
+            <DockPanel Grid.Column="0" Grid.Row="1" LastChildFill="False" Margin="3 0 3 3">
                 <TextBlock DockPanel.Dock="Left" Text="Outfits" FontWeight="Bold" />
                 <CheckBox x:Name="cbAllOutfits" DockPanel.Dock="Right" Content="Apply To All" 
                           Checked="cbAllOutfits_Checked" Unchecked="cbAllOutfits_Checked"/>
             </DockPanel>
-            <ListBox Grid.Column="0" Grid.Row="1" x:Name="lbOutfits" SelectionMode="Extended" ItemsSource="{Binding Outfits}"
+            <ListBox Grid.Column="0" Grid.Row="2" x:Name="lbOutfits" SelectionMode="Extended" ItemsSource="{Binding Outfits}"
                      SelectionChanged="lbOutfits_SelectionChanged">
                 <ListBox.ItemContainerStyle>
                     <Style TargetType="ListBoxItem">
@@ -104,12 +97,12 @@
                     </DataTemplate>
                 </ListBox.ItemTemplate>
             </ListBox>
-            <GridSplitter Grid.Column="1" Grid.Row="0" Grid.RowSpan="2" Width="5" HorizontalAlignment="Stretch" Background="Transparent"/>
+            <GridSplitter Grid.Column="1" Grid.Row="1" Grid.RowSpan="2" Width="5" HorizontalAlignment="Stretch" Background="Transparent"/>
 
-            <DockPanel  Grid.Column="2" Grid.Row="0" LastChildFill="False" Margin="3 0 3 3">
+            <DockPanel Grid.Column="2" Grid.Row="1" LastChildFill="False" Margin="3 0 3 3">
                 <TextBlock DockPanel.Dock="Left" Text="Model Mapping" FontWeight="Bold" />
             </DockPanel>
-            <ListBox  Grid.Column="2" Grid.Row="1" x:Name="clbModels" ItemsSource="{Binding Models}"
+            <ListBox  Grid.Column="2" Grid.Row="2" x:Name="clbModels" ItemsSource="{Binding Models}"
                       HorizontalContentAlignment="Stretch"
                       SelectionChanged="clbModels_SelectionChanged"
                       LostFocus="clbModels_LostFocus">
@@ -122,8 +115,8 @@
                     </DataTemplate>
                 </ListBox.ItemTemplate>
             </ListBox>
-            <GridSplitter  Grid.Column="3" Grid.Row="0" Grid.RowSpan="2" Width="5" HorizontalAlignment="Stretch" Background="Transparent"/>
-            <Border Grid.Column="4" Grid.Row="1" BorderThickness="1" BorderBrush="#FFABADB3">
+            <GridSplitter  Grid.Column="3" Grid.Row="1" Grid.RowSpan="2" Width="5" HorizontalAlignment="Stretch" Background="Transparent"/>
+            <Border Grid.Column="4" Grid.Row="2" BorderThickness="1" BorderBrush="#FFABADB3">
                 <Grid>
                     <controls:Spinner Width="100" Height="100" Visibility="{Binding Path=Loading, Converter={StaticResource btv}}"/>
                     <Image Source="{Binding ModelImage}" Visibility="{Binding Path=Loading, Converter={StaticResource btvn}}"/>

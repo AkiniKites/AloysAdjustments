@@ -88,8 +88,7 @@
   <ItemGroup>
     <Compile Include="Downloads\HttpDownloader.cs" />
     <Compile Include="Downloads\TestDownloader.cs" />
-    <Compile Include="Downloads\ThrottledDownloaderAsync.cs" />
-    <Compile Include="Downloads\ThrottledDownloaderOld.cs" />
+    <Compile Include="Downloads\ThrottledDownloader.cs" />
     <Compile Include="JsonConverters\JsonExtensions.cs" />
     <Compile Include="JsonConverters\VersionConverter.cs" />
     <Compile Include="UI\Controls\Spinner.xaml.cs">

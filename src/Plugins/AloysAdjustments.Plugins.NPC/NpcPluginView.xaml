@@ -20,85 +20,122 @@
         <DockPanel.Resources>
             <conv:NotConverter x:Key="NotConverter"/>
             <cnv:ModifiedConverter x:Key="ModifiedConverter"/>
+            <conv:BoolToVisibilityConverter x:Key="btv"/>
+            <conv:BoolToVisibilityConverter x:Key="btvn" Inverse="True"/>
         </DockPanel.Resources>
-        <DockPanel DockPanel.Dock="Top" LastChildFill="False">
-            <TextBlock DockPanel.Dock="Left" Text="Experimental" FontSize="10" Foreground="{x:Static ui:UIColors.ErrorBrush}" />
-            <ctrl:EnumsCheckComboBox x:Name="ccbModelFilter" DockPanel.Dock="Right" Margin="3" Width="172" 
-                                     Delimiter=", " 
-                                     Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"
-                                     HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch"
-                                     FlagsType="{x:Type npc:ModelFilter}"
-                                     SelectedFlags="{Binding FilterValue}">
-                <xctk:CheckComboBox.ItemContainerStyle>
-                    <Style TargetType="xctk:SelectorItem">
-                        <Setter Property="Padding" Value="0 1"/>
-                    </Style>
-                </xctk:CheckComboBox.ItemContainerStyle>
-            </ctrl:EnumsCheckComboBox>
-            <TextBlock Text="Filter:" DockPanel.Dock="Right" Margin="0 0 5 0"
-                       VerticalAlignment="Center"/>
-        </DockPanel>
-        <Grid Margin="0 -5 0 0">
+        
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="4*" />
+                <ColumnDefinition Width="4*" MinWidth="150"/>
                 <ColumnDefinition Width="5"/>
-                <ColumnDefinition Width="5*"/>
-            </Grid.ColumnDefinitions>
-
-            <DockPanel Grid.Column="0">
-                <DockPanel  DockPanel.Dock="Top" LastChildFill="False" Margin="3 0 3 3">
-                    <TextBlock DockPanel.Dock="Left" Text="NPC" FontWeight="Bold" />
-                    <CheckBox DockPanel.Dock="Right" Content="Apply To All" 
-                              IsChecked="{Binding ApplyToAll}"/>
-                </DockPanel>
-                <ui:ListBoxEx x:Name="lbNPCs" SelectionMode="Extended" ItemsSource="{Binding NpcsView}"
-                              IsHitTestVisible="{Binding ElementName=cbAllOutfits, Path=IsChecked, Converter={StaticResource NotConverter}}"
-                              SelectedItemsList="{Binding SelectedNpcModels, Mode=OneWayToSource}"
-                              IsEnabledChanged="lbNPCs_IsEnabledChanged">
-                    <ListBox.ItemContainerStyle>
-                        <Style TargetType="ListBoxItem">
+                <ColumnDefinition Width="5*" MinWidth="150"/>
+                <ColumnDefinition>
+                    <ColumnDefinition.Style>
+                        <Style TargetType="ColumnDefinition">
+                            <Setter Property="Width" Value="5" />
                             <Style.Triggers>
-                                <DataTrigger Binding="{Binding Modified}" Value="True">
-                                    <Setter Property="Background" Value="#BFFFBF" />
-                                    <Setter Property="BorderBrush" Value="#BFFFBF" />
+                                <DataTrigger Binding="{Binding Source={x:Static logic:IoC.Settings}, Path=ShowImages, Mode=OneWay}" Value="False">
+                                    <Setter Property="Width" Value="0" />
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>
-                    </ListBox.ItemContainerStyle>
-                    <ListBox.ItemTemplate>
-                        <DataTemplate>
-                            <StackPanel Margin="0 1">
-                                <TextBlock>
-                                    <TextBlock.Text>
-                                        <MultiBinding Converter="{StaticResource ModifiedConverter}">
-                                            <Binding Path="Default.DisplayName"/>
-                                            <Binding Path="Modified"/>
-                                        </MultiBinding>
-                                    </TextBlock.Text>
-                                </TextBlock>
-                            </StackPanel>
-                        </DataTemplate>
-                    </ListBox.ItemTemplate>
-                </ui:ListBoxEx>
+                    </ColumnDefinition.Style>
+                </ColumnDefinition>
+                <ColumnDefinition>
+                    <ColumnDefinition.Style>
+                        <Style TargetType="ColumnDefinition">
+                            <Setter Property="Width" Value="5*" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Source={x:Static logic:IoC.Settings}, Path=ShowImages, Mode=OneWay}" Value="False">
+                                    <Setter Property="Width" Value="0" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ColumnDefinition.Style>
+                </ColumnDefinition>
+            </Grid.ColumnDefinitions>
+
+            <DockPanel Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="3" Margin="0 0 0 -5" LastChildFill="False">
+                <TextBlock DockPanel.Dock="Left" Text="Experimental" FontSize="10" Foreground="{x:Static ui:UIColors.ErrorBrush}" />
+                <ctrl:EnumsCheckComboBox x:Name="ccbModelFilter" DockPanel.Dock="Right" Margin="3" Width="172" 
+                                         Delimiter=", " 
+                                         Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"
+                                         HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch"
+                                         FlagsType="{x:Type npc:ModelFilter}"
+                                         SelectedFlags="{Binding FilterValue}">
+                    <xctk:CheckComboBox.ItemContainerStyle>
+                        <Style TargetType="xctk:SelectorItem">
+                            <Setter Property="Padding" Value="0 1"/>
+                        </Style>
+                    </xctk:CheckComboBox.ItemContainerStyle>
+                </ctrl:EnumsCheckComboBox>
+                <TextBlock Text="Filter:" DockPanel.Dock="Right" Margin="0 0 5 0"
+                           VerticalAlignment="Center"/>
             </DockPanel>
-            <GridSplitter Grid.Column="1" Width="5" HorizontalAlignment="Stretch" Background="Transparent"/>
-            <DockPanel Grid.Column="2">
-                <DockPanel DockPanel.Dock="Top" LastChildFill="False" Margin="3 0 3 3">
-                    <TextBlock DockPanel.Dock="Left" Text="Model Mapping" FontWeight="Bold" />
-                </DockPanel>
-                <ui:ListBoxEx x:Name="clbModels" ItemsSource="{Binding ModelsView}"
-                             HorizontalContentAlignment="Stretch"
-                             SelectedItem="{Binding SelectedModelMapping}"
-                             LostFocus="clbModels_LostFocus">
-                    <ListBox.ItemTemplate>
-                        <DataTemplate>
-                            <DockPanel Margin="0 1">
-                                <CheckBox IsChecked="{Binding Checked}" Content="{Binding DisplayName}" IsHitTestVisible="False"/>
-                            </DockPanel>
-                        </DataTemplate>
-                    </ListBox.ItemTemplate>
-                </ui:ListBoxEx>
+
+            <DockPanel Grid.Column="0" Grid.Row="1" LastChildFill="False" Margin="3 0 3 3">
+                <TextBlock DockPanel.Dock="Left" Text="NPC" FontWeight="Bold" />
+                <CheckBox DockPanel.Dock="Right" Content="Apply To All" 
+                          IsChecked="{Binding ApplyToAll}"/>
             </DockPanel>
+            <ui:ListBoxEx Grid.Column="0" Grid.Row="2" x:Name="lbNPCs" SelectionMode="Extended" ItemsSource="{Binding NpcsView}"
+                          IsHitTestVisible="{Binding ElementName=cbAllOutfits, Path=IsChecked, Converter={StaticResource NotConverter}}"
+                          SelectedItemsList="{Binding SelectedNpcModels, Mode=OneWayToSource}"
+                          IsEnabledChanged="lbNPCs_IsEnabledChanged">
+                <ListBox.ItemContainerStyle>
+                    <Style TargetType="ListBoxItem">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding Modified}" Value="True">
+                                <Setter Property="Background" Value="#BFFFBF" />
+                                <Setter Property="BorderBrush" Value="#BFFFBF" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </ListBox.ItemContainerStyle>
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Margin="0 1">
+                            <TextBlock>
+                                <TextBlock.Text>
+                                    <MultiBinding Converter="{StaticResource ModifiedConverter}">
+                                        <Binding Path="Default.DisplayName"/>
+                                        <Binding Path="Modified"/>
+                                    </MultiBinding>
+                                </TextBlock.Text>
+                            </TextBlock>
+                        </StackPanel>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ui:ListBoxEx>
+            <GridSplitter Grid.Column="1" Grid.Row="1" Grid.RowSpan="2" HorizontalAlignment="Stretch" Background="Transparent"/>
+
+            <DockPanel Grid.Column="2" Grid.Row="1" LastChildFill="False" Margin="3 0 3 3">
+                <TextBlock DockPanel.Dock="Left" Text="Model Mapping" FontWeight="Bold" />
+            </DockPanel>
+            <ui:ListBoxEx Grid.Column="2" Grid.Row="2" x:Name="clbModels" ItemsSource="{Binding ModelsView}"
+                          HorizontalContentAlignment="Stretch"
+                          SelectedItem="{Binding SelectedModelMapping}"
+                          LostFocus="clbModels_LostFocus">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <DockPanel Margin="0 1">
+                            <CheckBox IsChecked="{Binding Checked}" Content="{Binding DisplayName}" IsHitTestVisible="False"/>
+                        </DockPanel>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ui:ListBoxEx>
+            <GridSplitter  Grid.Column="3" Grid.Row="1" Grid.RowSpan="2" Width="5" HorizontalAlignment="Stretch" Background="Transparent"/>
+            <Border Grid.Column="4" Grid.Row="2" BorderThickness="1" BorderBrush="#FFABADB3">
+                <Grid>
+                    <ctrl:Spinner Width="100" Height="100" Visibility="{Binding Path=Loading, Converter={StaticResource btv}}"/>
+                    <Image Source="{Binding ModelImage}" Visibility="{Binding Path=Loading, Converter={StaticResource btvn}}"/>
+                </Grid>
+            </Border>
         </Grid>
     </DockPanel>
 </UserControl>

@@ -196,7 +196,7 @@ namespace AloysAdjustments.Modules
                 var size = 0L;
                 var dir = new DirectoryInfo(IoC.Config.CachePath);
                 if (dir.Exists)
-                    size = dir.GetFiles("*.json", SearchOption.AllDirectories).Sum(x => x.Length);
+                    size = dir.GetFiles("*.*", SearchOption.AllDirectories).Sum(x => x.Length);
 
                 Dispatcher.BeginInvoke(new Action(() =>
                 {
