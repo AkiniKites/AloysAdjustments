@@ -21,10 +21,6 @@ using AloysAdjustments.Utility;
 using Decima;
 using Decima.HZD;
 using Microsoft.Win32;
-using Newtonsoft.Json;
-using Control = System.Windows.Controls.Control;
-using ControlLock = AloysAdjustments.UI.ControlLock;
-using IInteractivePlugin = AloysAdjustments.Plugins.IInteractivePlugin;
 using Localization = AloysAdjustments.Logic.Localization;
 
 namespace AloysAdjustments
@@ -55,7 +51,24 @@ namespace AloysAdjustments
 
             InitializeComponent();
 
+            AddMigrations();
             WindowMemory.ActivateWindow(this, "Main");
+        }
+
+        private void AddMigrations()
+        {
+            var width = this.Width;
+            var height = this.Height;
+
+            //add reset window migration
+            AppCompatibility.AddMigration(new Version(1, 7, 5), () =>
+            {
+                Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    this.Width = width;
+                    this.Height = height;
+                }));
+            });
         }
         
         private void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)

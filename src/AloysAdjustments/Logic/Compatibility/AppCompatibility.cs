@@ -28,6 +28,11 @@ namespace AloysAdjustments.Logic.Compatibility
             return GetPreviousVersion() < version;
         }
 
+        public static void AddMigration(Version version, Action action)
+        {
+            _migrations.Add((version, action));
+        }
+
         public static void RunMigrations()
         {
             var prevVersion = GetPreviousVersion();

@@ -21,9 +21,9 @@ namespace AloysAdjustments.Plugins.Common.Characters
 
         public CharacterGenerator(bool useCache = true)
         {
-            HumanoidMatcher = new Regex(IoC.Get<CharacterConfig>().HumanoidMatcher);
-            UniqueHumanoidMatcher = new Regex(IoC.Get<CharacterConfig>().UniqueHumanoidMatcher);
-            var ignored = IoC.Get<CharacterConfig>().IgnoredFiles;
+            HumanoidMatcher = new Regex(IoC.Get<CommonConfig>().HumanoidMatcher);
+            UniqueHumanoidMatcher = new Regex(IoC.Get<CommonConfig>().UniqueHumanoidMatcher);
+            var ignored = IoC.Get<CommonConfig>().IgnoredFiles;
 
             _uniqueFileCollector = new FileCollector<CharacterModel>("characters-u",
                 f => IsHumanoid(f) && IsUnique(f), GetModels)

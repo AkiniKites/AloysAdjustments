@@ -15,10 +15,6 @@ namespace AloysAdjustments.Plugins.Outfits
         public string[] OutfitFiles { get; set; }
         public string[] IgnoredOutfits { get; set; }
 
-        public string HumanoidMatcher { get; set; }
-        public string UniqueHumanoidMatcher { get; set; }
-        public string[] IgnoredCharacters { get; set; }
-
         public string OutfitFactFile { get; set; }
 
         public string[] ArmorComponentFiles { get; set; }

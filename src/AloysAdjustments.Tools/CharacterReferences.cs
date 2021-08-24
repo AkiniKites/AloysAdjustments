@@ -27,7 +27,7 @@ namespace AloysAdjustments.Tools
 
         public NpcRefGenerator()
         {
-            IoC.Bind(Configs.LoadModuleConfig<CharacterConfig>("NPC Models"));
+            IoC.Bind(Configs.LoadModuleConfig<CommonConfig>(CommonConfig.ConfigName));
         }
 
         public void SearchDir(string path)

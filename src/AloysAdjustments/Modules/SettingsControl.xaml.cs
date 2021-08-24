@@ -139,6 +139,13 @@ namespace AloysAdjustments.Modules
             UpdateCacheStatus();
         }
 
+        private async void btnClearImages_ClickCommand(object sender, EventArgs e) => await Relay.To(sender, e, btnClearImages_Click);
+        private async Task btnClearImages_Click(object sender, EventArgs e)
+        {
+            await Async.Run(() => Paths.DeleteDirectory(IoC.Config.ImagesPath));
+            UpdateCacheStatus();
+        }
+
         private void btnDeletePack_Click(object sender, EventArgs e)
         {
             if (MessageBox.Show($"Are you sure you want to delete {IoC.Config.PatchFile}?", $"Delete File",
@@ -193,15 +200,13 @@ namespace AloysAdjustments.Modules
         {
             Async.Run(() =>
             {
-                var size = 0L;
-                var dir = new DirectoryInfo(IoC.Config.CachePath);
-                if (dir.Exists)
-                    size = dir.GetFiles("*.*", SearchOption.AllDirectories).Sum(x => x.Length);
-
+                var cSize = Paths.GetDirectorySize(IoC.Config.CachePath);
+                var iSize = Paths.GetDirectorySize(IoC.Config.ImagesPath);
                 Dispatcher.BeginInvoke(new Action(() =>
                 {
-                    lblCacheSize.Text = $"{(size / 1024):n0} KB";
-                    btnClearCache.IsEnabled = size > 0;
+                    lblCacheSize.Text = $"{((cSize + iSize) / 1024):n0} KB";
+                    btnClearCache.IsEnabled = cSize > 0;
+                    btnClearImages.IsEnabled = iSize > 0;
                 }));
             }).ConfigureAwait(false);
         }

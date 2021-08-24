@@ -78,7 +78,7 @@ namespace AloysAdjustments.Plugins.NPC
 
         public NpcPlugin()
         {
-            IoC.Bind(Configs.LoadModuleConfig<CharacterConfig>(PluginName));
+            IoC.Bind(Configs.LoadModuleConfig<CommonConfig>(CommonConfig.ConfigName));
 
             Reset = new ControlRelay(OnResetAll);
             ResetSelected = new ControlRelay(OnResetSelected);

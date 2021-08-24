@@ -1,10 +1,10 @@
 ﻿{
   "ModuleConfigs": {
-    "NPC Models": {
+    "Common": {
       "HumanoidMatcher": "^entities/.*humanoids/.+",
       "UniqueHumanoidMatcher": "^entities/.*humanoids/.*(?:individual_characters|uniquecharacters).+",
       "IgnoredFiles": [
-        "(playercostume|playercharacter|debug)"
+        "(playercostume|playercharacter|debug|replaceme|default)"
       ]
     },
     "Outfits": {
@@ -20,13 +20,6 @@
       ],
       "IgnoredOutfits": [
         "Outfit_Undergarment"
-      ],
-      "HumanoidMatcher": "^entities/.*humanoids/.+",
-      "UniqueHumanoidMatcher": "^entities/.*humanoids/.*(?:individual_characters|uniquecharacters).+",
-      "IgnoredCharacters": [
-        "playercostume",
-        "playercharacter",
-        "debug"
       ],
       "OutfitFactFile": "entities/characters/humanoids/player/costumes/facts",
       "ArmorComponentFiles": [
@@ -67,10 +60,11 @@
   "ArchiverLib": "oo2core_3_win64.dll",
   "TempPath": "temp",
   "CachePath": "caches",
-  "ImageCachePath": "caches/img",
+  "ImagesPath": "data/img",
   "PackDir": "Packed_DX12",
   "PatchFile": "Patch_AloysAdjustments.bin",
   "UpdatesRepo": "AkiniKites/AloysAdjustments",
+  "ImagesDb": "https://github.com/AkiniKites/hzd-model-db/raw/main/img/[id].jpg",
   "KnownGameFiles": [
     "DLC1.bin",
     "DLC1_English.bin",

@@ -10,6 +10,14 @@ namespace AloysAdjustments.Common.Utility
 {
     public static class Paths
     {
+        public static long GetDirectorySize(string dir)
+        {
+            var dirInfo = new DirectoryInfo(dir);
+            if (dirInfo.Exists)
+                return dirInfo.GetFiles("*.*", SearchOption.AllDirectories).Sum(x => x.Length);
+            return 0;
+        }
+
         public static void CheckDirectory(string dir)
         {
             if (String.IsNullOrEmpty(dir))

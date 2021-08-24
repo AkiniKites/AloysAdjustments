@@ -9,15 +9,20 @@ namespace AloysAdjustments.Plugins.Common
 {
     public class ModelImageRepo
     {
+        public const string ModelDbId = "[id]";
         public const string ModelImageExt = ".jpg";
         
-        private readonly TestDownloader _downloader = new TestDownloader(10);
+        private readonly HttpDownloader _downloader = new HttpDownloader(10);
         
-        private string GetFileName(string modelName)
+        private string GetFileName(string url)
         {
-            return Path.Combine(IoC.Config.ImageCachePath, modelName + ModelImageExt);
+            return Path.Combine(IoC.Config.ImagesPath, Path.GetFileName(url));
         }
-        
+        private string GetDownloadUrl(string modelName)
+        {
+            return IoC.Config.ImagesDb.Replace(ModelDbId, modelName);
+        }
+
         public void LoadImage(string modelName, Action<bool, byte[]> callback)
         {
             DownloadModelImage(modelName, callback);
@@ -25,8 +30,10 @@ namespace AloysAdjustments.Plugins.Common
 
         private void DownloadModelImage(string modelName, Action<bool, byte[]> callback)
         {
-            var path = GetFileName(modelName);
-            _downloader.Download(modelName, path, (success, downloaded, bytes) =>
+            var url = GetDownloadUrl(modelName);
+            var path = GetFileName(url);
+
+            _downloader.Download(url, path, (success, downloaded, bytes) =>
             {
                 if (downloaded) IoC.Notif.CacheUpdate();
                 callback(success, bytes);

@@ -64,6 +64,7 @@ namespace AloysAdjustments.Plugins.Outfits
             LoadingAction = new DelayAction(() => Loading = true);
 
             IoC.Bind(Configs.LoadModuleConfig<OutfitConfig>(PluginName));
+            IoC.Bind(Configs.LoadModuleConfig<CommonConfig>(CommonConfig.ConfigName));
 
             OutfitGen = new OutfitsGenerator();
             CharacterGen = new OutfitCharacterGenerator(new CharacterGenerator());
