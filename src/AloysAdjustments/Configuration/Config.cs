@@ -17,6 +17,7 @@ namespace AloysAdjustments.Configuration
         public string TempPath { get; set; }
         public string CachePath { get; set; }
         public string ImagesPath { get; set; }
+        public string ImageErrorPath { get; set; }
         public string PatchFile { get; set; }
         public string PackDir { get; set; }
         public string[] OldVersionsToDelete { get; set; }

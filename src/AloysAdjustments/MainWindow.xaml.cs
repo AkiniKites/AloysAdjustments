@@ -10,6 +10,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Threading;
+using AloysAdjustments.Common.Utility;
 using AloysAdjustments.Configuration;
 using AloysAdjustments.Logic;
 using AloysAdjustments.Logic.Compatibility;
@@ -317,7 +318,7 @@ namespace AloysAdjustments
                 oldPatch.Delete();
 
 #if !DEBUG
-                Paths.Cleanup(IoC.Config.TempPath);
+                Paths.DeleteDirectory(IoC.Config.TempPath);
 #endif
             }
 

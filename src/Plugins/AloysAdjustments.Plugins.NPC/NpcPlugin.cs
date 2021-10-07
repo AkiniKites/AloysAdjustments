@@ -266,16 +266,13 @@ namespace AloysAdjustments.Plugins.NPC
                 if (SelectedModelMapping?.Name == modelName)
                 {
                     LoadingAction.Complete();
+                    ModelImage = image;
                     Loading = false;
+
                     if (success)
-                    {
-                        ModelImage = image;
                         IoC.Notif.ShowStatus();
-                    }
                     else
-                    {
                         IoC.Notif.ShowError("Error downloading image: " + modelName);
-                    }
                 }
             });
         }

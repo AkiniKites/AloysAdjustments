@@ -61,6 +61,7 @@
   "TempPath": "temp",
   "CachePath": "caches",
   "ImagesPath": "data/img",
+  "ImageErrorPath": "data/error-preview.png",
   "PackDir": "Packed_DX12",
   "PatchFile": "Patch_AloysAdjustments.bin",
   "UpdatesRepo": "AkiniKites/AloysAdjustments",

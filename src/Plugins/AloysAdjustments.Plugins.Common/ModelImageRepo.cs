@@ -1,5 +1,6 @@
 ﻿using AloysAdjustments.Logic;
 using System;
+using System.Drawing;
 using System.IO;
 using System.Threading.Tasks;
 using AloysAdjustments.Common.Downloads;
@@ -13,7 +14,10 @@ namespace AloysAdjustments.Plugins.Common
         public const string ModelImageExt = ".jpg";
         
         private readonly HttpDownloader _downloader = new HttpDownloader(10);
-        
+
+        public Lazy<byte[]> ErrorImage = new Lazy<byte[]>(() => 
+            File.ReadAllBytes(IoC.Config.ImageErrorPath));
+
         private string GetFileName(string url)
         {
             return Path.Combine(IoC.Config.ImagesPath, Path.GetFileName(url));
@@ -36,6 +40,8 @@ namespace AloysAdjustments.Plugins.Common
             _downloader.Download(url, path, (success, downloaded, bytes) =>
             {
                 if (downloaded) IoC.Notif.CacheUpdate();
+                if (!success) bytes = ErrorImage.Value;
+
                 callback(success, bytes);
             });
         }

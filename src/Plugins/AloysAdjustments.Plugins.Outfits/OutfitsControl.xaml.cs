@@ -290,16 +290,13 @@ namespace AloysAdjustments.Plugins.Outfits
                 if (SelectedModel == modelName)
                 {
                     LoadingAction.Complete();
+                    ModelImage = image;
                     Loading = false;
+
                     if (success)
-                    {
-                        ModelImage = image;
                         IoC.Notif.ShowStatus();
-                    }
                     else
-                    {
                         IoC.Notif.ShowError("Error downloading image: " + modelName);
-                    }
                 }
             });
         }

@@ -27,6 +27,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AloysAdjustments.Plugins.Co
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "data", "data", "{1BDB0801-8F4A-4768-8E0B-1A13A10B3FFC}"
 	ProjectSection(SolutionItems) = preProject
+		data\error-preview.png = data\error-preview.png
 		data\npc-map.json = data\npc-map.json
 	EndProjectSection
 EndProject
