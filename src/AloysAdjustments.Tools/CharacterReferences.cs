@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using AloysAdjustments.Common.JsonConverters;
 using AloysAdjustments.Configuration;
 using AloysAdjustments.Logic;
 using AloysAdjustments.Plugins.Common;
@@ -26,7 +27,7 @@ namespace AloysAdjustments.Tools
 
         public NpcRefGenerator()
         {
-            IoC.Bind(Configs.LoadModuleConfig<CharacterConfig>("NPC Models"));
+            IoC.Bind(Configs.LoadModuleConfig<CommonConfig>(CommonConfig.ConfigName));
         }
 
         public void SearchDir(string path)
@@ -91,7 +92,8 @@ namespace AloysAdjustments.Tools
                     if (!File.Exists(ResultsFile))
                         return false;
                     var json = File.ReadAllText(ResultsFile);
-                    results = JsonConvert.DeserializeObject<List<ByteSearchResult<CharacterModel>>>(json, new BaseGGUUIDConverter());
+                    results = JsonConvert.DeserializeObject<List<ByteSearchResult<CharacterModel>>>(json,
+                        JsonHelper.Converters);
                     return true;
                 });
 
@@ -103,7 +105,7 @@ namespace AloysAdjustments.Tools
             lock (_lock)
             {
                 var json = JsonConvert.SerializeObject(results,
-                Formatting.Indented, new BaseGGUUIDConverter());
+                Formatting.Indented, JsonHelper.Converters);
                 using (var fb = new FileBackup(ResultsFile))
                 {
                     File.WriteAllText(ResultsFile, json);

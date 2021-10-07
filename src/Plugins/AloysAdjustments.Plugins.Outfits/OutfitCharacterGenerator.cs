@@ -19,9 +19,9 @@ namespace AloysAdjustments.Plugins.Outfits
         
         private readonly CharacterGenerator _charGen;
 
-        public OutfitCharacterGenerator()
+        public OutfitCharacterGenerator(CharacterGenerator characterGenerator)
         {
-            _charGen = new CharacterGenerator();
+            _charGen = characterGenerator;
         }
 
         public List<CharacterModel> GetCharacterModels(bool all)

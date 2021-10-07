@@ -15,23 +15,53 @@ namespace AloysAdjustments.Utility
     {
         private readonly Func<string, bool> _fileNameValidator;
         private readonly Func<string, IEnumerable<T>> _itemGetter;
-        private readonly Regex[] Ignored;
+        private Regex[] _ignored;
+        private Func<IEnumerable<T>, IEnumerable<T>> _consolidator;
+        private bool _useCache = true;
 
+        private bool _sealed;
         private readonly GameCache<List<T>> _cache;
         private readonly object _lock = new object();
 
-        public FileCollector(string name, Func<string, bool> fileNameValidator, 
-            Func<string, IEnumerable<T>> itemGetter, string[] ignored = null)
+        public FileCollector(string name, 
+            Func<string, bool> fileNameValidator, 
+            Func<string, IEnumerable<T>> itemGetter)
         {
             _fileNameValidator = fileNameValidator;
             _itemGetter = itemGetter;
+            _ignored = new Regex[0];
 
-            Ignored = (ignored ?? new string[0]).Select(x => new Regex(x, RegexOptions.IgnoreCase)).ToArray();
             _cache = new GameCache<List<T>>(name);
+        }
+
+        public FileCollector<T> WithIgnored(string[] ignored)
+        {
+            if (_sealed) throw new InvalidOperationException("FileCollector has been built cannot add ignored.");
+            _ignored = ignored.Select(x => new Regex(x, RegexOptions.IgnoreCase)).ToArray();
+            return this;
+        }
+        public FileCollector<T> WithConsolidate(Func<IEnumerable<T>, IEnumerable<T>> consolidator)
+        {
+            if (_sealed) throw new InvalidOperationException("FileCollector has been built cannot add consolidator.");
+            _consolidator = consolidator;
+            return this;
+        }
+        public FileCollector<T> DisableCaching(bool disableCache = true)
+        {
+            if (_sealed) throw new InvalidOperationException("FileCollector has been built cannot change caching.");
+            _useCache = !disableCache;
+            return this;
+        }
+        public FileCollector<T> Build()
+        {
+            _sealed = true;
+            return this;
         }
 
         public List<T> Load()
         {
+            if (!_sealed) throw new InvalidOperationException("FileCollector has not been built");
+
             lock (_lock)
             {
                 return LoadInternal();
@@ -39,7 +69,7 @@ namespace AloysAdjustments.Utility
         }
         private List<T> LoadInternal()
         {
-            if (_cache.TryLoadCache(out var cached))
+            if (_useCache && _cache.TryLoadCache(out var cached))
             {
                 if (cached.Any())
                     return cached;
@@ -52,11 +82,11 @@ namespace AloysAdjustments.Utility
             var files = Prefetch.Load().Files.Keys;
             var bag = new ConcurrentBag<T>();
 
-            var parallels = IoC.Debug.SingleThread ? 1 : Environment.ProcessorCount;
+            var parallels = IoC.CmdOptions.SingleThread ? 1 : Environment.ProcessorCount;
             var tasks = new ParallelTasks<string>(
                 parallels, file =>
                 {
-                    if (_fileNameValidator(file) && !Ignored.Any(x => x.IsMatch(file)))
+                    if (_fileNameValidator(file) && !_ignored.Any(x => x.IsMatch(file)))
                     {
                         foreach (var item in _itemGetter(file))
                             bag.Add(item);
@@ -70,8 +100,14 @@ namespace AloysAdjustments.Utility
             GC.Collect();
 
             var itemList = bag.ToList();
-            cached.AddRange(itemList);
-            _cache.Save(cached);
+            if (_consolidator != null)
+                itemList = _consolidator(itemList).ToList();
+
+            if (_useCache)
+            {
+                cached.AddRange(itemList);
+                _cache.Save(cached);
+            }
 
             return itemList;
         }

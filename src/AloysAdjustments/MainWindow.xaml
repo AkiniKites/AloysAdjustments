@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:AloysAdjustments.UI"
         mc:Ignorable="d"
-        Title="Aloy's Adjustments" Height="800" Width="800"
+        Title="Aloy's Adjustments" Height="800" Width="1200"
         Loaded="Main_LoadCommand" Closing="Window_Closing"
         Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"
         ResizeMode="CanResizeWithGrip"

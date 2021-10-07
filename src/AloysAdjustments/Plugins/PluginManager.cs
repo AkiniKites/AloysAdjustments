@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using AloysAdjustments.Common.Utility;
 using AloysAdjustments.Logic;
 using AloysAdjustments.Utility;
 
@@ -27,17 +28,6 @@ namespace AloysAdjustments.Plugins
                 {
                     yield return loadedType;
                 }
-            }
-        }
-
-        public void ExecuteAll<T>(Action<T> action)
-        {
-            Paths.CheckDirectory(PluginDir);
-            var dlls = Directory.GetFiles(PluginDir, PluginPattern, SearchOption.TopDirectoryOnly);
-
-            foreach (string dll in dlls)
-            {
-                AssemblyLoader.LoadAndExecute(dll, action);
             }
         }
     }

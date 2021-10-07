@@ -6,8 +6,10 @@ using System.Threading.Tasks;
 
 namespace AloysAdjustments.Plugins.Common
 {
-    public class CharacterConfig
+    public class CommonConfig
     {
+        public const string ConfigName = "Common";
+
         public string HumanoidMatcher { get; set; }
         public string UniqueHumanoidMatcher { get; set; }
         public string[] IgnoredFiles { get; set; }

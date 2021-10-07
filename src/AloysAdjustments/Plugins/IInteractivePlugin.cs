@@ -22,5 +22,7 @@ namespace AloysAdjustments.Plugins
 
         Task Initialize();
         bool ValidateChanges();
+
+        Task CommandAction(string command);
     }
 }

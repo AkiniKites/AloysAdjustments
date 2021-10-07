@@ -3,20 +3,27 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using AloysAdjustments.Common.Utility;
 using AloysAdjustments.Configuration;
 using AloysAdjustments.Logic;
 using AloysAdjustments.Logic.Patching;
-using AloysAdjustments.Plugins.Common.Data;
+using AloysAdjustments.Plugins.Common;
+using AloysAdjustments.Plugins.Common.Characters;
+using AloysAdjustments.Plugins.Outfits.Compatibility;
 using AloysAdjustments.Plugins.Outfits.Data;
 using AloysAdjustments.UI;
 using AloysAdjustments.Utility;
 using Decima;
+using Model = AloysAdjustments.Plugins.Common.Data.Model;
+using String = System.String;
 
 namespace AloysAdjustments.Plugins.Outfits
 {
@@ -28,16 +35,24 @@ namespace AloysAdjustments.Plugins.Outfits
         private OutfitsGenerator OutfitGen { get; }
         private OutfitCharacterGenerator CharacterGen { get; }
         private OutfitPatcher Patcher { get; }
+        private ModelImageRepo ModelRepo { get; }
 
         private HashSet<Outfit> DefaultOutfits { get; set; }
         public ReadOnlyCollection<Outfit> Outfits { get; set; }
         public ReadOnlyCollection<Model> Models { get; set; }
         private ReadOnlyCollection<Outfit> AllOutfitStub { get; }
+        private OutfitCompatibility OutfitCompatibility { get; }
 
         public ReadOnlyCollection<OutfitModelFilter> Filters { get; set; }
 
-        public override string PluginName => "Outfits";
+        private DelayAction LoadingAction { get; }
 
+        public bool Loading { get; set; }
+        public byte[] ModelImage { get; set; }
+        public string SelectedModel { get; set; }
+
+        public override string PluginName => "Outfits";
+        
         public OutfitsControl()
         {
             _loading = true;
@@ -46,13 +61,17 @@ namespace AloysAdjustments.Plugins.Outfits
             {
                 new Outfit() {LocalName = "All Outfits" }
             }.AsReadOnly();
+            LoadingAction = new DelayAction(() => Loading = true);
 
             IoC.Bind(Configs.LoadModuleConfig<OutfitConfig>(PluginName));
+            IoC.Bind(Configs.LoadModuleConfig<CommonConfig>(CommonConfig.ConfigName));
 
             OutfitGen = new OutfitsGenerator();
-            CharacterGen = new OutfitCharacterGenerator();
+            CharacterGen = new OutfitCharacterGenerator(new CharacterGenerator());
             Patcher = new OutfitPatcher();
             Outfits = new List<Outfit>().AsReadOnly();
+            ModelRepo = new ModelImageRepo();
+            OutfitCompatibility = new OutfitCompatibility();
 
             InitializeComponent();
 
@@ -132,7 +151,7 @@ namespace AloysAdjustments.Plugins.Outfits
                     models.AddRange(LoadCharacterModelList(false));
                 if (OutfitModelFilter.AllCharacters.IsFlag(filter))
                     models.AddRange(LoadCharacterModelList(true));
-
+                
                 Models = models.AsReadOnly();
             });
 
@@ -165,6 +184,7 @@ namespace AloysAdjustments.Plugins.Outfits
 
             var loadedOutfits = patchOutfits.ToHashSet();
             var variantMapping = await CharacterGen.GetVariantMapping(path, OutfitGen);
+            variantMapping = await OutfitCompatibility.UpdateVariants(path, variantMapping);
             LoadOutfits(loadedOutfits, variantMapping);
 
             RefreshOutfitList();
@@ -196,6 +216,20 @@ namespace AloysAdjustments.Plugins.Outfits
             Patcher.CreatePatch(patch, DefaultOutfits.ToList(), Outfits, models);
         }
 
+        public override Task CommandAction(string command)
+        {
+            //format: <armor-name>
+            var model = Models.FirstOrDefault(x => String.Equals(x.Name, command.Trim(), StringComparison.OrdinalIgnoreCase));
+            if (model == null)
+                throw new InvalidOperationException("Invalid auto command model name: " + command);
+            
+            //select the model from the index
+            foreach (var outfit in Outfits.ToList())
+                UpdateMapping(outfit, model);
+
+            return Task.CompletedTask;
+        }
+
         private void lbOutfits_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             _updatingLists = true;
@@ -222,7 +256,10 @@ namespace AloysAdjustments.Plugins.Outfits
             if (_updatingLists || selected == null)
                 return;
             _updatingLists = true;
-            
+
+            SelectedModel = selected.Name;
+            LoadImage(selected.Name);
+
             selected.Checked = true;
             foreach (var model in Models)
             {
@@ -243,6 +280,25 @@ namespace AloysAdjustments.Plugins.Outfits
 
             outfit.Modified = !defaultOutfit.ModelId.Equals(model.Id);
             outfit.ModelId.AssignFromOther(model.Id);
+        }
+        
+        private void LoadImage(string modelName)
+        {
+            LoadingAction.Start(500);
+            ModelRepo.LoadImage(modelName, (success, image) =>
+            {
+                if (SelectedModel == modelName)
+                {
+                    LoadingAction.Complete();
+                    ModelImage = image;
+                    Loading = false;
+
+                    if (success)
+                        IoC.Notif.ShowStatus();
+                    else
+                        IoC.Notif.ShowError("Error downloading image: " + modelName);
+                }
+            });
         }
 
         protected override async Task Reset_Click()

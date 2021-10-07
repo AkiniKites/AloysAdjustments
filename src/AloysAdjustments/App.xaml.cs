@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -23,35 +24,18 @@ namespace AloysAdjustments
                 .WithParsed(o => cmds = o)
                 .WithNotParsed(errs => Console.WriteLine("Unable to parse command line: {0}", String.Join(" ", e.Args)));
 
-            SetDebug(cmds);
+            if (cmds.Commands.ToList().Count % 2 != 0)
+                throw new ArgumentException("Invalid number of commands: " + cmds.Commands.ToList().Count);
 
-            base.OnStartup(e);
-        }
+            IoC.Bind(cmds);
 
-        private void SetDebug(CmdOptions cmds)
-        {
-            IoC.Bind(new DebugConfig());
-            IoC.Debug.DisableGameCache = cmds.DisableGameCache;
-            IoC.Debug.SingleThread = cmds.SingleThread;
-
-            if (!String.IsNullOrEmpty(cmds.Version) 
+            if (!String.IsNullOrEmpty(cmds.Version)
                 && Version.TryParse(cmds.Version, out var debugVersion))
             {
                 IoC.Bind(debugVersion);
             }
 
+            base.OnStartup(e);
         }
-    }
-
-    public class CmdOptions
-    {
-        [Option("no-cache", HelpText = "Disable all game caches")]
-        public bool DisableGameCache { get; set; }
-
-        [Option("single-thread", HelpText = "Run all parallel tasks in a single thread")]
-        public bool SingleThread { get; set; }
-
-        [Option("version", HelpText = "Set the program version")]
-        public string Version { get; set; }
     }
 }

@@ -1,8 +1,12 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Text;
+using System.Threading;
+using AloysAdjustments.Common.JsonConverters;
+using AloysAdjustments.Common.Utility;
 using AloysAdjustments.Logic;
 using Newtonsoft.Json;
 
@@ -17,6 +21,9 @@ namespace AloysAdjustments.Utility
             public T Data { get; set; }
         }
 
+        private static readonly ConcurrentDictionary<string, ReaderWriterLockSlim> _cacheLocks 
+            = new ConcurrentDictionary<string, ReaderWriterLockSlim>();
+
         private string CachePath => Path.Combine(IoC.Config.CachePath, $"{Name}.json");
 
         public string Name { get; }
@@ -30,14 +37,22 @@ namespace AloysAdjustments.Utility
         {
             data = default(T);
 
-            if (IoC.Debug.DisableGameCache)
-                return false;
-            if (!File.Exists(CachePath))
+            if (IoC.CmdOptions.DisableGameCache)
                 return false;
 
-            var json = File.ReadAllText(CachePath);
+            var cacheLock = _cacheLocks.GetOrAdd(CachePath, x => new ReaderWriterLockSlim());
+            string json;
+
+            using (cacheLock.UsingReaderLock())
+            {
+                if (!File.Exists(CachePath))
+                    return false;
+
+                json = File.ReadAllText(CachePath);
+            }
+
             var cache = JsonConvert.DeserializeObject<CacheData>(
-                json, new BaseGGUUIDConverter());
+                json, JsonHelper.Converters);
 
             if (cache == null || cache.Path != IoC.Settings.GamePath)
             {
@@ -58,10 +73,13 @@ namespace AloysAdjustments.Utility
                 Data = data
             };
             var json = JsonConvert.SerializeObject(cache,
-                Formatting.Indented, new BaseGGUUIDConverter());
+                Formatting.Indented, JsonHelper.Converters);
 
             CheckDirectory();
-            File.WriteAllText(CachePath, json);
+
+            var cacheLock = _cacheLocks.GetOrAdd(CachePath, x => new ReaderWriterLockSlim());
+            using (cacheLock.UsingWriterLock())
+                File.WriteAllText(CachePath, json);
 
             IoC.Notif.CacheUpdate?.Invoke();
         }

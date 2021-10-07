@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Data;
+using AloysAdjustments.Common.Utility;
 using AloysAdjustments.Configuration;
 using AloysAdjustments.Logic;
 using AloysAdjustments.Logic.Patching;
@@ -35,6 +36,7 @@ namespace AloysAdjustments.Plugins.NPC
         
         private CharacterGenerator CharacterGen { get; }
         private NpcPatcher Patcher { get; }
+        private ModelImageRepo ModelRepo { get; }
 
         public ValuePair<Model> AllNpcStub { get; set; }
         public ObservableCollection<ValuePair<Model>> Npcs { get; set; }
@@ -42,6 +44,11 @@ namespace AloysAdjustments.Plugins.NPC
         public ObservableCollection<Model> Models { get; set; }
         public ListCollectionView ModelsView { get; set; }
         
+        private DelayAction LoadingAction { get; }
+
+        public bool Loading { get; set; }
+        public byte[] ModelImage { get; set; }
+
         public IList SelectedNpcModels { get; set; }
         public Model SelectedModelMapping { get; set; }
 
@@ -71,13 +78,15 @@ namespace AloysAdjustments.Plugins.NPC
 
         public NpcPlugin()
         {
-            IoC.Bind(Configs.LoadModuleConfig<CharacterConfig>(PluginName));
+            IoC.Bind(Configs.LoadModuleConfig<CommonConfig>(CommonConfig.ConfigName));
 
             Reset = new ControlRelay(OnResetAll);
             ResetSelected = new ControlRelay(OnResetSelected);
 
+            LoadingAction = new DelayAction(() => Loading = true);
             CharacterGen = new CharacterGenerator();
             Patcher = new NpcPatcher();
+            ModelRepo = new ModelImageRepo();
 
             PluginControl = new NpcPluginView();
             PluginControl.DataContext = this;
@@ -232,6 +241,7 @@ namespace AloysAdjustments.Plugins.NPC
             if (SelectedModelMapping == null)
                 return;
 
+            LoadImage(SelectedModelMapping.Name);
             SelectedModelMapping.Checked = true;
             foreach (var model in Models)
             {
@@ -247,7 +257,26 @@ namespace AloysAdjustments.Plugins.NPC
         {
             npc.Value = model;
         }
-        
+
+        private void LoadImage(string modelName)
+        {
+            LoadingAction.Start(500);
+            ModelRepo.LoadImage(modelName, (success, image) =>
+            {
+                if (SelectedModelMapping?.Name == modelName)
+                {
+                    LoadingAction.Complete();
+                    ModelImage = image;
+                    Loading = false;
+
+                    if (success)
+                        IoC.Notif.ShowStatus();
+                    else
+                        IoC.Notif.ShowError("Error downloading image: " + modelName);
+                }
+            });
+        }
+
         private void OnApplyToAll()
         {
             IoC.Settings.ApplyToAllNpcs = ApplyToAll;

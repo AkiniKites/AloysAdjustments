@@ -9,6 +9,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Forms;
 using System.Windows.Threading;
+using AloysAdjustments.Common.Utility;
 using AloysAdjustments.Configuration;
 using AloysAdjustments.Logic;
 using AloysAdjustments.Logic.Patching;
@@ -51,6 +52,8 @@ namespace AloysAdjustments.Modules
 
         public override async Task Initialize()
         {
+            cbShowImages.IsChecked = IoC.Settings.ShowImages ?? true;
+
             IoC.Notif.CacheUpdate = UpdateCacheStatus;
 
             await InitializeFirstRun();
@@ -132,7 +135,14 @@ namespace AloysAdjustments.Modules
         private async void btnClearCache_ClickCommand(object sender, EventArgs e) => await Relay.To(sender, e, btnClearCache_Click);
         private async Task btnClearCache_Click(object sender, EventArgs e)
         {
-            await Async.Run(() => Paths.Cleanup(IoC.Config.CachePath));
+            await Async.Run(() => Paths.DeleteDirectory(IoC.Config.CachePath));
+            UpdateCacheStatus();
+        }
+
+        private async void btnClearImages_ClickCommand(object sender, EventArgs e) => await Relay.To(sender, e, btnClearImages_Click);
+        private async Task btnClearImages_Click(object sender, EventArgs e)
+        {
+            await Async.Run(() => Paths.DeleteDirectory(IoC.Config.ImagesPath));
             UpdateCacheStatus();
         }
 
@@ -190,15 +200,13 @@ namespace AloysAdjustments.Modules
         {
             Async.Run(() =>
             {
-                var size = 0L;
-                var dir = new DirectoryInfo(IoC.Config.CachePath);
-                if (dir.Exists)
-                    size = dir.GetFiles("*.json", SearchOption.AllDirectories).Sum(x => x.Length);
-
+                var cSize = Paths.GetDirectorySize(IoC.Config.CachePath);
+                var iSize = Paths.GetDirectorySize(IoC.Config.ImagesPath);
                 Dispatcher.BeginInvoke(new Action(() =>
                 {
-                    lblCacheSize.Text = $"{(size / 1024):n0} KB";
-                    btnClearCache.IsEnabled = size > 0;
+                    lblCacheSize.Text = $"{((cSize + iSize) / 1024):n0} KB";
+                    btnClearCache.IsEnabled = cSize > 0;
+                    btnClearImages.IsEnabled = iSize > 0;
                 }));
             }).ConfigureAwait(false);
         }
@@ -283,6 +291,11 @@ namespace AloysAdjustments.Modules
             }
 
             IoC.Notif.HideProgress();
+        }
+
+        private void cbShowImages_Checked(object sender, RoutedEventArgs e)
+        {
+            IoC.Settings.ShowImages = cbShowImages.IsChecked ?? false;
         }
     }
 }

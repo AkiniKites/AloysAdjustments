@@ -10,8 +10,10 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Threading;
+using AloysAdjustments.Common.Utility;
 using AloysAdjustments.Configuration;
 using AloysAdjustments.Logic;
+using AloysAdjustments.Logic.Compatibility;
 using AloysAdjustments.Logic.Patching;
 using AloysAdjustments.Modules;
 using AloysAdjustments.Plugins;
@@ -20,10 +22,6 @@ using AloysAdjustments.Utility;
 using Decima;
 using Decima.HZD;
 using Microsoft.Win32;
-using Newtonsoft.Json;
-using Control = System.Windows.Controls.Control;
-using ControlLock = AloysAdjustments.UI.ControlLock;
-using IInteractivePlugin = AloysAdjustments.Plugins.IInteractivePlugin;
 using Localization = AloysAdjustments.Logic.Localization;
 
 namespace AloysAdjustments
@@ -54,7 +52,24 @@ namespace AloysAdjustments
 
             InitializeComponent();
 
+            AddMigrations();
             WindowMemory.ActivateWindow(this, "Main");
+        }
+
+        private void AddMigrations()
+        {
+            var width = this.Width;
+            var height = this.Height;
+
+            //add reset window migration
+            AppCompatibility.AddMigration(new Version(1, 7, 5), () =>
+            {
+                Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    this.Width = width;
+                    this.Height = height;
+                }));
+            });
         }
         
         private void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
@@ -156,6 +171,36 @@ namespace AloysAdjustments
 
             IoC.Notif.HideProgress();
             IoC.Notif.ShowStatus("Loading complete");
+
+            await TryApplyCommands();
+            await TryPatchAndExit();
+        }
+
+        private async Task TryApplyCommands()
+        {
+            if (!IoC.CmdOptions.Commands.Any())
+                return;
+
+            CmdOutput.Reset();
+            var cmds = IoC.CmdOptions.Commands.ToArray();
+            for (int i = 0; i < cmds.Length; i+=2)
+            {
+                var pluginName = cmds[i];
+                var cmd = cmds[i+1];
+
+                var plugin = Plugins.FirstOrDefault(x => string.Equals(x.PluginName, pluginName, StringComparison.OrdinalIgnoreCase));
+                if (plugin != null)
+                    await plugin.CommandAction(cmd);
+            }
+        }
+
+        private async Task TryPatchAndExit()
+        {
+            if (!IoC.CmdOptions.BuildPatch)
+                return;
+
+            await btnPatch_Click(null, null);
+            System.Windows.Application.Current.Shutdown();
         }
 
         private async void Settings_SettingsOkayCommand() => await Relay.To(Settings_SettingsOkay);
@@ -173,7 +218,7 @@ namespace AloysAdjustments
             await Async.Run(() =>
             {
                 IoC.Notif.ShowStatus("Compatibility fixes...");
-                Compatibility.CleanupOldCache();
+                AppCompatibility.RunMigrations();
             });
 
             IoC.Settings.Version = IoC.CurrentVersion.ToString(3);
@@ -188,7 +233,7 @@ namespace AloysAdjustments
             {
                 IoC.Notif.ShowStatus("Removing old version...");
                 //remove failed / old patches
-                Compatibility.CleanupOldVersions();
+                AppCompatibility.CleanupOldVersions();
                 FileBackup.CleanupBackups(Configs.PatchPath);
             });
 
@@ -249,6 +294,8 @@ namespace AloysAdjustments
                 IoC.Notif.ShowStatus("Generating plugin patches...");
                 patcher.ApplyCustomPatches(patch, PluginManager);
 
+                FileCompatibility.SaveVersion(patch);
+
                 IoC.Notif.ShowStatus("Generating patch (rebuild prefetch)...");
 
                 var p = Prefetch.Load(patch);
@@ -271,7 +318,7 @@ namespace AloysAdjustments
                 oldPatch.Delete();
 
 #if !DEBUG
-                Paths.Cleanup(IoC.Config.TempPath);
+                Paths.DeleteDirectory(IoC.Config.TempPath);
 #endif
             }
 

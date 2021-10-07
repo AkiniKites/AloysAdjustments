@@ -59,7 +59,8 @@ Move-Item "$tmp\AloysAdjustments.exe" "$publishDir\$publishName.exe"
 Move-Item "$tmp\config.json" "$publishDir\config.json"
 
 New-Item -ItemType Directory -Path "$publishDir\data"
-Copy-Item "data\npc-map.json" "$publishDir\data\npc-map.json"
+Copy-Item -Path "data\*.json" -Destination "$publishDir\data" -Recurse
+Copy-Item -Path "data\*.png" -Destination "$publishDir\data" -Recurse
 
 Write-Host "Building plugins..."
 foreach ($project in $(dir 'src\Plugins' | ?{$_.PSISContainer})) {

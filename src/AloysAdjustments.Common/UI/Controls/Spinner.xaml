@@ -1,0 +1,39 @@
+﻿<UserControl x:Class="AloysAdjustments.Common.UI.Controls.Spinner"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:AloysAdjustments.Common.UI.Controls"
+             xmlns:sys="clr-namespace:System;assembly=mscorlib"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="450">
+
+    <UserControl.Resources>
+        <SolidColorBrush x:Key="circleColor" Color="#FFAAAAAA" />
+        <sys:Double x:Key="circleSize">20</sys:Double>
+    </UserControl.Resources>
+
+    <Viewbox Width="{Binding (Width), RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:Spinner}}}" 
+             Height="{Binding (Height), RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:Spinner}}}" 
+             HorizontalAlignment="Center" VerticalAlignment="Center">
+        <Grid Background="Transparent" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <Canvas RenderTransformOrigin="0.5,0.5" HorizontalAlignment="Center" VerticalAlignment="Center"
+                    Width="120" Height="120" Loaded="OnCanvasLoaded" Unloaded="OnCanvasUnloaded">
+
+                <Ellipse x:Name="circle0" Width="{StaticResource circleSize}" Height="{StaticResource circleSize}" Stretch="Fill" Fill="{StaticResource circleColor}" Opacity="1.0" />
+                <Ellipse x:Name="circle1" Width="{StaticResource circleSize}" Height="{StaticResource circleSize}" Stretch="Fill" Fill="{StaticResource circleColor}" Opacity="0.9" />
+                <Ellipse x:Name="circle2" Width="{StaticResource circleSize}" Height="{StaticResource circleSize}" Stretch="Fill" Fill="{StaticResource circleColor}" Opacity="0.8" />
+                <Ellipse x:Name="circle3" Width="{StaticResource circleSize}" Height="{StaticResource circleSize}" Stretch="Fill" Fill="{StaticResource circleColor}" Opacity="0.7" />
+                <Ellipse x:Name="circle4" Width="{StaticResource circleSize}" Height="{StaticResource circleSize}" Stretch="Fill" Fill="{StaticResource circleColor}" Opacity="0.6" />
+                <Ellipse x:Name="circle5" Width="{StaticResource circleSize}" Height="{StaticResource circleSize}" Stretch="Fill" Fill="{StaticResource circleColor}" Opacity="0.5" />
+                <Ellipse x:Name="circle6" Width="{StaticResource circleSize}" Height="{StaticResource circleSize}" Stretch="Fill" Fill="{StaticResource circleColor}" Opacity="0.4" />
+                <Ellipse x:Name="circle7" Width="{StaticResource circleSize}" Height="{StaticResource circleSize}" Stretch="Fill" Fill="{StaticResource circleColor}" Opacity="0.3" />
+                <Ellipse x:Name="circle8" Width="{StaticResource circleSize}" Height="{StaticResource circleSize}" Stretch="Fill" Fill="{StaticResource circleColor}" Opacity="0.2" />
+
+                <Canvas.RenderTransform>
+                    <RotateTransform x:Name="circleRotate" Angle="0" />
+                </Canvas.RenderTransform>
+            </Canvas>
+        </Grid>
+    </Viewbox>
+</UserControl>

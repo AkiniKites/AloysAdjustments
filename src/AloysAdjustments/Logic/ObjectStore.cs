@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using AloysAdjustments.Common.JsonConverters;
 using AloysAdjustments.Logic.Patching;
 using AloysAdjustments.Utility;
 using Newtonsoft.Json;
@@ -16,7 +17,7 @@ namespace AloysAdjustments.Logic
 
         public static void AddObject<T>(this Patch patch, T obj, string name)
         {
-            var json = JsonConvert.SerializeObject(obj, new BaseGGUUIDConverter());
+            var json = JsonConvert.SerializeObject(obj, JsonHelper.Converters);
             using var ms = new MemoryStream(Encoding.UTF8.GetBytes(json));
             patch.AddFile(ms, $"{Prefix}{name}");
         }
@@ -36,7 +37,7 @@ namespace AloysAdjustments.Logic
 
             try
             {
-                return JsonConvert.DeserializeObject<T>(json, new BaseGGUUIDConverter());
+                return JsonConvert.DeserializeObject<T>(json, JsonHelper.Converters);
             }
             catch (Exception ex)
             {

@@ -46,6 +46,7 @@
     </Reference>
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Memory, Version=4.0.1.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\..\packages\System.Memory.4.5.4\lib\net461\System.Memory.dll</HintPath>
     </Reference>
@@ -85,6 +86,18 @@
     <Reference Include="PresentationFramework" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Downloads\HttpDownloader.cs" />
+    <Compile Include="Downloads\TestDownloader.cs" />
+    <Compile Include="Downloads\ThrottledDownloader.cs" />
+    <Compile Include="JsonConverters\JsonExtensions.cs" />
+    <Compile Include="JsonConverters\VersionConverter.cs" />
+    <Compile Include="UI\Controls\Spinner.xaml.cs">
+      <DependentUpon>Spinner.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UI\Converters\BoolToVisibilityConverter.cs" />
+    <Compile Include="Utility\AsyncReaderWriterLock.cs" />
+    <Compile Include="Utility\DelayAction.cs" />
+    <Compile Include="Utility\LimitedConcurrentStack.cs" />
     <Compile Include="Notifications.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UI\AsyncRelayCommand.cs" />
@@ -102,12 +115,14 @@
     <Compile Include="UI\UIColors.cs" />
     <Compile Include="Utility\Async.cs" />
     <Compile Include="Utility\AsyncException.cs" />
-    <Compile Include="Utility\BaseGGUUIDConverter.cs" />
+    <Compile Include="JsonConverters\BaseGGUUIDConverter.cs" />
+    <Compile Include="Utility\Disposable.cs" />
     <Compile Include="Utility\Errors.cs" />
     <Compile Include="Utility\Extensions.cs" />
     <Compile Include="Utility\FileBackup.cs" />
     <Compile Include="Utility\HzdCloner.cs" />
     <Compile Include="Utility\HzdException.cs" />
+    <Compile Include="Utility\Locks.cs" />
     <Compile Include="Utility\PackList.cs" />
     <Compile Include="Utility\Paths.cs" />
     <Compile Include="Utility\Uuid.cs" />
@@ -116,6 +131,10 @@
     <Page Include="UI\Controls\EnumsCheckComboBox.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="UI\Controls\Spinner.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
   <ItemGroup>
@@ -127,5 +146,6 @@
       <Name>HZDCoreEditor</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -130,7 +130,8 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>if $(ConfigurationName) == Debug (
-copy /y $(TargetPath) $(ProjectDir)..\..\AloysAdjustments\bin\Debug\plugins\$(TargetFileName)
+copy /y $(TargetDir)$(TargetFileName) $(ProjectDir)..\..\AloysAdjustments\bin\Debug\plugins\$(TargetFileName)
+copy /y $(TargetDir)$(TargetName).pdb $(ProjectDir)..\..\AloysAdjustments\bin\Debug\plugins\$(TargetName).pdb
 )</PostBuildEvent>
   </PropertyGroup>
   <Import Project="..\..\..\packages\Fody.6.3.0\build\Fody.targets" Condition="Exists('..\..\..\packages\Fody.6.3.0\build\Fody.targets')" />

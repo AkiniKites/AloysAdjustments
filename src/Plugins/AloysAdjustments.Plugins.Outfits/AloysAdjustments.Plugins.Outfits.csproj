@@ -81,6 +81,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Compatibility\AllCharacterGenerator.cs" />
+    <Compile Include="Compatibility\OutfitCompatibility.cs" />
     <Compile Include="OutfitCharacterGenerator.cs" />
     <Compile Include="Data\Outfit.cs" />
     <Compile Include="Data\OutfitFile.cs" />
@@ -142,6 +144,7 @@
       <Name>AloysAdjustments.Plugins.Common</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\..\..\packages\Fody.6.3.0\build\Fody.targets" Condition="Exists('..\..\..\packages\Fody.6.3.0\build\Fody.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
@@ -154,7 +157,8 @@
   </Target>
   <PropertyGroup>
     <PostBuildEvent>if $(ConfigurationName) == Debug (
-copy /y $(TargetPath) $(ProjectDir)..\..\AloysAdjustments\bin\Debug\plugins\$(TargetFileName)
+copy /y $(TargetDir)$(TargetFileName) $(ProjectDir)..\..\AloysAdjustments\bin\Debug\plugins\$(TargetFileName)
+copy /y $(TargetDir)$(TargetName).pdb $(ProjectDir)..\..\AloysAdjustments\bin\Debug\plugins\$(TargetName).pdb
 )</PostBuildEvent>
   </PropertyGroup>
 </Project>
