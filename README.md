@@ -3,31 +3,52 @@ Change characters, swap outfits and more. Mods for Horizon Zero Dawn.
 It creates patch files for Horizon Zero Dawn and doesn't edit exiting game files.
 
 ## Setup
-- If you have Horizon Zero Dawn in Steam it should be detected and setup automatically. Otherwise follow the 2 steps below. 
+- If you have Horizon Zero Dawn on Steam it should be detected and setup automatically. Otherwise follow the 2 steps below. 
 - In settings, set the game folder to the Horizon Zero Dawn main directory (ex. `E:\Games\SteamLibrary\steamapps\common\Horizon Zero Dawn`)
 - In settings, click `Get Oodle DLL` which will copy the required dll from the game folder
 
 ## Usage
-- Make sure the same is not running.
+- Make sure the game is not running.
 - Make the desired changes and click `Install Pack`. This will copy the patch file to the game folder.
 - Play Horizon Zero Dawn.
 
-### Modules
+### Plugins
 #### Outfits (Swaping character and outfit models)
 Select the outfit(s) you want to modify from the right `Outfits` list.  
-Check-off the new model for the outfit(s) on the left `Model Mapping` or `Character Mapping` list.  
+Check-off the new model for the outfit(s) on the left `Model Mapping` list.  
 Use the filter in the top right to see all character options
   
 ![](docs/outfits.png)
 
 #### Upgrade (Change resource upgrades)
 Upgrade values are the increased capacity that the upgrade provides, not the absolute value.  
-Values can be changed by entering a new number in the grid (not tested with high values).  
-The multipler buttons will apply a multiplier to all upgrades.  
+Values can be changed by entering a new number in the grid.  
+The multipler buttons will apply a multiplier to all selected upgrades.  
   
 ![](docs/upgrades.png)
 
-### Buttons:  
+#### Ammo (Change ammo capacity)
+Unlike upgrade ammo is the absolute value that Aloy can carry.
+Ammo upgrade 0 is the default amount of ammo Aloy can carry before any upgrades.
+Values can be changed by entering a new number in the grid.  
+The multipler buttons will apply a multiplier to all selected upgrades.  
+  
+![](docs/ammo.png)
+
+#### Miscellaneous
+Misc plugin contains items that don't belong anywhere else.
+The options are self explanitory.
+  
+![](docs/misc.png)
+
+#### NPC Models (Swaping npc character models)
+Select the npc(s) you want to modify from the right `NPC` list.  
+Check-off the new model for the npc(s) on the left `Model Mapping` list.  
+Use the filter in the top right to see all character options
+  
+![](docs/npc.png)
+
+### Side Buttons:  
 | Button  | Description |
 | --- | --- |
 | Install Pack | Creates a bin file with the changes and installs it into the games `Packed_DX12` folder |
