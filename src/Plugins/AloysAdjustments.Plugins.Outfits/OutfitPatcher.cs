@@ -88,9 +88,9 @@ namespace AloysAdjustments.Plugins.Outfits
                 };
 
                 variants.Add(sRef);
-
-                pcCore.Save();
             }
+
+            pcCore.Save();
         }
 
         private List<(string File, BaseGGUUID Id)> FindAloyComponents()
